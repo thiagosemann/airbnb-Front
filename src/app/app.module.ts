@@ -1,0 +1,57 @@
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxMaskModule } from 'ngx-mask';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { NgChartsModule } from 'ng2-charts';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { OrdenarPorPrecoPipe } from '../app/shared/pipes/ordenar-por-preco.pipe'; // ajuste o caminho conforme necessário
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { LandingComponent } from './Compartilhados/landing/landing.component';
+import { ForgotPasswordComponent } from './Compartilhados/forgot-password/forgot-password.component';
+
+import { CalendarioAirbnbComponent } from './AIRBNB/calendario-airbnb/calendario-airbnb.component';
+import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
+import { ContentComponent } from './Compartilhados/content/content.component';
+import { LoginComponent } from './Compartilhados/login/login.component';
+import { ProfileComponent } from './Compartilhados/profile/profile.component';
+import { RegisterComponent } from './Compartilhados/register/register.component';
+import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    LandingComponent,
+    ContentComponent,
+    ForgotPasswordComponent,
+    ProfileComponent,
+    RegisterComponent,
+    OrdenarPorPrecoPipe,
+    CalendarioAirbnbComponent,
+    CameraAppComponent,
+    NavBarAirbnbComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    ToastrModule.forRoot(),
+    BrowserAnimationsModule,
+    NgxMaskModule.forRoot(),
+    NgChartsModule,
+    BsDatepickerModule,
+    ZXingScannerModule,
+  ],
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}

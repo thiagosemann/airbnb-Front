@@ -1,0 +1,329 @@
+<div class="calendar-container">
+  <header class="calendar-header">
+    <h1> Calendário de Reservas</h1>
+    <div class="status-indicators">
+      <div class="status-item today">Hoje: {{ reservasHoje.length }}</div>
+      <div class="status-item today">Credenciais Feitas: {{ credenciaisFetias }}</div>
+      <div class="status-item ongoing">Andamento: {{ reservasAndamento.length }}</div>
+      <div class="status-item upcoming">Próximas: {{ proximasReservas.length }}</div>
+    </div>
+  </header>
+  <div *ngIf="!carregando; else loading">
+    <!-- Seção Reservas para Hoje -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('hoje')">
+        <h5><i class="fas fa-calendar-day"></i> Reservas para hoje</h5>
+      </div>
+      <div class="section-content" [class.active]="sections.hoje">
+        <!-- Tabela para reservas de hoje -->
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apartamento</th>
+              <th>Cód Reserva</th>
+              <th>Início</th>
+              <th>Check-In</th>
+              <th>Fim</th>
+              <th>Check-Out</th>
+              <th>Respondido</th>
+              <th>Credencial</th>
+              <th>Informado</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of reservasHoje">
+              <td>
+                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+              </td>
+              <td>{{ event.cod_reserva }}</td>
+              <td>{{ formatarData(event.start_date) }}</td>
+              <td>{{ event.check_in }}</td>
+              <td>{{ formatarData(event.end_data) }}</td>
+              <td>{{ event.check_out }}</td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.form_answered" 
+                         (change)="updateStatus(event, 'form_answered', $event,'reservasHoje')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.credencial_made" 
+                         (change)="updateStatus(event, 'credencial_made', $event,'reservasHoje')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.informed" 
+                         (change)="updateStatus(event, 'informed', $event,'reservasHoje')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <button (click)="openModal(event)">
+                  <i class="fas fa-plus"></i> Mais 
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="reservasHoje.length === 0">
+              <td colspan="6">Nenhuma reserva para hoje</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Seção Reservas em Andamento -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('andamento')">
+        <h5><i class="fas fa-calendar-day"></i> Reservas em Andamento</h5>
+        <span class="arrow" [class.open]="sections.andamento"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.andamento">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apartamento</th>
+              <th>Cód Reserva</th>
+              <th>Data de Início</th>
+              <th>Data de Fim</th>
+              <th>Respondido</th>
+              <th>Credencial</th>
+              <th>Informado</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of reservasAndamento">
+              <td>
+                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+              </td>
+              <td>{{ event.cod_reserva }}</td>
+              <td>{{ formatarData(event.start_date) }}</td>
+              <td>{{ formatarData(event.end_data) }}</td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.form_answered" 
+                         (change)="updateStatus(event, 'form_answered', $event,'reservasAndamento')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.credencial_made" 
+                         (change)="updateStatus(event, 'credencial_made', $event,'reservasAndamento')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.informed" 
+                         (change)="updateStatus(event, 'informed', $event,'reservasAndamento')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <button (click)="openModal(event)">
+                  <i class="fas fa-plus"></i> Mais 
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="reservasAndamento.length === 0">
+              <td colspan="6">Nenhuma reserva para hoje</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Seção Próximas Reservas -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('proximas')">
+        <h5><i class="fas fa-calendar-day"></i> Próximas reservas</h5>
+        <span class="arrow" [class.open]="sections.proximas"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.proximas">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apartamento</th>
+              <th>Cód Reserva</th>
+              <th>Data de Início</th>
+              <th>Data de Fim</th>
+              <th>Respondido</th>
+              <th>Credencial</th>
+              <th>Informado</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of proximasReservas">
+              <td>
+                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+              </td>
+              <td>{{ event.cod_reserva }}</td>
+              <td>{{ formatarData(event.start_date) }}</td>
+              <td>{{ formatarData(event.end_data) }}</td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.form_answered" 
+                         (change)="updateStatus(event, 'form_answered', $event,'proximasReservas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.credencial_made" 
+                         (change)="updateStatus(event, 'credencial_made', $event,'proximasReservas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.informed" 
+                         (change)="updateStatus(event, 'informed', $event,'proximasReservas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <button (click)="openModal(event)">
+                  <i class="fas fa-plus"></i> Mais 
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="proximasReservas.length === 0">
+              <td colspan="6">Nenhuma reserva para hoje</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Seção Reservas Finalizadas -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('finalizadas')">
+        <h5><i class="fas fa-calendar-day"></i> Reservas finalizadas</h5>
+        <span class="arrow" [class.open]="sections.finalizadas"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.finalizadas">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apartamento</th>
+              <th>Cód Reserva</th>
+              <th>Data de Início</th>
+              <th>Data de Fim</th>
+              <th>Respondido</th>
+              <th>Credencial</th>
+              <th>Informado</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of reservasFinalizadas">
+              <td>
+                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+              </td>
+              <td>{{ event.cod_reserva }}</td>
+              <td>{{ formatarData(event.start_date) }}</td>
+              <td>{{ formatarData(event.end_data) }}</td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.form_answered" 
+                         (change)="updateStatus(event, 'form_answered', $event,'reservasFinalizadas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.credencial_made" 
+                         (change)="updateStatus(event, 'credencial_made', $event,'reservasFinalizadas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.informed" 
+                         (change)="updateStatus(event, 'informed', $event,'reservasFinalizadas')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <button (click)="openModal(event)">
+                  <i class="fas fa-plus"></i> Mais 
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="reservasFinalizadas.length === 0">
+              <td colspan="6">Nenhuma reserva para hoje</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <p>Carregando eventos...</p>
+  </ng-template>
+</div>
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Detalhes da Reserva</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-4">
+          <label>Código:</label>
+          <span>{{ selectedReservation!.cod_reserva }}</span>
+        </div>
+        <div class="col-md-8">
+          <label>Período:</label>
+          <span>{{ formatarData(selectedReservation!.start_date) }} a {{ formatarData(selectedReservation!.end_data) }}</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <label>CheckIn:</label>
+          <input type="time" 
+                 [value]="selectedReservation!.check_in" 
+                 (change)="updateTime()">
+        </div>
+        <div class="col-md-8">
+          <label>CheckOut:</label>
+          <input type="time" 
+                 [value]="selectedReservation!.check_out" 
+                 (change)="updateTime()">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn cancel-btn" (click)="closeModal()">Fechar</button>
+      <button class="btn primary-btn" >Editar</button>
+    </div>
+  </div>
+</div>

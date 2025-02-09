@@ -1,0 +1,17 @@
+// Interface correspondente ao modelo de reservas
+export interface ReservaAirbnb {
+  id?: number;
+  apartamento_id: number;
+  apartamento_nome: string;
+  description: string;
+  end_data: string;  // Ou Date se for converter datas
+  start_date: string; // Ou Date se for converter datas
+  Observacoes: string;
+  cod_reserva: string;
+  link_reserva:string;
+  form_answered: boolean;
+  credencial_made: boolean;
+  informed : boolean;
+  check_in:string;
+  check_out:string;
+}

@@ -1,0 +1,29 @@
+.containerAux {
+    height: 89vh; /* Altura definida para habilitar o scroll */
+    overflow-y: auto; /* Adiciona scroll vertical */
+    overflow-x: hidden; /* Evita scroll horizontal */
+    padding: 10px; /* Espaçamento interno */
+    background-color: #F6F6F6; 
+}
+
+/* Estilizar a barra de rolagem (Webkit) */
+.containerAux::-webkit-scrollbar {
+    width: 7px; /* Largura da barra de rolagem */
+}
+
+/* Estilizar a trilha da barra de rolagem */
+.containerAux::-webkit-scrollbar-track {
+    background: #e0e0e0; /* Cor de fundo da trilha */
+    border-radius: 10px; /* Bordas arredondadas */
+}
+
+/* Estilizar o polegar da barra de rolagem */
+.containerAux::-webkit-scrollbar-thumb {
+    background: #006400; /* Cor do polegar (scroll) */
+    border-radius: 10px; /* Bordas arredondadas */
+}
+
+/* Estilizar o polegar ao passar o mouse */
+.containerAux::-webkit-scrollbar-thumb:hover {
+    background: #0056b3; /* Cor do polegar ao passar o mouse */
+}

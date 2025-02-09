@@ -1,0 +1,139 @@
+/* CSS da navbar */
+.navbar {
+    background: #FFFFFF;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+/* CSS para o nome da empresa */
+.company-name {
+    font-size: 24px;
+    color: #333; /* Altere conforme necessário */
+}
+
+/* CSS para o botão de saída */
+.navbar-logout-btn {
+    background-color: white;
+    color: #006400;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+    padding: 5px 20px;
+}
+
+/* Efeito de hover no botão de saída */
+.navbar-logout-btn:hover {
+    background-color: lightgray;
+}
+.navbar-perfil-btn {
+    background-color: white;
+    color: #006400;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+    padding: 5px 5px;
+}
+
+/* Efeito de hover no botão de saída */
+.navbar-perfil-btn:hover {
+    background-color: lightgray;
+}
+
+/* Posicionamento do menu sobreposto */
+/* Posicionamento do menu sobreposto */
+.menu-wrapper {
+    position: relative;
+}
+
+.navbar-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Alinhar o conteúdo à esquerda */
+    min-width: 150px;
+    z-index: 999;
+}
+
+/* Estilos para os botões dentro do menu */
+.navbar-menu button {
+    background-color: white;
+    color: #006400;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+    margin-bottom: 5px;
+    padding: 5px 20px;
+    text-align: left; /* Alinhamento do texto à esquerda */
+    width: 100%; /* Ocupar toda a largura do menu */
+}
+
+.navbar-menu button:hover {
+    background-color: lightgray;
+}
+.logo{
+    width: 70px;
+    height: 70px;  
+}
+.navbar-brand{
+    font-size: 40px;
+    font-weight: bolder;
+    font-family: 'LayarBahtera Doomsday';
+    color:#3daf2d;
+}
+/* Estilo do dropdown para combinar com o menu */
+.dropdown-menu {
+    background-color: white;  /* Cor de fundo do dropdown */
+    border-radius: 5px;  /* Arredondar os cantos */
+    font-family: 'LayarBahtera Doomsday';  /* Mesma fonte do menu */
+    font-size: 16px;  /* Tamanho de fonte */
+}
+
+.dropdown-item {
+    color: #006400;  /* Cor do texto nos itens do dropdown */
+    font-weight: bold;  /* Deixar o texto negrito */
+    padding: 5px 20px;  /* Ajustar o espaçamento interno */
+    transition: background-color 0.3s ease;  /* Efeito de transição para o hover */
+}
+
+.dropdown-item:hover {
+    background-color: lightgray;  /* Cor de fundo ao passar o mouse */
+}
+
+.custom-select {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: bolder;
+  color: #555;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+  width: 100%;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(3, 48, 23, 0.233);
+}
+
+/* Adicionando flexbox para os selects */
+.selects-container {
+    display: flex;
+    gap: 10px;
+}

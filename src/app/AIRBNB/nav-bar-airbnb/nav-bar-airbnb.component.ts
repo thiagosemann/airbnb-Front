@@ -1,0 +1,57 @@
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
+
+@Component({
+  selector: 'app-nav-bar-airbnb',
+  templateUrl: './nav-bar-airbnb.component.html',
+  styleUrls: ['./nav-bar-airbnb.component.css']
+})
+export class NavBarAirbnbComponent {
+  user: any = null;
+  isMenuOpen = false;
+  isDesktopView = true;
+  currentRoute: string = ''; // Variável para armazenar a rota atual
+
+  constructor(private authService: AuthenticationService,
+              private router: Router, 
+              private toastr: ToastrService,
+ 
+            ) {
+    // Adicionamos o evento de redimensionamento (resize) para atualizar a exibição do menu quando a janela for redimensionada
+    window.addEventListener('resize', () => this.checkViewport());
+  }
+  
+ ngOnInit(): void {
+    this.user = this.authService.getUser();
+
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.toastr.error('Deslogado.');
+    this.router.navigate(['/login']);
+  }
+  calendarioAirbnb(): void {
+    this.router.navigate(['/calendarioAirbnb']);
+  }
+  profile(): void {
+    this.router.navigate(['/profile']);
+  }
+
+
+    
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  private checkViewport(): void {
+    const width = window.innerWidth;
+    this.isDesktopView = width > 990;
+
+    if (this.isDesktopView) {
+      this.isMenuOpen = false;
+    }
+  }
+}
