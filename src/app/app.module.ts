@@ -13,16 +13,17 @@ import { OrdenarPorPrecoPipe } from '../app/shared/pipes/ordenar-por-preco.pipe'
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LandingComponent } from './Compartilhados/landing/landing.component';
-import { ForgotPasswordComponent } from './Compartilhados/forgot-password/forgot-password.component';
+import { LandingComponent } from './Acesso/landing/landing.component';
+import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
 
 import { CalendarioAirbnbComponent } from './AIRBNB/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
-import { ContentComponent } from './Compartilhados/content/content.component';
-import { LoginComponent } from './Compartilhados/login/login.component';
-import { ProfileComponent } from './Compartilhados/profile/profile.component';
-import { RegisterComponent } from './Compartilhados/register/register.component';
+import { ContentComponent } from './Acesso/content/content.component';
+import { LoginComponent } from './Acesso/login/login.component';
+import { ProfileComponent } from './Acesso/profile/profile.component';
+import { RegisterComponent } from './Acesso/register/register.component';
 import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.component';
+import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.co
     OrdenarPorPrecoPipe,
     CalendarioAirbnbComponent,
     CameraAppComponent,
-    NavBarAirbnbComponent
+    NavBarAirbnbComponent,
+    CadastroPredioComponent
   ],
   imports: [
     BrowserModule,

@@ -3,14 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuardService } from './shared/service/authGuard';
 
 
-import { LandingComponent } from './Compartilhados/landing/landing.component';
-import { ForgotPasswordComponent } from './Compartilhados/forgot-password/forgot-password.component';
+import { LandingComponent } from './Acesso/landing/landing.component';
+import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
 import { CalendarioAirbnbComponent } from './AIRBNB/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
-import { ContentComponent } from './Compartilhados/content/content.component';
-import { LoginComponent } from './Compartilhados/login/login.component';
-import { RegisterComponent } from './Compartilhados/register/register.component';
-import { ProfileComponent } from './Compartilhados/profile/profile.component';
+import { ContentComponent } from './Acesso/content/content.component';
+import { LoginComponent } from './Acesso/login/login.component';
+import { RegisterComponent } from './Acesso/register/register.component';
+import { ProfileComponent } from './Acesso/profile/profile.component';
 
 
 const routes: Routes = [
