@@ -1,8 +1,8 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GoogleScriptService } from '../../shared/service/googleService';
 import { Toast, ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 
 @Component({
   selector: 'app-camera-app',
@@ -24,7 +24,7 @@ export class CameraAppComponent implements OnInit {
   loadingCamera:Boolean=false;
 
   constructor(
-    private googleScriptService: GoogleScriptService,
+    private checkinFormService: CheckInFormService,
     private route: ActivatedRoute, // Injete o ActivatedRoute
     private toastr: ToastrService
   ) {}
@@ -129,42 +129,42 @@ export class CameraAppComponent implements OnInit {
   }
 
   // Envia a foto e as informações para o Google Apps Script
-  sendData() {
-    if (!this.photoDataUrl) {
-      return;
-    }
-  
-    this.step = 4; // Alterar a etapa para "carregando..."
-    console.log(this.formData.cpf)
-    const requests = [
-      this.googleScriptService.enviarDados(this.id, this.formData.cpf, this.formData.nome, this.formData.telefone)
-    ];
-  
-    // Adiciona a requisição de envio da imagem principal
-    requests.push(this.googleScriptService.enviarImagem(this.photoDataUrl, this.id, this.formData.cpf,"Foto"));
-  
-    // Se o `documentPhotoUrl` existir, adiciona ao array de requests
-    if (this.documentPhotoUrl) {
-      requests.push(this.googleScriptService.enviarImagem(this.documentPhotoUrl, this.id, this.formData.cpf,"Documento"));
-    }
-  
-    // Se o `documentFile` existir, adiciona ao array de requests
-    if (this.documentFile) {
-      requests.push(this.googleScriptService.enviarPDF(this.documentFile, this.id, this.formData.cpf));
-    }
-  
-    // Utiliza o forkJoin para esperar todas as requisições serem finalizadas
-    forkJoin(requests).subscribe(
-      responses => {
-        this.step = 5; // Só avança para o step 5 após todas as requisições serem concluídas
-      },
-      error => {
-        console.error('Erro ao enviar dados ou imagens:', error);
-        this.toastr.warning('Erro ao enviar dados ou imagens, tente novamente!');
-        this.resetFlow();
-      }
-    );
+// Modifique o método sendData() para isto:
+sendData() {
+  // Validar campos obrigatórios
+  if (!this.photoDataUrl || !this.formData.cpf || !this.formData.nome || !this.formData.telefone) {
+    this.toastr.warning('Preencha todos os campos obrigatórios');
+    return;
   }
+
+  // Construir o objeto conforme o model do backend
+  const checkinData = {
+    cod_reserva: this.id, // Supondo que o id da rota seja o cod_reserva
+    CPF: this.formData.cpf,
+    Nome: this.formData.nome,
+    Telefone: this.formData.telefone,
+    imagemBase64: this.photoDataUrl.split(',')[1], // Remove o prefixo Data URL
+    tipo: 'guest', // Ou outro valor conforme sua regra de negócio
+    documentBase64: this.documentPhotoUrl 
+      ? this.documentPhotoUrl.split(',')[1] 
+      : this.documentFile?.split(',')[1] || null,
+    reserva_id: this.id // Supondo que reserva_id é o mesmo que cod_reserva
+  };
+
+  this.step = 4; // Mostrar loading
+
+  this.checkinFormService.createCheckin(checkinData).subscribe(
+    (response) => {
+      this.step = 5; // Sucesso
+      this.toastr.success('Check-in realizado com sucesso!');
+    },
+    (error) => {
+      console.error('Erro no check-in:', error);
+      this.toastr.error('Erro ao realizar check-in');
+      this.resetFlow();
+    }
+  );
+}
 
   // Reseta o fluxo para o início
   resetFlow() {
@@ -286,5 +286,7 @@ export class CameraAppComponent implements OnInit {
   concluirCadastro(){
     this.step=6;
   }
+
+
   
 }

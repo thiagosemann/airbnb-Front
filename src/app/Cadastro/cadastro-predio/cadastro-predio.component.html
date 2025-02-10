@@ -1,1 +1,63 @@
-<p>cadastro-predio works!</p>
+<div class="container">
+  <!-- Botão para adicionar novo prédio -->
+  <button class="btn btn-primary mb-3" (click)="openModal()">Adicionar Prédio</button>
+
+  <!-- Tabela de prédios -->
+  <div class="table-wrapper">
+    <table class="table narrow-table">
+      <thead>
+        <tr>
+          <th scope="col" style="width: 60%;">Nome</th>
+          <th scope="col" style="width: 20%;">Editar</th>
+          <th scope="col" style="width: 20%;">Excluir</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let predio of predios; let i = index" 
+            [ngClass]="{'table-light': i % 2 === 0, 'table-light-gray': i % 2 !== 0}">
+          <td>{{ predio.nome }}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" (click)="editPredio(predio)">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-danger btn-sm" (click)="deletePredio(predio)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>{{ isEditing ? 'Editar Prédio' : 'Novo Prédio' }}</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="form-group mb-3">
+            <label class="form-label" for="nome">Nome do Prédio:</label>
+            <input type="text" id="nome" name="nome" class="form-control" 
+                   placeholder="Nome do prédio" formControlName="nome" required/>
+            <div *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched" 
+                 class="text-danger mt-1">
+              Nome é obrigatório
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" 
+                (click)="onSubmit()" [disabled]="registerForm.invalid">
+          {{ isEditing ? 'Atualizar' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

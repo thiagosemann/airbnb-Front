@@ -25,6 +25,10 @@ export class AppComponent implements OnInit {
 
   navBarAirbnb: string[] = [
     'calendarioAirbnb',
+    'cadastroPredio',
+    'cadastroApartamento',
+    'cadastroUsuario'
+    
   ];
 
   ngOnInit() {

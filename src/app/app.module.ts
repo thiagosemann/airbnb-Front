@@ -24,6 +24,8 @@ import { ProfileComponent } from './Acesso/profile/profile.component';
 import { RegisterComponent } from './Acesso/register/register.component';
 import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.component';
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
+import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
+import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +40,9 @@ import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-pre
     CalendarioAirbnbComponent,
     CameraAppComponent,
     NavBarAirbnbComponent,
-    CadastroPredioComponent
+    CadastroPredioComponent,
+    CadastroApartamentosComponent,
+    UsersControlComponent
   ],
   imports: [
     BrowserModule,

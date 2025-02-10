@@ -25,7 +25,6 @@
               <th>Check-In</th>
               <th>Fim</th>
               <th>Check-Out</th>
-              <th>Respondido</th>
               <th>Credencial</th>
               <th>Informado</th>
               <th>Observações</th>
@@ -36,21 +35,11 @@
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
-              <td>{{ event.cod_reserva }}</td>
+              <td>{{ findIfBloqued(event) }}</td>
               <td>{{ formatarData(event.start_date) }}</td>
               <td>{{ event.check_in }}</td>
               <td>{{ formatarData(event.end_data) }}</td>
-              <td>{{ event.check_out }}</td>
-              
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.form_answered" 
-                         (change)="updateStatus(event, 'form_answered', $event,'reservasHoje')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              
+              <td>{{ event.check_out }}</td>            
               <td>
                 <label class="custom-checkbox">
                   <input type="checkbox" 
@@ -95,7 +84,6 @@
               <th>Cód Reserva</th>
               <th>Data de Início</th>
               <th>Data de Fim</th>
-              <th>Respondido</th>
               <th>Credencial</th>
               <th>Informado</th>
               <th>Observações</th>
@@ -106,18 +94,9 @@
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
-              <td>{{ event.cod_reserva }}</td>
+              <td>{{ findIfBloqued(event)  }}</td>
               <td>{{ formatarData(event.start_date) }}</td>
               <td>{{ formatarData(event.end_data) }}</td>
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.form_answered" 
-                         (change)="updateStatus(event, 'form_answered', $event,'reservasAndamento')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              
               <td>
                 <label class="custom-checkbox">
                   <input type="checkbox" 
@@ -163,7 +142,6 @@
               <th>Cód Reserva</th>
               <th>Data de Início</th>
               <th>Data de Fim</th>
-              <th>Respondido</th>
               <th>Credencial</th>
               <th>Informado</th>
               <th>Observações</th>
@@ -174,18 +152,10 @@
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
-              <td>{{ event.cod_reserva }}</td>
+              <td>{{findIfBloqued(event)}}</td>
               <td>{{ formatarData(event.start_date) }}</td>
               <td>{{ formatarData(event.end_data) }}</td>
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.form_answered" 
-                         (change)="updateStatus(event, 'form_answered', $event,'proximasReservas')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              
+             
               <td>
                 <label class="custom-checkbox">
                   <input type="checkbox" 
@@ -230,7 +200,6 @@
               <th>Cód Reserva</th>
               <th>Data de Início</th>
               <th>Data de Fim</th>
-              <th>Respondido</th>
               <th>Credencial</th>
               <th>Informado</th>
               <th>Observações</th>
@@ -241,18 +210,9 @@
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
-              <td>{{ event.cod_reserva }}</td>
+              <td>{{ findIfBloqued(event)  }}</td>
               <td>{{ formatarData(event.start_date) }}</td>
-              <td>{{ formatarData(event.end_data) }}</td>
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.form_answered" 
-                         (change)="updateStatus(event, 'form_answered', $event,'reservasFinalizadas')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              
+              <td>{{ formatarData(event.end_data) }}</td>            
               <td>
                 <label class="custom-checkbox">
                   <input type="checkbox" 
@@ -289,41 +249,107 @@
   </ng-template>
 </div>
 
+
+<!-- Modal de Detalhes da Reserva -->
 <div class="modal" *ngIf="showModal">
   <div class="modal-content">
+    <!-- Cabeçalho -->
     <div class="modal-header">
       <h3>Detalhes da Reserva</h3>
       <button class="close-btn" (click)="closeModal()">×</button>
     </div>
+
+    <!-- Corpo -->
     <div class="modal-body">
-      <div class="row">
-        <div class="col-md-4">
-          <label>Código:</label>
-          <span>{{ selectedReservation!.cod_reserva }}</span>
-        </div>
-        <div class="col-md-8">
-          <label>Período:</label>
-          <span>{{ formatarData(selectedReservation!.start_date) }} a {{ formatarData(selectedReservation!.end_data) }}</span>
+      <!-- Seção: Informações da Reserva -->
+      <div class="modal-section">
+        <h5>Informações da Reserva</h5>
+        <div class="modal-grid">
+          <div class="modal-item">
+            <label>Data de Início</label>
+            <span>{{ formatarData(selectedReservation!.start_date) }}</span>
+          </div>
+          <div class="modal-item">
+            <label>Data de Fim</label>
+            <span>{{ formatarData(selectedReservation!.end_data) }}</span>
+          </div>
+          <div class="modal-item">
+            <label>Check-In</label>
+            <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_in" (change)="updateTime()">
+          </div>
+          <div class="modal-item">
+            <label>Check-Out</label>
+            <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_out" (change)="updateTime()">
+          </div>
+          <div class="modal-item">
+            <label>Código</label>
+            <input type="text" class="form-control" [value]="selectedReservation!.cod_reserva" readonly>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-4">
-          <label>CheckIn:</label>
-          <input type="time" 
-                 [value]="selectedReservation!.check_in" 
-                 (change)="updateTime()">
-        </div>
-        <div class="col-md-8">
-          <label>CheckOut:</label>
-          <input type="time" 
-                 [value]="selectedReservation!.check_out" 
-                 (change)="updateTime()">
+
+      <hr>
+      <!-- Seção: Informações do Hóspede -->
+      <div class="modal-section">
+        <h5>Informações do Hóspede</h5>
+        <div class="modal-grid" *ngFor="let hospede of hospedesReserva">
+          <h6>Hóspede: {{ hospede.first_name }}</h6>
+          <p><strong>CPF:</strong> {{ hospede.CPF }}</p>
+          <div class="hospede-section" style="display: flex; gap: 20px; align-items: center; justify-content: space-around;">
+            <!-- Exibição da imagem do hóspede -->
+            <div *ngIf="hospede.imagemBase64">
+              <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
+                   alt="Imagem do Hóspede" 
+                   style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
+            </div>
+      
+            <!-- Exibição do documento (PDF ou imagem) -->
+            <div *ngIf="hospede.documentBase64">
+              <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
+                <!-- Se for PDF, exibe um iframe ou link -->
+                <iframe [src]="getSafeUrl(hospede.documentBase64)" 
+                        style="width: 350px; height: 350px; border: 1px solid #ccc;"></iframe>
+              </ng-container>
+              <ng-template #imagemDocumento>
+                <!-- Se for imagem, exibe como uma imagem -->
+                <img [src]="'data:image/png;base64,' + hospede.documentBase64" 
+                     alt="Documento do Hóspede" 
+                     style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
+              </ng-template>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn cancel-btn" (click)="closeModal()">Fechar</button>
-      <button class="btn primary-btn" >Editar</button>
+      
+      
+      
+
+      <!-- Seção: Informações do Apartamento -->
+      <div class="modal-section">
+        <h5>Informações do Apartamento</h5>
+        <div class="modal-grid">
+          <div class="modal-item">
+            <label>Nome</label>
+            <input type="text" class="form-control" [value]="selectedApartment?.nome" readonly>
+          </div>
+          <div class="modal-item">
+            <label>Nome do Anúncio</label>
+            <input type="text" class="form-control" [value]="selectedApartment?.nome_anuncio" readonly>
+          </div>
+          <div class="modal-item">
+            <label>SSID-WIFI</label>
+            <input type="text" class="form-control" [value]="selectedApartment?.ssid_wifi" readonly>
+          </div>
+          <div class="modal-item">
+            <label>Senha WIFI</label>
+            <input type="text" class="form-control" [value]="selectedApartment?.senha_wifi" readonly>
+          </div>
+          <div class="modal-item">
+            <label>Senha da Porta</label>
+            <input type="text" class="form-control" [value]="selectedApartment?.senha_porta" readonly>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

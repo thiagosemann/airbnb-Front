@@ -11,6 +11,9 @@ import { ContentComponent } from './Acesso/content/content.component';
 import { LoginComponent } from './Acesso/login/login.component';
 import { RegisterComponent } from './Acesso/register/register.component';
 import { ProfileComponent } from './Acesso/profile/profile.component';
+import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
+import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
+import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 
 
 const routes: Routes = [
@@ -22,6 +25,9 @@ const routes: Routes = [
   { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService] },
   { path: 'register', component: RegisterComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuardService] },
+  { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService] },
+  { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService] },
+  { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService] },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService]},
   { path: '', redirectTo: '/content', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
   { path: '**', component: ContentComponent, canActivate: [AuthGuardService] }, // rota de fallback quando nenhuma outra corresponder

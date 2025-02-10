@@ -1,0 +1,229 @@
+<div class="container py-3">
+  <!-- Cabeçalho da página -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Apartamentos</h2>
+    <button class="btn btn-primary" (click)="abrirModal()">Novo Apartamento</button>
+  </div>
+
+  <!-- Card com a tabela de apartamentos -->
+  <div class="card mb-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead class="table-success">
+            <tr>
+              <th>Nome</th>
+              <th>Prédio</th>
+              <th>Hóspedes</th>
+              <th>Aceita Pet</th>
+              <th>Check-in</th>
+              <th>Wi-Fi</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let apt of apartamentos">
+              <td>{{ apt.nome }}</td>
+              <td>{{ getNomePredio(apt.predio_id) }}</td>
+              <td>{{ apt.numero_hospedes }}</td>
+              <td>{{ apt.aceita_pet ? 'Sim' : 'Não' }}</td>
+              <td>{{ apt.tipo_checkin }}</td>
+              <td>{{ apt.ssid_wifi }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="editarApartamento(apt)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="excluirApartamento(apt.id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">{{ isEditing ? 'Editar Apartamento' : 'Novo Apartamento' }}</h3>
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" class="row g-3">
+          <!-- Seção 1: Informações Básicas -->
+          <div class="col-md-6">
+            <h5 class="section-title">Informações Básicas</h5>
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-control" formControlName="nome">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Prédio</label>
+              <select class="form-select" formControlName="predio_id">
+                <option value="" disabled>Selecione um prédio</option>
+                <option *ngFor="let predio of predios" [value]="predio.id">{{ predio.nome }}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nome do Anúncio</label>
+              <input type="text" class="form-control" formControlName="nome_anuncio">
+            </div>
+          </div>
+
+          <!-- Seção 2: Localização -->
+          <div class="col-md-6">
+            <h5 class="section-title">Localização</h5>
+            <div class="mb-3">
+              <label class="form-label">Endereço</label>
+              <input type="text" class="form-control" formControlName="endereco">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Bairro</label>
+              <input type="text" class="form-control" formControlName="bairro">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Andar</label>
+              <input type="number" class="form-control" formControlName="andar">
+            </div>
+          </div>
+
+          <!-- Seção 3: Acesso -->
+          <div class="col-md-6">
+            <h5 class="section-title">Acesso</h5>
+            <div class="mb-3">
+              <label class="form-label">Senha da Porta</label>
+              <input type="text" class="form-control" formControlName="senha_porta">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Acesso ao Prédio</label>
+              <input type="text" class="form-control" formControlName="acesso_predio">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Acesso à Porta</label>
+              <input type="text" class="form-control" formControlName="acesso_porta">
+            </div>
+          </div>
+
+          <!-- Seção 4: Configurações -->
+          <div class="col-md-6">
+            <h5 class="section-title">Configurações</h5>
+            <div class="mb-3">
+              <label class="form-label">Tipo de Check-in</label>
+              <input type="text" class="form-control" formControlName="tipo_checkin">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Número de Hóspedes</label>
+              <input type="number" class="form-control" formControlName="numero_hospedes">
+            </div>
+
+          </div>
+
+          <!-- Seção 5: Valores -->
+          <div class="col-md-6">
+            <h5 class="section-title">Valores</h5>
+            <div class="mb-3">
+              <label class="form-label">% Cobrada</label>
+              <input type="number" step="0.01" class="form-control" formControlName="porcentagem_cobrada">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Valor Enxoval</label>
+              <input type="number" step="0.01" class="form-control" formControlName="valor_enxoval">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Valor Limpeza</label>
+              <input type="number" step="0.01" class="form-control" formControlName="valor_limpeza">
+            </div>
+          </div>
+
+          <!-- Seção 6: Amenidades -->
+          <div class="col-md-6">
+            <h5 class="section-title">Amenidades</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="ar_condicionado">
+                  <label class="form-check-label">Ar Condicionado</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="smart_tv">
+                  <label class="form-check-label">Smart TV</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="liquidificador">
+                  <label class="form-check-label">liquidificador</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="secador_cabelo">
+                  <label class="form-check-label">Secador de Cabelo</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="tv_aberta">
+                  <label class="form-check-label">TV Aberta</label>
+                </div>
+                   
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="cafeteira">
+                  <label class="form-check-label">Cafeteira</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="escritorio">
+                  <label class="form-check-label">Escritório</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="aspirador_de_po">
+                  <label class="form-check-label">Aspirador</label>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" formControlName="aceita_pet">
+                  <label class="form-check-label">Aceita Pet</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção 7: Redes -->
+          <div class="col-md-12">
+            <h5 class="section-title">Redes</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">SSID Wi-Fi</label>
+                  <input type="text" class="form-control" formControlName="ssid_wifi">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Senha Wi-Fi</label>
+                  <input type="text" class="form-control" formControlName="senha_wifi">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Seção 7: Link -->
+          <div class="col-md-12">
+            <h5 class="section-title">Calendário Airbnb</h5>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">Link Calendário</label>
+                  <input type="text" class="form-control" formControlName="link_airbnb_calendario">
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="form.invalid">
+          {{ isEditing ? 'Atualizar' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

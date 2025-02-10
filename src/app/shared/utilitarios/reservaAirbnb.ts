@@ -14,4 +14,5 @@ export interface ReservaAirbnb {
   informed : boolean;
   check_in:string;
   check_out:string;
+  checkinInfo?: any; // Adicionado para armazenar informações do check-in
 }

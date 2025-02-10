@@ -1,0 +1,102 @@
+/* Container principal */
+.container {
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Estilização do card que envolve a tabela */
+.card {
+  margin-bottom: 20px;
+}
+
+/* Títulos das seções do formulário */
+.section-title {
+  border-bottom: 2px solid #198754;
+  color: #198754;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+}
+
+/* Ajustes gerais na tabela */
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+/* Customização da barra de rolagem na modal-body (opcional) */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #b7b7b7;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Modal (fundo escurecido e centralização) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* Modal Content com largura maior para comportar o formulário */
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Cabeçalho da modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #198754;
+  color: #fff;
+  padding: 15px 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Corpo da modal com scroll interno, se necessário */
+.modal-body {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Rodapé da modal */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  background: #f4f4f4;
+  gap: 10px;
+}

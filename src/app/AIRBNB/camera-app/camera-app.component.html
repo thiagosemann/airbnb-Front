@@ -10,19 +10,25 @@
           <input type="text" class="form-control" id="id" [(ngModel)]="id" name="id" disabled required>
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" id="cpf" placeholder="CPF" [(ngModel)]="formData.cpf" name="cpf" required mask="000.000.000-00">
+          <label for="cpf">CPF:</label>
+          <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" [(ngModel)]="formData.cpf" name="cpf" required mask="000.000.000-00">
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" id="name" placeholder="Nome" [(ngModel)]="formData.nome" name="nome" required>
+          <label for="name">Nome:</label>
+          <input type="text" class="form-control" id="name" placeholder="Seu nome completo" [(ngModel)]="formData.nome" name="nome" required>
         </div>
         <div class="form-group">
-          <input type="tel" class="form-control" id="phone" placeholder="Telefone" [(ngModel)]="formData.telefone" name="telefone" required>
+          <label for="phone">Telefone:</label>
+          <input type="tel" class="form-control" id="phone" placeholder="(00) 00000-0000" [(ngModel)]="formData.telefone" name="telefone" required>
         </div>
-        <button type="submit" class="btn btn-success">Próximo</button>
+        <button type="submit" class="btn btn-success">Próximo <i class="fas fa-arrow-right"></i></button>
       </form>
     </div>
+
     <!-- Etapa 2: Captura de foto -->
     <div *ngIf="step === 2">
+      <h3>Captura de Foto</h3>
+      <p>Posicione seu rosto dentro do quadro.</p>
       <div class="camera-container">
         <ng-container *ngIf="!photoDataUrl">
           <ng-container *ngIf="loadingCamera">
@@ -36,10 +42,10 @@
           <img #photo [src]="photoDataUrl" alt="Sua foto aparecerá aqui.">
         </ng-container>
       </div>
-      <button (click)="capturePhoto()" class="btn btn-success mt-3" *ngIf="!photoDataUrl">Capturar Foto</button>
-      <button (click)="goForward()" class="btn btn-success mt-3" *ngIf="photoDataUrl">Próximo</button>
-      <button (click)="cancelPhoto()" class="btn btn-danger mt-3" *ngIf="photoDataUrl">Cancelar</button>
-      <button (click)="goBack()" class="btn btn-secondary mt-3" *ngIf="!photoDataUrl">Voltar</button> <!-- Botão para voltar -->
+      <button (click)="capturePhoto()" class="btn btn-success mt-3" *ngIf="!photoDataUrl"><i class="fas fa-camera"></i> Capturar Foto</button>
+      <button (click)="goForward()" class="btn btn-success mt-3" *ngIf="photoDataUrl">Próximo <i class="fas fa-arrow-right"></i></button>
+      <button (click)="cancelPhoto()" class="btn btn-danger mt-3" *ngIf="photoDataUrl"><i class="fas fa-times"></i> Cancelar</button>
+      <button (click)="goBack()" class="btn btn-secondary mt-3" *ngIf="!photoDataUrl"><i class="fas fa-arrow-left"></i> Voltar</button>
     </div>
 
     
@@ -47,8 +53,8 @@
     <div *ngIf="step === 3" class="text-center">
       <h3>Entrega de documentos</h3>
       <ng-container *ngIf="fotoOuDocumentoString==''">
-        <button (click)="documentoComoFoto()" class="btn btn-success mt-3">Usar câmera</button>
-        <button (click)="documentoComoArquivo()" class="btn btn-success mt-3">Upload de Arquivo</button>
+        <button (click)="documentoComoFoto()" class="btn btn-success mt-3"><i class="fas fa-camera"></i> Usar câmera</button>
+        <button (click)="documentoComoArquivo()" class="btn btn-success mt-3"><i class="fas fa-upload"></i>Upload de Arquivo</button>
         <button (click)="goBack()" class="btn btn-secondary mt-3">Voltar</button>  
       </ng-container>
       <ng-container *ngIf="fotoOuDocumentoString=='foto'">
@@ -65,7 +71,7 @@
             <img #photoDoc [src]="documentPhotoUrl" alt="Sua foto do documento aparecerá aqui." >
           </ng-container>
         </div>
-        <button (click)="captureDocumentPhoto()" class="btn btn-success mt-3" *ngIf="!documentPhotoUrl">Capturar Foto do Documento</button>
+        <button (click)="captureDocumentPhoto()" class="btn btn-success mt-3" *ngIf="!documentPhotoUrl"><i class="fas fa-camera"></i>Capturar Foto do Documento</button>
         <button (click)="cancelDocumentPhoto()" class="btn btn-danger mt-3" *ngIf="documentPhotoUrl">Cancelar</button> 
         <button (click)="sendData()" class="btn btn-success mt-3" *ngIf="documentPhotoUrl" >Enviar</button>
         <button (click)="voltarParaEntregaDocumentos()" class="btn btn-secondary mt-3" *ngIf="!documentPhotoUrl">Voltar</button>
@@ -91,9 +97,10 @@
 
     <!-- Etapa 5: Concluído -->
     <div *ngIf="step === 5" class="text-center">
+      <i class="fas fa-check-circle success-icon"></i>
       <h2>Cadastro concluído com sucesso.</h2>
-      <button (click)="resetFlow()" class="btn btn-success mt-3">Cadastrar outro Hóspede</button>
-      <button (click)="concluirCadastro()" class="btn btn-danger mt-3">Encerrar</button>
+      <button (click)="resetFlow()" class="btn btn-success mt-3"><i class="fas fa-user-plus"></i> Cadastrar outro Hóspede</button>
+      <button (click)="concluirCadastro()" class="btn btn-danger mt-3"><i class="fas fa-times"></i> Encerrar</button>
     </div>
 
     <!-- Etapa 6: Concluído -->

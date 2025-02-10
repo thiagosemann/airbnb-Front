@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
+import { Apartamento } from 'src/app/shared/utilitarios/apartamento'; // caso precise usar os dados do apartamento
+import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas';
 
 @Component({
@@ -15,8 +20,10 @@ export class CalendarioAirbnbComponent implements OnInit {
   reservasFinalizadas: ReservaAirbnb[] = [];
   carregando: boolean = true;
   showModal: boolean = false;
-  selectedReservation: ReservaAirbnb | undefined ;
-  credenciaisFetias:number=0;
+  selectedReservation: ReservaAirbnb | undefined;
+  selectedApartment: Apartamento | undefined; // para armazenar os dados do apartamento retornado
+  credenciaisFetias: number = 0;
+  hospedesReserva:any[] =[];
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
@@ -24,7 +31,14 @@ export class CalendarioAirbnbComponent implements OnInit {
     proximas: false,
     finalizadas: false
   };
-  constructor(private reservasAirbnbService: ReservasAirbnbService) { }
+
+  constructor(
+    private reservasAirbnbService: ReservasAirbnbService,
+    private apartamentoService: ApartamentoService,
+    private checkinFormService: CheckInFormService,
+    private sanitizer: DomSanitizer
+    
+  ) { }
 
   ngOnInit(): void {
     this.reservasAirbnbService.getAllReservas().subscribe(
@@ -62,7 +76,7 @@ export class CalendarioAirbnbComponent implements OnInit {
         this.reservasAndamento.push(evento);
       } else if (hojeTime === startTime) {
         this.reservasHoje.push(evento);
-        if(evento.credencial_made){
+        if (evento.credencial_made) {
           this.credenciaisFetias++;
         }
       } else if (startTime > hojeTime) {
@@ -88,44 +102,65 @@ export class CalendarioAirbnbComponent implements OnInit {
     const ano = data.getUTCFullYear();
     return `${ano}-${mes}-${dia}`;
   }
+
   // Método para alternar a visibilidade das seções
   toggleSection(section: SectionKey): void {
     this.sections[section] = !this.sections[section];
   }
-  openModal(event:ReservaAirbnb): void {
+
+  // Ao abrir o modal, chama a função do service para buscar o apartamento pelo id
+  openModal(event: ReservaAirbnb): void {
     this.selectedReservation = event;
-    this.showModal = true;
+    // Supondo que 'apartamento_id' é a propriedade que contém o id do apartamento na reserva
+    this.apartamentoService.getApartamentoById(event.apartamento_id).subscribe(
+      (apartamento) => {
+        console.log("Apartamento retornado:", apartamento);
+        this.selectedApartment = apartamento; // armazena os dados para uso no modal, se necessário
+        this.showModal = true;
+      },
+      (error) => {
+        console.error("Erro ao buscar apartamento:", error);
+        // Mesmo em caso de erro, pode abrir o modal ou tratar a falha de forma adequada
+        this.showModal = true;
+      }
+    );
+    if(this.selectedReservation.id){
+      this.getRespostasByReservaId(this.selectedReservation.id.toString(),this.selectedReservation.cod_reserva)
+    }
   }
+
   closeModal(): void {
     this.showModal = false;
   }
-  updateStatus(reserva: any, field: string, event: Event,type:string) {
+
+  updateStatus(reserva: any, field: string, event: Event, type: string) {
     const checked = (event.target as HTMLInputElement).checked;
     reserva[field] = checked;
-    if(type == "reservasHoje"){
-      if(reserva.credencial_made){
+    if (type == "reservasHoje") {
+      if (reserva.credencial_made) {
         this.credenciaisFetias++;
-      }else{
+      } else {
         this.credenciaisFetias--;
       }
     }
     reserva.start_date = this.formatarDataBanco(reserva.start_date);
     reserva.end_data = this.formatarDataBanco(reserva.end_data);
-    
-    console.log(reserva)
+
+    console.log(reserva);
     this.reservasAirbnbService.updateReserva(reserva).subscribe(
       data => {
+        // ação após atualizar a reserva, se necessário
       },
       error => {
-        console.error('Erro ao obter os eventos do calendário', error);
-     
+        console.error('Erro ao atualizar reserva', error);
       }
     );
   }
 
   updateTime(): void {
-  if(this.selectedReservation){
-    console.log(this.selectedReservation)
+    if (this.selectedReservation) {
+      console.log(this.selectedReservation);
+
       // Atualiza a reserva no banco de dados
       this.reservasAirbnbService.updateReserva(this.selectedReservation).subscribe(
         data => {
@@ -135,8 +170,42 @@ export class CalendarioAirbnbComponent implements OnInit {
           console.error('Erro ao atualizar o horário', error);
         }
       );
+      
     }
   }
 
-}
+  getRespostasByReservaId(reserva_id:string,cod_reserva:string): void {
+  
+    this.checkinFormService.getCheckinByReservaIdOrCodReserva(reserva_id.toString(), cod_reserva)
+      .subscribe({
+        next: (resposta) => {
+          console.log(resposta)
+          this.hospedesReserva = resposta;
+          console.log('Resposta do Check-in:', resposta);
+        },
+        error: (error) => {
+          console.error('Erro ao obter o check-in:', error);
+        }
+      });
+  }
 
+  isPDF(base64: string): boolean {
+    // Verifica se o base64 começa com o cabeçalho de um PDF
+    return base64.startsWith('JVBERi0'); // Assinatura de um arquivo PDF em base64
+  }
+  
+  // Função para criar uma URL segura para exibição do PDF
+  getSafeUrl(base64: string): SafeResourceUrl {
+    const pdfSrc = `data:application/pdf;base64,${base64}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(pdfSrc);
+  }
+  findIfBloqued(event:any):string{
+    let text = ""
+    if(event.cod_reserva.includes(event.apartamento_nome)){
+      text = "Bloqueado"
+    }else{
+      text = event.cod_reserva
+    }
+    return text
+  }
+}

@@ -1,0 +1,118 @@
+<!-- users-control.component.html -->
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Usuários</h2>
+    <button class="btn btn-primary" (click)="abrirModal()">Novo Usuário</button>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead class="table-success">
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Telefone</th>
+              <th>Tipo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.first_name }} {{ user.last_name }}</td>
+              <td>{{ user.cpf }}</td>
+              <td>{{ user.Telefone }}</td>
+              <td>{{ user.role }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="editarUsuario(user)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal -->
+<div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">{{ isEditing ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="userForm" class="row g-4">
+          <!-- Seção 1: Informações Pessoais -->
+          <div class="col-md-6">
+            <h5 class="section-title">Informações Pessoais</h5>
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-control" formControlName="first_name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Sobrenome</label>
+              <input type="text" class="form-control" formControlName="last_name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">CPF</label>
+              <input type="text" class="form-control" formControlName="cpf" mask="000.000.000-00">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Telefone</label>
+              <input type="text" class="form-control" formControlName="Telefone" mask="(00) 00000-0000">
+            </div>
+          </div>
+  
+          <!-- Seção 2: Documentos -->
+          <div class="col-md-6">
+            <h5 class="section-title">Documentos</h5>
+            <div class="mb-3">
+              <label class="form-label">Tipo de Usuário</label>
+              <select class="form-select" formControlName="role">
+                <option value="guest">Hóspede</option>
+                <option value="admin">Administrador</option>
+                <option value="cleaner">Faxineira</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Selfie</label>
+              <!-- Exibe a imagem do perfil -->
+              <div *ngIf="userForm.get('imagemBase64')?.value" class="img-preview">
+                <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value" 
+                alt="Imagem do Hóspede" 
+                class="img-fluid rounded border">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Documento (RG/CPF)</label>
+              <!-- Exibe o documento -->
+              <div *ngIf="!isPDF(userForm.get('documentBase64')?.value)">
+                <img [src]="'data:image/png;base64,' + userForm.get('documentBase64')?.value" 
+                alt="Imagem do Hóspede" 
+                class="img-fluid rounded border">
+              </div>
+              <div *ngIf="isPDF(userForm.get('documentBase64')?.value)">
+                <iframe [src]="getSafeUrl(userForm.get('documentBase64')?.value)" 
+                class="w-100" style="height: 350px; border: 1px solid #ccc;"></iframe>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="salvarUsuario()" [disabled]="userForm.invalid">
+          {{ isEditing ? 'Atualizar' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+</div>

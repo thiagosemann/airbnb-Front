@@ -36,12 +36,20 @@ export class NavBarAirbnbComponent {
   calendarioAirbnb(): void {
     this.router.navigate(['/calendarioAirbnb']);
   }
+  cadastroPredio(): void {
+    this.router.navigate(['/cadastroPredio']);
+  }
   profile(): void {
     this.router.navigate(['/profile']);
   }
-
-
-    
+  cadastroApartamento(): void {
+    this.router.navigate(['/cadastroApartamento']);
+  }
+  cadastroUsuario(): void {
+    this.router.navigate(['/cadastroUsuario']);
+  }
+  
+   
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }

@@ -5,99 +5,75 @@ import { User } from '../../utilitarios/user';
 import { environment } from 'enviroments';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private url = environment.backendUrl;
-
-  private users: User[] = [];
-  private userListSubject: Subject<User[]> = new Subject<User[]>();
-
   constructor(private http: HttpClient) {}
 
+  // Método para obter todos os usuários
   getUsers(): Observable<User[]> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
     return this.http.get<User[]>(`${this.url}/users`, { headers });
   }
 
-  addUser(user: User): Observable<any> {
+  // Método para adicionar um novo usuário
+  addUser(user: User): Observable<{ insertId: number }> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
-    return this.http.post(`${this.url}/users`, user, { headers });
+    return this.http.post<{ insertId: number }>(`${this.url}/users`, user, { headers });
   }
 
-  // Nova função para inserção em lote de usuários
-  saveUsersInBatch(users: User[]): Observable<any> {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
-    });
 
-    return this.http.post(`${this.url}/users/batch`, users, { headers });
-  }
-
-  updateUserList(): void {
-    this.getUsers().subscribe(users => {
-      this.users = users;
-      this.userListSubject.next(this.users); // Notifica os componentes sobre a atualização da lista
-    });
-  }
-
-  getUserList(): User[] {
-    return this.users;
-  }
-
-  getUserListObservable(): Observable<User[]> {
-    return this.userListSubject.asObservable();
-  }
-
-  loadUserList(): Observable<User[]> {
-    this.updateUserList();
-    return this.getUserListObservable();
-  }
-
+  // Método para obter um usuário pelo ID
   getUser(userId: number): Observable<User> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
     return this.http.get<User>(`${this.url}/users/${userId}`, { headers });
   }
 
-  updateUser(user: User): Observable<any> {
+  // Método para atualizar um usuário
+  updateUser(user: User): Observable<{ message: string }> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
-    const userId = user.id; // Assuming the User object has an 'id' property
-
-    return this.http.put(`${this.url}/users/${userId}`, user, { headers });
+    const userId = user.id; // Garanta que o objeto User tenha a propriedade 'id'
+    return this.http.put<{ message: string }>(`${this.url}/users/${userId}`, user, { headers });
   }
 
-  getUsersByBuilding(buildingId: number): Observable<User[]> {
+  // Método para deletar um usuário
+  deleteUser(userId: number): Observable<{ message: string }> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
-    return this.http.get<User[]>(`${this.url}/users/building/${buildingId}`, { headers });
+    return this.http.delete<{ message: string }>(`${this.url}/users/${userId}`, { headers });
   }
 
-  deleteUser(userId: number): Observable<any> {
+
+
+  // Método para obter um usuário pelo CPF
+  getUserByCPF(cpf: string): Observable<User> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: 'Bearer ' + token,
     });
 
-    return this.http.delete(`${this.url}/users/${userId}`, { headers });
+    return this.http.get<User>(`${this.url}/users/cpf/${cpf}`, { headers });
   }
+
+
 }

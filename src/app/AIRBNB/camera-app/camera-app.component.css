@@ -1,5 +1,6 @@
-/* Importando a fonte do Google Fonts */
+/* Importando a fonte do Google Fonts e ícones do FontAwesome */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
 /* Contêiner que ocupa toda a tela */
 .full-screen-container {
@@ -28,20 +29,34 @@
   margin-bottom: 20px; /* Espaço entre a imagem e o formulário */
 }
 
-h1 {
-  font-size: 36px;
-  color: #28a745; /* Verde principal */
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-h3 {
+h1, h2, h3 {
   color: #28a745; /* Verde principal */
   font-weight: 600;
   margin-bottom: 20px;
 }
 
+h1 {
+  font-size: 36px;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
 .form-group {
   margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
 }
 
 .form-control {
@@ -66,19 +81,16 @@ button {
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button i {
+  margin-right: 10px;
 }
 
 button:hover {
-  background-color: #3498db;
-}
-
-.btn-primary {
-  background-color: #1e69de;
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
   background-color: #3498db;
 }
 
@@ -150,24 +162,14 @@ video, img {
   animation: spin 1s linear infinite;
 }
 
-.loader-container-processando {
-  display: flex;
-  justify-content: center;
-  align-items: center;
- 
-  background-color: rgba(255, 255, 255, 0.8); /* Leve fundo branco translúcido */
-  z-index: 10; /* Para garantir que fica acima do vídeo */
-}
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Estilo das mensagens de sucesso */
-h2 {
+/* Ícone de sucesso */
+.success-icon {
+  font-size: 50px;
   color: #28a745;
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 30px;
+  margin-bottom: 20px;
 }

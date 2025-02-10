@@ -9,7 +9,9 @@
     <!-- Menu para telas maiores (desktop) -->
     <div class="navbar-nav ms-auto" *ngIf="isDesktopView">
       <button class="navbar-perfil-btn" (click)="calendarioAirbnb()"><i class="fas fa-home"></i> Calendário</button>
-      
+      <button class="navbar-perfil-btn" (click)="cadastroPredio()"><i class="fas fa-gear"></i> Predios</button>
+      <button class="navbar-perfil-btn" (click)="cadastroApartamento()"><i class="fas fa-gear"></i> Apartamentos</button>
+      <button class="navbar-perfil-btn" (click)="cadastroUsuario()"><i class="fas fa-gear"></i> Usuarios</button>
       <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
       <button class="navbar-logout-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
