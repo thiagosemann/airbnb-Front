@@ -1,12 +1,6 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+
 import { ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxMaskModule } from 'ngx-mask';
-import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { NgChartsModule } from 'ng2-charts';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { OrdenarPorPrecoPipe } from '../app/shared/pipes/ordenar-por-preco.pipe'; // ajuste o caminho conforme necessário
@@ -28,6 +22,9 @@ import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
 import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
 
 @NgModule({
   declarations: [
@@ -52,13 +49,10 @@ import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxin
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(),
-    BrowserAnimationsModule,
     NgxMaskModule.forRoot(),
     NgChartsModule,
-    BsDatepickerModule,
     ZXingScannerModule,
   ],
   providers: [],
