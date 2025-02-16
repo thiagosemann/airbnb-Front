@@ -22,9 +22,9 @@ import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
 import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgModule } from '@angular/core';
 
 @NgModule({
   declarations: [
