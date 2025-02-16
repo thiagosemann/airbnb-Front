@@ -7,7 +7,7 @@ import { environment } from 'enviroments';
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private url = environment.backendUrl + '/login';
+  private url = environment.backendUrl + '/login-airbnb';
 
   private user: User | null = null;
 

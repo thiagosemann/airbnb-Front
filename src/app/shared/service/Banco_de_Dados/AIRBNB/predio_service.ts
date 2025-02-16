@@ -22,31 +22,31 @@ export class PredioService {
   // Obtém todos os prédios
   getAllPredios(): Observable<Predio[]> {
     const token = this.getToken();
-    return this.http.get<Predio[]>(`${this.url}/predios`, { headers: this.getHeaders(token) });
+    return this.http.get<Predio[]>(`${this.url}/predios-airbnb`, { headers: this.getHeaders(token) });
   }
 
   // Cria um novo prédio
   createPredio(predio: Predio): Observable<any> {
     const token = this.getToken();
-    return this.http.post(`${this.url}/predios`, predio, { headers: this.getHeaders(token) });
+    return this.http.post(`${this.url}/predios-airbnb`, predio, { headers: this.getHeaders(token) });
   }
 
   // Obtém um prédio por ID
   getPredioById(id: number): Observable<Predio> {
     const token = this.getToken();
-    return this.http.get<Predio>(`${this.url}/predios/${id}`, { headers: this.getHeaders(token) });
+    return this.http.get<Predio>(`${this.url}/predios-airbnb/${id}`, { headers: this.getHeaders(token) });
   }
 
   // Atualiza um prédio
   updatePredio(predio: Predio): Observable<any> {
     const token = this.getToken();
-    return this.http.put(`${this.url}/predios/${predio.id}`, predio, { headers: this.getHeaders(token) });
+    return this.http.put(`${this.url}/predios-airbnb/${predio.id}`, predio, { headers: this.getHeaders(token) });
   }
 
   // Exclui um prédio
   deletePredio(id: number): Observable<any> {
     const token = this.getToken();
-    return this.http.delete(`${this.url}/predios/${id}`, { headers: this.getHeaders(token) });
+    return this.http.delete(`${this.url}/predios-airbnb/${id}`, { headers: this.getHeaders(token) });
   }
 
   // Atualiza a lista local de prédios e notifica os subscribers
