@@ -43,4 +43,8 @@ export interface Apartamento {
   respostas_programadas: string;
   ssid_wifi: string;
   senha_wifi: string;
+  user_prioridade1?:number;
+  user_prioridade2?:number;
+  user_prioridade3?:number;
+  
 }

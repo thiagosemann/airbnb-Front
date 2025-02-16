@@ -75,5 +75,14 @@ export class UserService {
     return this.http.get<User>(`${this.url}/users/cpf/${cpf}`, { headers });
   }
 
+    // Método para obter usuários por papel (role)
+    getUsersByRole(role: string): Observable<User[]> {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = new HttpHeaders({
+        Authorization: 'Bearer ' + token,
+      });
+  
+      return this.http.get<User[]>(`${this.url}/users/role/${role}`, { headers });
+    }
 
 }

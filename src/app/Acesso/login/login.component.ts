@@ -23,7 +23,7 @@ export class LoginComponent {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       // Se não existe um token, redirecione para a página de login
-      this.router.navigate(['/content']);
+      this.router.navigate(['/login']);
     } 
   }
 
@@ -43,17 +43,20 @@ export class LoginComponent {
       this.toastr.error("Digite a senha!");
       return;
     }
-    
+
     this.authService.login(this.username,  this.password, this.rememberMe).then(result => {
+
       if (result.logado) {
         const user = this.authService.getUser()
         if(user && user.role.toUpperCase() == 'ADMIN'){
           this.toastr.success("Bem vindo admin!")
           this.router.navigate(['/calendarioAirbnb']);
           return;
+        }else  if(user && user.role.toUpperCase() == 'TERCERIZADO'){
+          this.toastr.success("Logado com sucesso!")
+          this.router.navigate(['/escalaFaxina']);
         }
-        this.toastr.success("Logado com sucesso!")
-        this.router.navigate(['/content']);
+
       } else {
         this.toastr.error(result.erro)
       }

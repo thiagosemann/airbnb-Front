@@ -1,4 +1,91 @@
-/* O CSS permanece o mesmo */
+/* Fonte padrão moderna */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa;
+}
+
+/* Fundo com gradient para a tela de registro em tons de verde */
+.register-container {
+  background: linear-gradient(135deg, #7ed56f, #27ae60);
+  min-height: 100vh;
+}
+
+/* Estilização do card que contém o formulário */
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Inputs modernos com underline e efeito de foco */
+.form-control {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  border-radius: 0;
+  padding: 10px 5px;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-bottom: 2px solid #27ae60;
+}
+
+/* Labels com espaçamento e fonte levemente mais pesada */
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+  color: #333;
+}
+
+/* Estilização do select para se alinhar com os inputs */
+.form-control select {
+  appearance: none;
+  padding: 10px 5px;
+}
+
+/* Botão personalizado em tons de verde */
+.btn-success {
+  background-color: #27ae60;
+  border: none;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-success:hover {
+  background-color: #1e8449;
+}
+
+/* Espaçamento e responsividade */
+.card-body {
+  padding: 2rem;
+}
+
+@media (max-width: 576px) {
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Caso queira marcar os inputs inválidos */
+.invalid {
+  border-bottom: 2px solid red;
+}
+
+/* Estilo para separadores (caso necessário) */
 .divider:after,
 .divider:before {
   content: "";
@@ -6,18 +93,3 @@
   height: 1px;
   background: #eee;
 }
-
-.h-custom {
-  height: 100%;
-}
-
-
-.invalid {
-  border: 2px solid red;
-}
-/* Add this to your existing CSS styles */
-.scrollable-container {
-  max-height: 100vh; /* Adjust the value as needed */
-  overflow-y: auto;
-}
-

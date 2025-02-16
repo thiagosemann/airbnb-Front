@@ -5,8 +5,10 @@ import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento'; // caso precise usar os dados do apartamento
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
+import { Router } from '@angular/router';
 
-type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas';
+type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -24,23 +26,33 @@ export class CalendarioAirbnbComponent implements OnInit {
   selectedApartment: Apartamento | undefined; // para armazenar os dados do apartamento retornado
   credenciaisFetias: number = 0;
   hospedesReserva:any[] =[];
+  reservasBloqueadas: ReservaAirbnb[] = [];
+
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
     andamento: false,
     proximas: false,
-    finalizadas: false
+    finalizadas: false,
+    bloqueadas: false
   };
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
     private apartamentoService: ApartamentoService,
     private checkinFormService: CheckInFormService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthenticationService,
+    private router: Router 
     
   ) { }
 
   ngOnInit(): void {
+    let user = this.authService.getUser();
+    if(user && user.role!="admin"){
+      this.router.navigate(['/login']);
+
+    }
     this.reservasAirbnbService.getAllReservas().subscribe(
       data => {
         const eventosOrdenados = this.ordenarEventosPorData(data);
@@ -62,16 +74,22 @@ export class CalendarioAirbnbComponent implements OnInit {
     const hojeUTC = new Date();
     hojeUTC.setUTCHours(0, 0, 0, 0);
     const hojeTime = hojeUTC.getTime();
-
+  
     for (const evento of eventos) {
+      // Verificar se é bloqueado primeiro
+      if (this.isBloqueado(evento)) {
+        this.reservasBloqueadas.push(evento);
+        continue; // Pula para próxima iteração
+      }
+  
       const startDate = new Date(evento.start_date);
       startDate.setUTCHours(0, 0, 0, 0);
       const startTime = startDate.getTime();
-
+  
       const endDate = new Date(evento.end_data);
       endDate.setUTCHours(0, 0, 0, 0);
       const endTime = endDate.getTime();
-
+  
       if (hojeTime > startTime && hojeTime < endTime) {
         this.reservasAndamento.push(evento);
       } else if (hojeTime === startTime) {
@@ -81,10 +99,14 @@ export class CalendarioAirbnbComponent implements OnInit {
         }
       } else if (startTime > hojeTime) {
         this.proximasReservas.push(evento);
-      } else if (endTime < hojeTime) {
+      } else {
         this.reservasFinalizadas.push(evento);
       }
     }
+  }
+  
+  private isBloqueado(evento: ReservaAirbnb): boolean {
+    return evento.cod_reserva.includes(evento.apartamento_nome);
   }
 
   formatarData(dataString: string): string {
@@ -146,7 +168,6 @@ export class CalendarioAirbnbComponent implements OnInit {
     reserva.start_date = this.formatarDataBanco(reserva.start_date);
     reserva.end_data = this.formatarDataBanco(reserva.end_data);
 
-    console.log(reserva);
     this.reservasAirbnbService.updateReserva(reserva).subscribe(
       data => {
         // ação após atualizar a reserva, se necessário
@@ -160,7 +181,9 @@ export class CalendarioAirbnbComponent implements OnInit {
   updateTime(): void {
     if (this.selectedReservation) {
       console.log(this.selectedReservation);
-
+      this.selectedReservation.start_date = this.formatarDataBanco(this.selectedReservation.start_date);
+      this.selectedReservation.end_data = this.formatarDataBanco(this.selectedReservation.end_data);
+  
       // Atualiza a reserva no banco de dados
       this.reservasAirbnbService.updateReserva(this.selectedReservation).subscribe(
         data => {
@@ -199,13 +222,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     const pdfSrc = `data:application/pdf;base64,${base64}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(pdfSrc);
   }
-  findIfBloqued(event:any):string{
-    let text = ""
-    if(event.cod_reserva.includes(event.apartamento_nome)){
-      text = "Bloqueado"
-    }else{
-      text = event.cod_reserva
-    }
-    return text
+  findIfBloqued(event: any): string {
+    return event.cod_reserva;
   }
 }

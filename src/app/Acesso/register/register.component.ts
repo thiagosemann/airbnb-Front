@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormGroup, ValidatorFn, AbstractControl, FormControl } from '@angular/forms';
+import { FormBuilder, Validators, FormGroup, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { User } from '../../shared/utilitarios/user';
 import { UserService } from '../../shared/service/Banco_de_Dados/user_service';
 
-
+// Validador para comparar os campos de e-mail e senha
 export const ConfirmValidator = (controlName: string, matchingControlName: string): ValidatorFn => {
-  return (control: AbstractControl): {[key: string]: boolean} | null => {
+  return (control: AbstractControl): { [key: string]: boolean } | null => {
     const input = control.get(controlName);
     const matchingInput = control.get(matchingControlName);
-    return (input && matchingInput && input.value !== matchingInput.value) ? {'mismatch': true} : null;
+    return (input && matchingInput && input.value !== matchingInput.value)
+      ? { 'mismatch': true }
+      : null;
   };
 };
 
@@ -22,27 +24,25 @@ export const ConfirmValidator = (controlName: string, matchingControlName: strin
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   user!: User;
-  buildingName: string = '';
   errorMessages: { [key: string]: string } = {
     first_name: 'Insira o primeiro nome',
     last_name: 'Insira o sobrenome',
     cpf: 'Insira o CPF',
     telefone: 'Insira o telefone',
-    data_nasc: 'Insira a data de nascimento',
-    apt_name: 'Insira o nome apartamento',
     emailGroup: 'Verifique os e-mails digitados',
-    passwordGroup: 'Verifique as senhas digitadas'
+    passwordGroup: 'Verifique as senhas digitadas',
+    role: 'Selecione uma função'
   };
 
-  
-  constructor(private formBuilder: FormBuilder,
-              private userService: UserService,
-              private toastr: ToastrService,
-              private route: ActivatedRoute,
-              private router: Router,
+  constructor(
+    private formBuilder: FormBuilder,
+    private userService: UserService,
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Formulário ajustado com os campos necessários, incluindo "role"
     this.registerForm = this.formBuilder.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
@@ -55,41 +55,44 @@ export class RegisterComponent implements OnInit {
         password: ['', [Validators.required, Validators.minLength(4)]],
         confirmPassword: ['', Validators.required]
       }, { validator: ConfirmValidator('password', 'confirmPassword') }),
-      data_nasc: ['', Validators.required],
       telefone: ['', Validators.required],
-      apt_name: ['', Validators.required], // Novo campo "apt_name" adicionado ao formulário
-      credito: [10]
+      role: ['', Validators.required]  // Novo campo para selecionar a role
     });
   }
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const { emailGroup, passwordGroup, ...rest } = this.registerForm.value;
-  
+      const { emailGroup, passwordGroup, role, ...rest } = this.registerForm.value;
+
+      // Mapeando os campos para os nomes esperados pelo backend
       this.user = {
-        ...rest,
+        first_name: rest.first_name,
+        last_name: rest.last_name,
+        cpf: rest.cpf,
         email: emailGroup.email,
         password: passwordGroup.password,
+        Telefone: rest.telefone, // Atenção à nomenclatura (conforme o model)
+        role: role              // Valor selecionado no select
       };
-      
-      this.user.role = 'usuario';    
+
       this.userService.addUser(this.user).subscribe(
         (res) => {
           this.resetForm();
           this.router.navigate(['/login']);
         },
         (err) => {
-          console.log(err)
+          console.error(err);
           this.toastr.error(err.error.error);
         }
       );
     } else {
-      for (const controlName in this.registerForm.controls) {
+      // Exibe as mensagens de erro para cada controle inválido
+      Object.keys(this.registerForm.controls).forEach(controlName => {
         const control = this.registerForm.get(controlName);
         if (control && control.invalid) {
-            this.toastr.error(this.errorMessages[controlName]);
+          this.toastr.error(this.errorMessages[controlName]);
         }
-      }
+      });
     }
   }
 
@@ -106,14 +109,8 @@ export class RegisterComponent implements OnInit {
         password: '',
         confirmPassword: ''
       },
-      data_nasc: '',
       telefone: '',
-      building_id: null,
-      role:'',
-      credito: 10,
+      role: ''
     });
   }
 }
-
-
-

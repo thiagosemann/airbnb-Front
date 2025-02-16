@@ -48,8 +48,12 @@ export class NavBarAirbnbComponent {
   cadastroUsuario(): void {
     this.router.navigate(['/cadastroUsuario']);
   }
-  
-   
+  escalaFaxina(): void {
+    this.router.navigate(['/escalaFaxina']);
+  }
+  controleFaxina(): void {
+    this.router.navigate(['/controleFaxina']);
+  }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }

@@ -26,6 +26,8 @@ import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.co
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
+import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
+import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,9 @@ import { UsersControlComponent } from './Cadastro/users-control/users-control.co
     NavBarAirbnbComponent,
     CadastroPredioComponent,
     CadastroApartamentosComponent,
-    UsersControlComponent
+    UsersControlComponent,
+    EscalaFaxinaComponent,
+    ControleFaxinaComponent,
   ],
   imports: [
     BrowserModule,

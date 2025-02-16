@@ -1,9 +1,8 @@
 .containerAux {
-    height: 89vh; /* Altura definida para habilitar o scroll */
     overflow-y: auto; /* Adiciona scroll vertical */
     overflow-x: hidden; /* Evita scroll horizontal */
-    padding: 10px; /* Espaçamento interno */
     background-color: #F6F6F6; 
+    height: 89vh;
 }
 
 /* Estilizar a barra de rolagem (Webkit) */

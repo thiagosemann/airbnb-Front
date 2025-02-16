@@ -27,7 +27,9 @@ export class AppComponent implements OnInit {
     'calendarioAirbnb',
     'cadastroPredio',
     'cadastroApartamento',
-    'cadastroUsuario'
+    'cadastroUsuario',
+    'escalaFaxina',
+    'controleFaxina',
     
   ];
 

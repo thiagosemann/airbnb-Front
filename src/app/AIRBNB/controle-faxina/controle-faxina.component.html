@@ -1,0 +1,127 @@
+<div class="controle-container">
+    <!-- Navegação por abas -->
+    <nav class="tab-navigation">
+      <button 
+        [class.active]="activeTab === 'prioridades'"
+        (click)="switchTab('prioridades')"
+      >
+        Prioridades
+      </button>
+      <button 
+        [class.active]="activeTab === 'controle'"
+        (click)="switchTab('controle')"
+      >
+        Controle Diário
+      </button>
+      <button 
+        [class.active]="activeTab === 'pagamento'"
+        (click)="switchTab('pagamento')"
+      >
+        Pagamento
+      </button>
+    </nav>
+  
+    <!-- Conteúdo das abas -->
+    <div class="tab-content">
+      <!-- Tela Prioridades -->
+      <div *ngIf="activeTab === 'prioridades'" class="priority-screen">
+        <div class="header">
+          <h2>Gerenciamento de Prioridades</h2>
+        </div>
+        
+        <div class="priority-grid">
+          <div *ngFor="let apt of apartamentos" class="priority-card">
+            <div class="card-header">
+              <h3>{{apt.nome}}</h3>
+
+            </div>
+            <div class="card-footer">
+                <div class="selects-container">
+                    <select class="service-select" 
+                      [(ngModel)]="apt.user_prioridade1"
+                      (change)="onPriorityChange(apt)">
+                     <option value="">Selecione</option>
+                      <option *ngFor="let user of users" [value]="user.id">{{user.first_name}}</option>
+              </select>
+              
+              <!-- Select 2 - Manutenção -->
+              <select class="service-select" 
+                      [(ngModel)]="apt.user_prioridade2"
+                      (change)="onPriorityChange(apt)">
+                <option value="">Selecione</option>
+                <option *ngFor="let user of users" [value]="user.id">{{user.first_name}}</option>
+              </select>
+              
+              <!-- Select 3 - Segurança -->
+              <select class="service-select" 
+                      [(ngModel)]="apt.user_prioridade3"
+                      (change)="onPriorityChange(apt)">
+                <option value="">Selecione</option>
+                <option *ngFor="let user of users" [value]="user.id">{{user.first_name}}</option>
+              </select>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Tela Controle Diário -->
+      <div *ngIf="activeTab === 'controle'" class="daily-control">
+        <h2>Controle Diário</h2>
+        
+        <div class="tercerizados-table-container">
+          <table class="tercerizados-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Limite/Diário</th>
+                <th>Domingo</th>
+                <th>Segunda</th>
+                <th>Terça</th>
+                <th>Quarta</th>
+                <th>Quinta</th>
+                <th>Sexta</th>
+                <th>Sábado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <td>{{user.first_name}}</td>
+                <td>
+                  <input type="number" class="faxina-input" 
+                        min="0" max="10" value="0">
+                </td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+                <td><input type="checkbox" checked></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+        
+      <!-- Tela Pagamento -->
+      <div *ngIf="activeTab === 'pagamento'" class="payment-screen">
+        <h2>Gestão de Pagamentos</h2>
+        <div class="payment-cards">
+          <div class="summary-card">
+            <h3>Total Pendente</h3>
+            <p class="amount">R$ 12.450,00</p>
+            <div class="divider"></div>
+            <button class="payment-btn">Ver Detalhes</button>
+          </div>
+          <div class="transaction-list">
+            <div class="transaction-item" *ngFor="let item of [1,2,3]">
+              <div class="transaction-date">05/06/2024</div>
+              <div class="transaction-desc">Pagamento Apartamento {{item}}</div>
+              <div class="transaction-value">R$ 2.500,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

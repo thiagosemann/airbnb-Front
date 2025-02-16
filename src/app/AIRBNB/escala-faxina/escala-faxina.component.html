@@ -1,0 +1,199 @@
+<div class="calendar-container">
+  <header class="calendar-header">
+    <div class="status-indicators">
+      <div class="status-item today">Hoje: {{ faxinasHoje.length }}</div>
+      <div class="status-item ongoing">Esta Semana: {{ faxinasSemana.length }}</div>
+      <div *ngIf="user?.role !== 'tercerizado'" class="status-item upcoming">Futuras: {{ faxinasFuturas.length }}</div>
+    </div>
+  </header>
+
+  <div *ngIf="!carregando; else loading">
+    <!-- Faxinas para Hoje -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('hoje')">
+        <h5><i class="fas fa-calendar-day"></i> Faxinas para Hoje</h5>
+        <span class="arrow" [class.open]="sections.hoje"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.hoje">
+        <table class="calendar-table">
+          <thead>
+            <ng-container *ngIf="user?.role !== 'tercerizado'">
+              <tr>
+                <th>Apt</th>
+                <th>Check-Out</th>
+                <th>Finalizado</th>
+                <th>Responsável</th>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="user?.role == 'tercerizado'">
+              <tr>
+                <th>Apt</th>
+                <th>Check-Out</th>
+                <th>Finalizado</th>
+              </tr>
+            </ng-container>
+          </thead>
+          <tbody>
+            <tr *ngFor="let faxina of faxinasHoje" >
+              <ng-container *ngIf="user?.role != 'tercerizado'">
+                <td>{{ faxina.apartamento_nome }}</td>
+                <td >{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia)}} </td>
+                <td>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" 
+                      [checked]="faxina.limpeza_realizada" 
+                      (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
+                <td>
+                  <select 
+                    class="service-select" 
+                    [(ngModel)]="faxina.faxina_userId" 
+                    (change)="updateRserva(faxina)"
+                    [disabled]="user?.role === 'tercerizado'">
+                    <option value="">Selecione</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.first_name }}</option>
+                  </select>
+                </td>
+              </ng-container>
+              <ng-container *ngIf="user?.role == 'tercerizado'">
+                <td>{{ faxina.apartamento_nome }}</td>
+                <td >{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia)}} </td>
+                <td>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" 
+                      [checked]="faxina.limpeza_realizada" 
+                      (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
+              </ng-container>
+            </tr>
+            <tr *ngIf="faxinasHoje.length === 0">
+              <td colspan="5">Nenhuma faxina para hoje</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Faxinas da Semana -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('semana')">
+        <h5><i class="fas fa-calendar-week"></i> Faxinas Esta Semana</h5>
+        <span class="arrow" [class.open]="sections.semana"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.semana">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apt</th>
+              <th>Data</th>
+              <th>Check-Out</th>
+              <th>Responsável</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let faxina of faxinasSemana">
+              <td>{{ faxina.apartamento_nome }}</td>
+              <td>{{ formatarData(faxina.end_data) }}</td>
+              <td >{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia)}} </td>
+              <td>
+                <select 
+                  class="service-select" 
+                  [(ngModel)]="faxina.faxina_userId" 
+                  (change)="updateRserva(faxina)"
+                  [disabled]="user?.role === 'tercerizado'">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let user of users" [value]="user.id">{{ user.first_name }}</option>
+                </select>
+              </td>
+            </tr>
+            <tr *ngIf="faxinasSemana.length === 0">
+              <td colspan="5">Nenhuma faxina esta semana</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Faxinas Futuras -->
+    <div *ngIf="user?.role !== 'tercerizado'" class="section-container">
+      <div class="section-header" (click)="toggleSection('futuras')">
+        <h5><i class="fas fa-calendar-alt"></i> Faxinas Futuras</h5>
+        <span class="arrow" [class.open]="sections.futuras"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.futuras">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apt</th>
+              <th>Check-Out</th>
+              <th>Dias Restantes</th>
+              <th>Responsável</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let faxina of faxinasFuturas">
+              <td>{{ faxina.apartamento_nome }}</td>
+              <td>{{ formatarData(faxina.end_data) }}</td>
+              <td>{{ calcularDiasRestantes(faxina.end_data) }}</td>
+              <td>
+                <select class="service-select" [(ngModel)]="faxina.faxina_userId" (change)="updateRserva(faxina)">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let user of users" [value]="user.id">{{ user.first_name }}</option>
+                </select>
+              </td>
+            </tr>
+            <tr *ngIf="faxinasFuturas.length === 0">
+              <td colspan="5">Nenhuma faxina futura</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Faxinas Bloqueadas -->
+    <div *ngIf="user?.role !== 'tercerizado'" class="section-container">
+      <div class="section-header" (click)="toggleSection('bloqueadas')">
+        <h5><i class="fas fa-lock"></i> Faxinas Bloqueadas</h5>
+        <span class="arrow" [class.open]="sections.bloqueadas"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.bloqueadas">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apt</th>
+              <th>Código</th>
+              <th>Check-Out</th>
+              <th>Período</th>
+              <th>Responsável</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let faxina of faxinasBloqueadas">
+              <td>{{ faxina.apartamento_nome }}</td>
+              <td>{{ faxina.cod_reserva }}</td>
+              <td>{{ formatarData(faxina.end_data) }}</td>
+              <td>{{ formatarData(faxina.start_date) }} - {{ formatarData(faxina.end_data) }}</td>
+              <td>
+                <select class="service-select" [(ngModel)]="faxina.faxina_userId" (change)="updateRserva(faxina)">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let user of users" [value]="user.id">{{ user.first_name }}</option>
+                </select>
+              </td>
+            </tr>
+            <tr *ngIf="faxinasBloqueadas.length === 0">
+              <td colspan="5">Nenhuma faxina bloqueada</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <p>Carregando escala de faxina...</p>
+  </ng-template>
+</div>

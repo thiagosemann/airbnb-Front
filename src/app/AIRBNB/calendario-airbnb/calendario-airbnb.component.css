@@ -436,3 +436,7 @@ input[type="time"]:hover {
 .modal-section {
   margin-bottom: 1.5rem;
 }
+.status-item.blocked {
+  background-color: #ffcccc;
+  border-color: #ff9999;
+}

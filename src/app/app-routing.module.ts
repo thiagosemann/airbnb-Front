@@ -14,6 +14,8 @@ import { ProfileComponent } from './Acesso/profile/profile.component';
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
+import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
+import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
 
 
 const routes: Routes = [
@@ -29,7 +31,12 @@ const routes: Routes = [
   { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService] },
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService] },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService]},
-  { path: '', redirectTo: '/content', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
+  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService]},
+  { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService]},
+
+
+  
+  { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
   { path: '**', component: ContentComponent, canActivate: [AuthGuardService] }, // rota de fallback quando nenhuma outra corresponder
 
   // Outras rotas do seu aplicativo
