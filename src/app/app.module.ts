@@ -4,6 +4,8 @@ import { NgxMaskModule } from 'ngx-mask';
 import { NgChartsModule } from 'ng2-charts';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { OrdenarPorPrecoPipe } from '../app/shared/pipes/ordenar-por-preco.pipe'; // ajuste o caminho conforme necessário
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -49,8 +51,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    HttpClientModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(),
+    BrowserAnimationsModule,
     NgxMaskModule.forRoot(),
     NgChartsModule,
     ZXingScannerModule,
