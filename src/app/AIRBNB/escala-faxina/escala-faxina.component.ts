@@ -123,6 +123,11 @@ export class EscalaFaxinaComponent implements OnInit {
       const nomeB = b.apartamento_nome || '';
       return nomeA.localeCompare(nomeB);
     });
+    this.faxinasSemana.sort((a, b) => {
+      const dataA = a.end_data ? new Date(a.end_data).getTime() : 0;
+      const dataB = b.end_data ? new Date(b.end_data).getTime() : 0;
+      return dataA - dataB;
+    });
   }
 
 // Adicione este método
