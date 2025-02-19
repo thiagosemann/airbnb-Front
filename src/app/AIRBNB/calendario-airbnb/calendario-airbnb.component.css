@@ -1,1 +1,132 @@
-&-header,button{display:flex;color:#fff;cursor:pointer}:root{--primary-color:#FF5A5F;--secondary-color:#00A699;--hover-bg:#f7f7f7;--border-color:#e4e4e4;--text-color:#444;--transition:all .2s ease}.checkmark,a,button{transition:var(--transition)}.calendar-container{max-width:1400px;margin:1rem;padding:1.5rem;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);font-family:'Segoe UI',system-ui,sans-serif}&.ongoing,&.section-header:hover{background:#e8faf8;color:var(--secondary-color)}&.cancel-btn,&.upcoming,td{color:var(--text-color)}&.upcoming{background:#f3f3f3}&.blocked{background-color:#fcc;border-color:#f99}td{padding:1rem 1.5rem;border-bottom:1px solid var(--border-color);font-size:.95rem}a{color:var(--secondary-color);font-weight:600;text-decoration:none}@media (max-width:768px){th{padding:.8rem;min-width:120px}}button{padding:.5rem 1rem;border-radius:6px;border:1px solid var(--border-color);background:#fff;align-items:center;gap:.5rem;border-color:var(--primary-color)}&.cancel-btn{background:var(--hover-bg)}&-header{justify-content:space-between;align-items:center;background:var(--secondary-color);padding:0 .5rem;border:none;color:inherit;font-size:1.8rem;transition:opacity .2s}.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-top:1rem}.custom-checkbox{display:inline-block;position:relative;opacity:0;width:100%;height:100%;cursor:pointer;z-index:1}.checkmark{position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;border:2px solid;border-radius:4px}
+.calendar-header h1, .calendar-table a:hover, .today {
+    color: var(--primary-color);
+}
+.calendar-container, input[type=time] {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+:root {
+    --primary-color: #FF5A5F;
+    --secondary-color: #00A699;
+    --hover-bg: #f7f7f7;
+    --border-color: #e4e4e4;
+}
+.calendar-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+}
+.calendar-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.calendar-header h1 {
+    font-weight: 700;
+    font-size: 2.2rem;
+    margin: 0 0 1rem;
+}
+.status-indicators {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+.status-item {
+    padding: .5rem 1.2rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: .95rem;
+}
+.today {
+    background: #ffe8e9;
+}
+.ongoing, .section-header:hover {
+    background: #e8faf8;
+}
+.ongoing {
+    color: #00a699;
+}
+.upcoming {
+    background: #f3f3f3;
+    color: #444;
+}
+.section-header {
+    position: relative;
+    padding: 1.5rem;
+    background: var(--hover-bg);
+}
+.arrow {
+    transition: transform .3s;
+    font-size: 1.5rem;
+}
+.arrow.open {
+    transform: rotate(90deg);
+}
+.section-container {
+    margin-bottom: 2rem;
+    border: 2px solid var(--border-color);
+}
+.section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease-out;
+}
+.section-content.active {
+    max-height: 5000px;
+}
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+.calendar-table th {
+    position: sticky;
+    top: 0;
+    background: #00a699;
+    color: #fff;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: .85rem;
+}
+.calendar-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: #444;
+    font-size: .95rem;
+}
+.calendar-table tr:last-child td, .modal-section:last-child {
+    border-bottom: none;
+}
+.calendar-table a {
+    color: #00a699;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color .2s;
+}
+.btn, button {
+    padding: .5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    cursor: pointer;
+    transition: .2s;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.btn:hover, button:hover {
+    background: #00a699;
+    color: #fff;
+    border-color: #00a699;
+}
+.cancel-btn {
+    background: #f7f7f7;
+    color: #444;
+}
+.primary-btn {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}

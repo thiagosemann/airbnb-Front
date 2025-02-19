@@ -10,7 +10,7 @@ type SectionKey = 'hoje' | 'semana' | 'futuras' | 'bloqueadas';
 @Component({
   selector: 'app-escala-faxina',
   templateUrl: './escala-faxina.component.html',
-  styleUrls: ['./escala-faxina.component.css']
+  styleUrls: ['./escala-faxina.component.css','./escala-faxina2.component.css']
 })
 export class EscalaFaxinaComponent implements OnInit {
   faxinasHoje: ReservaAirbnb[] = [];

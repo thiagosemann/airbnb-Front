@@ -18,7 +18,7 @@ export class UserService {
       Authorization: 'Bearer ' + token,
     });
 
-    return this.http.get<User[]>(`${this.url}/users`, { headers });
+    return this.http.get<User[]>(`${this.url}/users-airbnb`, { headers });
   }
 
   // Método para adicionar um novo usuário
@@ -28,7 +28,7 @@ export class UserService {
       Authorization: 'Bearer ' + token,
     });
 
-    return this.http.post<{ insertId: number }>(`${this.url}/users`, user, { headers });
+    return this.http.post<{ insertId: number }>(`${this.url}/users-airbnb`, user, { headers });
   }
 
 
@@ -39,7 +39,7 @@ export class UserService {
       Authorization: 'Bearer ' + token,
     });
 
-    return this.http.get<User>(`${this.url}/users/${userId}`, { headers });
+    return this.http.get<User>(`${this.url}/users-airbnb/${userId}`, { headers });
   }
 
   // Método para atualizar um usuário
@@ -50,7 +50,7 @@ export class UserService {
     });
 
     const userId = user.id; // Garanta que o objeto User tenha a propriedade 'id'
-    return this.http.put<{ message: string }>(`${this.url}/users/${userId}`, user, { headers });
+    return this.http.put<{ message: string }>(`${this.url}/users-airbnb/${userId}`, user, { headers });
   }
 
   // Método para deletar um usuário
@@ -72,7 +72,7 @@ export class UserService {
       Authorization: 'Bearer ' + token,
     });
 
-    return this.http.get<User>(`${this.url}/users/cpf/${cpf}`, { headers });
+    return this.http.get<User>(`${this.url}/users-airbnb/cpf/${cpf}`, { headers });
   }
 
     // Método para obter usuários por papel (role)
@@ -82,7 +82,7 @@ export class UserService {
         Authorization: 'Bearer ' + token,
       });
   
-      return this.http.get<User[]>(`${this.url}/users/role/${role}`, { headers });
+      return this.http.get<User[]>(`${this.url}/users-airbnb/role/${role}`, { headers });
     }
 
 }
