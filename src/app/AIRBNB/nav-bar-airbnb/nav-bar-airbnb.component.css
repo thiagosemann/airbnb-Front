@@ -82,15 +82,12 @@
     background-color: lightgray;
 }
 .logo{
-    width: 70px;
-    height: 70px;  
+    width: 180px;
+    height: 170px;
+    margin-top: -45px; 
+    margin-bottom: -50px;
 }
-.navbar-brand{
-    font-size: 40px;
-    font-weight: bolder;
-    font-family: 'LayarBahtera Doomsday';
-    color:#3daf2d;
-}
+
 /* Estilo do dropdown para combinar com o menu */
 .dropdown-menu {
     background-color: white;  /* Cor de fundo do dropdown */

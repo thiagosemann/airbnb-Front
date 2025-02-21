@@ -66,6 +66,7 @@
       </div>
   
       <!-- Tela Controle Diário -->
+      <!-- Atualização da tabela no HTML -->
       <div *ngIf="activeTab === 'controle'" class="daily-control">
         <h2>Controle Diário</h2>
         
@@ -74,7 +75,6 @@
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>Limite/Diário</th>
                 <th>Domingo</th>
                 <th>Segunda</th>
                 <th>Terça</th>
@@ -88,16 +88,40 @@
               <tr *ngFor="let user of users">
                 <td>{{user.first_name}}</td>
                 <td>
-                  <input type="number" class="faxina-input" 
-                        min="0" max="10" value="0">
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.domingo" 
+                    (change)="updateLimpezas(user)">
                 </td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
-                <td><input type="checkbox" checked></td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.segunda" 
+                    (change)="updateLimpezas(user)">
+                </td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.terca" 
+                    (change)="updateLimpezas(user)">
+                </td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.quarta" 
+                    (change)="updateLimpezas(user)">
+                </td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.quinta" 
+                    (change)="updateLimpezas(user)">
+                </td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.sexta" 
+                    (change)="updateLimpezas(user)">
+                </td>
+                <td>
+                  <input type="number" min="0" 
+                    [(ngModel)]="user.sabado" 
+                    (change)="updateLimpezas(user)">
+                </td>
               </tr>
             </tbody>
           </table>
@@ -105,20 +129,40 @@
       </div>
         
       <!-- Tela Pagamento -->
+      <!-- No HTML da tela de pagamento, substitua o conteúdo por: -->
       <div *ngIf="activeTab === 'pagamento'" class="payment-screen">
         <h2>Gestão de Pagamentos</h2>
-        <div class="payment-cards">
+        <div class="payment-filter">
+          <select class="month-select" [(ngModel)]="selectedMonth" (change)="loadPayments()">
+            <option value="">Selecione o mês</option>
+            <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+          </select>
+        </div>
+
+        <div class="payment-summary">
           <div class="summary-card">
-            <h3>Total Pendente</h3>
-            <p class="amount">R$ 12.450,00</p>
+            <h3>Total do Mês</h3>
+            <p class="amount">R$ {{ totalMes | number:'1.2-2' }}</p>
             <div class="divider"></div>
-            <button class="payment-btn">Ver Detalhes</button>
+            <div class="summary-details">
+              <div>Valor por Faxina: R$ {{ valorPorFaxina | number:'1.2-2' }}</div>
+              <div>Total de Faxinas: {{ totalFaxinas }}</div>
+            </div>
           </div>
+
           <div class="transaction-list">
-            <div class="transaction-item" *ngFor="let item of [1,2,3]">
-              <div class="transaction-date">05/06/2024</div>
-              <div class="transaction-desc">Pagamento Apartamento {{item}}</div>
-              <div class="transaction-value">R$ 2.500,00</div>
+            <div class="payment-table-header">
+              <div>Terceirizado</div>
+              <div>Faxinas Realizadas</div>
+              <div>Valor a Pagar</div>
+            </div>
+            <div class="payment-items">
+              <div class="payment-item" *ngFor="let pagamento of pagamentos">
+                <div class="tercerizado-name">{{ pagamento.user.first_name }}</div>
+                <div class="faxinas-count">{{ pagamento.totalFaxinas }}</div>
+                <div class="payment-value">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</div>
+                <div class="tercerizado-name">    <button (click)="downloadXls(pagamento)">Baixar XLS</button></div>
+              </div>
             </div>
           </div>
         </div>

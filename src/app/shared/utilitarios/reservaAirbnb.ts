@@ -10,6 +10,7 @@ export interface ReservaAirbnb {
   cod_reserva: string;
   link_reserva:string;
   limpeza_realizada: boolean;
+  valor_limpeza?: number;
   credencial_made: boolean;
   informed : boolean;
   check_in:string;

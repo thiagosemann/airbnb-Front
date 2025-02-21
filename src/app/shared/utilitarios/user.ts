@@ -10,12 +10,16 @@ export interface User {
     role:string;
     imagemBase64?:string;
     documentBase64?:number;
-    max_cleanings_per_day?: number;
-    
     unavailable_days?: string[];
     totalCleanings?: number; // Calculado
     totalPayment?: number;   // Calculado
-
+    segunda?: number;
+    terca?: number;
+    quarta?: number;
+    quinta?: number;
+    sexta?: number;
+    sabado?: number;
+    domingo?: number;
     [key: string]: any; // Índice para acessar propriedades com base em uma string
 
   }
