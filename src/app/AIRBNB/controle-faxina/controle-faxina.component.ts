@@ -10,7 +10,7 @@ import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 @Component({
   selector: 'app-controle-faxina',
   templateUrl: './controle-faxina.component.html',
-  styleUrls: ['./controle-faxina.component.css']
+  styleUrls: ['./controle-faxina.component.css','./controle-faxina2.component.css']
 })
 export class ControleFaxinaComponent implements OnInit {
   apartamentos: Apartamento[] = [];
