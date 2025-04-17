@@ -1,28 +1,30 @@
 .containerAux {
-    overflow-y: auto; /* Adiciona scroll vertical */
-    overflow-x: hidden; /* Evita scroll horizontal */
-    background-color: #F6F6F6; 
-    height: 88vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #F6F6F6;
+    height: 100vh; /* Altura padrão quando a navbar não está presente */
 }
 
-/* Estilizar a barra de rolagem (Webkit) */
+/* Quando a navbar está presente, ajusta a altura do container */
+app-nav-bar-airbnb + .containerAux {
+    height: 88vh; /* Altura quando a navbar está visível */
+}
+
+/* Estilos da scrollbar (mantidos do código original) */
 .containerAux::-webkit-scrollbar {
-    width: 7px; /* Largura da barra de rolagem */
+    width: 7px;
 }
 
-/* Estilizar a trilha da barra de rolagem */
 .containerAux::-webkit-scrollbar-track {
-    background: #e0e0e0; /* Cor de fundo da trilha */
-    border-radius: 10px; /* Bordas arredondadas */
+    background: #e0e0e0;
+    border-radius: 10px;
 }
 
-/* Estilizar o polegar da barra de rolagem */
 .containerAux::-webkit-scrollbar-thumb {
-    background: #006400; /* Cor do polegar (scroll) */
-    border-radius: 10px; /* Bordas arredondadas */
+    background: #006400;
+    border-radius: 10px;
 }
 
-/* Estilizar o polegar ao passar o mouse */
 .containerAux::-webkit-scrollbar-thumb:hover {
-    background: #0056b3; /* Cor do polegar ao passar o mouse */
+    background: #0056b3;
 }

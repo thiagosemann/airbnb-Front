@@ -7,7 +7,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   background: linear-gradient(360deg,  #9bd6a9f6,  #56a769); /* Gradiente suave */
   font-family: 'Poppins', sans-serif; /* Fonte moderna */
 }
@@ -15,12 +14,12 @@
 /* Contêiner centralizado do formulário */
 .container {
   width: 90%;
-  max-width: 500px;
   padding: 30px;
   background: #fff; /* Branco neve */
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(50, 205, 50, 0.25); /* Sombra verde suave */
   text-align: center;
+  height: 100vh;;
 }
 
 .logo-img {
