@@ -21,7 +21,7 @@ import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxin
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'cameraApp/:id', component: CameraAppComponent },
-  { path: 'reservasAirbnb/:id', component: CameraAppComponent },
+  { path: 'reserva/:id', component: CameraAppComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent},
   { path: 'landing', component: LandingComponent, canActivate: [AuthGuardService] },
   { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService] },

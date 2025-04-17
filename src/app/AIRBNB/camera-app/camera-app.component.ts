@@ -38,23 +38,37 @@ export class CameraAppComponent implements OnInit {
   // Recebe o arquivo selecionado para envio
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      
-      reader.onload = () => {
-        // Aqui o conteúdo do arquivo em base64
-        const base64String = reader.result as string;
-        this.documentFile = base64String; // Salva o base64 no atributo
-        this.toastr.success('Documento selecionado com sucesso.');
-      };
-      
-      reader.onerror = () => {
-        this.toastr.error('Erro ao ler o arquivo.');
-      };
-      
-      reader.readAsDataURL(file); // Lê o arquivo como DataURL (base64)
+    if (!file) return;
+  
+    const isPDF = file.type === 'application/pdf';
+    const isSizeValid = file.size <= 5 * 1024 * 1024; // 1MB
+  
+    if (!isPDF) {
+      this.toastr.warning('Se necessário tire uma foto do documento.');
+      this.toastr.warning('Somente arquivos PDF são permitidos.');
+      return;
     }
+  
+    if (!isSizeValid) {
+      this.toastr.warning('Se necessário tire uma foto do documento.');
+      this.toastr.warning('Arquivo maior que 5MB.');
+
+
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result as string;
+      this.documentFile = base64String;
+      this.toastr.success('Documento PDF selecionado com sucesso.');
+    };
+    reader.onerror = () => {
+      this.toastr.error('Erro ao ler o arquivo.');
+    };
+    reader.readAsDataURL(file);
   }
+  
   
   // Inicia a câmera do usuário
   startCamera() {
