@@ -141,7 +141,7 @@ sendData() {
   const checkinData = {
     cod_reserva: this.id, // Supondo que o id da rota seja o cod_reserva
     CPF: this.formData.cpf,
-    Nome: this.formData.nome,
+    Nome: this.formData.nome.toUpperCase(),
     Telefone: this.formData.telefone,
     imagemBase64: this.photoDataUrl.split(',')[1], // Remove o prefixo Data URL
     tipo: 'guest', // Ou outro valor conforme sua regra de negócio

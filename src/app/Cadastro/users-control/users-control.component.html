@@ -1,118 +1,188 @@
 <!-- users-control.component.html -->
-<div class="container py-3">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Usuários</h2>
-    <button class="btn btn-primary" (click)="abrirModal()">Novo Usuário</button>
-  </div>
+<div class="container py-4">
 
-  <div class="card mb-3">
+
+  <div class="card border-success shadow-lg">
+    <div class="card-header bg-success text-white py-3">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Usuários</h5>
+        </div>
+        <div class="col-md-6">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              class="form-control search-input" 
+              placeholder="Pesquisar por nome, CPF ou telefone..."
+              [(ngModel)]="searchTerm"
+              (input)="filtrar()"
+            >
+          </div>
+        </div>
+        <div class="col-md-2 text-end">
+          <button class="btn btn-addUser" (click)="abrirModal()">
+            <i class="fas fa-plus me-2"></i>Novo
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-striped mb-0">
-          <thead class="table-success">
-            <tr>
-              <th>Nome</th>
-              <th>CPF</th>
-              <th>Telefone</th>
-              <th>Tipo</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of users">
-              <td>{{ user.first_name }} {{ user.last_name }}</td>
-              <td>{{ user.cpf }}</td>
-              <td>{{ user.Telefone }}</td>
-              <td>{{ user.role }}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-primary me-2" (click)="editarUsuario(user)">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="table-wrapper">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-success align-middle">
+              <tr>
+                <th class="py-3">Nome</th>
+                <th class="py-3">CPF</th>
+                <th class="py-3">Telefone</th>
+                <th class="py-3">Tipo</th>
+                <th class="py-3 text-end">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of filteredUsers" class="align-middle">
+                <td class="fw-medium">{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ formatCPF(user.cpf) }}</td>
+                <td>{{ formtarTelefone(user.Telefone) }}</td>
+                <td>
+                  <span class="badge bg-success-subtle text-success">
+                    {{ user.role | titlecase }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-success" (click)="editarUsuario(user)"
+                      title="Editar usuário">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)"
+                      title="Excluir usuário">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
-<!-- Modal -->
+  <!-- Modal -->
+  <!-- Modal -->
 <div class="modal" *ngIf="showModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="mb-0">{{ isEditing ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
-        <button class="close-btn" (click)="fecharModal()">×</button>
+  <div class="modal-content">
+    <div class="modal-header bg-success text-white">
+      <h3 class="mb-0">{{ isEditing ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
+      <button class="close-btn" (click)="fecharModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
       </div>
-      <div class="modal-body">
-        <form [formGroup]="userForm" class="row g-4">
-          <!-- Seção 1: Informações Pessoais -->
-          <div class="col-md-6">
-            <h5 class="section-title">Informações Pessoais</h5>
-            <div class="mb-3">
-              <label class="form-label">Nome</label>
-              <input type="text" class="form-control" formControlName="first_name">
+
+      <form *ngIf="!isLoading" [formGroup]="userForm" class="row g-3">
+        <!-- Seção 1: Informações Pessoais -->
+        <div class="col-md-6">
+          <div class="section-header mb-3">
+            <h5 class="section-title"><i class="fas fa-user-circle me-2"></i>Informações Pessoais</h5>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Nome</label>
+            <input type="text" class="form-control border-success" formControlName="first_name">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Sobrenome</label>
+            <input type="text" class="form-control border-success" formControlName="last_name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">CPF</label>
+            <input type="text" class="form-control border-success" 
+                   formControlName="cpf" mask="000.000.000-00">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">Telefone</label>
+            <input type="text" class="form-control border-success" 
+                   formControlName="Telefone" mask="(00) 00000-0000">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Tipo de Usuário</label>
+            <select class="form-select border-success" formControlName="role">
+              <option value="guest">Hóspede</option>
+              <option value="admin">Administrador</option>
+              <option value="tercerizado">Faxineira</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Seção 2: Documentos -->
+        <div class="col-md-6">
+          <div class="section-header mb-3">
+            <h5 class="section-title"><i class="fas fa-file-alt me-2"></i>Documentos</h5>
+          </div>
+
+          <!-- Container para imagens lado a lado -->
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label fw-medium">Selfie</label>
+                <div class="upload-container border-success h-80">
+                  <div *ngIf="!isPDF(userForm.get('imagemBase64')?.value)">
+                    <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value" 
+                         alt="Documento" 
+                         class="img-fluid rounded shadow-sm">
+                  </div>
+                  <div *ngIf="!userForm.get('imagemBase64')?.value" 
+                       class="upload-placeholder text-center py-3">
+                    <i class="fas fa-camera fa-2x text-success mb-2"></i>
+                    <p class="text-muted small mb-0">Clique para adicionar foto</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Sobrenome</label>
-              <input type="text" class="form-control" formControlName="last_name">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">CPF</label>
-              <input type="text" class="form-control" formControlName="cpf" mask="000.000.000-00">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Telefone</label>
-              <input type="text" class="form-control" formControlName="Telefone" mask="(00) 00000-0000">
+
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label fw-medium">Documento</label>
+                <div class="document-preview border-success h-80">
+                  <div *ngIf="!isPDF(userForm.get('documentBase64')?.value)">
+                    <img [src]="'data:image/png;base64,' + userForm.get('documentBase64')?.value" 
+                         alt="Documento" 
+                         class="img-fluid rounded shadow-sm">
+                  </div>
+                  <div *ngIf="isPDF(userForm.get('documentBase64')?.value)">
+                    <iframe [src]="getSafeUrl(userForm.get('documentBase64')?.value)" 
+                            class="w-100 rounded" 
+                            style="height: 120px;"></iframe>
+                  </div>
+                  <div *ngIf="!userForm.get('documentBase64')?.value" 
+                       class="upload-placeholder text-center py-3">
+                    <i class="fas fa-file-upload fa-2x text-success mb-2"></i>
+                    <p class="text-muted small mb-0">Clique para adicionar documento</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-  
-          <!-- Seção 2: Documentos -->
-          <div class="col-md-6">
-            <h5 class="section-title">Documentos</h5>
-            <div class="mb-3">
-              <label class="form-label">Tipo de Usuário</label>
-              <select class="form-select" formControlName="role">
-                <option value="guest">Hóspede</option>
-                <option value="admin">Administrador</option>
-                <option value="tercerizado">Faxineira</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Selfie</label>
-              <!-- Exibe a imagem do perfil -->
-              <div *ngIf="userForm.get('imagemBase64')?.value" class="img-preview">
-                <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value" 
-                alt="Imagem do Hóspede" 
-                class="img-fluid rounded border">
-              </div>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Documento (RG/CPF)</label>
-              <!-- Exibe o documento -->
-              <div *ngIf="!isPDF(userForm.get('documentBase64')?.value)">
-                <img [src]="'data:image/png;base64,' + userForm.get('documentBase64')?.value" 
-                alt="Imagem do Hóspede" 
-                class="img-fluid rounded border">
-              </div>
-              <div *ngIf="isPDF(userForm.get('documentBase64')?.value)">
-                <iframe [src]="getSafeUrl(userForm.get('documentBase64')?.value)" 
-                class="w-100" style="height: 350px; border: 1px solid #ccc;"></iframe>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
-        <button class="btn btn-primary" (click)="salvarUsuario()" [disabled]="userForm.invalid">
-          {{ isEditing ? 'Atualizar' : 'Salvar' }}
-        </button>
-      </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+      <button class="btn btn-success" (click)="salvarUsuario()" [disabled]="userForm.invalid">
+        <i class="fas fa-save me-2"></i>{{ isEditing ? 'Atualizar' : 'Salvar' }}
+      </button>
     </div>
   </div>
-  
+</div>
 </div>

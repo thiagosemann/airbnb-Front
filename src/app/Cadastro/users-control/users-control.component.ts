@@ -12,11 +12,13 @@ import { User } from 'src/app/shared/utilitarios/user';
 })
 export class UsersControlComponent implements OnInit {
   users: User[] = [];
+  filteredUsers: User[] = [];
   showModal = false;
   isEditing = false;
   selectedUserId: number | null = null;
   userForm: FormGroup;
-
+  isLoading = false;           // ← nova flag
+  searchTerm:string = "";
   constructor(
     private fb: FormBuilder,
     private usersService: UserService,
@@ -42,8 +44,9 @@ export class UsersControlComponent implements OnInit {
     try {
       this.usersService.getUsers().subscribe(
         (users: User[]) => {
-          console.log(users)
-          this.users = users; // Atribui o resultado do Observable
+          console.log(users);
+          this.users = users;
+          this.filteredUsers = [...users]; // Inicializa filteredUsers
         },
         (error) => {
           console.error('Erro ao carregar usuários:', error);
@@ -69,12 +72,29 @@ export class UsersControlComponent implements OnInit {
   editarUsuario(user: any) {
     this.isEditing = true;
     this.selectedUserId = user.id;
-    this.userForm.patchValue({
-      ...user,
-      cpf: user.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-    });
     this.showModal = true;
+    this.isLoading = true;     // ← início do loading
+
+    this.usersService.getUser(user.id).subscribe(
+      (fetchedUser: User) => {
+        console.log(fetchedUser);
+        this.userForm.patchValue({
+          ...fetchedUser,
+          cpf: fetchedUser.cpf.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            '$1.$2.$3-$4'
+          )
+
+        });
+        this.isLoading = false;  // ← terminou de carregar
+
+      },
+      (error) => {
+        console.error('Erro ao carregar usuário:', error);
+      }
+    );
   }
+  
 
   async excluirUsuario(userId: number) {
     if (confirm('Tem certeza que deseja excluir este usuário?')) {
@@ -126,5 +146,36 @@ export class UsersControlComponent implements OnInit {
   getSafeUrl(base64: string): SafeResourceUrl {
     const pdfSrc = `data:application/pdf;base64,${base64}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(pdfSrc);
+  }
+
+  filtrar(): void {
+    const termo = this.searchTerm.toLowerCase().trim();
+    
+    if (!termo) {
+      this.filteredUsers = [...this.users];
+      return;
+    }
+  
+    this.filteredUsers = this.users.filter(user => 
+      (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
+      user.cpf.replace(/\D/g, '').includes(termo) ||
+      user.Telefone?.replace(/\D/g, '').includes(termo) ||
+      user.role.toLowerCase().includes(termo)
+    );
+  }
+  formatCPF(cpf:string):string{
+    let formatedCpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+    // trasnformar cpf de 11 digitos para ficar com . e traço
+    formatedCpf = formatedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    return formatedCpf
+  }
+  formtarTelefone(telefone:string | undefined):string{
+    if(!telefone){
+      return ''
+    }
+    let formatedTelefone = telefone.replace(/\D/g, ''); // Remove caracteres não numéricos
+    // transformar telefone de 11 digitos para ficar com (xx) xxxxx-xxxx
+    formatedTelefone = formatedTelefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    return  formatedTelefone
   }
 }

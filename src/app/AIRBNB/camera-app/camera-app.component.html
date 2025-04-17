@@ -19,7 +19,7 @@
         </div>
         <div class="form-group">
           <label for="phone">Telefone:</label>
-          <input type="tel" class="form-control" id="phone" placeholder="(00) 00000-0000" [(ngModel)]="formData.telefone" name="telefone" required>
+          <input type="tel" class="form-control" id="phone" placeholder="(00) 00000-0000" [(ngModel)]="formData.telefone" name="telefone" mask="(00) 00000-0000" required>
         </div>
         <button type="submit" class="btn btn-success">Próximo <i class="fas fa-arrow-right"></i></button>
       </form>
