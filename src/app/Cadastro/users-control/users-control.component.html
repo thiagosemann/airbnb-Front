@@ -125,61 +125,60 @@
 
         </div>
 
-        <!-- Seção 2: Documentos -->
-        <div class="col-md-6">
-          <div class="section-header mb-3">
-            <h5 class="section-title"><i class="fas fa-file-alt me-2"></i>Documentos</h5>
-          </div>
+                  <!-- Seção 2: Documentos -->
+          <!-- ... seção de Informações Pessoais acima ... -->
 
-          <!-- Container para imagens lado a lado -->
-          <div class="row g-3">
-            <div class="col-12">
-              <div class="mb-3">
-                <label class="form-label fw-medium">Selfie</label>
-                <div class="upload-container border-success h-80">
-                  <div *ngIf="!isPDF(userForm.get('imagemBase64')?.value)">
-                    <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value" 
-                         alt="Documento" 
-                         class="img-fluid rounded shadow-sm">
+          <!-- Seção 2: Documentos – somente em edição -->
+          <div class="col-md-6" *ngIf="isEditing">
+            <div class="section-header mb-3">
+              <h5 class="section-title"><i class="fas fa-file-alt me-2"></i>Documentos</h5>
+            </div>
+
+            <div class="row g-3">
+              <!-- Selfie -->
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-medium">Selfie</label>
+                  <div *ngIf="userForm.get('imagemBase64')?.value; else noImage">
+                    <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value"
+                        alt="Selfie do usuário"
+                        class="img-fluid rounded shadow-sm">
                   </div>
-                  <div *ngIf="!userForm.get('imagemBase64')?.value" 
-                       class="upload-placeholder text-center py-3">
-                    <i class="fas fa-camera fa-2x text-success mb-2"></i>
-                    <p class="text-muted small mb-0">Clique para adicionar foto</p>
+                  <ng-template #noImage>
+                    <p class="text-muted small">Nenhuma selfie cadastrada.</p>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Documento -->
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-medium">Documento</label>
+                  <div *ngIf="userForm.get('documentBase64')?.value; else noDoc">
+                    <ng-container *ngIf="!isPDF(userForm.get('documentBase64')?.value); else pdfDoc">
+                      <img [src]="'data:image/png;base64,' + userForm.get('documentBase64')?.value"
+                          alt="Documento do usuário"
+                          class="img-fluid rounded shadow-sm">
+                    </ng-container>
+                    <ng-template #pdfDoc>
+                      <iframe [src]="getSafeUrl(userForm.get('documentBase64')?.value)"
+                              class="w-100 rounded"
+                              style="height: 120px;"></iframe>
+                    </ng-template>
                   </div>
+                  <ng-template #noDoc>
+                    <p class="text-muted small">Nenhum documento cadastrado.</p>
+                  </ng-template>
                 </div>
               </div>
             </div>
-
-            <div class="col-12">
-              <div class="mb-3">
-                <label class="form-label fw-medium">Documento</label>
-                <div class="document-preview border-success h-80">
-                  <div *ngIf="!isPDF(userForm.get('documentBase64')?.value)">
-                    <img [src]="'data:image/png;base64,' + userForm.get('documentBase64')?.value" 
-                         alt="Documento" 
-                         class="img-fluid rounded shadow-sm">
-                  </div>
-                  <div *ngIf="isPDF(userForm.get('documentBase64')?.value)">
-                    <iframe [src]="getSafeUrl(userForm.get('documentBase64')?.value)" 
-                            class="w-100 rounded" 
-                            style="height: 120px;"></iframe>
-                  </div>
-                  <div *ngIf="!userForm.get('documentBase64')?.value" 
-                       class="upload-placeholder text-center py-3">
-                    <i class="fas fa-file-upload fa-2x text-success mb-2"></i>
-                    <p class="text-muted small mb-0">Clique para adicionar documento</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
-      <button class="btn btn-success" (click)="salvarUsuario()" [disabled]="userForm.invalid">
+      <button class="btn btn-success" (click)="salvarUsuario()" >
         <i class="fas fa-save me-2"></i>{{ isEditing ? 'Atualizar' : 'Salvar' }}
       </button>
     </div>

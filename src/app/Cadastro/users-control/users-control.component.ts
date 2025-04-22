@@ -61,8 +61,20 @@ export class UsersControlComponent implements OnInit {
   abrirModal() {
     this.showModal = true;
     this.isEditing = false;
-    this.userForm.reset({ role: 'guest' });
+    this.selectedUserId = null;
+  
+    // Reseta o form e limpa validação de imagens
+    this.userForm.reset({
+      role: 'guest',
+      imagemBase64: '',
+      documentBase64: ''
+    });
+    this.userForm.get('imagemBase64')!.clearValidators();
+    this.userForm.get('imagemBase64')!.updateValueAndValidity();
+    this.userForm.get('documentBase64')!.clearValidators();
+    this.userForm.get('documentBase64')!.updateValueAndValidity();
   }
+  
 
   fecharModal() {
     this.showModal = false;
@@ -73,27 +85,31 @@ export class UsersControlComponent implements OnInit {
     this.isEditing = true;
     this.selectedUserId = user.id;
     this.showModal = true;
-    this.isLoading = true;     // ← início do loading
-
+    this.isLoading = true;
+  
+    // faz obrigatória a presença de imagens ao submeter edição
+    this.userForm.get('imagemBase64')!.setValidators(Validators.required);
+    this.userForm.get('imagemBase64')!.updateValueAndValidity();
+    this.userForm.get('documentBase64')!.setValidators(Validators.required);
+    this.userForm.get('documentBase64')!.updateValueAndValidity();
+  
     this.usersService.getUser(user.id).subscribe(
       (fetchedUser: User) => {
-        console.log(fetchedUser);
         this.userForm.patchValue({
           ...fetchedUser,
           cpf: fetchedUser.cpf.replace(
             /(\d{3})(\d{3})(\d{3})(\d{2})/,
             '$1.$2.$3-$4'
           )
-
         });
-        this.isLoading = false;  // ← terminou de carregar
-
+        this.isLoading = false;
       },
       (error) => {
         console.error('Erro ao carregar usuário:', error);
       }
     );
   }
+  
   
 
   async excluirUsuario(userId: number) {
@@ -119,7 +135,7 @@ export class UsersControlComponent implements OnInit {
   }
 
   async salvarUsuario() {
-    if (this.userForm.invalid) return;
+    //if (this.userForm.invalid) return;
 
     const userData = this.userForm.value;
     userData.cpf = userData.cpf.replace(/\D/g, '');

@@ -330,11 +330,25 @@
       <!-- Seção: Informações do Hóspede -->
       <div class="modal-section">
         <h5>Informações do Hóspede</h5>
+        <div *ngIf="!carregandoImagem">
+          <button class="btn-primary" (click)="exportData()" style="margin-right: 10px;">
+            <i class="fas fa-file-export"></i> Exportar Tudo
+          </button>
+        </div>
+
+        <div *ngIf="carregandoImagem" class="loading-container">
+          <div class="spinner"></div>
+          <span>Carregando imagem...</span>
+        </div>
+        <div *ngIf="hospedesReserva.length==0 && !carregandoImagem " >
+          <h6>Sem hóspedes cadastrados!</h6>
+        </div>
         <div class="modal-grid" *ngFor="let hospede of hospedesReserva">
           <h6>Hóspede: {{ hospede.first_name }}</h6>
           <p><strong>CPF:</strong> {{ hospede.CPF }}</p>
           <div class="hospede-section" style="display: flex; gap: 20px; align-items: center; justify-content: space-around;">
             <!-- Exibição da imagem do hóspede -->
+
             <div *ngIf="hospede.imagemBase64">
               <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
                    alt="Imagem do Hóspede" 
@@ -359,10 +373,7 @@
         </div>
       </div>
       
-      
-      
-
-      <!-- Seção: Informações do Apartamento -->
+       <!-- Seção: Informações do Apartamento -->
       <div class="modal-section">
         <h5>Informações do Apartamento</h5>
         <div class="modal-grid">

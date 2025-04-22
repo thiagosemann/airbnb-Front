@@ -27,7 +27,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   credenciaisFetias: number = 0;
   hospedesReserva:any[] =[];
   reservasBloqueadas: ReservaAirbnb[] = [];
-
+  carregandoImagem: boolean = false; // Para controlar o carregamento da imagem
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
@@ -133,6 +133,8 @@ export class CalendarioAirbnbComponent implements OnInit {
   // Ao abrir o modal, chama a função do service para buscar o apartamento pelo id
   openModal(event: ReservaAirbnb): void {
     this.selectedReservation = event;
+    this.carregandoImagem = true; // Reset do estado
+
     // Supondo que 'apartamento_id' é a propriedade que contém o id do apartamento na reserva
     this.apartamentoService.getApartamentoById(event.apartamento_id).subscribe(
       (apartamento) => {
@@ -198,16 +200,20 @@ export class CalendarioAirbnbComponent implements OnInit {
   }
 
   getRespostasByReservaId(reserva_id:string,cod_reserva:string): void {
-  
+    this.hospedesReserva = [];
     this.checkinFormService.getCheckinByReservaIdOrCodReserva(reserva_id.toString(), cod_reserva)
       .subscribe({
         next: (resposta) => {
           console.log(resposta)
           this.hospedesReserva = resposta;
+          this.carregandoImagem = false; // Reset do estado
+
           console.log('Resposta do Check-in:', resposta);
         },
         error: (error) => {
           console.error('Erro ao obter o check-in:', error);
+          this.carregandoImagem = false; // Reset do estado
+
         }
       });
   }
@@ -225,4 +231,47 @@ export class CalendarioAirbnbComponent implements OnInit {
   findIfBloqued(event: any): string {
     return event.cod_reserva;
   }
+
+  // Adicione no componente TS
+downloadImage(base64: string, fileName: string): void {
+  const link = document.createElement('a');
+  link.href = 'data:image/png;base64,' + base64;
+  link.download = `${fileName}.png`;
+  link.click();
+}
+
+downloadDocument(base64: string, fileName: string): void {
+  const mimeType = this.isPDF(base64) ? 'application/pdf' : 'image/png';
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: mimeType });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = `${fileName}.${mimeType.split('/')[1]}`;
+  link.click();
+}
+
+exportData(): void {
+  this.hospedesReserva.forEach((reserva) => {
+    console.log(reserva)
+    let count=0;
+      if (reserva.documentBase64) {
+        this.downloadDocument(reserva.documentBase64, reserva.CPF+"-documento");
+        count++;
+      } 
+      if (reserva.imagemBase64) {
+        this.downloadImage(reserva.imagemBase64, reserva.CPF+"-selfie");
+        count++;
+      }
+       if(count!==0){
+        console.error('Nenhum documento ou imagem disponível para download.');
+      }
+   })
+}
 }
