@@ -60,7 +60,7 @@ export class CadastroApartamentosComponent implements OnInit {
 
   carregarDados(): void {
     this.apartamentoService.getAllApartamentos().subscribe({
-      next: (data) => this.apartamentos = data,
+      next: (data) => this.apartamentos = data.sort((a,b)=>(a.nome > b.nome ? 1 : -1)),
       error: (error) => console.error('Erro ao carregar apartamentos:', error)
     });
 

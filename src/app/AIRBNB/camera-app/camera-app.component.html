@@ -4,6 +4,11 @@
     
     <!-- Etapa 1: Formulário de informações -->
     <div *ngIf="step === 1">
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+       As informações fornecidas serão usadas única e exclusivamente para o seu cadastro junto ao prédio em que você irá se hospedar, garantindo segurança e agilidade no seu atendimento.
+      </div>
+      
       <form (ngSubmit)="goForward()">
         <div class="form-group">
           <label for="id">Código da Reserva:</label>

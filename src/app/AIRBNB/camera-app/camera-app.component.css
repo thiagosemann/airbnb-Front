@@ -197,3 +197,22 @@ video, img {
 .whatsapp-float:hover {
   background-color: #1ebd5a;
 }
+.info-box {
+  background-color: #e9f7ef; /* verde claro */
+  border-left: 5px solid #28a745; /* verde destaque */
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #2e7d32;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.info-box i {
+  font-size: 18px;
+  color: #28a745;
+}
+
