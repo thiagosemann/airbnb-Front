@@ -36,6 +36,22 @@ export class CalendarioAirbnbComponent implements OnInit {
     finalizadas: false,
     bloqueadas: false
   };
+  // Adicione estas novas propriedades para controle de carregamento
+  loadedSections: { [key in SectionKey]: boolean } = {
+    hoje: false,
+    andamento: false,
+    proximas: false,
+    finalizadas: false,
+    bloqueadas: false
+  };
+
+  loadingSections: { [key in SectionKey]: boolean } = {
+    hoje: false,
+    andamento: false,
+    proximas: false,
+    finalizadas: false,
+    bloqueadas: false
+    };
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
@@ -51,58 +67,11 @@ export class CalendarioAirbnbComponent implements OnInit {
     let user = this.authService.getUser();
     if(user && user.role!="admin"){
       this.router.navigate(['/login']);
-
     }
-    this.reservasAirbnbService.getAllReservas().subscribe(
-      data => {
-        const eventosOrdenados = this.ordenarEventosPorData(data);
-        this.categorizarReservas(eventosOrdenados);
-        this.carregando = false;
-      },
-      error => {
-        console.error('Erro ao obter os eventos do calendário', error);
-        this.carregando = false;
-      }
-    );
-  }
-
-  private ordenarEventosPorData(eventos: ReservaAirbnb[]): ReservaAirbnb[] {
-    return eventos.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-  }
-
-  private categorizarReservas(eventos: ReservaAirbnb[]): void {
-    const hojeUTC = new Date();
-    hojeUTC.setUTCHours(0, 0, 0, 0);
-    const hojeTime = hojeUTC.getTime();
-  
-    for (const evento of eventos) {
-      // Verificar se é bloqueado primeiro
-      if (this.isBloqueado(evento)) {
-        this.reservasBloqueadas.push(evento);
-        continue; // Pula para próxima iteração
-      }
-  
-      const startDate = new Date(evento.start_date);
-      startDate.setUTCHours(0, 0, 0, 0);
-      const startTime = startDate.getTime();
-  
-      const endDate = new Date(evento.end_data);
-      endDate.setUTCHours(0, 0, 0, 0);
-      const endTime = endDate.getTime();
-  
-      if (hojeTime > startTime && hojeTime < endTime) {
-        this.reservasAndamento.push(evento);
-      } else if (hojeTime === startTime) {
-        this.reservasHoje.push(evento);
-        if (evento.credencial_made) {
-          this.credenciaisFetias++;
-        }
-      } else if (startTime > hojeTime) {
-        this.proximasReservas.push(evento);
-      } else {
-        this.reservasFinalizadas.push(evento);
-      }
-    }
+    
+    // Carrega a seção 'hoje' automaticamente
+    this.sections.hoje = true; // Garante que a seção está visível
+    this.loadSectionData('hoje'); // Força o carregamento dos dados
   }
   
   private isBloqueado(evento: ReservaAirbnb): boolean {
@@ -127,9 +96,82 @@ export class CalendarioAirbnbComponent implements OnInit {
 
   // Método para alternar a visibilidade das seções
   toggleSection(section: SectionKey): void {
-    this.sections[section] = !this.sections[section];
+    const wasOpen = this.sections[section];
+    this.sections[section] = !wasOpen;
+
+    if (!wasOpen && !this.loadedSections[section]) {
+      this.loadSectionData(section);
+    }
   }
 
+  private loadSectionData(section: SectionKey): void {
+    this.loadingSections[section] = true;
+
+    switch(section) {
+      case 'hoje':
+        this.reservasAirbnbService.getReservasHoje().subscribe({
+          next: (reservas) => {
+            this.reservasHoje = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.credenciaisFetias = reservas.filter(r => r.credencial_made).length;
+
+            this.loadedSections.hoje = true;
+            this.loadingSections.hoje = false;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar reservas de hoje:', error);
+            this.loadingSections.hoje = false;
+          }
+        });
+        break;
+
+      case 'proximas':
+        this.reservasAirbnbService.getProximasReservas().subscribe({
+          next: (reservas) => {
+            this.proximasReservas = reservas.filter(reserva => !this.isBloqueado(reserva));
+
+            this.loadedSections.proximas = true;
+            this.loadingSections.proximas = false;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar próximas reservas:', error);
+            this.loadingSections.proximas = false;
+          }
+        });
+        break;
+
+      case 'finalizadas':
+        this.reservasAirbnbService.getReservasFinalizadas().subscribe({
+          next: (reservas) => {
+            this.reservasFinalizadas = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.loadedSections.finalizadas = true;
+            this.loadingSections.finalizadas = false;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar reservas finalizadas:', error);
+            this.loadingSections.finalizadas = false;
+          }
+        });
+        break;
+
+      case 'andamento':
+        this.reservasAirbnbService.getReservasEmAndamento().subscribe({
+          next: (reservas) => {
+            this.reservasAndamento = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.loadedSections.andamento = true;
+            this.loadingSections.andamento = false;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar reservas em andamento:', error);
+            this.loadingSections.andamento = false;
+          }
+        });
+        break;
+
+      case 'bloqueadas':
+        // Implemente similarmente se tiver um endpoint específico
+        break;
+    }
+  }
   // Ao abrir o modal, chama a função do service para buscar o apartamento pelo id
   openModal(event: ReservaAirbnb): void {
     this.selectedReservation = event;
@@ -274,4 +316,19 @@ exportData(): void {
       }
    })
 }
+formatarDataparaTable(dataISO:string):string {
+  const data = new Date(dataISO);
+  
+  // Extrai componentes da data UTC (para manter fiel ao horário original)
+  const horas = data.getUTCHours().toString().padStart(2, '0');
+  const minutos = data.getUTCMinutes().toString().padStart(2, '0');
+  const dia = data.getUTCDate().toString().padStart(2, '0');
+  const mes = (data.getUTCMonth() + 1).toString().padStart(2, '0');
+  const ano = data.getUTCFullYear();
+
+  return `${horas}:${minutos} - ${dia}/${mes}/${ano}`;
+}
+
+
+
 }

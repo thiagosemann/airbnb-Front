@@ -8,7 +8,7 @@
       <div class="status-item upcoming">Próximas: {{ proximasReservas.length }}</div>
     </div>
   </header>
-  <div *ngIf="!carregando; else loading">
+  <div >
     <!-- Seção Reservas para Hoje -->
     <div class="section-container">
       <div class="section-header" (click)="toggleSection('hoje')">
@@ -16,18 +16,22 @@
       </div>
       <div class="section-content" [class.active]="sections.hoje">
         <!-- Tabela para reservas de hoje -->
+        <div *ngIf="loadingSections.hoje" class="loading-overlay">
+          <div class="spinner"></div>
+        </div>
         <table class="calendar-table">
           <thead>
             <tr>
-              <th>Apartamento</th>
-              <th>Cód Reserva</th>
-              <th>Início</th>
-              <th>Check-In</th>
-              <th>Fim</th>
-              <th>Check-Out</th>
-              <th>Credencial</th>
-              <th>Informado</th>
-              <th>Observações</th>
+              <th style="width: 5%;">Apartamento</th>
+              <th style="width: 10%;">Cód Reserva</th>
+              <th style="width: 5%;">Início</th>
+              <th style="width: 10%;">Check-In</th>
+              <th style="width: 5%;">Fim</th>
+              <th style="width: 10%;">Check-Out</th>
+              <th style="width: 10%;">Credencial</th>
+              <th style="width: 10%;">Informado</th>
+              <th style="width: 10%;">Docs Env.</th>
+              <th style="width: 10%;">Observações</th>
             </tr>
           </thead>
           <tbody>
@@ -57,76 +61,29 @@
                 </label>
               </td>
               <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.documentosEnviados" 
+                         (change)="updateStatus(event, 'informed', $event,'reservasHoje')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+
+              <td>
                 <button (click)="openModal(event)">
                   <i class="fas fa-plus"></i> Mais 
                 </button>
               </td>
             </tr>
             <tr *ngIf="reservasHoje.length === 0">
-              <td colspan="6">Nenhuma reserva para hoje</td>
+              <td colspan="11">Nenhuma reserva para hoje</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Seção Reservas em Andamento -->
-    <div class="section-container">
-      <div class="section-header" (click)="toggleSection('andamento')">
-        <h5><i class="fas fa-calendar-day"></i> Reservas em Andamento</h5>
-        <span class="arrow" [class.open]="sections.andamento"></span>
-      </div>
-      <div class="section-content" [class.active]="sections.andamento">
-        <table class="calendar-table">
-          <thead>
-            <tr>
-              <th>Apartamento</th>
-              <th>Cód Reserva</th>
-              <th>Data de Início</th>
-              <th>Data de Fim</th>
-              <th>Credencial</th>
-              <th>Informado</th>
-              <th>Observações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let event of reservasAndamento">
-              <td>
-                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
-              </td>
-              <td>{{ findIfBloqued(event)  }}</td>
-              <td>{{ formatarData(event.start_date) }}</td>
-              <td>{{ formatarData(event.end_data) }}</td>
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.credencial_made" 
-                         (change)="updateStatus(event, 'credencial_made', $event,'reservasAndamento')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              
-              <td>
-                <label class="custom-checkbox">
-                  <input type="checkbox" 
-                         [checked]="event.informed" 
-                         (change)="updateStatus(event, 'informed', $event,'reservasAndamento')">
-                  <span class="checkmark"></span>
-                </label>
-              </td>
-              <td>
-                <button (click)="openModal(event)">
-                  <i class="fas fa-plus"></i> Mais 
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="reservasAndamento.length === 0">
-              <td colspan="6">Nenhuma reserva para hoje</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    
 
     <!-- Seção Próximas Reservas -->
     <div class="section-container">
@@ -135,6 +92,9 @@
         <span class="arrow" [class.open]="sections.proximas"></span>
       </div>
       <div class="section-content" [class.active]="sections.proximas">
+        <div *ngIf="loadingSections.proximas" class="loading-overlay">
+          <div class="spinner"></div>
+        </div>
         <table class="calendar-table">
           <thead>
             <tr>
@@ -144,6 +104,7 @@
               <th>Data de Fim</th>
               <th>Credencial</th>
               <th>Informado</th>
+              <th>Docs Enviados</th>
               <th>Observações</th>
             </tr>
           </thead>
@@ -173,6 +134,14 @@
                 </label>
               </td>
               <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                         [checked]="event.documentosEnviados" 
+                         (change)="updateStatus(event, 'informed', $event,'reservasHoje')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
                 <button (click)="openModal(event)">
                   <i class="fas fa-plus"></i> Mais 
                 </button>
@@ -186,6 +155,67 @@
       </div>
     </div>
 
+
+    <!-- Seção Reservas em Andamento -->
+    <div class="section-container">
+      <div class="section-header" (click)="toggleSection('andamento')">
+        <h5><i class="fas fa-calendar-day"></i> Reservas em Andamento</h5>
+        <span class="arrow" [class.open]="sections.andamento"></span>
+      </div>
+      <div class="section-content" [class.active]="sections.andamento">
+        <div *ngIf="loadingSections.andamento" class="loading-overlay">
+          <div class="spinner"></div>
+        </div>
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Apartamento</th>
+              <th>Cód Reserva</th>
+              <th>Data de Início</th>
+              <th>Data de Fim</th>
+              <th>Credencial</th>
+              <th>Informado</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of reservasAndamento">
+              <td>
+                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+              </td>
+              <td>{{ findIfBloqued(event)  }}</td>
+              <td>{{ formatarData(event.start_date) }}</td>
+              <td>{{ formatarData(event.end_data) }}</td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                        [checked]="event.credencial_made" 
+                        (change)="updateStatus(event, 'credencial_made', $event,'reservasAndamento')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" 
+                        [checked]="event.informed" 
+                        (change)="updateStatus(event, 'informed', $event,'reservasAndamento')">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>
+                <button (click)="openModal(event)">
+                  <i class="fas fa-plus"></i> Mais 
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="reservasAndamento.length === 0 && !loadingSections.andamento">
+              <td colspan="7">Nenhuma reserva em andamento</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Seção Reservas Finalizadas -->
     <div class="section-container">
       <div class="section-header" (click)="toggleSection('finalizadas')">
@@ -193,6 +223,9 @@
         <span class="arrow" [class.open]="sections.finalizadas"></span>
       </div>
       <div class="section-content" [class.active]="sections.finalizadas">
+        <div *ngIf="loadingSections.finalizadas" class="loading-overlay">
+          <div class="spinner"></div>
+        </div>
         <table class="calendar-table">
           <thead>
             <tr>
@@ -281,10 +314,6 @@
       </div>
     </div>
   </div>
-
-  <ng-template #loading>
-    <p>Carregando eventos...</p>
-  </ng-template>
 </div>
 
 
@@ -329,7 +358,7 @@
       <hr>
       <!-- Seção: Informações do Hóspede -->
       <div class="modal-section">
-        <h5>Informações do Hóspede</h5>
+        <h5>Informações do Hóspede</h5>      
         <div *ngIf="!carregandoImagem">
           <button class="btn-primary" (click)="exportData()" style="margin-right: 10px;">
             <i class="fas fa-file-export"></i> Exportar Tudo
@@ -343,33 +372,38 @@
         <div *ngIf="hospedesReserva.length==0 && !carregandoImagem " >
           <h6>Sem hóspedes cadastrados!</h6>
         </div>
-        <div class="modal-grid" *ngFor="let hospede of hospedesReserva">
-          <h6>Hóspede: {{ hospede.first_name }}</h6>
-          <p><strong>CPF:</strong> {{ hospede.CPF }}</p>
-          <div class="hospede-section" style="display: flex; gap: 20px; align-items: center; justify-content: space-around;">
-            <!-- Exibição da imagem do hóspede -->
-
-            <div *ngIf="hospede.imagemBase64">
-              <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
-                   alt="Imagem do Hóspede" 
-                   style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
-            </div>
-      
-            <!-- Exibição do documento (PDF ou imagem) -->
-            <div *ngIf="hospede.documentBase64">
-              <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
-                <!-- Se for PDF, exibe um iframe ou link -->
-                <iframe [src]="getSafeUrl(hospede.documentBase64)" 
-                        style="width: 350px; height: 350px; border: 1px solid #ccc;"></iframe>
-              </ng-container>
-              <ng-template #imagemDocumento>
-                <!-- Se for imagem, exibe como uma imagem -->
-                <img [src]="'data:image/png;base64,' + hospede.documentBase64" 
-                     alt="Documento do Hóspede" 
+        <div class="modal-grid" >
+          <div *ngFor="let hospede of hospedesReserva" class="hospede-row">
+            <p><strong>Hóspede:</strong> {{ hospede.first_name }}</p>
+            <p><strong>CPF:</strong> {{ hospede.CPF }}</p>
+            <p><strong>Horário:</strong> {{ formatarDataparaTable(hospede.created_at) }}</p>
+            
+            <div class="hospede-section">
+              <!-- Exibição da imagem do hóspede -->
+  
+              <div *ngIf="hospede.imagemBase64">
+                <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
+                     alt="Imagem do Hóspede" 
                      style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
-              </ng-template>
+              </div>
+        
+              <!-- Exibição do documento (PDF ou imagem) -->
+              <div *ngIf="hospede.documentBase64">
+                <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
+                  <!-- Se for PDF, exibe um iframe ou link -->
+                  <iframe [src]="getSafeUrl(hospede.documentBase64)" 
+                          style="width: 350px; height: 350px; border: 1px solid #ccc;"></iframe>
+                </ng-container>
+                <ng-template #imagemDocumento>
+                  <!-- Se for imagem, exibe como uma imagem -->
+                  <img [src]="'data:image/png;base64,' + hospede.documentBase64" 
+                       alt="Documento do Hóspede" 
+                       style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
+                </ng-template>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
       

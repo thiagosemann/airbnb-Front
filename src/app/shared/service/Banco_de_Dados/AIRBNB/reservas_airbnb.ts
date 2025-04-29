@@ -17,19 +17,48 @@ export class ReservasAirbnbService {
     return new HttpHeaders({ 'Authorization': 'Bearer ' + token });
   }
 
-  // Método novo para buscar por período
+  // Novos métodos adicionados
+  getReservasHoje(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/hoje`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getProximasReservas(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/proximas`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getReservasFinalizadas(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/finalizadas`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Novo método para reservas em andamento
+  getReservasEmAndamento(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/em-andamento`, // Endpoint correspondente
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Métodos existentes mantidos abaixo
   getReservasPorPeriodo(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
     const params = new HttpParams()
       .set('start', startDate)
       .set('end', endDate);
 
-    return this.http.get<ReservaAirbnb[]>(`${this.apiUrl}/por-periodo`, {
+    return this.http.get<ReservaAirbnb[]>(`${this.apiUrl}/periodo`, {
       headers: this.getHeaders(),
       params
     });
   }
 
-  // Métodos existentes mantidos abaixo
   getAllReservas(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(this.apiUrl, { headers: this.getHeaders() });
   }

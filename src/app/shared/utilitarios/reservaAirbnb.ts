@@ -18,5 +18,5 @@ export interface ReservaAirbnb {
   checkinInfo?: any; // Adicionado para armazenar informações do check-in
   faxina_userId?: number | null; // Adicione este campo
   check_in_mesmo_dia?:boolean;
-
+  documentosEnviados?: boolean;
 }
