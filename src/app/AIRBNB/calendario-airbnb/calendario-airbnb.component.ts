@@ -13,7 +13,7 @@ type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas' | 'bloqueada
 @Component({
   selector: 'app-calendario-airbnb',
   templateUrl: './calendario-airbnb.component.html',
-  styleUrls: ['./calendario-airbnb.component.css','./calendario-airbnb2.component.css']
+  styleUrls: ['./calendario-airbnb.component.css','./calendario-airbnb2.component.css','./calendario-airbnb3.component.css']
 })
 export class CalendarioAirbnbComponent implements OnInit {
   reservasAndamento: ReservaAirbnb[] = [];
