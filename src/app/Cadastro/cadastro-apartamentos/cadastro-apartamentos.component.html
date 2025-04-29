@@ -48,11 +48,12 @@
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="mb-0">{{ isEditing ? 'Editar Apartamento' : 'Novo Apartamento' }}</h3>
+        <h3 class="mb-0">{{ isEditing ? 'Editar Apartamento' : 'Novo Apartamento' }}</h3>      
         <button class="close-btn" (click)="fecharModal()">×</button>
       </div>
       <div class="modal-body">
         <form [formGroup]="form" class="row g-3">
+
           <!-- Seção 1: Informações Básicas -->
           <div class="col-md-6">
             <h5 class="section-title">Informações Básicas</h5>
@@ -67,6 +68,7 @@
                 <option *ngFor="let predio of predios" [value]="predio.id">{{ predio.nome }}</option>
               </select>
             </div>
+
             <div class="mb-3">
               <label class="form-label">Nome do Anúncio</label>
               <input type="text" class="form-control" formControlName="nome_anuncio">
@@ -88,14 +90,22 @@
               <label class="form-label">Andar</label>
               <input type="number" class="form-control" formControlName="andar">
             </div>
+            <div class="mb-3">
+              <label class="form-label">Garagem</label>
+              <input type="number" class="form-control" formControlName="vaga_garagem">
+            </div>
           </div>
 
-          <!-- Seção 3: Acesso -->
+          <!-- Seção 3: Acesso & Check-in -->
           <div class="col-md-6">
-            <h5 class="section-title">Acesso</h5>
+            <h5 class="section-title">Acesso & Check-in</h5>
+            <div class="mb-3">
+              <label class="form-label">Tipo de Check-in</label>
+              <input type="text" class="form-control" formControlName="tipo_checkin">
+            </div>
             <div class="mb-3">
               <label class="form-label">Senha da Porta</label>
-              <input type="text" class="form-control" formControlName="senha_porta">
+              <input type="number" class="form-control" formControlName="senha_porta">
             </div>
             <div class="mb-3">
               <label class="form-label">Acesso ao Prédio</label>
@@ -105,18 +115,30 @@
               <label class="form-label">Acesso à Porta</label>
               <input type="text" class="form-control" formControlName="acesso_porta">
             </div>
+            <div class="mb-3">
+              <label class="form-label">Link do App</label>
+              <input type="text" class="form-control" formControlName="link_app">
+            </div>
           </div>
 
-          <!-- Seção 4: Configurações -->
+          <!-- Seção 4: Configurações Gerais -->
           <div class="col-md-6">
-            <h5 class="section-title">Configurações</h5>
-            <div class="mb-3">
-              <label class="form-label">Tipo de Check-in</label>
-              <input type="text" class="form-control" formControlName="tipo_checkin">
-            </div>
+            <h5 class="section-title">Configurações Gerais</h5>
             <div class="mb-3">
               <label class="form-label">Número de Hóspedes</label>
               <input type="number" class="form-control" formControlName="numero_hospedes">
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" formControlName="aceita_pet" id="aceita_pet">
+              <label class="form-check-label" for="aceita_pet">Aceita Pet</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" formControlName="totem" id="totem">
+              <label class="form-check-label" for="totem">Totem</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" formControlName="adesivo_aviso" id="adesivo_aviso">
+              <label class="form-check-label" for="adesivo_aviso">Adesivo de Aviso</label>
             </div>
 
           </div>
@@ -138,84 +160,84 @@
             </div>
           </div>
 
-          <!-- Seção 6: Amenidades -->
+          <!-- Seção 6: Camas & Garrafas -->
           <div class="col-md-6">
-            <h5 class="section-title">Comodidades</h5>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="ar_condicionado">
-                  <label class="form-check-label">Ar Condicionado</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="smart_tv">
-                  <label class="form-check-label">Smart TV</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="liquidificador">
-                  <label class="form-check-label">liquidificador</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="secador_cabelo">
-                  <label class="form-check-label">Secador de Cabelo</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="tv_aberta">
-                  <label class="form-check-label">TV Aberta</label>
-                </div>
-                   
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="cafeteira">
-                  <label class="form-check-label">Cafeteira</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="escritorio">
-                  <label class="form-check-label">Escritório</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="aspirador_de_po">
-                  <label class="form-check-label">Aspirador</label>
-                </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" formControlName="aceita_pet">
-                  <label class="form-check-label">Aceita Pet</label>
-                </div>
-              </div>
+            <h5 class="section-title">Camas & Garrafas</h5>
+            <div class="mb-3">
+              <label class="form-label">Qtd. Cama Solteiro</label>
+              <input type="number" class="form-control" formControlName="qtd_cama_solteiro">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Qtd. Cama Casal</label>
+              <input type="number" class="form-control" formControlName="qtd_cama_casal">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Qtd. Sofá-Cama</label>
+              <input type="number" class="form-control" formControlName="qtd_sofa_cama">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Qtd. Taça de Vinho</label>
+              <input type="number" class="form-control" formControlName="qtd_taca_vinho">
             </div>
           </div>
 
-          <!-- Seção 7: Redes -->
+          <!-- Seção 7: Comodidades -->
           <div class="col-md-12">
-            <h5 class="section-title">Redes</h5>
+            <h5 class="section-title">Comodidades</h5>
             <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">SSID Wi-Fi</label>
-                  <input type="text" class="form-control" formControlName="ssid_wifi">
+              <ng-container *ngFor="let amen of [
+                  'ar_condicionado','secador_cabelo','smart_tv','tv_aberta',
+                  'cafeteira','escritorio','aspirador_de_po','ventilador',
+                  'ferro_passar','sanduicheira','chaleira_eletrica','liquidificador',
+                  'air_fryer','aquecedor','itens_limpeza'
+                ]">
+                <div class="col-md-3">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" [formControlName]="amen" [id]="amen">
+                    <label class="form-check-label" [for]="amen">
+                      {{ amen.replace('_', ' ') | titlecase }}
+                    </label>
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Senha Wi-Fi</label>
-                  <input type="text" class="form-control" formControlName="senha_wifi">
-                </div>
-              </div>
+              </ng-container>
             </div>
           </div>
-          <!-- Seção 7: Link -->
+
+          <!-- Seção 8: Fogão & Chuveiro -->
+          <div class="col-md-6">
+            <h5 class="section-title">Fogão & Chuveiro</h5>
+            <div class="mb-3">
+              <label class="form-label">Tipo de Fogão</label>
+              <input type="text" class="form-control" formControlName="tipo_fogao">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tipo de Chuveiro</label>
+              <input type="text" class="form-control" formControlName="tipo_chuveiro">
+            </div>
+          </div>
+
+          <!-- Seção 9: Redes Wi-Fi -->
+          <div class="col-md-6">
+            <h5 class="section-title">Redes Wi-Fi</h5>
+            <div class="mb-3">
+              <label class="form-label">SSID Wi-Fi</label>
+              <input type="text" class="form-control" formControlName="ssid_wifi">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Senha Wi-Fi</label>
+              <input type="text" class="form-control" formControlName="senha_wifi">
+            </div>
+          </div>
+
+          <!-- Seção 10: Calendário Airbnb -->
           <div class="col-md-12">
             <h5 class="section-title">Calendário Airbnb</h5>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="mb-3">
-                  <label class="form-label">Link Calendário</label>
-                  <input type="text" class="form-control" formControlName="link_airbnb_calendario">
-                </div>
-              </div>
+            <div class="mb-3">
+              <label class="form-label">Link Calendário</label>
+              <input type="text" class="form-control" formControlName="link_airbnb_calendario">
             </div>
           </div>
+
         </form>
       </div>
       <div class="modal-footer">
