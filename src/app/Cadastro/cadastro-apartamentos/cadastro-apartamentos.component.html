@@ -6,43 +6,84 @@
   </div>
 
   <!-- Card com a tabela de apartamentos -->
-  <div class="card mb-3">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-striped mb-0">
-          <thead class="table-success">
-            <tr>
-              <th>Nome</th>
-              <th>Prédio</th>
-              <th>Hóspedes</th>
-              <th>Aceita Pet</th>
-              <th>Check-in</th>
-              <th>Wi-Fi</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let apt of apartamentos">
-              <td>{{ apt.nome }}</td>
-              <td>{{ getNomePredio(apt.predio_id) }}</td>
-              <td>{{ apt.numero_hospedes }}</td>
-              <td>{{ apt.aceita_pet ? 'Sim' : 'Não' }}</td>
-              <td>{{ apt.tipo_checkin }}</td>
-              <td>{{ apt.ssid_wifi }}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-primary me-2" (click)="editarApartamento(apt)">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="excluirApartamento(apt.id)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<!-- Card com a tabela de apartamentos -->
+<div class="card mb-3">
+  <!-- Card Header -->
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Lista de Apartamentos</h5>
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        class="form-control search-input" 
+        placeholder="Pesquisar apartamento..." 
+        (input)="filtrarApartamentos($event)">
     </div>
   </div>
+
+  <!-- Tabela dentro de wrapper com scroll -->
+  <div class="table-wrapper">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width:5%;">Nome</th>
+            <th style="width:10%;">Prédio</th>
+            <th style="width:5%;">Hóspedes</th>
+            <th style="width:15%;">Garagem</th>
+            <th style="width:10%;">Senha Porta</th>
+            <th style="width:10%;">Wi-Fi</th>
+            <th style="width:10%;">Senha Wi-Fi</th>
+            <th style="width:10%;">Modificado</th>
+            <th style="width:15%;">Última Modif.</th>
+            <th style="width:10%;" class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let apt of apartamentosFiltrados">
+            <td>{{ apt.nome }}</td>
+            <td>{{ getNomePredio(apt.predio_id) }}</td>
+            <td>{{ apt.numero_hospedes }}</td>
+            <td>{{ apt.vaga_garagem }}</td>
+            <td>
+              <span class="badge bg-success-subtle">
+                {{ apt.senha_porta }}
+               </span>
+            </td>
+            <td>
+                {{ apt.ssid_wifi }}
+            </td>
+            <td>
+              <span class="badge bg-success-subtle">
+                {{ apt.senha_wifi }}
+               </span>
+            </td>
+            <td>{{ apt.modificado_user_nome }}</td>
+            <td>{{ apt.data_ultima_modificacao}}</td>
+            <td class="text-center">
+              <button 
+                class="btn btn-sm btn-outline-primary me-1" 
+                (click)="editarApartamento(apt)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-danger" 
+                (click)="excluirApartamento(apt.id)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!apartamentosFiltrados.length">
+            <td colspan="10" class="text-center py-4 text-muted">
+              Nenhum apartamento encontrado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
   <!-- Modal -->
   <div class="modal" *ngIf="showModal">
@@ -231,12 +272,17 @@
 
           <!-- Seção 10: Calendário Airbnb -->
           <div class="col-md-12">
-            <h5 class="section-title">Calendário Airbnb</h5>
+            <h5 class="section-title">Links</h5>
             <div class="mb-3">
               <label class="form-label">Link Calendário</label>
               <input type="text" class="form-control" formControlName="link_airbnb_calendario">
             </div>
+            <div class="mb-3">
+              <label class="form-label">Link Fotos</label>
+              <input type="text" class="form-control" formControlName="link_fotos">
+            </div>
           </div>
+
 
         </form>
       </div>

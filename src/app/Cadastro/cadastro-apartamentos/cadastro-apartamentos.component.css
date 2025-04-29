@@ -2,7 +2,6 @@
 .container {
   padding: 20px;
   max-height: 90vh;
-  overflow-y: auto;
 }
 
 /* Estilização do card que envolve a tabela */
@@ -18,11 +17,88 @@
   padding-bottom: 5px;
 }
 
-/* Ajustes gerais na tabela */
-.table th,
-.table td {
+/* Tabela com scroll e hover */
+.table-wrapper {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Scrollbar customizada */
+.table-wrapper::-webkit-scrollbar {
+  width: 7px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: #e0e0e0; 
+  border-radius: 10px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #006400; 
+  border-radius: 10px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #0056b3;
+}
+
+/* Card Header */
+.card-header {
+  background-color: #198754;
+  color: #fff;
+  border-bottom: 2px solid rgba(25, 135, 84, 0.1);
+  padding: 0.75rem 1.25rem;
+}
+
+/* Search */
+.search-container {
+  position: relative;
+  width: 250px;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  opacity: 0.8;
+}
+.search-input {
+  padding-left: 36px;
+  border-radius: 25px;
+  border: none;
+  height: 32px;
+  font-size: 0.9rem;
+}
+
+/* Table */
+.table-hover tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+}
+.table th {
+  background-color: #198754;
+  color: #fff;
+  font-weight: 500;
   vertical-align: middle;
 }
+.align-middle th,
+.align-middle td {
+  vertical-align: middle !important;
+}
+
+/* Badges */
+.badge.bg-success-subtle {
+  background-color: #d1e7dd !important;
+  color: #0f5132;
+  padding: 0.25em 0.5em;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+/* Ações centralizadas */
+.text-center button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
 
 /* Customização da barra de rolagem na modal-body (opcional) */
 .modal-body::-webkit-scrollbar {

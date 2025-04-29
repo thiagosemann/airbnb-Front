@@ -3,6 +3,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
+import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
+import { User } from 'src/app/shared/utilitarios/user';
 
 @Component({
   selector: 'app-cadastro-apartamentos',
@@ -15,14 +18,21 @@ export class CadastroApartamentosComponent implements OnInit {
   showModal = false;
   isEditing = false;
   form: FormGroup;
+  currentUserId: number | undefined;
+  apartamentosFiltrados: any[] = [];
 
   constructor(
     private apartamentoService: ApartamentoService,
     private predioService: PredioService,
     private toastr: ToastrService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthenticationService,
+    private userService: UserService
   ) {
     // FormGroup sem validadores para que os campos não sejam obrigatórios
+    const user = this.authService.getUser();
+    this.currentUserId = user ? user.id : 0;
+
     this.form = this.fb.group({
       id: [''],
       nome: [''],
@@ -69,7 +79,10 @@ export class CadastroApartamentosComponent implements OnInit {
       aquecedor: [false],
       vaga_garagem: [0],
       itens_limpeza: [''],
-      air_fryer: [false]
+      air_fryer: [false],
+      modificado_user_id: [0],
+      data_ultima_modificacao: [''],
+      link_fotos: ['']
     });
   }
 
@@ -79,15 +92,50 @@ export class CadastroApartamentosComponent implements OnInit {
 
   carregarDados(): void {
     this.apartamentoService.getAllApartamentos().subscribe({
-      next: (data) => this.apartamentos = data.sort((a,b)=>(a.nome > b.nome ? 1 : -1)),
-      error: (error) => console.error('Erro ao carregar apartamentos:', error)
+      next: (data) => {
+        console.log(data)
+        this.apartamentos = data.sort((a, b) => a.nome.localeCompare(b.nome));
+        // para cada apt, busca o nome do usuário que modificou
+        this.apartamentos.forEach(apt => {
+          if (apt.modificado_user_id) {
+            this.userService.getUser(apt.modificado_user_id).subscribe({
+              next: user => apt.modificado_user_nome = user.first_name,
+              error: () => apt.modificado_user_nome = '—'
+            });
+          } else {
+            apt.modificado_user_nome = '—';
+          }
+        });
+        this.apartamentosFiltrados = [...this.apartamentos];
+      },
+      error: (err) => console.error('Erro ao carregar apartamentos:', err)
     });
 
     this.predioService.getAllPredios().subscribe({
       next: (data) => this.predios = data,
-      error: (error) => console.error('Erro ao carregar prédios:', error)
+      error: (err) => console.error('Erro ao carregar prédios:', err)
     });
   }
+
+  filtrarApartamentos(event: Event): void {
+      const termo = (event.target as HTMLInputElement).value
+                    .toLowerCase()
+                    .trim();
+  
+      if (!termo) {
+        // sem filtro: mostra tudo
+        this.apartamentosFiltrados = [...this.apartamentos];
+        return;
+      }
+  
+      this.apartamentosFiltrados = this.apartamentos.filter(apt => {
+        const nome = apt.nome.toLowerCase();
+        const predio = this.getNomePredio(apt.predio_id)
+                          .toLowerCase();
+        return nome.includes(termo)
+            || predio.includes(termo);
+      });
+    }
 
   abrirModal(): void {
     this.showModal = true;
@@ -118,22 +166,22 @@ export class CadastroApartamentosComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // Como não há mais validação obrigatória, o formulário sempre será válido
-    const apartamento = this.form.value;
-    const operacao = this.isEditing
-      ? this.apartamentoService.updateApartamento(apartamento)
-      : this.apartamentoService.createApartamento(apartamento);
+    const apt = this.form.value;
+    // preenche audit fields
+    apt.modificado_user_id = this.currentUserId;
+    apt.data_ultima_modificacao = this.getTodayDateString();
+    
+    const request$ = this.isEditing
+      ? this.apartamentoService.updateApartamento(apt)
+      : this.apartamentoService.createApartamento(apt);
 
-    operacao.subscribe({
+    request$.subscribe({
       next: () => {
         this.toastr.success(`Apartamento ${this.isEditing ? 'atualizado' : 'criado'} com sucesso!`);
         this.fecharModal();
         this.carregarDados();
       },
-      error: (error) => {
-        this.toastr.error(`Erro ao ${this.isEditing ? 'atualizar' : 'criar'} apartamento`);
-        console.error(error);
-      }
+      error: () => this.toastr.error(`Erro ao ${this.isEditing ? 'atualizar' : 'criar'} apartamento`)
     });
   }
 
@@ -141,4 +189,15 @@ export class CadastroApartamentosComponent implements OnInit {
     const predio = this.predios.find(p => p.id === predioId);
     return predio ? predio.nome : 'Não encontrado';
   }
+
+  getTodayDateString(): string {
+    const date = new Date();
+    const horas = String(date.getHours()).padStart(2, '0');
+    const minutos = String(date.getMinutes()).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
+    const mes = String(date.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+    const ano = date.getFullYear();
+    return `${horas}:${minutos} ${dia}/${mes}/${ano}`;
+  }
+
 }
