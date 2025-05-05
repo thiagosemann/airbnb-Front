@@ -87,7 +87,7 @@
         <label for="fileUpload">Envie seu documento</label>
         <input type="file" class="form-control" id="fileUpload" (change)="onFileSelected($event)">
       </div>
-      <button (click)="sendData()" class="btn btn-success mt-3">Enviar</button>
+      <button (click)="sendData()" class="btn btn-success mt-3" [disabled]="!documentFile">Enviar</button>
       <button (click)="voltarParaEntregaDocumentos()" class="btn btn-success mt-3">Voltar</button>
       </ng-container>
     </div>

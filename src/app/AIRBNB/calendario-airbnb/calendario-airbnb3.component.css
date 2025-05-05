@@ -124,3 +124,24 @@
 .custom-checkbox input:checked~.checkmark:after {
     display: block;
 }
+/* Estilo para linhas canceladas */
+.calendar-table tr.cancelada {
+    background-color: #ffcccc !important; /* Vermelho claro */
+    position: relative;
+  }
+  
+  /* Opcional: Adicione um efeito de linha cortada */
+  .calendar-table tr.cancelada td {
+    position: relative;
+  }
+  
+  .calendar-table tr.cancelada td:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: #ff0000;
+    transform: rotate(-5deg);
+  }

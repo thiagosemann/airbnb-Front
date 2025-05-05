@@ -23,6 +23,7 @@
           <thead>
             <tr>
               <th style="width: 5%;">Apartamento</th>
+              
               <th style="width: 10%;">Cód Reserva</th>
               <th style="width: 5%;">Início</th>
               <th style="width: 10%;">Check-In</th>
@@ -35,7 +36,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of reservasHoje">
+            <tr *ngFor="let event of reservasHoje" [class.cancelada]="event.description === 'CANCELADA'">
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
@@ -109,7 +110,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of proximasReservas">
+            <tr *ngFor="let event of proximasReservas" [class.cancelada]="event.description === 'CANCELADA'">
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
@@ -179,7 +180,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of reservasAndamento">
+            <tr *ngFor="let event of reservasAndamento" [class.cancelada]="event.description === 'CANCELADA'">
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
@@ -239,7 +240,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of reservasFinalizadas">
+            <tr *ngFor="let event of reservasFinalizadas" [class.cancelada]="event.description === 'CANCELADA'">
               <td>
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>

@@ -112,8 +112,9 @@ export class CalendarioAirbnbComponent implements OnInit {
         this.reservasAirbnbService.getReservasHoje().subscribe({
           next: (reservas) => {
             this.reservasHoje = reservas.filter(reserva => !this.isBloqueado(reserva));
-            this.credenciaisFetias = reservas.filter(r => r.credencial_made).length;
-
+            // Corrigindo aqui: contar apenas onde credencial_made é true
+            this.credenciaisFetias = reservas.filter(r => r.credencial_made).length; 
+      
             this.loadedSections.hoje = true;
             this.loadingSections.hoje = false;
           },
@@ -202,16 +203,21 @@ export class CalendarioAirbnbComponent implements OnInit {
   updateStatus(reserva: any, field: string, event: Event, type: string) {
     const checked = (event.target as HTMLInputElement).checked;
     reserva[field] = checked;
-    if (type == "reservasHoje") {
-      if (reserva.credencial_made) {
-        this.credenciaisFetias++;
-      } else {
-        this.credenciaisFetias--;
+  
+    // Modificação aqui: só atualiza o contador se for o campo credencial_made
+    if (field === 'credencial_made') {
+      if (type === "reservasHoje") {
+        if (checked) {
+          this.credenciaisFetias++;
+        } else {
+          this.credenciaisFetias--;
+        }
       }
     }
+  
     reserva.start_date = this.formatarDataBanco(reserva.start_date);
     reserva.end_data = this.formatarDataBanco(reserva.end_data);
-
+  
     this.reservasAirbnbService.updateReserva(reserva).subscribe(
       data => {
         // ação após atualizar a reserva, se necessário

@@ -146,8 +146,8 @@ export class CameraAppComponent implements OnInit {
 // Modifique o método sendData() para isto:
 sendData() {
   // Validar campos obrigatórios
-  if (!this.photoDataUrl || !this.formData.cpf || !this.formData.nome || !this.formData.telefone) {
-    this.toastr.warning('Preencha todos os campos obrigatórios');
+  if (!this.photoDataUrl || !this.formData.cpf || !this.formData.nome || !this.formData.telefone || (!this.documentPhotoUrl && !this.documentFile)) {
+    this.toastr.warning('Preencha todos os campos obrigatórios, incluindo o documento.');
     return;
   }
 
