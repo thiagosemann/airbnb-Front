@@ -37,6 +37,11 @@ export class CheckInFormService {
     return this.http.get(`${this.apiUrl}/search/${reservaId}/${codReserva}`, { headers: this.getHeaders() });
   }
 
+  // Obter check-ins por userId
+  getCheckinsByUserId(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/${userId}`, { headers: this.getHeaders() });
+  }
+
   // Criar um novo check-in
   createCheckin(checkinData: any): Observable<any> {
     return this.http.post(this.apiUrl, checkinData, { 

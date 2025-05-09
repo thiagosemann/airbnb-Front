@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { User } from 'src/app/shared/utilitarios/user';
 
@@ -19,10 +20,14 @@ export class UsersControlComponent implements OnInit {
   userForm: FormGroup;
   isLoading = false;           // ← nova flag
   searchTerm:string = "";
+  userCheckins: any[] = []; // ← armazena os check-ins do user
+
   constructor(
     private fb: FormBuilder,
     private usersService: UserService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private checkinService: CheckInFormService,
+
     
   ) {
     this.userForm = this.fb.group({
@@ -102,6 +107,15 @@ export class UsersControlComponent implements OnInit {
             '$1.$2.$3-$4'
           )
         });
+          // 2) depois de preencher o form, busca os check-ins
+          this.checkinService.getCheckinsByUserId(user.id).subscribe(
+            (checkins: any[]) => 
+              this.userCheckins = checkins,
+            err => {
+              console.error('Erro ao carregar check-ins:', err);
+              this.userCheckins = [];
+            }
+          );
         this.isLoading = false;
       },
       (error) => {
