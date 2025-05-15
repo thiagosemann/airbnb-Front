@@ -84,6 +84,90 @@
       </div>
     </div>
 
+      <!-- Seção Reservas para Amanhã -->
+  <div class="section-container">
+    <div class="section-header" (click)="toggleSection('amanha')">
+      <h5 *ngIf="reservasAmanha.length>0">
+        <i class="fas fa-calendar-day"></i>
+        Reservas para Amanhã ({{ reservasAmanha.length }})
+      </h5>
+      <h5 *ngIf="reservasAmanha.length==0">
+        <i class="fas fa-calendar-day"></i>
+        Reservas para Amanhã
+      </h5>
+    </div>
+    <div class="section-content" [class.active]="sections.amanha">
+      <!-- Tabela para reservas de Amanhã -->
+      <div *ngIf="loadingSections.amanha" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th style="width: 5%;">Apartamento</th>
+            <th style="width: 10%;">Cód Reserva</th>
+            <th style="width: 5%;">Início</th>
+            <th style="width: 10%;">Check-In</th>
+            <th style="width: 5%;">Fim</th>
+            <th style="width: 10%;">Check-Out</th>
+            <th style="width: 10%;">Credencial</th>
+            <th style="width: 10%;">Informado</th>
+            <th style="width: 10%;">Docs Env.</th>
+            <th style="width: 10%;">Observações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of reservasAmanha" [class.cancelada]="event.description === 'CANCELADA'">
+            <td>
+              <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+            </td>
+            <td>{{ findIfBloqued(event) }}</td>
+            <td>{{ formatarData(event.start_date) }}</td>
+            <td>{{ event.check_in }}</td>
+            <td>{{ formatarData(event.end_data) }}</td>
+            <td>{{ event.check_out }}</td>
+            <td>
+              <label class="custom-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="event.credencial_made"
+                  (change)="updateStatus(event, 'credencial_made', $event, 'reservasAmanha')">
+                <span class="checkmark"></span>
+              </label>
+            </td>
+            <td>
+              <label class="custom-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="event.informed"
+                  (change)="updateStatus(event, 'informed', $event, 'reservasAmanha')">
+                <span class="checkmark"></span>
+              </label>
+            </td>
+            <td>
+              <label class="custom-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="event.documentosEnviados"
+                  (change)="updateStatus(event, 'documentosEnviados', $event, 'reservasAmanha')">
+                <span class="checkmark"></span>
+              </label>
+            </td>
+            <td>
+              <button (click)="openModal(event)">
+                <i class="fas fa-plus"></i> Mais
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="reservasAmanha.length === 0">
+            <td colspan="11">Nenhuma reserva para amanhã</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
     
 
     <!-- Seção Próximas Reservas -->

@@ -24,6 +24,12 @@ export class ReservasAirbnbService {
       { headers: this.getHeaders() }
     );
   }
+    getReservasAmanha(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/amanha`,
+      { headers: this.getHeaders() }
+    );
+  }
 
   getProximasReservas(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(

@@ -8,7 +8,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { Router } from '@angular/router';
 
-type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
+type SectionKey = 'hoje' | 'amanha' |'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -18,6 +18,7 @@ type SectionKey = 'hoje' | 'andamento' | 'proximas' | 'finalizadas' | 'bloqueada
 export class CalendarioAirbnbComponent implements OnInit {
   reservasAndamento: ReservaAirbnb[] = [];
   reservasHoje: ReservaAirbnb[] = [];
+  reservasAmanha: ReservaAirbnb[] = [];
   proximasReservas: ReservaAirbnb[] = [];
   reservasFinalizadas: ReservaAirbnb[] = [];
   carregando: boolean = true;
@@ -31,6 +32,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
+    amanha: false,
     andamento: false,
     proximas: false,
     finalizadas: false,
@@ -39,6 +41,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   // Adicione estas novas propriedades para controle de carregamento
   loadedSections: { [key in SectionKey]: boolean } = {
     hoje: false,
+    amanha:false,
     andamento: false,
     proximas: false,
     finalizadas: false,
@@ -47,6 +50,7 @@ export class CalendarioAirbnbComponent implements OnInit {
 
   loadingSections: { [key in SectionKey]: boolean } = {
     hoje: false,
+    amanha:false,
     andamento: false,
     proximas: false,
     finalizadas: false,
@@ -124,12 +128,24 @@ export class CalendarioAirbnbComponent implements OnInit {
           }
         });
         break;
-
+      case 'amanha':
+        this.reservasAirbnbService.getReservasAmanha().subscribe({
+          next: (reservas) => {
+            this.reservasAmanha = reservas.filter(reserva => !this.isBloqueado(reserva));
+            // Corrigindo aqui: contar apenas onde credencial_made é true      
+            this.loadedSections.amanha = true;
+            this.loadingSections.amanha = false;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar reservas de hoje:', error);
+            this.loadingSections.hoje = false;
+          }
+        });
+        break;
       case 'proximas':
         this.reservasAirbnbService.getProximasReservas().subscribe({
           next: (reservas) => {
             this.proximasReservas = reservas.filter(reserva => !this.isBloqueado(reserva));
-
             this.loadedSections.proximas = true;
             this.loadingSections.proximas = false;
           },
