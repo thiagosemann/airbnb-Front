@@ -376,9 +376,10 @@
         <div class="modal-grid" >
           <div *ngFor="let hospede of hospedesReserva" class="hospede-row">
             <p><strong>Hóspede:</strong> {{ hospede.first_name }}</p>
-            <p><strong>CPF:</strong> {{ hospede.CPF }}</p>
+            <p><strong>CPF:</strong> {{ formatarCPF(hospede.CPF) }}</p>
+            <p><strong>Telefone:</strong> {{ formatarTelefone(hospede.Telefone) }}</p>
             <p><strong>Horário:</strong> {{ formatarDataparaTable(hospede.created_at) }}</p>
-            
+
             <div class="hospede-section">
               <!-- Exibição da imagem do hóspede -->
   

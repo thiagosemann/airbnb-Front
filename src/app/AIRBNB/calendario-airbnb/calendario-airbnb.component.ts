@@ -252,10 +252,8 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.checkinFormService.getCheckinByReservaIdOrCodReserva(reserva_id.toString(), cod_reserva)
       .subscribe({
         next: (resposta) => {
-          console.log(resposta)
           this.hospedesReserva = resposta;
           this.carregandoImagem = false; // Reset do estado
-
           console.log('Resposta do Check-in:', resposta);
         },
         error: (error) => {
@@ -335,6 +333,29 @@ formatarDataparaTable(dataISO:string):string {
   return `${horas}:${minutos} - ${dia}/${mes}/${ano}`;
 }
 
+formatarTelefone(telefone: string): string {
+  const digitos = telefone.replace(/\D/g, '');
+  if (digitos.length === 11) {
+    // Formato celular: 2 + 5 + 4
+    return digitos.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  } else if (digitos.length === 10) {
+    // Formato fixo: 2 + 4 + 4
+    return digitos.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  }
+  // Caso não corresponda aos formatos acima, retorna original
+  return telefone;
+}
 
+/**
+ * Formata um CPF para o padrão brasileiro: XXX.XXX.XXX-XX
+ */
+formatarCPF(cpf: string): string {
+  const digitos = cpf.replace(/\D/g, '');
+  if (digitos.length === 11) {
+    return digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+  // Caso não seja um CPF válido de 11 dígitos, retorna original
+  return cpf;
+}
 
 }
