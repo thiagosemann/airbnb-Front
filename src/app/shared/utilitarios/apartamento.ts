@@ -46,5 +46,5 @@ export interface Apartamento {
   user_prioridade1?:number;
   user_prioridade2?:number;
   user_prioridade3?:number;
-  
+  vaga_garagem: boolean;
 }

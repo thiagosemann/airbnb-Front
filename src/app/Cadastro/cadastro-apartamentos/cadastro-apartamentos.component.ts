@@ -5,6 +5,7 @@ import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
+import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { Predio } from 'src/app/shared/utilitarios/predio';
 import { User } from 'src/app/shared/utilitarios/user';
 
@@ -21,7 +22,7 @@ export class CadastroApartamentosComponent implements OnInit {
   showModal = false;
   isEditing = false;
   currentUserId: number | undefined;
-
+  apartamentoSelecionado: Apartamento | undefined;
   form: FormGroup;
 
   // Definição das comodidades do prédio
@@ -190,6 +191,7 @@ export class CadastroApartamentosComponent implements OnInit {
     this.isEditing = true;
     this.showModal = true;
     this.form.patchValue(apt);
+    this.apartamentoSelecionado = apt;
   }
 
   excluirApartamento(id: number): void {
@@ -248,14 +250,10 @@ export class CadastroApartamentosComponent implements OnInit {
     return p ? p.nome : 'Não encontrado';
   }
 
-  /** Retorna timestamp formatado para auditoria */
-  private getTodayDateString(): string {
-    const d = new Date();
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    const DD = String(d.getDate()).padStart(2, '0');
-    const MM = String(d.getMonth() + 1).padStart(2, '0');
-    const YYYY = d.getFullYear();
-    return `${hh}:${mm} ${DD}/${MM}/${YYYY}`;
+  copiarGaragem() {
+  if (this.apartamentoSelecionado &&  this.apartamentoSelecionado.vaga_garagem) {
+    this.form.get('vaga_garagem')?.setValue(this.apartamentoSelecionado.vaga_garagem);
+    this.toastr.success('Informações da garagem copiadas com sucesso!');
   }
+}
 }
