@@ -1,60 +1,107 @@
-<div class="container">
-  <!-- Botão para adicionar novo prédio -->
-  <button class="btn btn-primary mb-3" (click)="openModal()">Adicionar Prédio</button>
-
-  <!-- Tabela de prédios -->
-  <div class="table-wrapper">
-    <table class="table narrow-table">
-      <thead>
-        <tr>
-          <th scope="col" style="width: 60%;">Nome</th>
-          <th scope="col" style="width: 20%;">Editar</th>
-          <th scope="col" style="width: 20%;">Excluir</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let predio of predios; let i = index" 
-            [ngClass]="{'table-light': i % 2 === 0, 'table-light-gray': i % 2 !== 0}">
-          <td>{{ predio.nome }}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" (click)="editPredio(predio)">
-              <i class="fas fa-edit"></i>
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-danger btn-sm" (click)="deletePredio(predio)">
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="container py-3">
+  <!-- Cabeçalho da página -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Prédios</h2>
+    <button class="btn btn-primary" (click)="openModal()">Novo Prédio</button>
   </div>
 
-  <!-- Modal -->
+  <!-- Card com a tabela de prédios -->
+  <div class="card mb-3">
+    <!-- Card Header -->
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Lista de Prédios</h5>
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Pesquisar prédio..."
+          (input)="filtrarPredios($event)">
+      </div>
+    </div>
+
+    <!-- Tabela dentro de wrapper com scroll -->
+    <div class="table-wrapper">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width: 40%;">Nome</th>
+              <th style="width: 15%;">Piscina</th>
+              <th style="width: 15%;">Academia</th>
+              <th style="width: 15%;">Churras.</th>
+              <th style="width: 15%;" class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of prediosFiltrados">
+              <td>{{ p.nome }}</td>
+              <td class="text-center">
+                <i class="fas" [ngClass]="p.piscina ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+              </td>
+              <td class="text-center">
+                <i class="fas" [ngClass]="p.academia ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+              </td>
+              <td class="text-center">
+                <i class="fas" [ngClass]="p.churrasqueira ? 'fa-check text-success' : 'fa-times text-danger'"></i>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editPredio(p)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deletePredio(p)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!prediosFiltrados.length">
+              <td colspan="5" class="text-center py-4 text-muted">
+                Nenhum prédio encontrado.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal (mesmo padrão de apartamentos) -->
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>{{ isEditing ? 'Editar Prédio' : 'Novo Prédio' }}</h3>
+        <h3 class="mb-0">{{ isEditing ? 'Editar Prédio' : 'Novo Prédio' }}</h3>
         <button class="close-btn" (click)="closeModal()">×</button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-          <div class="form-group mb-3">
-            <label class="form-label" for="nome">Nome do Prédio:</label>
-            <input type="text" id="nome" name="nome" class="form-control" 
-                   placeholder="Nome do prédio" formControlName="nome" required/>
-            <div *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched" 
-                 class="text-danger mt-1">
-              Nome é obrigatório
+        <form [formGroup]="registerForm" class="row g-3">
+          <!-- Seção 1: Nome -->
+          <div class="col-md-12">
+            <label class="form-label">Nome do Prédio</label>
+            <input type="text" class="form-control" formControlName="nome" required>
+            <div *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched"
+                 class="text-danger mt-1">Nome é obrigatório</div>
+          </div>
+
+          <!-- Seção 2: Comodidades -->
+          <div class="col-md-12">
+            <h5 class="section-title">Comodidades</h5>
+            <div class="row">
+              <div class="col-md-3" *ngFor="let opt of amenidades">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" [formControlName]="opt.key" [id]="opt.key">
+                  <label class="form-check-label" [for]="opt.key">
+                    {{ opt.label }}
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" 
-                (click)="onSubmit()" [disabled]="registerForm.invalid">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="registerForm.invalid">
           {{ isEditing ? 'Atualizar' : 'Salvar' }}
         </button>
       </div>

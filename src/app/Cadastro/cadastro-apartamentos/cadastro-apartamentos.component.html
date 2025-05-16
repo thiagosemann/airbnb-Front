@@ -133,7 +133,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Garagem</label>
-              <input type="number" class="form-control" formControlName="vaga_garagem">
+              <input type="text" class="form-control" formControlName="vaga_garagem">
             </div>
           </div>
 
@@ -243,8 +243,27 @@
               </ng-container>
             </div>
           </div>
+          <!-- Seção 8: Comodidades do Prédio -->
+          <div class="col-md-12" formGroupName="predioAmenities" *ngIf="selectedPredio">
+            <h5 class="section-title">Comodidades do Prédio</h5>
+            <div class="row">
+              <div class="col-md-3" *ngFor="let amen of amenidadesPredio">
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [formControlName]="amen.key"
+                    [id]="'predio_' + amen.key">
+                  <label class="form-check-label" [for]="'predio_' + amen.key">
+                    {{ amen.label }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <!-- Seção 8: Fogão & Chuveiro -->
+
+          <!-- Seção 9: Fogão & Chuveiro -->
           <div class="col-md-6">
             <h5 class="section-title">Fogão & Chuveiro</h5>
             <div class="mb-3">
@@ -257,7 +276,7 @@
             </div>
           </div>
 
-          <!-- Seção 9: Redes Wi-Fi -->
+          <!-- Seção 10: Redes Wi-Fi -->
           <div class="col-md-6">
             <h5 class="section-title">Redes Wi-Fi</h5>
             <div class="mb-3">
@@ -270,7 +289,7 @@
             </div>
           </div>
 
-          <!-- Seção 10: Calendário Airbnb -->
+          <!-- Seção 11: Calendário Airbnb -->
           <div class="col-md-12">
             <h5 class="section-title">Links</h5>
             <div class="mb-3">

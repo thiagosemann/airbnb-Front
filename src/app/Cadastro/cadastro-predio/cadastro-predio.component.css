@@ -1,96 +1,87 @@
-
-
-/* Adicione margem antes do select */
+/* Container principal */
 .container {
-  padding: 10px; /* Ajuste o preenchimento conforme necessário */
-  height: 85vh;
+  padding: 20px;
+  max-height: 90vh;
 }
 
- /* Estilos para a tabela e cabeçalho sticky */
- .table-wrapper {
-  max-height: 500px;
+/* Section title reused */
+.section-title {
+  border-bottom: 2px solid #198754;
+  color: #198754;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+}
+
+/* Card */
+.card {
+  margin-bottom: 20px;
+}
+
+/* Card header */
+.card-header {
+  background-color: #198754;
+  color: #fff;
+  border-bottom: 2px solid rgba(25, 135, 84, 0.1);
+  padding: 0.75rem 1.25rem;
+}
+
+/* Search */
+.search-container {
+  position: relative;
+  width: 250px;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  opacity: 0.8;
+}
+.search-input {
+  padding-left: 36px;
+  border-radius: 25px;
+  border: none;
+  height: 32px;
+  font-size: 0.9rem;
+}
+
+/* Table scroll & hover */
+.table-wrapper {
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
-
-.table-wrapper::-webkit-scrollbar {
-  width: 6px;
+.table-hover tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.05);
 }
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background-color: #B7B7B7;
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
-
-.table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.table th,
-.table td {
-  border: 1px solid #dddddd;
-  text-align: center;
-  padding: 1px;
-}
-
 .table th {
   background-color: #198754;
   color: #fff;
-  position: sticky;
-  top: 0;
+  font-weight: 500;
+  vertical-align: middle;
+}
+.align-middle th,
+.align-middle td {
+  vertical-align: middle !important;
 }
 
-.table tr:nth-child(even) {
-  background-color: #f2f2f2;
+/* Scrollbar customizada */
+.table-wrapper::-webkit-scrollbar {
+  width: 7px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: #e0e0e0; 
+  border-radius: 10px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #006400; 
+  border-radius: 10px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #0056b3;
 }
 
-.table tr:hover {
-  background-color: #ddd;
-}
-
-  /* Style the input elements */
-  input[type="text"],
-  input[type="number"],
- 
-
-  /* Optionally, you can add some margin between inputs for better spacing */
-  input[type="text"],
-  input[type="number"],
-  input[type="date"] + input[type="text"],
-  input[type="number"] + input[type="text"],
-  input[type="date"] + input[type="number"] {
-    margin-bottom: 8px; /* Adjust the margin as needed */
-  }
-
-
-
-/* O CSS permanece o mesmo */
-.divider:after,
-.divider:before {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #eee;
-}
-
-.h-custom {
-  height: 100%;
-}
-
-
-.invalid {
-  border: 2px solid red;
-}
-/* Add this to your existing CSS styles */
-.scrollable-container {
-  max-height: 85vh; /* Adjust the value as needed */
-  overflow-y: auto;
-}
-
+/* Modal geral */
 .modal {
   position: fixed;
   top: 0;
@@ -101,77 +92,52 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1050;
 }
 
+/* Modal content ampliado */
 .modal-content {
-  background: white;
-  width: 400px;
+  background: #fff;
+  width: 90%;
+  max-width: 800px;
   border-radius: 10px;
-  overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
+/* Modal header */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #198754;
-  color: white;
-  padding: 15px;
+  color: #fff;
+  padding: 15px 20px;
 }
-
 .modal-header h3 {
   margin: 0;
+  font-size: 1.5rem;
 }
-
 .close-btn {
   background: transparent;
   border: none;
-  color: white;
-  font-size: 20px;
+  color: #fff;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
+/* Modal body com scroll */
 .modal-body {
   padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
-.input-label {
-  display: block;
-  margin-bottom: 10px;
-  color: #198754;
-  font-weight: bold;
-}
-
-.input-field {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.input-field:focus {
-  border-color: #4caf50;
-  outline: none;
-}
-
+/* Modal footer */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 15px;
+  padding: 15px 20px;
   background: #f4f4f4;
-}
-
-.save-btn {
-  background-color: #198754;
-  color: white;
-  margin-left: 5px;
-}
-
-.cancel-btn {
-  background-color: #757575;
-  color: white;
-  margin-left: 5px;
+  gap: 10px;
 }

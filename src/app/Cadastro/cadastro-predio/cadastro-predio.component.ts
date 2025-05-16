@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
 import { Predio } from 'src/app/shared/utilitarios/predio';
@@ -9,21 +9,44 @@ import { Predio } from 'src/app/shared/utilitarios/predio';
   templateUrl: './cadastro-predio.component.html',
   styleUrls: ['./cadastro-predio.component.css']
 })
-export class CadastroPredioComponent {
+export class CadastroPredioComponent implements OnInit {
   predios: Predio[] = [];
+  prediosFiltrados: Predio[] = [];
+
   showModal = false;
   isEditing = false;
   registerForm: FormGroup;
+
+  // Lista de comodidades para gerar os checkboxes
+  amenidades = [
+    { key: 'piscina', label: 'Piscina' },
+    { key: 'academia', label: 'Academia' },
+    { key: 'churrasqueira', label: 'Churrasqueira' },
+    { key: 'salao_de_festas', label: 'Salão de Festas' },
+    { key: 'espaco_gourmet', label: 'Espaço Gourmet' },
+    { key: 'sauna', label: 'Sauna' },
+    { key: 'spa', label: 'Spa' },
+    { key: 'salao_de_jogos', label: 'Salão de Jogos' },
+    { key: 'coworking', label: 'Coworking' },
+    { key: 'jardim_terraco', label: 'Jardim/Terraço' },
+    { key: 'lavanderia', label: 'Lavanderia' },
+    { key: 'bicicletario', label: 'Bicicletário' },
+    { key: 'estacionamento_visitas', label: 'Estac. Visitas' },
+    { key: 'elevador_social', label: 'Elevador Social' },
+  ];
 
   constructor(
     private predioService: PredioService,
     private toastr: ToastrService,
     private fb: FormBuilder
   ) {
-    this.registerForm = this.fb.group({
+    // Cria form group incluindo todas as comodidades
+    const groupConfig: any = {
       id: [''],
       nome: ['', Validators.required]
-    });
+    };
+    this.amenidades.forEach(a => groupConfig[a.key] = [false]);
+    this.registerForm = this.fb.group(groupConfig);
   }
 
   ngOnInit(): void {
@@ -32,15 +55,24 @@ export class CadastroPredioComponent {
 
   loadPredios(): void {
     this.predioService.getAllPredios().subscribe({
-      next: (predios) => this.predios = predios,
-      error: (error) => console.error('Erro ao buscar prédios:', error)
+      next: (lista) => {
+        this.predios = lista;
+        this.prediosFiltrados = [...this.predios];
+      },
+      error: err => console.error(err)
     });
+  }
+  filtrarPredios(event: Event): void {
+    const termo = (event.target as HTMLInputElement).value.toLowerCase();
+    this.prediosFiltrados = this.predios.filter(p =>
+      p.nome.toLowerCase().includes(termo)
+    );
   }
 
   openModal(): void {
     this.showModal = true;
     this.isEditing = false;
-    this.registerForm.reset();
+    this.registerForm.reset({ nome: '', ...this.amenidades.reduce((o, a) => ({ ...o, [a.key]: false }), {}) });
   }
 
   closeModal(): void {
@@ -51,7 +83,12 @@ export class CadastroPredioComponent {
   editPredio(predio: Predio): void {
     this.isEditing = true;
     this.showModal = true;
-    this.registerForm.patchValue(predio);
+    // Garante que temos booleans para todas as keys
+    const patch = {
+      ...predio,
+      ...this.amenidades.reduce((o, a) => ({ ...o, [a.key]: !!predio[a.key] }), {})
+    };
+    this.registerForm.patchValue(patch);
   }
 
   deletePredio(predio: Predio): void {
@@ -61,29 +98,25 @@ export class CadastroPredioComponent {
           this.toastr.success('Prédio excluído com sucesso!');
           this.loadPredios();
         },
-        error: (error) => this.toastr.error('Erro ao excluir prédio')
+        error: () => this.toastr.error('Erro ao excluir prédio')
       });
     }
   }
 
   onSubmit(): void {
     if (this.registerForm.invalid) return;
-
     const predio: Predio = this.registerForm.value;
-    const operation = this.isEditing ? 
-      this.predioService.updatePredio(predio) : 
-      this.predioService.createPredio(predio);
+    const op = this.isEditing
+      ? this.predioService.updatePredio(predio)
+      : this.predioService.createPredio(predio);
 
-    operation.subscribe({
+    op.subscribe({
       next: () => {
         this.toastr.success(`Prédio ${this.isEditing ? 'atualizado' : 'criado'} com sucesso!`);
         this.closeModal();
         this.loadPredios();
       },
-      error: (error) => {
-        this.toastr.error(`Erro ao ${this.isEditing ? 'atualizar' : 'criar'} prédio`);
-        console.error(error);
-      }
+      error: () => this.toastr.error(`Erro ao ${this.isEditing ? 'atualizar' : 'criar'} prédio`)
     });
   }
 }

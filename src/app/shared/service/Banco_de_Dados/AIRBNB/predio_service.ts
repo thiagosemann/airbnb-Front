@@ -2,12 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { environment } from 'enviroments';
+import { Predio } from 'src/app/shared/utilitarios/predio';
 
-// Interface para representar um prédio (ajuste conforme sua implementação)
-export interface Predio {
-  id: number;
-  nome: string;
-}
 
 @Injectable({
   providedIn: 'root'
