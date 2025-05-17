@@ -1,154 +1,192 @@
-/* CSS da navbar */
+/* navbar.component.css */
+
+/* --- Navbar container --- */
 .navbar {
-    background: #FFFFFF;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
+  background: #FFFFFF;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  flex-wrap: wrap;
 }
 
-/* CSS para o nome da empresa */
-.company-name {
-    font-size: 24px;
-    color: #333; /* Altere conforme necessário */
+/* --- Logo --- */
+.logo {
+  width: 150px;
+  height: auto;
+  margin: 0;
 }
 
-/* CSS para o botão de saída */
+/* --- Botões perfil/logout (desktop) --- */
+.navbar-perfil-btn,
 .navbar-logout-btn {
-    background-color: white;
-    color: #006400;
-    font-weight: bold;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s ease;
-    padding: 5px 20px;
-}
-
-/* Efeito de hover no botão de saída */
-.navbar-logout-btn:hover {
-    background-color: lightgray;
-}
-.navbar-perfil-btn {
-    background-color: white;
-    color: #006400;
-    font-weight: bold;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s ease;
-    padding: 5px 5px;
-}
-
-/* Efeito de hover no botão de saída */
-.navbar-perfil-btn:hover {
-    background-color: lightgray;
-}
-
-/* Posicionamento do menu sobreposto */
-/* Posicionamento do menu sobreposto */
-.menu-wrapper {
-    position: relative;
-}
-
-.navbar-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #fff;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    padding: 5px 0;
-    display: flex;
-    flex-direction: column;
-    min-width: 200px; /* Largura mínima aumentada */
-    max-width: 90vw; /* Limitar a largura máxima */
-    max-height: 80vh; /* Altura máxima baseada na viewport */
-    overflow-y: auto; /* Habilitar scroll vertical se necessário */
-    z-index: 999;
-}
-
-/* Estilos para os botões dentro do menu */
-.navbar-menu button {
-    white-space: nowrap; /* Impedir quebra de linha */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Adicionar "..." se o texto for muito longo */
-    padding: 10px 20px;
-    text-align: left;
-}
-
-.navbar-menu button:hover {
-    background-color: lightgray;
-}
-.logo{
-    width: 180px;
-    height: 170px;
-    margin-top: -45px; 
-    margin-bottom: -50px;
-}
-
-/* Estilo do dropdown para combinar com o menu */
-.dropdown-menu {
-    background-color: white;  /* Cor de fundo do dropdown */
-    border-radius: 5px;  /* Arredondar os cantos */
-    font-family: 'LayarBahtera Doomsday';  /* Mesma fonte do menu */
-    font-size: 16px;  /* Tamanho de fonte */
-}
-
-.dropdown-item {
-    color: #006400;  /* Cor do texto nos itens do dropdown */
-    font-weight: bold;  /* Deixar o texto negrito */
-    padding: 5px 20px;  /* Ajustar o espaçamento interno */
-    transition: background-color 0.3s ease;  /* Efeito de transição para o hover */
-}
-
-.dropdown-item:hover {
-    background-color: lightgray;  /* Cor de fundo ao passar o mouse */
-}
-
-.custom-select {
-  border: 1px solid #ccc;
+  background: #fff;
+  color: #006400;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
   border-radius: 5px;
   padding: 8px 12px;
-  font-size: 15px;
-  font-weight: bolder;
-  color: #555;
-  background-color: #fff;
-  transition: border-color 0.3s ease;
+  margin: 5px 0;
+  transition: background-color 0.3s;
+}
+.navbar-perfil-btn:hover,
+.navbar-logout-btn:hover {
+  background-color: lightgray;
+}
+
+/* --- Botão hamburguer --- */
+.navbar-toggler {
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  margin-left: auto;
+}
+
+/* --- Collapse desktop --- */
+@media (min-width: 992px) {
+  .navbar-toggler { display: none; }
+  .navbar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .navbar-nav button {
+    width: auto;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+/* --- Mostrar collapse em mobile quando aberto --- */
+.collapse.navbar-collapse.show {
+  display: flex !important;
+  flex-direction: column;
   width: 100%;
 }
 
-.custom-select:focus {
-  outline: none;
-  border-color: #198754;
-  box-shadow: 0 0 0 0.2rem rgba(3, 48, 23, 0.233);
-}.navbar-menu {
-    position: absolute;
-    top: calc(100% + 5px);
-    right: 0;
-    background-color: #fff;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    padding: 5px 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Alinhar o conteúdo à esquerda */
-    min-width: 150px;
-    z-index: 999;
+/* ================= */
+/* ---- MOBILE ---- */
+/* ================= */
+
+/* Overlay atrás do painel */
+.mobile-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 998;
+  animation: fadeIn 0.3s;
 }
 
-
-/* Adicionando flexbox para os selects */
-.selects-container {
-    display: flex;
-    gap: 10px;
+/* Painel lateral */
+.mobile-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 80%;
+  max-width: 300px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s forwards;
 }
-/* Adaptação para telas muito pequenas */
-@media (max-width: 480px) {
-    .navbar-menu {
-        right: 10px;
-        left: 10px;
-        width: auto;
-    }
+
+/* Header com logo pequenina e botão fechar */
+.mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+.logo-sm {
+  width: 120px;
+  height: auto;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+}
+
+/* Itens do menu mobile */
+.mobile-nav {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+.mobile-nav button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #006400;
+  text-align: left;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+.mobile-nav button:hover {
+  background: #f5f5f5;
+}
+.mobile-nav .logout {
+  margin-top: auto;
+  color: #b00;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Animações */
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Esconder mobile elements em desktop */
+@media (min-width: 992px) {
+  .mobile-overlay,
+  .mobile-panel {
+    display: none;
+  }
+}
+/* Ajustes para navbar mais compacta em mobile */
+@media (max-width: 576px) {
+  .navbar {
+    padding: 5px 10px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  .navbar-perfil-btn,
+  .navbar-logout-btn {
+    padding: 6px 10px;
+    font-size: 14px;
+    margin: 3px 0;
+  }
+
+  /* Se quiser também compactar o painel mobile */
+  .mobile-header {
+    padding: 0.5rem;
+  }
+
+  .logo-sm {
+    width: 100px;
+  }
+
+  .mobile-nav button {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+  }
 }

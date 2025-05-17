@@ -1,39 +1,67 @@
+<!-- navbar.component.html -->
 <nav class="navbar navbar-expand-lg sticky-top">
-      <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo" >
-   
-  
+  <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
 
-    <ng-container *ngIf="user.role=='admin'">
+  <!-- Botão hamburguer / fechar -->
+  <button class="navbar-toggler" type="button" (click)="toggleMenu()">
+    <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+  </button>
 
-    <!-- Menu para telas maiores (desktop) -->
-    <div class="navbar-nav ms-auto" *ngIf="isDesktopView">
-        <button class="navbar-perfil-btn" (click)="calendarioAirbnb()"><i class="fas fa-home"></i> Calendário</button>
-        <button class="navbar-perfil-btn" (click)="escalaFaxina()"><i class="fas fa-home"></i> Escala Faxina</button>
-        <button class="navbar-perfil-btn" (click)="cadastroPredio()"><i class="fas fa-gear"></i> Predios</button>
-        <button class="navbar-perfil-btn" (click)="cadastroApartamento()"><i class="fas fa-gear"></i> Apartamentos</button>
-        <button class="navbar-perfil-btn" (click)="cadastroUsuario()"><i class="fas fa-gear"></i> Usuarios</button>
-        <button class="navbar-perfil-btn" (click)="controleFaxina()"><i class="fas fa-gear"></i> Controle Faxina</button>
-        <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
-        <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-    </div>
-      <!-- Menu para telas menores (menu sanduíche) -->
-      <div class="menu-wrapper">
-        <button class="navbar-toggler" type="button" (click)="toggleMenu()">
-          <span class="navbar-toggler-icon"></span>
+  <!-- Menu desktop (colapsa em mobile) -->
+  <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
+    <ng-container *ngIf="user.role === 'admin'">
+      <div class="navbar-nav ms-auto">
+        <button class="navbar-perfil-btn" (click)="calendarioAirbnb()">
+          <i class="fas fa-home"></i> Calendário
         </button>
-    
-        <!-- Menu de sanduíche com todas as funções -->
-        <div class="navbar-menu" *ngIf="isMenuOpen && !isDesktopView">
-            <button class="navbar-perfil-btn" (click)="calendarioAirbnb()"><i class="fas fa-home"></i> Calendário</button>
-            <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
-            <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-        </div>
+        <button class="navbar-perfil-btn" (click)="escalaFaxina()">
+          <i class="fas fa-home"></i> Escala Faxina
+        </button>
+        <button class="navbar-perfil-btn" (click)="cadastroPredio()">
+          <i class="fas fa-gear"></i> Prédios
+        </button>
+        <button class="navbar-perfil-btn" (click)="cadastroApartamento()">
+          <i class="fas fa-gear"></i> Apartamentos
+        </button>
+        <button class="navbar-perfil-btn" (click)="cadastroUsuario()">
+          <i class="fas fa-gear"></i> Usuários
+        </button>
+        <button class="navbar-perfil-btn" (click)="controleFaxina()">
+          <i class="fas fa-gear"></i> Controle Faxina
+        </button>
+        <button class="navbar-perfil-btn" (click)="profile()">
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="navbar-perfil-btn" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
       </div>
     </ng-container>
-
-    <ng-container *ngIf="user.role!='admin'">
-      <button class="navbar-logout-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    <ng-container *ngIf="user.role !== 'admin'">
+      <div class="ms-auto">
+        <button class="navbar-logout-btn" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      </div>
     </ng-container>
+  </div>
 
-  </nav>
-  
+  <!-- Overlay e painel mobile -->
+  <div class="mobile-overlay" *ngIf="isMenuOpen" (click)="toggleMenu()"></div>
+  <div class="mobile-panel" *ngIf="isMenuOpen">
+    <div class="mobile-header">
+      <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo-sm">
+      <button class="close-btn" (click)="toggleMenu()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mobile-nav">
+      <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
+      <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
+      <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
+      <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
+      <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
+      <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
+      <button (click)="profile(); toggleMenu()"><i class="fas fa-user"></i> Perfil</button>
+      <button class="logout" (click)="logout(); toggleMenu()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </div>
+  </div>
+</nav>
