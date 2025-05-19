@@ -195,166 +195,51 @@
     </div>
   </div>
     <!-- PASSO 2: Checklist -->
-    <div *ngIf="step === 2" class="card shadow-sm mt-3">
-    <div class="card-header">
-        <h5 class="mb-0">2. Verificação de Funcionamento e Itens</h5>
-        <small class="text-muted">Marque os itens que estão em perfeito estado de funcionamento</small>
+    <!-- PASSO 2: Checklist -->
+<div *ngIf="step === 2" class="card shadow-sm mt-3">
+  <div class="card-header">
+    <h5 class="mb-0">2. Verificação de Funcionamento e Itens</h5>
+    <small class="text-muted">Marque os itens que estão em perfeito estado de funcionamento</small>
+  </div>
+  <form [formGroup]="formChecks" class="card-body">
+    <div class="row g-3">
+      <ng-container *ngFor="let cat of categorias | keyvalue">
+        <div class="col-12">
+          <div class="category-card bg-light p-3 rounded">
+            <h6 class="category-title">{{ cat.key | titlecase }}</h6>
+            <div class="row">
+              <div class="col-md-4" *ngFor="let item of cat.value">
+                <div class="form-check mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [formControlName]="item.key"
+                    [id]="item.key">
+                  <label [for]="item.key" class="form-check-label">
+                    {{ item.label }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
     </div>
-    <form [formGroup]="formChecks" class="card-body">
-        <!-- Categorias organizadas -->
-        <div class="row g-3">
-        <!-- Eletrodomésticos -->
-        <div class="col-12">
-            <div class="category-card bg-light p-3 rounded">
-            <h6 class="category-title">
-                <i class="fas fa-plug me-2"></i>Eletrodomésticos
-            </h6>
-            <div class="row">
-                <div class="col-md-4" *ngFor="let item of categorias.eletrodomesticos">
-                <div class="form-check mb-3">
-                    <input 
-                    class="form-check-input"
-                    type="checkbox"
-                    [formControlName]="item.key"
-                    [id]="item.key">
-                    <label [for]="item.key" class="form-check-label">
-                    {{ item.label }}
-                    </label>
-                    <input
-                    *ngIf="item.observavel"
-                    type="text"
-                    class="form-control form-control-sm mt-1"
-                    [placeholder]="item.placeholder || 'Observações'"
-                    [formControlName]="item.key + '_obs'">
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
 
-        <!-- Iluminação -->
-        <div class="col-12">
-            <div class="category-card bg-light p-3 rounded">
-            <h6 class="category-title">
-                <i class="fas fa-lightbulb me-2"></i>Iluminação
-            </h6>
-            <div class="row">
-                <div class="col-md-4" *ngFor="let item of categorias.iluminacao">
-                <div class="form-check mb-3">
-                    <input 
-                    class="form-check-input"
-                    type="checkbox"
-                    [formControlName]="item.key"
-                    [id]="item.key">
-                    <label [for]="item.key" class="form-check-label">
-                    {{ item.label }}
-                    </label>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <!-- Água e Encanamento -->
-        <div class="col-12">
-            <div class="category-card bg-light p-3 rounded">
-            <h6 class="category-title">
-                <i class="fas fa-faucet me-2"></i>Água e Encanamento
-            </h6>
-            <div class="row">
-                <div class="col-md-4" *ngFor="let item of categorias.agua">
-                <div class="form-check mb-3">
-                    <input 
-                    class="form-check-input"
-                    type="checkbox"
-                    [formControlName]="item.key"
-                    [id]="item.key">
-                    <label [for]="item.key" class="form-check-label">
-                    {{ item.label }}
-                    </label>
-                    <input
-                    *ngIf="item.observavel"
-                    type="text"
-                    class="form-control form-control-sm mt-1"
-                    placeholder="Observações"
-                    [formControlName]="item.key + '_obs'">
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <!-- Itens de Segurança -->
-        <div class="col-12">
-            <div class="category-card bg-light p-3 rounded">
-            <h6 class="category-title">
-                <i class="fas fa-lock me-2"></i>Segurança
-            </h6>
-            <div class="row">
-                <div class="col-md-4" *ngFor="let item of categorias.seguranca">
-                <div class="form-check mb-3">
-                    <input 
-                    class="form-check-input"
-                    type="checkbox"
-                    [formControlName]="item.key"
-                    [id]="item.key">
-                    <label [for]="item.key" class="form-check-label">
-                    {{ item.label }}
-                    </label>
-                    <input
-                    type="text"
-                    class="form-control form-control-sm mt-1"
-                    placeholder="Senha verificada"
-                    [formControlName]="item.key + '_obs'">
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <!-- Itens de Cuidados Especiais -->
-        <div class="col-12">
-            <div class="category-card bg-light p-3 rounded">
-            <h6 class="category-title">
-                <i class="fas fa-clipboard-check me-2"></i>Itens Específicos
-            </h6>
-            <div class="row">
-                <div class="col-md-4" *ngFor="let item of categorias.especificos">
-                <div class="form-check mb-3">
-                    <input 
-                    class="form-check-input"
-                    type="checkbox"
-                    [formControlName]="item.key"
-                    [id]="item.key">
-                    <label [for]="item.key" class="form-check-label">
-                    {{ item.label }}
-                    </label>
-                    <input
-                    *ngIf="item.observavel"
-                    type="text"
-                    class="form-control form-control-sm mt-1"
-                    placeholder="Quantidade/Estado"
-                    [formControlName]="item.key + '_obs'">
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>
-
-        <!-- Observações Gerais -->
-        <div class="mt-4">
-        <label class="form-label">Observações Gerais</label>
-        <textarea 
-            class="form-control" 
-            rows="3"
-            formControlName="observacoes_gerais"
-            placeholder="Descreva qualquer observação relevante..."></textarea>
-        </div>
-    </form>
-    <div class="card-footer d-flex justify-content-between">
-        <button class="btn btn-outline-secondary btn-sm" (click)="back()">Voltar</button>
-        <button class="btn btn-success btn-sm" (click)="submit()">Salvar Vistoria</button>
+    <!-- Observações Gerais -->
+    <div class="mt-4">
+      <label class="form-label">Observações Gerais</label>
+      <textarea
+        class="form-control"
+        rows="3"
+        formControlName="observacoes_gerais"
+        placeholder="Descreva qualquer observação relevante..."></textarea>
     </div>
-    </div>
+  </form>
+  <div class="card-footer d-flex justify-content-between">
+    <button class="btn btn-outline-secondary btn-sm" (click)="back()">Voltar</button>
+    <button class="btn btn-success btn-sm" (click)="submit()">Salvar Vistoria</button>
+  </div>
+</div>
+
 </div>

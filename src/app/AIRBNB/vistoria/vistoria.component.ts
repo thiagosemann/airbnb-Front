@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
+import { VistoriaService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/vistoria_service';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { Predio } from 'src/app/shared/utilitarios/predio';
-interface ItemChecklist {
-  key: string;
-  label: string;
-  observavel?: boolean;
-  placeholder?: string;
-}
+import { User } from 'src/app/shared/utilitarios/user';
+import { Vistoria } from 'src/app/shared/utilitarios/vistoria';
+
 
 @Component({
   selector: 'app-vistoria',
@@ -22,7 +21,7 @@ export class VistoriaComponent implements OnInit {
   predios: Predio[] = [];
   formApto!: FormGroup;
   formChecks!: FormGroup;
-
+  currentUserId: number | undefined;
   comodidades = [
     { key: 'ar_condicionado', label: 'Ar Condicionado' },
     { key: 'secador_cabelo', label: 'Secador de Cabelo' },
@@ -43,45 +42,51 @@ export class VistoriaComponent implements OnInit {
     { key: 'adesivo_aviso', label: 'Adesivo de Aviso' }
   ];
 
- categorias = {
-  eletrodomesticos: [
-    { key: 'geladeira', label: 'Geladeira Funcionando', observavel: true, placeholder: 'Temperatura, ruídos...' },
-    { key: 'microondas', label: 'Microondas Funcionando' },
-    { key: 'maquina_lavar', label: 'Máquina de Lavar', observavel: true },
-    { key: 'tv', label: 'TV Funciona (Smart TV)' },
-    { key: 'ar_condicionado', label: 'Ar Condicionado', observavel: true },
-    { key: 'cafeteira', label: 'Cafeteira Funcionando' }
-  ],
-  iluminacao: [
-    { key: 'luzes_principal', label: 'Luzes Principais OK' },
-    { key: 'luzes_auxiliares', label: 'Luzes Auxiliares OK' },
-    { key: 'luzes_externas', label: 'Iluminação Externa OK' }
-  ],
-  agua: [
-    { key: 'chuveiro', label: 'Chuveiro Funcionando', observavel: true },
-    { key: 'torneiras', label: 'Torneiras sem Vazamentos' },
-    { key: 'vaso_sanitario', label: 'Vaso Sanitário OK' },
-    { key: 'pressao_agua', label: 'Pressão da Água Adequada' }
-  ],
-  seguranca: [
-    { key: 'fechaduras', label: 'Fechaduras Operantes' },
-    { key: 'senha_porta', label: 'Senha da Porta Correta' },
-    { key: 'extintor', label: 'Extintor Presente' }
-  ],
-  especificos: [
-    { key: 'copos', label: 'Copos (Quantidade)', observavel: true },
-    { key: 'talheres', label: 'Jogo de Talheres Completo' },
-    { key: 'cortinas', label: 'Cortinas Intactas' },
-    { key: 'janelas', label: 'Janelas Vedando Bem' },
-    { key: 'internet', label: 'Wi-Fi Funcionando', observavel: true }
-  ]
-};
+  categorias: Record<string, any[]> = {
+    eletrodomesticos: [
+      { key: 'geladeira', label: 'Geladeira Funcionando', observavel: true, placeholder: 'Temperatura, ruídos...' },
+      { key: 'microondas', label: 'Microondas Funcionando' },
+      { key: 'maquina_lavar', label: 'Máquina de Lavar', observavel: true },
+      { key: 'tv', label: 'TV Funciona (Smart TV)' },
+      { key: 'ar_condicionado', label: 'Ar Condicionado', observavel: true },
+      { key: 'cafeteira', label: 'Cafeteira Funcionando' }
+    ],
+    iluminacao: [
+      { key: 'luzes_principal', label: 'Luzes Principais OK' },
+      { key: 'luzes_auxiliares', label: 'Luzes Auxiliares OK' },
+      { key: 'luzes_externas', label: 'Iluminação Externa OK' }
+    ],
+    agua: [
+      { key: 'chuveiro', label: 'Chuveiro Funcionando', observavel: true },
+      { key: 'torneiras', label: 'Torneiras sem Vazamentos' },
+      { key: 'vaso_sanitario', label: 'Vaso Sanitário OK' },
+      { key: 'pressao_agua', label: 'Pressão da Água Adequada' }
+    ],
+    seguranca: [
+      { key: 'fechaduras', label: 'Fechaduras Operantes' },
+      { key: 'senha_porta', label: 'Senha da Porta Correta' }
+    ],
+    especificos: [
+      { key: 'copos', label: 'Jogo de copos Completo', observavel: true },
+      { key: 'talheres', label: 'Jogo de Talheres Completo' },
+      { key: 'cortinas', label: 'Cortinas Intactas' },
+      { key: 'janelas', label: 'Janelas Vedando Bem' },
+      { key: 'internet', label: 'Wi-Fi Funcionando', observavel: true }
+    ]
+  };
 
   constructor(
     private fb: FormBuilder,
     private aptoSrv: ApartamentoService,
-    private predioSrv: PredioService
-  ) {}
+    private predioSrv: PredioService,
+    private vistoriaService: VistoriaService,
+    private authService: AuthenticationService,
+
+  ) {
+    const user: User | null = this.authService.getUser();
+    this.currentUserId = user ? user.id : undefined;
+
+  }
 
   ngOnInit(): void {
     this.initForms();
@@ -142,7 +147,7 @@ export class VistoriaComponent implements OnInit {
     const checksGroup: any = {};
     
     Object.values(this.categorias).forEach(categoria => {
-      categoria.forEach((item: ItemChecklist) => {
+      categoria.forEach((item: any) => {
         checksGroup[item.key] = [false];
         if (item.observavel) {
           checksGroup[item.key + '_obs'] = [''];
@@ -189,16 +194,48 @@ export class VistoriaComponent implements OnInit {
   }
 
   submit() {
-    if (this.formChecks.valid) {
-      const payload = {
-        apartamento: this.formApto.value,
-        vistoria: this.formChecks.value
-      };
-      console.log('Payload completo:', payload);
-      // Implementar chamada API aqui
-      alert('Vistoria salva com sucesso!');
-      this.resetForms();
+    if (this.formChecks.invalid) {
+      this.formChecks.markAllAsTouched();
+      return;
     }
+
+    // 1) Atualiza o apartamento
+    const aptoForm = this.formApto.value;
+    const now = new Date().toISOString();
+    const apartamentoPayload = {
+      ...aptoForm,
+      id: aptoForm.apto_id!,
+      modificado_user_id: this.currentUserId,
+      data_ultima_modificacao: now
+    };
+
+    this.aptoSrv.updateApartamento(apartamentoPayload).subscribe({
+      next: () => {
+        // 2) Monta o objeto Vistoria com TODOS os campos vindos dos formulários
+        const vistoriaPayload: Vistoria = {
+          apartamento_id: apartamentoPayload.id,
+          user_id: this.currentUserId,
+          data: now,
+          ...this.formChecks.value  // inclui observacoes_gerais e todas as flags/obs
+        };
+
+        // 3) Chama o serviço para criar a vistoria
+        this.vistoriaService.createVistoria(vistoriaPayload).subscribe({
+          next: res => {
+            alert(`Vistoria criada com sucesso (ID ${res.vistoriaId})`);
+            this.resetForms();
+          },
+          error: err => {
+            console.error('Erro ao criar vistoria:', err);
+            alert('Não foi possível criar a vistoria.');
+          }
+        });
+      },
+      error: err => {
+        console.error('Erro ao atualizar apartamento:', err);
+        alert('Não foi possível atualizar o apartamento.');
+      }
+    });
   }
 
   private resetForms(): void {
