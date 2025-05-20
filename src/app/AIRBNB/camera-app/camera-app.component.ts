@@ -324,7 +324,11 @@ sendData() {
   }
 
 
-
+  /** Retorna true se o horário for entre 01:00 e 06:00 */
+  isNextDay(hour: string): boolean {
+    const h = parseInt(hour.split(':')[0], 10);
+    return h >= 1 && h <= 6;
+  }
 
   
 }

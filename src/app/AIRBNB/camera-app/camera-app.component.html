@@ -28,14 +28,19 @@
         </div>
         <div class="form-group">
           <label for="expectedTime">Horário previsto de entrada no apartamento:</label>
-         <div class="carousel-container">
-          <div class="hour-card" 
+          <div class="carousel-container">
+            <div
+              class="hour-card"
               *ngFor="let hour of hourOptions"
               [class.selected]="formData.horarioPrevistoChegada === hour"
-              (click)="selectHour(hour)">
-            {{ hour }}
+              (click)="selectHour(hour)"
+            >
+              {{ hour }}
+              <small *ngIf="isNextDay(hour)" class="next-day-label">
+                (Dia Seguinte)
+              </small>
+            </div>
           </div>
-        </div>
         </div>
         <button type="submit" class="btn btn-success">Próximo <i class="fas fa-arrow-right"></i></button>
       </form>
