@@ -54,6 +54,9 @@ export class NavBarAirbnbComponent {
   controleFaxina(): void {
     this.router.navigate(['/controleFaxina']);
   }
+  vistoria(): void {
+    this.router.navigate(['/vistoria']);
+  }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }

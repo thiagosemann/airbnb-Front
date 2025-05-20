@@ -44,11 +44,11 @@ export class VistoriaComponent implements OnInit {
 
   categorias: Record<string, any[]> = {
     eletrodomesticos: [
-      { key: 'geladeira', label: 'Geladeira Funcionando', observavel: true, placeholder: 'Temperatura, ruídos...' },
+      { key: 'geladeira', label: 'Geladeira Funcionando', placeholder: 'Temperatura, ruídos...' },
       { key: 'microondas', label: 'Microondas Funcionando' },
-      { key: 'maquina_lavar', label: 'Máquina de Lavar', observavel: true },
+      { key: 'maquina_lavar', label: 'Máquina de Lavar' },
       { key: 'tv', label: 'TV Funciona (Smart TV)' },
-      { key: 'ar_condicionado', label: 'Ar Condicionado', observavel: true },
+      { key: 'ar_condicionado', label: 'Ar Condicionado' },
       { key: 'cafeteira', label: 'Cafeteira Funcionando' }
     ],
     iluminacao: [
@@ -57,7 +57,7 @@ export class VistoriaComponent implements OnInit {
       { key: 'luzes_externas', label: 'Iluminação Externa OK' }
     ],
     agua: [
-      { key: 'chuveiro', label: 'Chuveiro Funcionando', observavel: true },
+      { key: 'chuveiro', label: 'Chuveiro Funcionando' },
       { key: 'torneiras', label: 'Torneiras sem Vazamentos' },
       { key: 'vaso_sanitario', label: 'Vaso Sanitário OK' },
       { key: 'pressao_agua', label: 'Pressão da Água Adequada' }
@@ -67,11 +67,11 @@ export class VistoriaComponent implements OnInit {
       { key: 'senha_porta', label: 'Senha da Porta Correta' }
     ],
     especificos: [
-      { key: 'copos', label: 'Jogo de copos Completo', observavel: true },
+      { key: 'copos', label: 'Jogo de copos Completo' },
       { key: 'talheres', label: 'Jogo de Talheres Completo' },
       { key: 'cortinas', label: 'Cortinas Intactas' },
       { key: 'janelas', label: 'Janelas Vedando Bem' },
-      { key: 'internet', label: 'Wi-Fi Funcionando', observavel: true }
+      { key: 'internet', label: 'Wi-Fi Funcionando'}
     ]
   };
 
@@ -149,9 +149,6 @@ export class VistoriaComponent implements OnInit {
     Object.values(this.categorias).forEach(categoria => {
       categoria.forEach((item: any) => {
         checksGroup[item.key] = [false];
-        if (item.observavel) {
-          checksGroup[item.key + '_obs'] = [''];
-        }
       });
     });
     
@@ -194,49 +191,88 @@ export class VistoriaComponent implements OnInit {
   }
 
   submit() {
-    if (this.formChecks.invalid) {
-      this.formChecks.markAllAsTouched();
-      return;
-    }
+  if (this.formChecks.invalid) {
+    this.formChecks.markAllAsTouched();
+    return;
+  }
 
-    // 1) Atualiza o apartamento
-    const aptoForm = this.formApto.value;
-    const now = new Date().toISOString();
-    const apartamentoPayload = {
+  const aptoForm = this.formApto.value;
+  const now = new Date().toISOString();
+
+  // montamos o payload comum de vistoria
+  const vistoriaPayloadBase: Partial<Vistoria> = {
+    apartamento_id: 0,             // vai ajustar logo abaixo
+    user_id: this.currentUserId!,
+    data: now,
+    ...this.formChecks.value       // flags + observacoes_gerais
+  };
+
+  if (aptoForm.tipo === 'novo') {
+    // 1a) cria o apartamento
+    const createPayload = {
+      ...aptoForm,
+      modificado_user_id: this.currentUserId,
+      data_ultima_modificacao: now
+    };
+
+    this.aptoSrv.createApartamento(createPayload as any).subscribe({
+      next: (res: any) => {
+        const newAptoId = res.insertId;
+        // 2a) cria a vistoria de entrada
+        const vistoriaPayload = {
+          ...vistoriaPayloadBase,
+          apartamento_id: newAptoId
+        } as Vistoria;
+
+        this.vistoriaService.createVistoria(vistoriaPayload)
+          .subscribe(() => {
+            alert('Apartamento e vistoria de entrada criados com sucesso!');
+            this.resetForms();
+          }, err => {
+            console.error(err);
+            alert('Apartamento criado, mas falhou criar a vistoria.');
+          });
+      },
+      error: err => {
+        console.error(err);
+        alert('Falha ao criar o apartamento.');
+      }
+    });
+
+  } else {
+    // 1b) atualiza o apartamento existente
+    const updatePayload = {
       ...aptoForm,
       id: aptoForm.apto_id!,
       modificado_user_id: this.currentUserId,
       data_ultima_modificacao: now
     };
 
-    this.aptoSrv.updateApartamento(apartamentoPayload).subscribe({
+    this.aptoSrv.updateApartamento(updatePayload as any).subscribe({
       next: () => {
-        // 2) Monta o objeto Vistoria com TODOS os campos vindos dos formulários
-        const vistoriaPayload: Vistoria = {
-          apartamento_id: apartamentoPayload.id,
-          user_id: this.currentUserId,
-          data: now,
-          ...this.formChecks.value  // inclui observacoes_gerais e todas as flags/obs
-        };
+        // 2b) cria a vistoria de saída ou rotina
+        const vistoriaPayload = {
+          ...vistoriaPayloadBase,
+          apartamento_id: updatePayload.id
+        } as Vistoria;
 
-        // 3) Chama o serviço para criar a vistoria
-        this.vistoriaService.createVistoria(vistoriaPayload).subscribe({
-          next: res => {
-            alert(`Vistoria criada com sucesso (ID ${res.vistoriaId})`);
+        this.vistoriaService.createVistoria(vistoriaPayload)
+          .subscribe(() => {
+            alert('Apartamento atualizado e vistoria criada com sucesso!');
             this.resetForms();
-          },
-          error: err => {
-            console.error('Erro ao criar vistoria:', err);
-            alert('Não foi possível criar a vistoria.');
-          }
-        });
+          }, err => {
+            console.error(err);
+            alert('Apartamento atualizado, mas falhou criar a vistoria.');
+          });
       },
       error: err => {
-        console.error('Erro ao atualizar apartamento:', err);
-        alert('Não foi possível atualizar o apartamento.');
+        console.error(err);
+        alert('Falha ao atualizar o apartamento.');
       }
     });
   }
+}
+
 
   private resetForms(): void {
     this.formApto.reset({

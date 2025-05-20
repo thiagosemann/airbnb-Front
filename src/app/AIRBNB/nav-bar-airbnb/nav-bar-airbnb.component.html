@@ -11,6 +11,9 @@
   <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
     <ng-container *ngIf="user.role === 'admin'">
       <div class="navbar-nav ms-auto">
+        <button class="navbar-perfil-btn" (click)="vistoria()">
+          <i class="fas fa-check-to-slot"></i> Vistoria
+        </button>
         <button class="navbar-perfil-btn" (click)="calendarioAirbnb()">
           <i class="fas fa-home"></i> Calendário
         </button>
@@ -54,6 +57,7 @@
       <button class="close-btn" (click)="toggleMenu()"><i class="fas fa-times"></i></button>
     </div>
     <div class="mobile-nav">
+      <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vitoria</button>
       <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
       <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
       <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
