@@ -12,7 +12,12 @@ import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 export class CameraAppComponent implements OnInit {
   step = 1; // Etapas do fluxo
   id: string = ''; // Código da reserva
-  formData = { cpf: '', nome: '', telefone: '' }; // Dados do formulário
+  formData = {
+    cpf: '',
+    nome: '',
+    telefone: '',
+    horarioPrevistoChegada: '15:00' // Horário padrão
+  };
   photoDataUrl: string | null = null; // Imagem capturada
   documentPhotoUrl: string | null = null; // Imagem capturada
   documentFile: string | null = null; // Arquivo do documento
@@ -22,6 +27,7 @@ export class CameraAppComponent implements OnInit {
   private mediaStream: MediaStream | null = null; // Para parar a câmera depois do uso
   private documentMediaStream: MediaStream | null = null; // Para parar a câmera do documento
   loadingCamera:Boolean=false;
+  hourOptions: string[] = [];
 
   constructor(
     private checkinFormService: CheckInFormService,
@@ -33,8 +39,19 @@ export class CameraAppComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.id = params.get('id') ?? ''; // Atribui o valor do 'id' à variável
     });
+          // Gera horários de 15h até 24h
+      for (let i = 15; i <= 24; i++) {
+        const hora = i < 24 ? `${i.toString().padStart(2, '0')}:00` : '00:00';
+        this.hourOptions.push(hora);
+      }
+      for (let i = 1; i <= 6; i++) {
+        const hora = i < 24 ? `${i.toString().padStart(2, '0')}:00` : '00:00';
+        this.hourOptions.push(hora);
+      }
   }
-
+  selectHour(hour: string) {
+    this.formData.horarioPrevistoChegada = hour;
+  }
   // Recebe o arquivo selecionado para envio
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -157,6 +174,7 @@ sendData() {
     CPF: this.formData.cpf,
     Nome: this.formData.nome.toUpperCase(),
     Telefone: this.formData.telefone,
+    horarioPrevistoChegada: this.formData.horarioPrevistoChegada,  // ← inclua aqui
     imagemBase64: this.photoDataUrl.split(',')[1], // Remove o prefixo Data URL
     tipo: 'guest', // Ou outro valor conforme sua regra de negócio
     documentBase64: this.documentPhotoUrl 
@@ -183,7 +201,7 @@ sendData() {
   // Reseta o fluxo para o início
   resetFlow() {
     this.step = 1;
-    this.formData = { cpf: '', nome: '', telefone: '' };
+    this.formData = { cpf: '', nome: '', telefone: '',horarioPrevistoChegada:'15:00' };
     this.stopCamera();
     this.stopDocumentCamera();
     this.photoDataUrl = null;
@@ -279,6 +297,10 @@ sendData() {
         this.toastr.warning("Digite o telefone!")
         return;
       }
+      if (!this.formData.horarioPrevistoChegada) {
+        this.toastr.warning('Selecione o horário previsto de chegada!');
+        return;
+      }
       this.step = 2; // Avançar para a etapa de captura de foto
       this.startCamera(); // Iniciar a câmera
     }else if (this.step < 5) {
@@ -300,6 +322,8 @@ sendData() {
   concluirCadastro(){
     this.step=6;
   }
+
+
 
 
   

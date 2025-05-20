@@ -6,32 +6,41 @@
 .full-screen-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  background: linear-gradient(360deg,  #9bd6a9f6,  #56a769); /* Gradiente suave */
-  font-family: 'Poppins', sans-serif; /* Fonte moderna */
+  align-items: flex-start;    /* permite scroll interno */
+  padding: 10px 10px;            /* espaço no topo/embaixo */
+  background: linear-gradient(360deg, #9bd6a9f6, #56a769);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;          /* garante ao menos 1 tela */
+  box-sizing: border-box;
+  overflow-y: block;           /* rolagem interna se estourar */
 }
+
 
 /* Contêiner centralizado do formulário */
 .container {
-  width: 90%;
-  padding: 30px;
-  background: #fff; /* Branco neve */
+  width: 100%;
+  max-width: 400px;           /* não estoura em tablets */
+  background: #fff;
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(50, 205, 50, 0.25); /* Sombra verde suave */
-  text-align: center;
-  height: 100vh;;
+  box-shadow: 0 4px 12px rgba(50, 205, 50, 0.25);
+  padding: 15px;
+  box-sizing: border-box;
+  margin: 0 20px;             /* garante margem lateral em telas muito pequenas */
 }
 
+
 .logo-img {
-  width: 170px;
-  height: 100px;
-  margin-bottom: 10px; /* Espaço entre a imagem e o formulário */
+  width: 40%;
+  max-width: 180px;
+  height: auto;
+  display: block;
+  margin: 0 auto 5px;
 }
 
 h1, h2, h3 {
   color: #28a745; /* Verde principal */
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 h1 {
@@ -200,11 +209,11 @@ video, img {
 .info-box {
   background-color: #e9f7ef; /* verde claro */
   border-left: 5px solid #28a745; /* verde destaque */
-  padding: 15px 20px;
+  padding: 5px 10px;
   border-radius: 10px;
   font-size: 14px;
   color: #2e7d32;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -216,3 +225,35 @@ video, img {
   color: #28a745;
 }
 
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 0;
+  gap: 10px;
+  margin-bottom: 20px;
+  scroll-snap-type: x mandatory;
+}
+
+.hour-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background-color: #f1f1f1;
+  border: 2px solid transparent;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  min-width: 80px;
+  text-align: center;
+}
+
+.hour-card:hover {
+  background-color: #d1ecd4;
+}
+
+.hour-card.selected {
+  border-color: #28a745;
+  background-color: #28a745;
+  color: white;
+}
