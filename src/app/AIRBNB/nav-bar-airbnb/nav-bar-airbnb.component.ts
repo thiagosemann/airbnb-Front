@@ -57,6 +57,9 @@ export class NavBarAirbnbComponent {
   vistoria(): void {
     this.router.navigate(['/vistoria']);
   }
+  controleVistoria(): void {
+    this.router.navigate(['/controle-vistoria']);
+  } 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }

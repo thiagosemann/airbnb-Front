@@ -28,6 +28,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
+import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
     EscalaFaxinaComponent,
     ControleFaxinaComponent,
     VistoriaComponent,
+    ControleVistoriaComponent,
   ],
   imports: [
     BrowserModule,

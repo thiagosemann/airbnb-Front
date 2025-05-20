@@ -17,6 +17,7 @@ import { UsersControlComponent } from './Cadastro/users-control/users-control.co
 import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
 import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
+import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
 
 
 const routes: Routes = [
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService]},
   { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService]},
   { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService]},
+  { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService]},
 
 
   

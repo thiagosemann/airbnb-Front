@@ -43,4 +43,8 @@ export interface Vistoria {
   janelas: boolean;
   internet: boolean;
   internet_obs?: string;
+
+  // Check
+  usuario_nome?:string;
+  apartamento_nome?:string;
 }
