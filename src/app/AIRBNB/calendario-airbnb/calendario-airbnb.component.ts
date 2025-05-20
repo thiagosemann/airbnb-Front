@@ -115,6 +115,7 @@ export class CalendarioAirbnbComponent implements OnInit {
       case 'hoje':
         this.reservasAirbnbService.getReservasHoje().subscribe({
           next: (reservas) => {
+            console.log(reservas)
             this.reservasHoje = reservas.filter(reserva => !this.isBloqueado(reserva));
             // Corrigindo aqui: contar apenas onde credencial_made é true
             this.credenciaisFetias = reservas.filter(r => r.credencial_made).length; 
@@ -362,16 +363,45 @@ formatarTelefone(telefone: string): string {
   return telefone;
 }
 
-/**
- * Formata um CPF para o padrão brasileiro: XXX.XXX.XXX-XX
- */
-formatarCPF(cpf: string): string {
-  const digitos = cpf.replace(/\D/g, '');
-  if (digitos.length === 11) {
-    return digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  /**
+   * Formata um CPF para o padrão brasileiro: XXX.XXX.XXX-XX
+   */
+  formatarCPF(cpf: string): string {
+    const digitos = cpf.replace(/\D/g, '');
+    if (digitos.length === 11) {
+      return digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    // Caso não seja um CPF válido de 11 dígitos, retorna original
+    return cpf;
   }
-  // Caso não seja um CPF válido de 11 dígitos, retorna original
-  return cpf;
-}
+  getMenorHorarioPrevistoChegada(horarios: (string | null | undefined)[]): string {
+    // 1) Filtra apenas strings não vazias e no formato HH:MM
+    const validos = (<string[]>horarios.filter(h => typeof h === 'string' && /^\d{2}:\d{2}$/.test(h)));
+
+    if (validos.length === 0) {
+      return '15:00';
+    }
+
+    // 2) Converte para objeto com minutos totais
+    const tempos = validos.map(h => {
+      if (typeof h === 'string') {
+        const [hh, mm] = h.split(':').map(Number);
+        return {
+          original: h,
+          totalMin: hh * 60 + mm
+        };
+      }
+      // fallback, should not happen due to filter
+      return { original: '', totalMin: Number.MAX_SAFE_INTEGER };
+    });
+
+    // 3) Encontra o objeto com menor totalMin
+    const menor = tempos.reduce((prev, curr) =>
+      curr.totalMin < prev.totalMin ? curr : prev
+    );
+
+    // 4) Retorna a string no formato HH:MM
+    return typeof menor.original === 'string' ? menor.original : '';
+  }
 
 }

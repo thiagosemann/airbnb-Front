@@ -23,12 +23,10 @@
           <thead>
             <tr>
               <th style="width: 5%;">Apartamento</th>
-              
               <th style="width: 10%;">Cód Reserva</th>
-              <th style="width: 5%;">Início</th>
               <th style="width: 10%;">Check-In</th>
-              <th style="width: 5%;">Fim</th>
-              <th style="width: 10%;">Check-Out</th>
+              <th style="width: 10%;">Hóspedes</th>
+              <th style="width: 10%;">Chegada</th>
               <th style="width: 10%;">Credencial</th>
               <th style="width: 10%;">Informado</th>
               <th style="width: 10%;">Docs Env.</th>
@@ -41,10 +39,10 @@
                 <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
               </td>
               <td>{{ findIfBloqued(event) }}</td>
-              <td>{{ formatarData(event.start_date) }}</td>
               <td>{{ event.check_in }}</td>
-              <td>{{ formatarData(event.end_data) }}</td>
-              <td>{{ event.check_out }}</td>            
+              <td>{{event.qtd_hospedes}}</td>
+              <td>{{getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada)}}</td>
+
               <td>
                 <label class="custom-checkbox">
                   <input type="checkbox" 

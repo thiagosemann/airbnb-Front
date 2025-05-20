@@ -19,4 +19,6 @@ export interface ReservaAirbnb {
   faxina_userId?: number | null; // Adicione este campo
   check_in_mesmo_dia?:boolean;
   documentosEnviados?: boolean;
+  qtd_hospedes?: number;
+  horarioPrevistoChegada:any[];
 }
