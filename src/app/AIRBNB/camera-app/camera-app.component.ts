@@ -7,7 +7,7 @@ import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 @Component({
   selector: 'app-camera-app',
   templateUrl: './camera-app.component.html',
-  styleUrls: ['./camera-app.component.css']
+  styleUrls: ['./camera-app.component.css','./camera-app2.component.css']
 })
 export class CameraAppComponent implements OnInit {
   step = 1; // Etapas do fluxo
