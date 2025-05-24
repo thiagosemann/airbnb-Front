@@ -116,10 +116,8 @@ export class CalendarioAirbnbComponent implements OnInit {
         this.reservasAirbnbService.getReservasHoje().subscribe({
           next: (reservas) => {
             console.log(reservas)
-            this.reservasHoje = reservas.filter(reserva => !this.isBloqueado(reserva));
-            // Corrigindo aqui: contar apenas onde credencial_made é true
+            this.reservasHoje      = this.tratarReservas(reservas);
             this.credenciaisFetias = reservas.filter(r => r.credencial_made).length; 
-      
             this.loadedSections.hoje = true;
             this.loadingSections.hoje = false;
           },
@@ -132,7 +130,7 @@ export class CalendarioAirbnbComponent implements OnInit {
       case 'amanha':
         this.reservasAirbnbService.getReservasAmanha().subscribe({
           next: (reservas) => {
-            this.reservasAmanha = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.reservasAmanha      = this.tratarReservas(reservas);
             // Corrigindo aqui: contar apenas onde credencial_made é true      
             this.loadedSections.amanha = true;
             this.loadingSections.amanha = false;
@@ -146,7 +144,7 @@ export class CalendarioAirbnbComponent implements OnInit {
       case 'proximas':
         this.reservasAirbnbService.getProximasReservas().subscribe({
           next: (reservas) => {
-            this.proximasReservas = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.proximasReservas  = this.tratarReservas(reservas);
             this.loadedSections.proximas = true;
             this.loadingSections.proximas = false;
           },
@@ -160,7 +158,7 @@ export class CalendarioAirbnbComponent implements OnInit {
       case 'finalizadas':
         this.reservasAirbnbService.getReservasFinalizadas().subscribe({
           next: (reservas) => {
-            this.reservasFinalizadas = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.reservasFinalizadas  = this.tratarReservas(reservas);
             this.loadedSections.finalizadas = true;
             this.loadingSections.finalizadas = false;
           },
@@ -174,7 +172,7 @@ export class CalendarioAirbnbComponent implements OnInit {
       case 'andamento':
         this.reservasAirbnbService.getReservasEmAndamento().subscribe({
           next: (reservas) => {
-            this.reservasAndamento = reservas.filter(reserva => !this.isBloqueado(reserva));
+            this.reservasAndamento  = this.tratarReservas(reservas);
             this.loadedSections.andamento = true;
             this.loadingSections.andamento = false;
           },
@@ -404,4 +402,33 @@ formatarTelefone(telefone: string): string {
     return typeof menor.original === 'string' ? menor.original : '';
   }
 
+  private ordenarCanceladas(reservas: ReservaAirbnb[]): ReservaAirbnb[] {
+    const naoCanceladas = reservas.filter(r => r.description !== 'CANCELADA');
+    const canceladas    = reservas.filter(r => r.description === 'CANCELADA');
+    return [...naoCanceladas, ...canceladas];
+  }
+
+    private ordenarAlfabetica(reservas: ReservaAirbnb[], campo: keyof Pick<ReservaAirbnb, 'apartamento_nome' | 'cod_reserva' | 'description'>): ReservaAirbnb[] {
+    return reservas.slice().sort((a, b) => {
+      const va = (a[campo] ?? '').toString().toLowerCase();
+      const vb = (b[campo] ?? '').toString().toLowerCase();
+      return va.localeCompare(vb);
+    });
+  }
+
+  private tratarReservas(reservas: ReservaAirbnb[]): ReservaAirbnb[] {
+    // 1) remove bloqueadas
+    const semBloqueio = reservas.filter(r => !this.isBloqueado(r));
+
+    // 2) separa canceladas
+    const naoCanceladas = semBloqueio.filter(r => r.description !== 'CANCELADA');
+    const canceladas    = semBloqueio.filter(r => r.description === 'CANCELADA');
+
+    // 3) ordena alfabeticamente cada grupo
+    const naoCancelAlfa = this.ordenarAlfabetica(naoCanceladas, 'apartamento_nome');
+    const cancelAlfa    = this.ordenarAlfabetica(canceladas,    'apartamento_nome');
+
+    // 4) retorna não-canceladas primeiro, depois canceladas
+    return [...naoCancelAlfa, ...cancelAlfa];
+  }
 }

@@ -358,44 +358,6 @@
         </table>
       </div>
     </div>
-        <!-- Seção Reservas Bloqueadas -->
-    <div class="section-container">
-      <div class="section-header" (click)="toggleSection('bloqueadas')">
-        <h5><i class="fas fa-lock"></i> Reservas Bloqueadas</h5>
-        <span class="arrow" [class.open]="sections.bloqueadas"></span>
-      </div>
-      <div class="section-content" [class.active]="sections.bloqueadas">
-        <table class="calendar-table">
-          <thead>
-            <tr>
-              <th>Apartamento</th>
-              <th>Cód Reserva</th>
-              <th>Data de Início</th>
-              <th>Data de Fim</th>
-              <th>Observações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let event of reservasBloqueadas">
-              <td>
-                <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
-              </td>
-              <td>{{ event.cod_reserva }}</td>
-              <td>{{ formatarData(event.start_date) }}</td>
-              <td>{{ formatarData(event.end_data) }}</td>
-              <td>
-                <button (click)="openModal(event)">
-                  <i class="fas fa-plus"></i> Mais 
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="reservasBloqueadas.length === 0">
-              <td colspan="5">Nenhuma reserva bloqueada</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </div>
 

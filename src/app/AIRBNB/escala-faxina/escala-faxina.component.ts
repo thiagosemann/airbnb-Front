@@ -4,33 +4,46 @@ import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/aut
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { User } from 'src/app/shared/utilitarios/user';
+import { forkJoin } from 'rxjs';
 
-type SectionKey = 'hoje' | 'semana' | 'futuras' | 'bloqueadas';
+
 
 @Component({
   selector: 'app-escala-faxina',
   templateUrl: './escala-faxina.component.html',
-  styleUrls: ['./escala-faxina.component.css','./escala-faxina2.component.css']
+  styleUrls: ['./escala-faxina.component.css']
 })
 export class EscalaFaxinaComponent implements OnInit {
   faxinasHoje: ReservaAirbnb[] = [];
   faxinasSemana: ReservaAirbnb[] = [];
   faxinasFuturas: ReservaAirbnb[] = [];
+  faxinasSemanaQueVem: ReservaAirbnb[] = [];
+  diasDaSemana = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
+  tabs = [
+    { id: 'resumoEsta',   label: 'Resumo Esta Semana' },
+    { id: 'resumoProxima', label: 'Resumo Semana que Vem' },
+    { id: 'hoje',          label: 'Hoje' },
+    { id: 'semana',        label: 'Esta Semana' },
+    { id: 'proxima',       label: 'Semana que Vem' },
+    { id: 'futuras',       label: 'Futuras' }
+  ];
+  activeTab = 'resumoEsta';
+  terceirizadasResumoEsta: any = {};
+  terceirizadasResumoProxima: any = {};
+
+  mostrarSemana: 'esta' | 'proxima' = 'esta';
+  objectValues = (obj: any): any[] => Object.values(obj);
+
   carregando: boolean = true;
-  faxinasBloqueadas: ReservaAirbnb[] = [];
   users:User[]=[]
   user: User | null = null; // Adicionado para armazenar o usuário atual
 
-  sections: { [key in SectionKey]: boolean } = {
-    hoje: true,
-    semana: false,
-    futuras: false,
-    bloqueadas: false
-  };
+
 
   constructor(private reservasService: ReservasAirbnbService,
               private userService: UserService,
-              private authService: AuthenticationService) { }
+              private authService: AuthenticationService,
+            ) { }
 
   ngOnInit(): void {
     this.user = this.authService.getUser(); // Obter o usuário atual
@@ -51,16 +64,36 @@ export class EscalaFaxinaComponent implements OnInit {
     );
   }
   private carregarDados(): void {
-    this.reservasService.getAllReservas().subscribe({
-      next: (reservas) => {
-        this.filtrarReservas(reservas);
+    this.carregando = true;
+
+    // Chama as três APIs simultaneamente
+    forkJoin({
+      hoje: this.reservasService.getReservasEncerraHoje(),
+      semana: this.reservasService.getReservasEncerraSemana(),
+      futuras: this.reservasService.getFaxinasFuturasUmMes(),
+      semanaQueVem: this.reservasService.getReservasEncerraSemanaQueVem()
+    }).subscribe({
+      next: ({ hoje, semana, futuras, semanaQueVem }) => {
+        if (this.user?.role === 'tercerizado') {
+          this.faxinasHoje = hoje.filter(r => r.faxina_userId === this.user!.id);
+          this.faxinasSemana = semana.filter(r => r.faxina_userId === this.user!.id);
+          this.faxinasSemanaQueVem = semanaQueVem.filter(r => r.faxina_userId === this.user!.id);
+        } else {
+          this.faxinasHoje = hoje;
+          this.faxinasSemana = semana;
+          this.faxinasFuturas = futuras;
+          this.faxinasSemanaQueVem = semanaQueVem;
+          this.calcularResumoFaxinasPorTerceirizada(semana, 'Esta', 'Esta');
+          this.calcularResumoFaxinasPorTerceirizada(semanaQueVem, 'Proxima', 'Próxima');
+        }
         this.carregando = false;
       },
-      error: (erro) => {
-        console.error('Erro ao carregar reservas:', erro);
+      error: err => {
+        console.error('Erro ao carregar faxinas:', err);
         this.carregando = false;
       }
     });
+
   }
 
   updateRserva(reserva: ReservaAirbnb): void {
@@ -80,66 +113,10 @@ export class EscalaFaxinaComponent implements OnInit {
     );
   }
 
-  private filtrarReservas(reservas: ReservaAirbnb[]): void {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-  
-    reservas.forEach(reserva => {
-      // Filtrar por faxina_userId se o usuário for tercerizado
-      if (this.user?.role === 'tercerizado' && reserva.faxina_userId !== this.user.id) {
-        return;
-      }
-  
-      // Verificar se há um check-in no mesmo dia do check-out desta reserva
-      reserva.check_in_mesmo_dia = reservas.some(otherReserva =>
-        otherReserva.apartamento_id === reserva.apartamento_id &&
-        otherReserva.start_date === reserva.end_data &&
-        otherReserva.id !== reserva.id // Evitar comparar com a mesma reserva
-      );
-  
-      if (this.isBloqueado(reserva)) {
-        this.faxinasBloqueadas.push(reserva);
-        return;
-      }
-  
-      const dataFim = new Date(reserva.end_data);
-      dataFim.setHours(0, 0, 0, 0);
-      
-      const diffTime = dataFim.getTime() - hoje.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-      if (diffDays === 0) {
-        this.faxinasHoje.push(reserva);
-      } else if (diffDays > 0 && diffDays <= 7) {
-        this.faxinasSemana.push(reserva);
-      } else if (diffDays > 7) {
-        this.faxinasFuturas.push(reserva);
-      }
-    });
-  
-    // Ordenar faxinasHoje pelo nome do apartamento
-    this.faxinasHoje.sort((a, b) => {
-      const nomeA = a.apartamento_nome || '';
-      const nomeB = b.apartamento_nome || '';
-      return nomeA.localeCompare(nomeB);
-    });
-    this.faxinasSemana.sort((a, b) => {
-      const dataA = a.end_data ? new Date(a.end_data).getTime() : 0;
-      const dataB = b.end_data ? new Date(b.end_data).getTime() : 0;
-      return dataA - dataB;
-    });
-  }
-
-// Adicione este método
-private isBloqueado(reserva: ReservaAirbnb): boolean {
-  return reserva.cod_reserva.includes(reserva.apartamento_nome);
-}
-
   formatarData(dataString: string): string {
-    const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR');
+  const data = new Date(dataString);
+  return data.toLocaleDateString('pt-BR'); // Isso já considera o fuso horário local
   }
-
   calcularDiasRestantes(dataFim: string): number {
     const hoje = new Date();
     const data = new Date(dataFim);
@@ -147,8 +124,8 @@ private isBloqueado(reserva: ReservaAirbnb): boolean {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  toggleSection(section: SectionKey): void {
-    this.sections[section] = !this.sections[section];
+  selectTab(id: string): void {
+    this.activeTab = id;
   }
 
   updateStatus(reserva: any, field: string, event: Event, type: string) {
@@ -190,4 +167,65 @@ private isBloqueado(reserva: ReservaAirbnb): boolean {
       return "Não Entram Hoje"
     }
   }
+  getDiaDaSemana(dataStr: string): string {
+    // Divide a string em [dia, mês, ano]
+    const partes = dataStr.split('/');
+    if (partes.length !== 3) {
+      throw new Error(`Formato de data inválido: ${dataStr}`);
+    }
+
+    const dia   = parseInt(partes[0], 10);
+    const mes   = parseInt(partes[1], 10) - 1; // JS: meses de 0 (jan) a 11 (dez)
+    const ano   = parseInt(partes[2], 10);
+
+    const data = new Date(ano, mes, dia);
+    if (isNaN(data.getTime())) {
+      throw new Error(`Data inválida: ${dataStr}`);
+    }
+
+    const nomes = [
+      'Domingo',
+      'Segunda-feira',
+      'Terça-feira',
+      'Quarta-feira',
+      'Quinta-feira',
+      'Sexta-feira',
+      'Sábado'
+    ];
+
+    return nomes[data.getDay()];
+  }
+  calcularResumoFaxinasPorTerceirizada(faxinas: ReservaAirbnb[],prop: 'Esta' | 'Proxima', label: string ): void {
+    const resumoKey = prop === 'Esta' ? 'terceirizadasResumoEsta' : 'terceirizadasResumoProxima';
+    this[resumoKey] = {};
+
+    faxinas.forEach(faxina => {
+      if (!faxina.faxina_userId) { return; }
+      const dia = this.getDiaDaSemana(this.formatarData(faxina.end_data));
+      const uId = faxina.faxina_userId.toString();
+
+      if (!this[resumoKey][uId]) {
+        const u = this.users.find(x => x.id === faxina.faxina_userId);
+        this[resumoKey][uId] = { nome: u?.first_name || 'Desconhecido', dias: {} };
+      }
+      this[resumoKey][uId].dias[dia] = (this[resumoKey][uId].dias[dia] || 0) + 1;
+    });
+  }
+  contarFaxinasPorDia(userId: number | null | undefined, dataIso: string, lista: ReservaAirbnb[]): number {
+    if (!userId) { return 0; }
+
+    return lista.filter(f => {
+      // 1) compara userId
+      const sameUser = Number(f.faxina_userId) === userId;
+
+      // 2) compara data (supondo que f.end_data já esteja no ISO 'YYYY-MM-DD')
+      const sameDate = f.end_data === dataIso;
+
+      return sameUser && sameDate;
+    }).length;
+  }
+
+
+
+
 }

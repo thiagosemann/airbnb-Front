@@ -1,30 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'enviroments';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
+import { environment } from 'enviroments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReservasAirbnbService {
-  private apiUrl = environment.backendUrl + '/reservas-airbnb';
+  private apiUrl = `${environment.backendUrl}/reservas-airbnb`;
 
   constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    return new HttpHeaders({ 'Authorization': 'Bearer ' + token });
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
-  // Novos métodos adicionados
+  // Filtros de faxina
   getReservasHoje(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(
       `${this.apiUrl}/filtro/hoje`,
       { headers: this.getHeaders() }
     );
   }
-    getReservasAmanha(): Observable<ReservaAirbnb[]> {
+
+  getReservasAmanha(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(
       `${this.apiUrl}/filtro/amanha`,
       { headers: this.getHeaders() }
@@ -45,32 +46,65 @@ export class ReservasAirbnbService {
     );
   }
 
-  // Novo método para reservas em andamento
   getReservasEmAndamento(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/em-andamento`, // Endpoint correspondente
+      `${this.apiUrl}/filtro/em-andamento`,
       { headers: this.getHeaders() }
     );
   }
 
-  // Métodos existentes mantidos abaixo
+  // Novos filtros de faxina
+  getReservasEncerraHoje(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/encerra-hoje`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getReservasEncerraSemana(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/encerra-semana`,
+      { headers: this.getHeaders() }
+    );
+  }
+  getReservasEncerraSemanaQueVem(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(`${this.apiUrl}/filtro/encerra-semana-que-vem`, { headers: this.getHeaders() });
+  }
+  
+  getFaxinasFuturasUmMes(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/filtro/futuras-um-mes`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Métodos existentes mantidos
   getReservasPorPeriodo(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
     const params = new HttpParams()
       .set('start', startDate)
       .set('end', endDate);
 
-    return this.http.get<ReservaAirbnb[]>(`${this.apiUrl}/periodo`, {
-      headers: this.getHeaders(),
-      params
-    });
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/por-periodo`, // ajustado para rotas do backend
+      {
+        headers: this.getHeaders(),
+        params
+      }
+    );
   }
 
   getAllReservas(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get<ReservaAirbnb[]>(
+      this.apiUrl,
+      { headers: this.getHeaders() }
+    );
   }
 
   getReservaById(id: number): Observable<ReservaAirbnb> {
-    return this.http.get<ReservaAirbnb>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<ReservaAirbnb>(
+      `${this.apiUrl}/${id}`,
+      { headers: this.getHeaders() }
+    );
   }
 
   getReservasByApartamentoId(apartamentoId: number): Observable<ReservaAirbnb[]> {
@@ -81,7 +115,11 @@ export class ReservasAirbnbService {
   }
 
   createReserva(reserva: ReservaAirbnb): Observable<ReservaAirbnb> {
-    return this.http.post<ReservaAirbnb>(this.apiUrl, reserva, { headers: this.getHeaders() });
+    return this.http.post<ReservaAirbnb>(
+      this.apiUrl,
+      reserva,
+      { headers: this.getHeaders() }
+    );
   }
 
   updateReserva(reserva: ReservaAirbnb): Observable<ReservaAirbnb> {
@@ -93,6 +131,9 @@ export class ReservasAirbnbService {
   }
 
   deleteReserva(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`,
+      { headers: this.getHeaders() }
+    );
   }
 }
