@@ -3,6 +3,7 @@ export interface ReservaAirbnb {
   id?: number;
   apartamento_id: number;
   apartamento_nome: string;
+  apartamento_senha?: string;
   description: string;
   end_data: string;  // Ou Date se for converter datas
   start_date: string; // Ou Date se for converter datas
@@ -21,4 +22,5 @@ export interface ReservaAirbnb {
   documentosEnviados?: boolean;
   qtd_hospedes?: number;
   horarioPrevistoChegada:any[];
+  contagemFaxinasDiaPorFaxineira?:number;
 }

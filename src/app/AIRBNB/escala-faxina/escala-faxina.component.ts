@@ -11,7 +11,7 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-escala-faxina',
   templateUrl: './escala-faxina.component.html',
-  styleUrls: ['./escala-faxina.component.css']
+  styleUrls: ['./escala-faxina.component.css', './escala-faxina2.component.css']
 })
 export class EscalaFaxinaComponent implements OnInit {
   faxinasHoje: ReservaAirbnb[] = [];
@@ -20,14 +20,14 @@ export class EscalaFaxinaComponent implements OnInit {
   faxinasSemanaQueVem: ReservaAirbnb[] = [];
   diasDaSemana = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
   tabs = [
-    { id: 'resumoEsta',   label: 'Resumo Esta Semana' },
+    { id: 'resumoEsta',    label: 'Resumo Esta Semana' },
     { id: 'resumoProxima', label: 'Resumo Semana que Vem' },
     { id: 'hoje',          label: 'Hoje' },
     { id: 'semana',        label: 'Esta Semana' },
     { id: 'proxima',       label: 'Semana que Vem' },
     { id: 'futuras',       label: 'Futuras' }
   ];
-  activeTab = 'resumoEsta';
+  activeTab = 'hoje';
   terceirizadasResumoEsta: any = {};
   terceirizadasResumoProxima: any = {};
 
@@ -55,7 +55,6 @@ export class EscalaFaxinaComponent implements OnInit {
   getUsersByRole():void{
     this.userService.getUsersByRole('tercerizado').subscribe(
       users => {
-        console.log(users)  
         this.users = users;
       },
       error => {
@@ -75,18 +74,28 @@ export class EscalaFaxinaComponent implements OnInit {
     }).subscribe({
       next: ({ hoje, semana, futuras, semanaQueVem }) => {
         if (this.user?.role === 'tercerizado') {
-          this.faxinasHoje = hoje.filter(r => r.faxina_userId === this.user!.id);
-          this.faxinasSemana = semana.filter(r => r.faxina_userId === this.user!.id);
-          this.faxinasSemanaQueVem = semanaQueVem.filter(r => r.faxina_userId === this.user!.id);
+          this.faxinasHoje = this.ordenarCanceladasPorUltimo(hoje.filter(r => r.faxina_userId === this.user!.id));
+          this.faxinasSemana = this.ordenarCanceladasPorUltimo(semana.filter(r => r.faxina_userId === this.user!.id));
+          this.faxinasSemanaQueVem = this.ordenarCanceladasPorUltimo(semanaQueVem.filter(r => r.faxina_userId === this.user!.id));
+
+          this.faxinasHoje = this.formatDates(this.faxinasHoje);
+          this.faxinasSemana = this.formatDates(this.faxinasSemana);
+          this.faxinasSemanaQueVem = this.formatDates(this.faxinasSemanaQueVem);
+
         } else {
-          this.faxinasHoje = hoje;
-          this.faxinasSemana = semana;
-          this.faxinasFuturas = futuras;
-          this.faxinasSemanaQueVem = semanaQueVem;
+          this.faxinasHoje = this.ordenarCanceladasPorUltimo(hoje);
+          this.faxinasSemana = this.ordenarCanceladasPorUltimo(semana);
+          this.faxinasFuturas = this.ordenarCanceladasPorUltimo(futuras);
+          this.faxinasSemanaQueVem = this.ordenarCanceladasPorUltimo(semanaQueVem);
+
+          this.faxinasHoje = this.formatDates(this.faxinasHoje);
+          this.faxinasSemana = this.formatDates(this.faxinasSemana);
+          this.faxinasFuturas = this.formatDates(this.faxinasFuturas);
+          this.faxinasSemanaQueVem = this.formatDates(this.faxinasSemanaQueVem);
+
           this.calcularResumoFaxinasPorTerceirizada(semana, 'Esta', 'Esta');
           this.calcularResumoFaxinasPorTerceirizada(semanaQueVem, 'Proxima', 'Próxima');
         }
-        this.carregando = false;
       },
       error: err => {
         console.error('Erro ao carregar faxinas:', err);
@@ -96,13 +105,11 @@ export class EscalaFaxinaComponent implements OnInit {
 
   }
 
-  updateRserva(reserva: ReservaAirbnb): void {
+  updateReserva(reserva: ReservaAirbnb): void {
     // Garante que faxina_userId seja uma string vazia se for null ou undefined
     reserva.faxina_userId = reserva.faxina_userId || null;
-    
-    reserva.start_date = this.formatarDataBanco(reserva.start_date);
     reserva.end_data = this.formatarDataBanco(reserva.end_data);
-  
+    reserva.start_date = this.formatarDataBanco(reserva.start_date);
     this.reservasService.updateReserva(reserva).subscribe(
       data => {
         // Ação após atualizar, se necessário
@@ -114,9 +121,27 @@ export class EscalaFaxinaComponent implements OnInit {
   }
 
   formatarData(dataString: string): string {
-  const data = new Date(dataString);
-  return data.toLocaleDateString('pt-BR'); // Isso já considera o fuso horário local
+    // Divide a string em [ano, mês, dia]
+    const partes = dataString.split('-');
+    if (partes.length !== 3) {
+      // Retorna a string original caso não esteja no formato esperado
+      return dataString;
+    }
+    const [ano, mes, dia] = partes;
+    return `${dia}/${mes}/${ano}`; // Já no formato dd/mm/yyyy
   }
+
+    formatarDataBanco(dataString: string): string {
+    // Divide a string em [ano, mês, dia]
+    const partes = dataString.split('/');
+    if (partes.length !== 3) {
+      // Retorna a string original caso não esteja no formato esperado
+      return dataString;
+    }
+    const [dia, mes, ano] = partes;
+    return `${ano}-${mes}-${dia}`; // Já no formato dd/mm/yyyy
+  }
+
   calcularDiasRestantes(dataFim: string): number {
     const hoje = new Date();
     const data = new Date(dataFim);
@@ -132,7 +157,7 @@ export class EscalaFaxinaComponent implements OnInit {
     const checked = (event.target as HTMLInputElement).checked;
     reserva[field] = checked;
 
-    this.updateRserva(reserva)
+    this.updateReserva(reserva)
 
 
   }
@@ -143,13 +168,8 @@ export class EscalaFaxinaComponent implements OnInit {
       ? 'Bloqueado' 
       : reserva.cod_reserva;
   }
-  formatarDataBanco(dataString: string): string {
-    const data = new Date(dataString);
-    const dia = String(data.getUTCDate()).padStart(2, '0');
-    const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
-    const ano = data.getUTCFullYear();
-    return `${ano}-${mes}-${dia}`;
-  }
+
+
   formatarTextFaxinaRealizada(realizada:boolean):string{
     if(realizada){
       return "Realizada"
@@ -210,22 +230,38 @@ export class EscalaFaxinaComponent implements OnInit {
       }
       this[resumoKey][uId].dias[dia] = (this[resumoKey][uId].dias[dia] || 0) + 1;
     });
-  }
+  } 
+
   contarFaxinasPorDia(userId: number | null | undefined, dataIso: string, lista: ReservaAirbnb[]): number {
-    if (!userId) { return 0; }
+    if (!userId) return 0;
+    // Garante comparar número com número
+    const uid = Number(userId);
 
     return lista.filter(f => {
-      // 1) compara userId
-      const sameUser = Number(f.faxina_userId) === userId;
-
-      // 2) compara data (supondo que f.end_data já esteja no ISO 'YYYY-MM-DD')
-      const sameDate = f.end_data === dataIso;
-
-      return sameUser && sameDate;
+      const fUid = Number(f.faxina_userId);           // normaliza o tipo
+      const sameUser = fUid === uid;
+      return sameUser && this.formatarData(f.end_data) === dataIso;
     }).length;
   }
 
 
 
+private ordenarCanceladasPorUltimo(lista: ReservaAirbnb[]): ReservaAirbnb[] {
+  return lista.sort((a, b) => {
+    const aCancelada = a.description === 'CANCELADA';
+    const bCancelada = b.description === 'CANCELADA';
+    return Number(aCancelada) - Number(bCancelada); // false (0) vem antes de true (1)
+  });
+}
+
+private formatDates(lista: ReservaAirbnb[]): ReservaAirbnb[] {
+  lista.forEach(f=>{
+    const data = new Date(f.end_data); 
+    f.end_data = data.toLocaleDateString('pt-BR');
+    const data2 = new Date(f.start_date); 
+    f.start_date = data2.toLocaleDateString('pt-BR');
+  })
+  return lista
+}
 
 }
