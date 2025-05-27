@@ -172,6 +172,8 @@
             <th>Check-Out</th>
             <ng-container  *ngIf=" user?.role !== 'tercerizado'">
               <th>Responsável</th>
+              <th>Total do Dia</th>
+              <th>Total da Semana</th>
             </ng-container>
           </tr>
         </thead>
@@ -191,6 +193,12 @@
                   <option value="">Selecione</option>
                   <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
                 </select>
+              </td>
+              <td>
+                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasSemana) }}
+              </td>
+              <td>
+                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasSemana) }}
               </td>
             </ng-container>
             
@@ -264,6 +272,8 @@
             <th>Dia</th>
             <th>Check-Out</th>
             <th>Responsável</th>
+            <th>Total do Dia</th> 
+            <th>Total da Semana</th>            
           </tr>
         </thead>
         <tbody>
@@ -281,9 +291,15 @@
                 <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
               </select>
             </td>
+            <td>
+                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasSemanaQueVem) }}
+            </td>
+            <td>
+                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasSemanaQueVem) }}
+            </td>
           </tr>
           <tr *ngIf="faxinasSemanaQueVem.length === 0">
-            <td colspan="5">Nenhuma faxina semana que vem</td>
+            <td colspan="6">Nenhuma faxina semana que vem</td>
           </tr>
         </tbody>
       </table>
@@ -298,6 +314,9 @@
             <th>Check-Out</th>
             <th>Dias Restantes</th>
             <th>Responsável</th>
+            <th>Total do Dia</th>     
+            <th>Total de Faxinas Futuras</th>            
+       
           </tr>
         </thead>
         <tbody>
@@ -313,6 +332,12 @@
                 <option value="">Selecione</option>
                 <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
               </select>
+            </td>
+            <td>
+                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasFuturas) }}
+            </td>
+                        <td>
+                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasFuturas) }}
             </td>
           </tr>
           <tr *ngIf="faxinasFuturas.length === 0">

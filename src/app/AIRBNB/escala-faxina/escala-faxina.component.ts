@@ -143,11 +143,36 @@ export class EscalaFaxinaComponent implements OnInit {
   }
 
   calcularDiasRestantes(dataFim: string): number {
+    let data: Date;
+    let ajustarMaisUmDia = false;
+
+    if (dataFim.includes('/')) {
+      // Formato: dd/mm/yyyy
+      const [dia, mes, ano] = dataFim.split('/').map(Number);
+      data = new Date(ano, mes - 1, dia);
+    } else if (dataFim.includes('-')) {
+      // Formato: yyyy-mm-dd (padrão ISO)
+      data = new Date(dataFim);
+      ajustarMaisUmDia = true; // marca para ajustar
+    } else {
+      throw new Error('Formato de data inválido');
+    }
+
+    // Se for ISO, avança um dia
+    if (ajustarMaisUmDia) {
+      data.setDate(data.getDate() + 1);
+    }
+
     const hoje = new Date();
-    const data = new Date(dataFim);
+    hoje.setHours(0, 0, 0, 0);
+    data.setHours(0, 0, 0, 0);
+
     const diffTime = data.getTime() - hoje.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
+
+
+
 
   selectTab(id: string): void {
     this.activeTab = id;
@@ -244,6 +269,17 @@ export class EscalaFaxinaComponent implements OnInit {
     }).length;
   }
 
+  contarFaxinasPorLista(userId: number | null | undefined, lista: ReservaAirbnb[]): number {
+      if (!userId) return 0;
+      // Garante comparar número com número
+      const uid = Number(userId);
+
+      return lista.filter(f => {
+        const fUid = Number(f.faxina_userId);           // normaliza o tipo
+        const sameUser = fUid === uid;
+        return sameUser ;
+      }).length;
+  }
 
 
 private ordenarCanceladasPorUltimo(lista: ReservaAirbnb[]): ReservaAirbnb[] {
