@@ -29,6 +29,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
 import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
+import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-v
     ControleFaxinaComponent,
     VistoriaComponent,
     ControleVistoriaComponent,
+    CadastroPortariasComponent,
   ],
   imports: [
     BrowserModule,

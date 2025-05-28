@@ -60,6 +60,10 @@ export class NavBarAirbnbComponent {
   controleVistoria(): void {
     this.router.navigate(['/controle-vistoria']);
   } 
+
+  cadastroPortarias():void{
+    this.router.navigate(['/cadastroPortarias']);
+  }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }

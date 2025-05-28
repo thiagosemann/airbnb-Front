@@ -31,7 +31,8 @@ export class AppComponent implements OnInit {
     'escalaFaxina',
     'controleFaxina',
     'vistoria',
-    'controle-vistoria'
+    'controle-vistoria',
+    'cadastroPortaria'
     
   ];
 

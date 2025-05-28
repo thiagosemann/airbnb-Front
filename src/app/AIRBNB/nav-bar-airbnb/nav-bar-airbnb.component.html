@@ -2,46 +2,60 @@
 <nav class="navbar navbar-expand-lg sticky-top">
   <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
 
-  <!-- Botão hamburguer / fechar -->
-  <button class="navbar-toggler" type="button" (click)="toggleMenu()">
-    <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
-  </button>
+    <!-- Botão hamburguer / fechar -->
+    <button class="navbar-toggler" type="button" (click)="toggleMenu()">
+      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button>
 
-  <!-- Menu desktop (colapsa em mobile) -->
-  <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
-    <ng-container *ngIf="user.role === 'admin'">
-      <div class="navbar-nav ms-auto">
-        <button class="navbar-perfil-btn" (click)="calendarioAirbnb()">
-          <i class="fas fa-home"></i> Calendário
-        </button>
-        <button class="navbar-perfil-btn" (click)="escalaFaxina()">
-          <i class="fas fa-home"></i> Escala Faxina
-        </button>
-        <button class="navbar-perfil-btn" (click)="cadastroPredio()">
-          <i class="fas fa-gear"></i> Prédios
-        </button>        
-        <button class="navbar-perfil-btn" (click)="vistoria()">
-          <i class="fas fa-check-to-slot"></i> Vistoria
-        </button>
-          <button class="navbar-perfil-btn" (click)="controleVistoria()">
-          <i class="fas fa-check-to-slot"></i> Controle Vistoria
-        </button>
-        <button class="navbar-perfil-btn" (click)="cadastroApartamento()">
-          <i class="fas fa-gear"></i> Apartamentos
-        </button>
-        <button class="navbar-perfil-btn" (click)="cadastroUsuario()">
-          <i class="fas fa-gear"></i> Usuários
-        </button>
-        <button class="navbar-perfil-btn" (click)="controleFaxina()">
-          <i class="fas fa-gear"></i> Controle Faxina
-        </button>
-        <button class="navbar-perfil-btn" (click)="profile()">
-          <i class="fas fa-user"></i> Perfil
-        </button>
-        <button class="navbar-perfil-btn" (click)="logout()">
-          <i class="fas fa-sign-out-alt"></i> Sair
-        </button>
-      </div>
+    <!-- Menu desktop (colapsa em mobile) -->
+    <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
+      <ng-container *ngIf="user.role === 'admin'">
+        <div class="navbar-nav ms-auto">
+    <!-- Calendário -->
+    <button class="navbar-perfil-btn" (click)="calendarioAirbnb()">
+      <i class="fas fa-home"></i> Calendário
+    </button>
+
+    <!-- Faxinas -->
+    <div class="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-broom"></i> Faxinas
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" (click)="escalaFaxina()">Escala Faxina</a></li>
+        <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
+      </ul>
+    </div>
+
+    <!-- Vistorias -->
+    <div class="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-check-to-slot"></i> Vistorias
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
+        <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
+      </ul>
+    </div>
+
+    <!-- Gerenciamento -->
+    <div class="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-gear"></i> Gerenciamento
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
+        <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
+        <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
+        <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+      </ul>
+    </div>
+
+    <!-- Perfil / Logout -->
+    <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
+    <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+  </div>
+
     </ng-container>
     <ng-container *ngIf="user.role !== 'admin'">
       <div class="ms-auto">
@@ -65,6 +79,8 @@
       <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
       <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
       <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
+      <button (click)="cadastroPortarias(); toggleMenu()"><i class="fas fa-gear"></i> Portarias</button>
+      
       <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
       <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vistoria</button>
       <button (click)="controleVistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Controle Vistoria</button>
