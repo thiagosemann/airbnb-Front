@@ -62,7 +62,7 @@ export class NavBarAirbnbComponent {
   } 
 
   cadastroPortarias():void{
-    this.router.navigate(['/cadastroPortarias']);
+    this.router.navigate(['/cadastroPortaria']);
   }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

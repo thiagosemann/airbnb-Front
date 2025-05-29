@@ -5,19 +5,31 @@ import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service'
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { User } from 'src/app/shared/utilitarios/user';
 import { forkJoin } from 'rxjs';
+import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';
+import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
+import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
+import { ToastrService } from 'ngx-toastr';
 
 
 
 @Component({
   selector: 'app-escala-faxina',
   templateUrl: './escala-faxina.component.html',
-  styleUrls: ['./escala-faxina.component.css', './escala-faxina2.component.css']
+  styleUrls: ['./escala-faxina.component.css', './escala-faxina2.component.css', './escala-faxina3.component.css']
 })
 export class EscalaFaxinaComponent implements OnInit {
   faxinasHoje: ReservaAirbnb[] = [];
   faxinasSemana: ReservaAirbnb[] = [];
   faxinasFuturas: ReservaAirbnb[] = [];
   faxinasSemanaQueVem: ReservaAirbnb[] = [];
+  showModal:boolean = false;
+   limpezaExtra: LimpezaExtra = {
+    apartamento_id: 0,
+    end_data: ''
+    // os demais campos opcionais já estarão undefined por padrão
+  };
+  apartamentos: { id: number; nome: string }[] = [];
+
   diasDaSemana = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
   tabs = [
     { id: 'resumoEsta',    label: 'Resumo Esta Semana' },
@@ -39,10 +51,12 @@ export class EscalaFaxinaComponent implements OnInit {
   user: User | null = null; // Adicionado para armazenar o usuário atual
 
 
-
   constructor(private reservasService: ReservasAirbnbService,
               private userService: UserService,
               private authService: AuthenticationService,
+              private limpezaExtraService: LimpezaExtraService,
+              private apartamentosService: ApartamentoService,
+              private toastr: ToastrService
             ) { }
 
   ngOnInit(): void {
@@ -50,6 +64,10 @@ export class EscalaFaxinaComponent implements OnInit {
 
     this.carregarDados();
     this.getUsersByRole();
+
+    this.apartamentosService.getAllApartamentos().subscribe(list => {
+     this.apartamentos = list;
+    });
   }
 
   getUsersByRole():void{
@@ -68,26 +86,42 @@ export class EscalaFaxinaComponent implements OnInit {
     // Chama as três APIs simultaneamente
     forkJoin({
       hoje: this.reservasService.getReservasEncerraHoje(),
+      hojeExtra: this.limpezaExtraService.getLimpezasExtrasHoje(),
       semana: this.reservasService.getReservasEncerraSemana(),
+      semanaExtra: this.limpezaExtraService.getLimpezasExtrasSemana(),
       futuras: this.reservasService.getFaxinasFuturasUmMes(),
-      semanaQueVem: this.reservasService.getReservasEncerraSemanaQueVem()
-    }).subscribe({
-      next: ({ hoje, semana, futuras, semanaQueVem }) => {
-        if (this.user?.role === 'tercerizado') {
-          this.faxinasHoje = this.ordenarCanceladasPorUltimo(hoje.filter(r => r.faxina_userId === this.user!.id));
-          this.faxinasSemana = this.ordenarCanceladasPorUltimo(semana.filter(r => r.faxina_userId === this.user!.id));
-          this.faxinasSemanaQueVem = this.ordenarCanceladasPorUltimo(semanaQueVem.filter(r => r.faxina_userId === this.user!.id));
+      semanaQueVem: this.reservasService.getReservasEncerraSemanaQueVem(),
+      semanaQueVemExtra: this.limpezaExtraService.getLimpezasExtrasSemanaQueVem()
 
+    }).subscribe({
+      next: ({ hoje, hojeExtra, semana, semanaExtra, semanaQueVem, semanaQueVemExtra,futuras }) => {
+        console.log(hojeExtra)
+        const normExtra = (extras: LimpezaExtra[]) =>
+          extras.map(e => ({
+            id:             e.id,
+            apartamento_nome: e.apartamento_nome,
+            end_data:       e.end_data,              // já em ISO (yyyy-MM-dd)
+            check_out:      '11:00',                      // reserva não tem check_out
+            description:    'LIMPEZA',
+            faxina_userId:  e.faxina_userId,
+            limpeza_realizada: e.limpeza_realizada,
+            apartamento_id:e.apartamento_id,
+            Observacoes:e.Observacoes
+            // campos que você precisa no template…
+          }));
+          this.faxinasHoje = this.ordenarCanceladasPorUltimo([ ...hoje, ...normExtra(hojeExtra) ]);
+          this.faxinasSemana = this.ordenarCanceladasPorUltimo([ ...semana, ...normExtra(semanaExtra) ]);
+          this.faxinasFuturas = this.ordenarCanceladasPorUltimo([ ...futuras, ...normExtra(futuras) ]);
+          this.faxinasSemanaQueVem = this.ordenarCanceladasPorUltimo([ ...semanaQueVem, ...normExtra(semanaQueVemExtra) ]);
+
+        if (this.user?.role === 'tercerizado') {
+          this.faxinasHoje = this.faxinasHoje.filter(r => r.faxina_userId === this.user!.id)
+          this.faxinasSemana = this.faxinasSemana.filter(r => r.faxina_userId === this.user!.id)
+          this.faxinasSemanaQueVem = this.faxinasSemanaQueVem.filter(r => r.faxina_userId === this.user!.id)
           this.faxinasHoje = this.formatDates(this.faxinasHoje);
           this.faxinasSemana = this.formatDates(this.faxinasSemana);
           this.faxinasSemanaQueVem = this.formatDates(this.faxinasSemanaQueVem);
-
         } else {
-          this.faxinasHoje = this.ordenarCanceladasPorUltimo(hoje);
-          this.faxinasSemana = this.ordenarCanceladasPorUltimo(semana);
-          this.faxinasFuturas = this.ordenarCanceladasPorUltimo(futuras);
-          this.faxinasSemanaQueVem = this.ordenarCanceladasPorUltimo(semanaQueVem);
-
           this.faxinasHoje = this.formatDates(this.faxinasHoje);
           this.faxinasSemana = this.formatDates(this.faxinasSemana);
           this.faxinasFuturas = this.formatDates(this.faxinasFuturas);
@@ -96,6 +130,7 @@ export class EscalaFaxinaComponent implements OnInit {
           this.calcularResumoFaxinasPorTerceirizada(semana, 'Esta', 'Esta');
           this.calcularResumoFaxinasPorTerceirizada(semanaQueVem, 'Proxima', 'Próxima');
         }
+        console.log(this.faxinasHoje)
       },
       error: err => {
         console.error('Erro ao carregar faxinas:', err);
@@ -105,19 +140,34 @@ export class EscalaFaxinaComponent implements OnInit {
 
   }
 
-  updateReserva(reserva: ReservaAirbnb): void {
+  updateReserva(reserva: any): void {
     // Garante que faxina_userId seja uma string vazia se for null ou undefined
-    reserva.faxina_userId = reserva.faxina_userId || null;
-    reserva.end_data = this.formatarDataBanco(reserva.end_data);
-    reserva.start_date = this.formatarDataBanco(reserva.start_date);
-    this.reservasService.updateReserva(reserva).subscribe(
-      data => {
-        // Ação após atualizar, se necessário
-      },
-      error => {
-        console.error('Erro ao atualizar reserva', error);
-      }
-    );
+    console.log(reserva)
+    if(reserva.description == "LIMPEZA"){
+      reserva.faxina_userId = reserva.faxina_userId || null;
+      reserva.end_data = this.formatarDataBanco(reserva.end_data);
+      this.limpezaExtraService.updateLimpezaExtra(reserva).subscribe(
+        data => {
+          // Ação após atualizar, se necessário
+        },
+        error => {
+          console.error('Erro ao atualizar reserva', error);
+        }
+      );
+    }else{
+      reserva.faxina_userId = reserva.faxina_userId || null;
+      reserva.end_data = this.formatarDataBanco(reserva.end_data);
+      reserva.start_date = this.formatarDataBanco(reserva.start_date);
+      this.reservasService.updateReserva(reserva).subscribe(
+        data => {
+          // Ação após atualizar, se necessário
+        },
+        error => {
+          console.error('Erro ao atualizar reserva', error);
+        }
+      );
+    }
+
   }
 
   formatarData(dataString: string): string {
@@ -205,8 +255,10 @@ export class EscalaFaxinaComponent implements OnInit {
   }
 
 
-  formatarCheckInMesmoDia(check_in_mesmo_dia: boolean | undefined): string {
-    if(check_in_mesmo_dia){
+  formatarCheckInMesmoDia(faxina: any | undefined): string {
+    if(faxina.description == "LIMPEZA"){
+      return "Limpeza Manual"
+    }else if(faxina.check_in_mesmo_dia){
       return "Entram Hoje"
     }else{
       return "Não Entram Hoje"
@@ -282,7 +334,7 @@ export class EscalaFaxinaComponent implements OnInit {
   }
 
 
-private ordenarCanceladasPorUltimo(lista: ReservaAirbnb[]): ReservaAirbnb[] {
+private ordenarCanceladasPorUltimo(lista: any[]): any[] {
   return lista.sort((a, b) => {
     const aCancelada = a.description === 'CANCELADA';
     const bCancelada = b.description === 'CANCELADA';
@@ -290,7 +342,7 @@ private ordenarCanceladasPorUltimo(lista: ReservaAirbnb[]): ReservaAirbnb[] {
   });
 }
 
-private formatDates(lista: ReservaAirbnb[]): ReservaAirbnb[] {
+private formatDates(lista: any[]): any[] {
   lista.forEach(f=>{
     const data = new Date(f.end_data); 
     f.end_data = data.toLocaleDateString('pt-BR');
@@ -298,6 +350,42 @@ private formatDates(lista: ReservaAirbnb[]): ReservaAirbnb[] {
     f.start_date = data2.toLocaleDateString('pt-BR');
   })
   return lista
+} 
+
+  abrirModal(): void {
+    this.showModal = true;
+  }
+
+  fecharModal(): void {
+    this.showModal = false;
+  }
+
+  saveLimpezaExtra(): void {
+  // Ajusta datas para o formato do banco, se necessário
+  // (pode reutilizar formatarDataBanco)
+  this.limpezaExtra.end_data   = this.formatarDataBanco(this.limpezaExtra.end_data);
+
+  this.limpezaExtraService.createLimpezaExtra(this.limpezaExtra)
+    .subscribe({
+      next: result => {
+        // opcional: inserir ID retornado
+        this.limpezaExtra.id = result.insertId;
+        // atualiza a lista de faxinas, por exemplo:
+        this.carregarDados();
+        // fecha o modal
+        this.fecharModal();
+        // reseta o formulário
+        this.limpezaExtra = {
+          apartamento_id: 0,
+          end_data: ''
+        };
+        this.toastr.success("Nova limpeza cadastrada")
+      },
+      error: err => {
+        console.error('Erro ao criar limpeza extra', err);
+      }
+    });
 }
+
 
 }

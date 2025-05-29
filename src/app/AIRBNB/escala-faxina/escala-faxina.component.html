@@ -16,9 +16,12 @@
               {{ tab.label }}
           </li>
         </ng-container>
-
       </ng-container>
-   
+      <ng-container  *ngIf="user?.role !== 'tercerizado'">
+      <li class="btn btn-primary novo-btn" (click)="abrirModal()">
+        <span class="icon-plus"><i class="fas fa-plus"></i></span> Nova Limpeza
+      </li>
+      </ng-container>
     </ul>
   </nav>
 
@@ -83,7 +86,7 @@
         <tbody>
           <tr *ngFor="let faxina of faxinasHoje" [class.cancelada]="faxina.description === 'CANCELADA'">
             <td>{{ faxina.apartamento_nome }}</td>
-            <td>{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia) }}</td>
+            <td>{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina) }}</td>
             <td>{{ faxina.apartamento_senha }}</td>
             
             <td>
@@ -140,7 +143,7 @@
           <div class="card-body">
             <div class="card-row">
               <strong>Check-Out:</strong>
-              <span>{{ faxina.check_out }} – {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia) }}</span>
+              <span>{{ faxina.check_out }} – {{ formatarCheckInMesmoDia(faxina) }}</span>
             </div>
             <div class="card-row">
               <strong>Senha:</strong>
@@ -182,7 +185,7 @@
             <td>{{ faxina.apartamento_nome }}</td>
             <td>{{ formatarData(faxina.end_data) }}</td>
             <td>{{ getDiaDaSemana(formatarData(faxina.end_data)) }}</td>
-            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia) }}</td>
+            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina) }}</td>
             <ng-container  *ngIf=" user?.role !== 'tercerizado'">
               <td>
                 <select
@@ -240,7 +243,7 @@
             </div>
             <div class="card-row">
               <strong>Check-Out:</strong>
-              <span>{{ faxina.check_out }} – {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia) }}</span>
+              <span>{{ faxina.check_out }} – {{ formatarCheckInMesmoDia(faxina) }}</span>
             </div>
             <div class="card-row">
               <strong>Senha:</strong>
@@ -281,7 +284,7 @@
             <td>{{ faxina.apartamento_nome }}</td>
             <td>{{ formatarData(faxina.end_data) }}</td>
             <td>{{ getDiaDaSemana(formatarData(faxina.end_data)) }}</td>
-            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina.check_in_mesmo_dia) }}</td>
+            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina) }}</td>
             <td>
               <select
                 class="service-select"
@@ -349,3 +352,52 @@
 
   </div>
 </div>
+<div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">Nova Limpeza</h3>      
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form #formLimpeza="ngForm" (ngSubmit)="saveLimpezaExtra()">
+          <div class="form-group">
+            <label>Apartamento</label>
+            <select class="form-control"
+                    name="apartamento_id"
+                    [(ngModel)]="limpezaExtra.apartamento_id"
+                    required>
+              <option [ngValue]="null">Selecione</option>
+              <option *ngFor="let apt of apartamentos" [ngValue]="apt.id">
+                {{ apt.nome }}
+              </option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group col">
+              <label>Término</label>
+              <input type="date"
+                    class="form-control"
+                    name="end_data"
+                    [(ngModel)]="limpezaExtra.end_data"
+                    required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Observações</label>
+            <textarea class="form-control"
+                      name="Observacoes"
+                      [(ngModel)]="limpezaExtra.Observacoes">
+            </textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-cancel-modal" (click)="fecharModal()">Cancelar</button>
+          <button class="btn btc-save-modal"
+                  [disabled]="formLimpeza.invalid"
+                  (click)="saveLimpezaExtra()">
+            Salvar
+          </button>
+      </div>
+    </div>
+  </div>

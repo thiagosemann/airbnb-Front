@@ -4,6 +4,7 @@ import { User } from 'src/app/shared/utilitarios/user';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
+import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
 
 @Component({
   selector: 'app-controle-faxina',
@@ -21,7 +22,9 @@ export class ControleFaxinaComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private reservasService: ReservasAirbnbService
+    private reservasService: ReservasAirbnbService,
+    private limpezaExtraService: LimpezaExtraService
+    
   ) {}
 
   ngOnInit(): void {
@@ -50,40 +53,50 @@ export class ControleFaxinaComponent implements OnInit {
     });
   }
 
-  async loadPayments() {
-    if (!this.selectedMonth) return;
+async loadPayments() {
+  if (!this.selectedMonth) return;
 
-    try {
-      const [startDate, endDate] = this.getMonthDateRange();
-      const reservas = await this.reservasService.getReservasPorPeriodo(startDate, endDate).toPromise();
+  try {
+    const [startDate, endDate] = this.getMonthDateRange();
+    const reservas = await this.reservasService.getReservasPorPeriodo(startDate, endDate).toPromise();
+    const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
+    console.log(limpezasExtras)
+    const pagamentosMap = new Map<number, any>();
 
-      const filtered = reservas!.filter(r =>
-        r.limpeza_realizada &&
-        r.faxina_userId &&
-        new Date(r.end_data).getMonth() === new Date(this.selectedMonth).getMonth()
-      );
+    const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
 
-      const pagamentosMap = new Map<number, any>();
-      filtered.forEach(reserva => {
-        const userId = reserva.faxina_userId;
-        if (!pagamentosMap.has(userId!)) {
-          pagamentosMap.set(userId!, {
+    allServicos.forEach(servico => {
+      const userId = servico.faxina_userId;
+      const data = new Date(servico.end_data);
+
+      if (
+        servico.limpeza_realizada &&
+        userId &&
+        data.getMonth() === new Date(this.selectedMonth).getMonth() &&
+        data.getFullYear() === new Date(this.selectedMonth).getFullYear()
+      ) {
+        if (!pagamentosMap.has(userId)) {
+          pagamentosMap.set(userId, {
             user: this.users.find(u => u.id === userId),
             totalFaxinas: 0,
             valorTotal: 0
           });
         }
-        const entry = pagamentosMap.get(userId!);
-        entry.totalFaxinas++;
-        entry.valorTotal += reserva.valor_limpeza ? Number(reserva.valor_limpeza) : 0;
-      });
 
-      this.pagamentos = Array.from(pagamentosMap.values());
-      this.calcularTotais();
-    } catch (error) {
-      console.error('Erro ao carregar pagamentos:', error);
-    }
+        const entry = pagamentosMap.get(userId);
+        entry.totalFaxinas++;
+        entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
+      }
+    });
+
+    this.pagamentos = Array.from(pagamentosMap.values());
+    this.calcularTotais();
+  } catch (error) {
+    console.error('Erro ao carregar pagamentos:', error);
   }
+}
+
+
 
   getMonthDateRange(): [string, string] {
     const date = new Date(this.selectedMonth);
