@@ -32,7 +32,9 @@ export class AppComponent implements OnInit {
     'controleFaxina',
     'vistoria',
     'controle-vistoria',
-    'cadastroPortaria'
+    'cadastroPortaria',
+    'uploadRelatorioCSV',
+    'relatoriosGanhos'
     
   ];
 

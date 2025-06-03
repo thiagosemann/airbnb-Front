@@ -19,6 +19,8 @@ import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxin
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
 import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
 import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
+import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
+import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
 
 
 const routes: Routes = [
@@ -39,6 +41,8 @@ const routes: Routes = [
   { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService]},
   { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService]},
   { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService]},
+  { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService]},
+  { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService]},
 
 
   

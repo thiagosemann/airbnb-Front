@@ -30,6 +30,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
 import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
 import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
+import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
+import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +54,8 @@ import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadast
     VistoriaComponent,
     ControleVistoriaComponent,
     CadastroPortariasComponent,
+    RelatorioGanhosComponent,
+    UpladoCSVRelatorioComponent,
   ],
   imports: [
     BrowserModule,

@@ -68,6 +68,14 @@ export class NavBarAirbnbComponent {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
+  subirCSVRelatorio(): void {
+    this.router.navigate(['/uploadRelatorioCSV']);
+  }
+  relatorioGanhos(): void {
+    this.router.navigate(['/relatoriosGanhos']);
+  }
+
+
   private checkViewport(): void {
     const width = window.innerWidth;
     this.isDesktopView = width > 990;

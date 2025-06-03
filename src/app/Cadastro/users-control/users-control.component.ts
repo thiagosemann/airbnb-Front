@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ToastrService } from 'ngx-toastr';
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { User } from 'src/app/shared/utilitarios/user';
@@ -27,7 +28,7 @@ export class UsersControlComponent implements OnInit {
     private usersService: UserService,
     private sanitizer: DomSanitizer,
     private checkinService: CheckInFormService,
-
+    private toastr: ToastrService,
     
   ) {
     this.userForm = this.fb.group({
@@ -35,6 +36,7 @@ export class UsersControlComponent implements OnInit {
       last_name: [''],
       cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
       Telefone: ['', Validators.required],
+      email: ['', [Validators.email]],
       role: ['guest', Validators.required],
       imagemBase64: [''],
       documentBase64: ['']
@@ -151,17 +153,39 @@ export class UsersControlComponent implements OnInit {
   async salvarUsuario() {
     //if (this.userForm.invalid) return;
 
-    const userData = this.userForm.value;
+    let userData = this.userForm.value;
     userData.cpf = userData.cpf.replace(/\D/g, '');
-
+    userData.id = this.selectedUserId;
     try {
       if (this.isEditing && this.selectedUserId) {
-        await this.usersService.updateUser(userData);
+        console.log(userData)
+          this.usersService.updateUser(userData).subscribe(
+            (resp) => {
+              // aqui você pode exibir uma mensagem de sucesso se quiser
+              this.fecharModal();
+              this.carregarUsuarios();
+              this.toastr.success('Usuário atualizado com sucesso!');
+
+            },
+            (err) => {
+              console.error('Erro ao atualizar usuário:', err);
+            }
+          );
       } else {
-        await this.usersService.addUser(userData);
+        this.usersService.addUser(userData).subscribe(
+            (resp) => {
+              // aqui você pode exibir uma mensagem de sucesso se quiser
+              this.fecharModal();
+              this.carregarUsuarios();
+              this.toastr.success('Usuário criado com sucesso!');
+
+            },
+            (err) => {
+              console.error('Erro ao atualizar usuário:', err);
+            }
+          );
       }
-      this.fecharModal();
-      this.carregarUsuarios();
+
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
     }

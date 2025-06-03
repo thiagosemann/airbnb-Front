@@ -18,7 +18,8 @@
 
     <!-- Faxinas -->
     <div class="dropdown">
-      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button">
+
         <i class="fas fa-broom"></i> Faxinas
       </button>
       <ul class="dropdown-menu">
@@ -29,7 +30,8 @@
 
     <!-- Vistorias -->
     <div class="dropdown">
-      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button">
+
         <i class="fas fa-check-to-slot"></i> Vistorias
       </button>
       <ul class="dropdown-menu">
@@ -40,7 +42,8 @@
 
     <!-- Gerenciamento -->
     <div class="dropdown">
-      <button class="navbar-perfil-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button">
+
         <i class="fas fa-gear"></i> Gerenciamento
       </button>
       <ul class="dropdown-menu">
@@ -48,6 +51,19 @@
         <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
         <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
         <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+      </ul>
+    </div>
+
+        <!-- Relatorios -->
+    <div class="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button">
+        <i class="fas fa-gear"></i> Relatórios
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
+        <li><a class="dropdown-item" (click)="relatorioGanhos()">Relatórios</a></li>
+
+        
       </ul>
     </div>
 

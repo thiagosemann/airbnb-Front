@@ -1,0 +1,133 @@
+<div class="container py-3">
+  <!-- Cabeçalho com título e filtros -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start mb-4">
+           <!-- Botão de Upload + Totais -->
+        <div class="d-flex flex-column w-100 w-lg-auto">
+        <div class="d-flex flex-column flex-sm-row gap-3">
+            <!-- Botão de Upload -->
+            <div class="position-relative flex-grow-1 flex-sm-grow-0">
+            <div class="mb-3">
+                <label for="csvInput" class="form-label">Upload de CSV de Pagamentos</label>
+                <input
+                type="file"
+                id="csvInput"
+                accept=".csv"
+                (change)="processarCSV($event)"
+                [disabled]="carregando || enviando"
+                class="form-control"
+                />
+            </div>
+            <!-- Indicador de processamento do CSV -->
+            <div *ngIf="carregando" class="alert alert-info">
+                Processando arquivo CSV...
+            </div>
+              <!-- Botão para enviar os pagamentos filtrados -->
+                <div class="mb-3">
+                    <button
+                    class="btn btn-primary"
+                    (click)="enviarPagamentos()"
+                    [disabled]="carregando || enviando || reservasCSV.length === 0"
+                    >
+                    {{ enviando ? 'Enviando pagamentos...' : 'Enviar Pagamentos' }}
+                    </button>
+                </div>
+
+                <!-- Se não houver nenhum registro carregado do CSV -->
+                <div *ngIf="!carregando && reservasCSV.length === 0" class="text-muted">
+                    Nenhum registro de pagamento carregado.
+                </div>
+            </div>
+
+            <!-- Totais -->
+            <div class="d-flex flex-wrap gap-2 flex-grow-1">
+            <div class="total-card bg-success-subtle">
+                <div class="total-label">Reservas</div>
+                <div class="total-value">{{ totalValorReservas | currency:'BRL' }}</div>
+            </div>
+            
+            <div class="total-card bg-warning-subtle">
+                <div class="total-label">Taxas</div>
+                <div class="total-value">{{ totalTaxas | currency:'BRL' }}</div>
+            </div>
+            
+            <div class="total-card bg-primary-subtle text-primary">
+                <div class="total-label">Total Geral</div>
+                <div class="total-value fw-bold">{{ totalGeral | currency:'BRL' }}</div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+  <!-- Cards para mobile -->
+  <div
+    class="row row-cols-1 row-cols-sm-2 g-3 d-block d-md-flex flex-md-wrap d-md-none"
+  >
+    <div *ngFor="let reserva of reservasCSV; let i = index" class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title mb-0">{{ reserva.cod_reserva }}</h5>
+            <small class="text-muted">{{ reserva.dataReserva }}</small>
+            <small class="text-muted">{{ reserva.noites }}</small>
+          </div>
+          <ul class="list-unstyled small mb-3">
+            <li><strong>Valor:</strong> {{ reserva.valor_reserva | currency: 'BRL' }}</li>
+            <li><strong>Taxas:</strong> {{ reserva.taxas | currency: 'BRL' }}</li>
+            <li>
+              <strong>Total:</strong>
+              {{ (reserva.valor_reserva + reserva.taxas) | currency: 'BRL' }}
+            </li>
+          </ul>
+          <div class="d-flex justify-content-end gap-1">
+            <button class="btn btn-sm btn-outline-danger" (click)="excluirReserva(i)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="reservasCSV.length === 0" class="col-12 text-center py-4 text-muted">
+      {{ carregando ? 'Processando arquivo...' : 'Nenhum registro encontrado.' }}
+    </div>
+  </div>
+
+  <!-- Tabela para desktop -->
+  <div class="table-wrapper d-none d-md-block">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width:15%;">Código</th>
+            <th style="width:15%;">Data</th>
+            <th style="width:15%;">Taxas</th>
+            <th style="width:10%;">Noites</th>
+            <th style="width:15%;">Reserva</th>
+            <th style="width:15%;">Total</th>
+            <th style="width:15%;" class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reserva of reservasCSV; let i = index">
+            <td>{{ reserva.cod_reserva }}</td>
+            <td>{{ reserva.dataReserva }}</td>
+            <td>{{ reserva.taxas | currency: 'BRL' }}</td>
+            <td>{{ reserva.noites  }}</td>
+            <td>{{ reserva.valor_reserva | currency: 'BRL' }}</td>
+            <td>{{ (reserva.valor_reserva + reserva.taxas) | currency: 'BRL' }}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-danger" (click)="excluirReserva(i)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="reservasCSV.length === 0">
+            <td colspan="7" class="text-center py-4 text-muted">
+              {{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

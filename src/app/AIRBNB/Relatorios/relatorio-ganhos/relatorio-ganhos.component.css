@@ -1,0 +1,88 @@
+/* relatorio-ganhos.component.css */
+.relatorio-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+}
+.table-responsive{
+  max-height: 300px;
+}
+
+.total-card {
+  flex: 1;
+  min-width: 200px;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.total-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.total-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.total-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.graficos .card {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.graficos .card-header {
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .total-card {
+    min-width: 100%;
+  }
+  
+  .header {
+    padding: 1rem;
+  }
+  
+  .graficos .card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Melhorias na tabela */
+.table-hover tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+}
+
+.sticky-top {
+  top: 0;
+  z-index: 1;
+}
+
+/* Ajustes nos gráficos */
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}

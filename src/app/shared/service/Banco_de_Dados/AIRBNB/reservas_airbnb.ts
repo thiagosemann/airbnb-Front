@@ -136,4 +136,13 @@ export class ReservasAirbnbService {
       { headers: this.getHeaders() }
     );
   }
+
+  getPagamentosPorCodReserva(codigos: number[]): Observable<{ cod_reserva: number, valor_pagamento: number }[]> {
+  return this.http.post<{ cod_reserva: number, valor_pagamento: number }[]>(
+      `${this.apiUrl}/pagamentos`,
+      { codigos },
+      { headers: this.getHeaders() }
+    );
+  }
+
 }

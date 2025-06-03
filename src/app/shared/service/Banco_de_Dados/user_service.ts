@@ -17,7 +17,6 @@ export class UserService {
     const headers = new HttpHeaders({
       Authorization: 'Bearer ' + token,
     });
-
     return this.http.get<User[]>(`${this.url}/users-airbnb`, { headers });
   }
 
@@ -48,7 +47,6 @@ export class UserService {
     const headers = new HttpHeaders({
       Authorization: 'Bearer ' + token,
     });
-
     const userId = user.id; // Garanta que o objeto User tenha a propriedade 'id'
     return this.http.put<{ message: string }>(`${this.url}/users-airbnb/${userId}`, user, { headers });
   }

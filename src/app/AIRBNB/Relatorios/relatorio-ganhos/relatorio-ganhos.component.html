@@ -1,0 +1,283 @@
+<div class="relatorio-container">
+  <!-- Cabeçalho -->
+  <div class="header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h2 class="mb-1">Relatório de Ganhos</h2>
+        <p class="text-muted mb-0">Resumo financeiro das suas reservas</p>
+      </div>
+      
+      <div class="d-flex gap-2 mt-2 mt-md-0">
+        <div class="input-group flex-nowrap" style="width: 180px;">
+          <span class="input-group-text">
+            <i class="fas fa-calendar-alt"></i>
+          </span>
+          <input type="month" class="form-control" [(ngModel)]="mesFiltro" (change)="aplicarFiltros()">
+        </div>
+        
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-filter"></i> Filtros
+          </button>
+          <div class="dropdown-menu p-3" style="min-width: 250px;">
+            <div>
+              <label class="form-label mb-1">Apartamento</label>
+              <select class="form-select" [(ngModel)]="apartamentoFiltro" (change)="aplicarFiltros()">
+                <option value="todos">Todos</option>
+                <option *ngFor="let apt of listaApartamentos" [value]="apt">{{apt}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <div class="total-card bg-primary bg-opacity-10 text-primary">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-receipt fs-4"></i>
+          <div>
+            <div class="total-label">Reservas</div>
+            <div class="total-value">{{ totalPagamentos }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="total-card bg-success bg-opacity-10 text-success">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-money-bill-wave fs-4"></i>
+          <div>
+            <div class="total-label">Total Recebido</div>
+            <div class="total-value">{{ totalGeralRecebido | currency:'BRL':'symbol':'1.2-2' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-card bg-purple bg-opacity-10 text-purple">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-broom fs-4"></i>
+          <div>
+            <div class="total-label">Total de Limpezas</div>
+            <div class="total-value">{{ qtdTotalLimpezas }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-card bg-success bg-opacity-10 text-success">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-money-bill-wave fs-4"></i>
+          <div>
+           <div class="total-label">Valor com Limpezas</div>
+            <div class="total-value">{{ totalLimpezas | currency:'BRL':'symbol':'1.2-2' }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="total-card bg-info bg-opacity-10 text-info">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-building fs-4"></i>
+          <div>
+            <div class="total-label">Apartamentos</div>
+            <div class="total-value">{{ totalApartamentos }}</div>
+          </div>
+            <div>
+            <div class="total-label">Apartamentos</div>
+            <div class="total-value">{{ totalApartamentosComReserva }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-card bg-warning bg-opacity-10 text-warning">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-percent fs-4"></i>
+          <div>
+            <div class="total-label">Média/Apartamento Líquida</div>
+            <div class="total-value">{{ mediaPorApartamento | currency:'BRL':'symbol':'1.2-2' }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="total-card bg-warning bg-opacity-10 text-warning">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-percent fs-4"></i>
+          <div>
+            <div class="total-label">Média/Reserva</div>
+            <div class="total-value">{{ mediaPorReserva | currency:'BRL':'symbol':'1.2-2' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicadores de carregamento/erro -->
+  <div *ngIf="carregando" class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+  
+  <div *ngIf="erroNoCarregamento" class="alert alert-danger text-center">
+    <strong>Erro!</strong> Não foi possível carregar os dados. Por favor, tente novamente mais tarde.
+  </div>
+
+  <!-- Gráfico “Todos os Apartamentos por Valor” -->
+  <div *ngIf="!carregando && !erroNoCarregamento" class="graficos">
+    <div class="row">
+       <!-- Primeiro gráfico: Todos os Apartamentos (Valor Recebido) -->
+      <div class="col-12 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Todos os Apartamentos (Valor Recebido)</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" (click)="graficoRecebidoVisivel = !graficoRecebidoVisivel">
+                <i class="fas" [class.fa-eye]="!graficoRecebidoVisivel" [class.fa-eye-slash]="graficoRecebidoVisivel"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="exportarXLSXTodosValor()">
+                <i class="fas fa-download"></i> XLSX
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="graficoRecebidoVisivel">
+              <canvas baseChart
+                [data]="todosValorChartData"
+                [options]="todosValorChartOptions"
+                [type]="verticalBarChartType"
+                [height]="50"
+                #graficoTodosApt>
+              </canvas>
+            </div>
+            <div *ngIf="!graficoRecebidoVisivel" class="d-flex justify-content-center align-items-center h-100">
+              <p class="text-muted">Gráfico oculto</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segundo gráfico: Todos os Apartamentos (Valor do Proprietário) -->
+      <div class="col-12 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Todos os Apartamentos (Valor Proprietário)</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" (click)="graficoProprietarioVisivel = !graficoProprietarioVisivel">
+                <i class="fas" [class.fa-eye]="!graficoProprietarioVisivel" [class.fa-eye-slash]="graficoProprietarioVisivel"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="exportarXLSXValorProprietario()">
+                <i class="fas fa-download"></i> XLSX
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="graficoProprietarioVisivel">
+              <canvas baseChart
+                [data]="valorProprietarioChartData"
+                [options]="valorProprietarioChartOptions"
+                [type]="verticalBarChartType"
+                [height]="50"
+                #graficoValorProprietario>
+              </canvas>
+            </div>
+            <div *ngIf="!graficoProprietarioVisivel" class="d-flex justify-content-center align-items-center h-100">
+              <p class="text-muted">Gráfico oculto</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+    <!-- Tabelas de Limpezas e Reservas continuam idênticas -->
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Detalhes das Limpezas</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" (click)="exportarCSVLimpezas()">
+                <i class="fas fa-file-csv"></i> CSV
+              </button>
+              <button class="btn btn-sm btn-outline-success" (click)="exportarXLSXLimpezas()">
+                <i class="fas fa-file-excel"></i> XLSX
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="sticky-top bg-light">
+                  <tr>
+                    <th>Apartamento</th>
+                    <th class="text-end">Qtd. Limpezas</th>
+                    <th class="text-end">Valor Total Recebido</th>
+                    <th class="text-end">Valor Total Limpeza</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let limpeza of resumoLimpezas">
+                    <td>{{ limpeza.apartamento_nome }}</td>
+                    <td class="text-end">{{ limpeza.quantidade }}</td>
+                    <td class="text-end">{{ formatarPTBR(limpeza.valorTotalRecebido) }}</td>
+                    <td class="text-end">{{ formatarPTBR(limpeza.valorTotalLimpeza) }}</td>
+                  </tr>
+                  <tr *ngIf="resumoLimpezas.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">
+                      Nenhum dado disponível
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Tabela de Detalhes das Reservas -->
+      <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Detalhes das Reservas</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" (click)="exportarCSVReservas()">
+                <i class="fas fa-file-csv"></i> CSV
+              </button>
+              <button class="btn btn-sm btn-outline-success" (click)="exportarXLSXReservas()">
+                <i class="fas fa-file-excel"></i> XLSX
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="sticky-top bg-light">
+                  <tr>
+                    <th>Código</th>
+                    <th>Data</th>
+                    <th>Apartamento</th>
+                    <th class="text-end">Noites</th>
+                    <th class="text-end">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of pagamentosFiltrados">
+                    <td>{{ p.cod_reserva || 'N/A' }}</td>
+                    <td>{{ p.dataReserva | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ p.apartamento_nome || 'N/A' }}</td>
+                    <td class="text-end">{{ p.noites || 0 }}</td>
+                    <td class="text-end">{{ formatarPTBR(p.valor_reserva + p.taxas) }}</td>
+                  </tr>
+                  <tr *ngIf="pagamentosFiltrados.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">
+                      Nenhum pagamento encontrado
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

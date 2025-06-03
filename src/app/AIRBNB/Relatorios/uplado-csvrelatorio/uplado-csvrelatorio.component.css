@@ -1,0 +1,197 @@
+/* Container principal */
+.container {
+  padding: 20px;
+}
+
+/* Títulos */
+h2 {
+  color: #198754;
+  font-weight: 600;
+}
+
+/* Input group */
+.input-group-text {
+  background-color: #198754;
+  color: white;
+  border: none;
+}
+
+.form-control:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Botões */
+.btn-primary {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-primary:hover {
+  background-color: #157347;
+  border-color: #146c43;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Tabela */
+.table-wrapper {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  width: 7px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #198754;
+  border-radius: 10px;
+}
+
+.table th {
+  background-color: #198754;
+  color: #fff;
+  font-weight: 500;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(25, 135, 84, 0.05);
+}
+
+/* Badges */
+.badge.bg-success-subtle {
+  background-color: #d1e7dd !important;
+  color: #0f5132;
+  padding: 0.35em 0.65em;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+/* Cards mobile */
+.card {
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  color: #198754;
+}
+/* Adicione estas classes ao CSS existente */
+.bg-success-subtle {
+  background-color: #d1e7dd !important;
+}
+
+.bg-warning-subtle {
+  background-color: #fff3cd !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+/* Responsividade */
+@media (max-width: 767px) {
+  .input-group {
+    width: 100% !important;
+  }
+  
+  .btn-primary {
+    width: 100%;
+  }
+}
+.total-card {
+  flex: 1;
+  min-width: 120px;
+  border-radius: 10px;
+  padding: 12px 15px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.total-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.total-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.total-value {
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Melhorias responsivas */
+@media (max-width: 768px) {
+  .total-card {
+    min-width: calc(50% - 10px);
+  }
+  
+  .d-flex.flex-sm-row {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .total-card {
+    min-width: 100%;
+  }
+  
+  .d-flex.flex-wrap {
+    gap: 10px !important;
+  }
+  
+  .total-value {
+    font-size: 1.1rem;
+  }
+}
+
+/* Melhorias no botão */
+.btn-primary {
+  padding: 10px 20px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(25, 135, 84, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(25, 135, 84, 0.35);
+}
+
+.btn-primary:disabled {
+  opacity: 0.8;
+}
