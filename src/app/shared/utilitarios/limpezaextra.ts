@@ -2,6 +2,7 @@ export interface LimpezaExtra {
   id?: number;
   apartamento_id: number;
   apartamento_nome?: string;
+  apartamento_senha?: string;
   end_data: string;
   Observacoes?: string;
   limpeza_realizada?: boolean;

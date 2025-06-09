@@ -100,6 +100,8 @@ export class EscalaFaxinaComponent implements OnInit {
           extras.map(e => ({
             id:             e.id,
             apartamento_nome: e.apartamento_nome,
+            apartamento_senha: e.apartamento_senha,
+            
             end_data:       e.end_data,              // já em ISO (yyyy-MM-dd)
             check_out:      '11:00',                      // reserva não tem check_out
             description:    'LIMPEZA',
@@ -107,7 +109,6 @@ export class EscalaFaxinaComponent implements OnInit {
             limpeza_realizada: e.limpeza_realizada,
             apartamento_id:e.apartamento_id,
             Observacoes:e.Observacoes
-            // campos que você precisa no template…
           }));
           this.faxinasHoje = this.ordenarCanceladasPorUltimo([ ...hoje, ...normExtra(hojeExtra) ]);
           this.faxinasSemana = this.ordenarCanceladasPorUltimo([ ...semana, ...normExtra(semanaExtra) ]);
