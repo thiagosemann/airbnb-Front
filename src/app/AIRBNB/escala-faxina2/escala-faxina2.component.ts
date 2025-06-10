@@ -13,7 +13,7 @@ import { User } from 'src/app/shared/utilitarios/user';
 @Component({
   selector: 'app-escala-faxina2',
   templateUrl: './escala-faxina2.component.html',
-  styleUrls: ['./escala-faxina2.component.css']
+  styleUrls: ['./escala-faxina2.component.css','./escala-faxina2CssExtra.component.css']
 })
 export class EscalaFaxina2Component {
   faxinasHoje: any[] = [];
