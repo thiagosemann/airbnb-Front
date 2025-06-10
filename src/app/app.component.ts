@@ -29,6 +29,8 @@ export class AppComponent implements OnInit {
     'cadastroApartamento',
     'cadastroUsuario',
     'escalaFaxina',
+    'escalaFaxinaAdmin',
+    
     'controleFaxina',
     'vistoria',
     'controle-vistoria',
