@@ -46,6 +46,9 @@ export class NavBarAirbnbComponent {
   cadastroUsuario(): void {
     this.router.navigate(['/cadastroUsuario']);
   }
+  escalaFaxinaAdmin(): void {
+    this.router.navigate(['/escalaFaxinaAdmin']);
+  }
   escalaFaxina(): void {
     this.router.navigate(['/escalaFaxina']);
   }
