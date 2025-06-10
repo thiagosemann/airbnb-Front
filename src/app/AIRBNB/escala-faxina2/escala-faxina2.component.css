@@ -1,0 +1,369 @@
+/* Container geral */
+.calendar-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Abas */
+.tabs-header {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabs-header ul {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e4e4e4;
+  white-space: nowrap;
+}
+.tabs-header li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #00a699;
+  border-bottom: 4px solid transparent;
+  transition: color .2s, border-color .2s;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+.tabs-header li:hover {
+  color: #006400;
+}
+.tabs-header li.active {
+  color: #006400;
+  border-color: #006400;
+}
+
+/* Botões */
+button, .btn {
+  padding: .5rem 1rem;
+  border: 1px solid #e4e4e4;
+  border-radius: 6px;
+  background: #00a699;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+button:hover, .btn:hover {
+  background: #01554e;
+  color: #fff;
+  border-color: #01554e;
+}
+.service-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e4e4e4;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 0.95rem;
+  color: #444;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='%23444' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.service-select:focus {
+  outline: none;
+  border-color: #00A699;
+  box-shadow: 0 0 0 2px rgba(0, 166, 153, 0.2);
+}
+
+/* Tabelas */
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+.calendar-table th {
+  position: sticky;
+  background: #00A699;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  font-size: .85rem;
+  text-transform: uppercase;
+  z-index: 10;
+}
+.calendar-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e4e4e4;
+  color: #444;
+  font-size: .95rem;
+}
+.calendar-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Custom checkbox */
+.custom-checkbox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  cursor: pointer;
+}
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 2px solid #e4e4e4;
+  border-radius: 4px;
+  transition: background .3s, border-color .3s;
+}
+.custom-checkbox input:checked ~ .checkmark {
+  background: #00a699;
+  border-color: #444;
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Estilo para linhas canceladas */
+.calendar-table tr.cancelada {
+    background-color: #ffcccc;
+    position: relative;
+  }
+  
+.calendar-table tr.cancelada td {
+    position: relative;
+  }
+  
+.calendar-table tr.cancelada td:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: #ff0000;
+    transform: rotate(-5deg);
+  }
+
+/* Responsividade mínima */
+@media (max-width: 768px) {
+  .tabs-header ul {
+    flex-wrap: wrap;
+  }
+  .calendar-table {
+    display: block;
+    overflow-x: auto;
+  }
+  .calendar-table th,
+  .calendar-table td {
+    min-width: 120px;
+    padding: .8rem;
+  }
+}
+
+/* Modal Overlay */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Container */
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.modal-header {
+  padding: 1rem 1.5rem;
+  background-color: #00a699;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Body */
+.modal-body {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+}
+.form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.form-control,
+.form-control:focus,
+select.form-control {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Form Row */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+.form-row .col {
+  flex: 1;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btc-save-modal {
+  background-color: #00a699;
+  color: #fff;
+}
+.btc-save-modal:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+.btn-cancel-modal {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+/* botão especial */
+.novo-btn {
+  margin-left: auto;
+  border: none;
+  color: #fff;
+}
+
+.novo-btn:hover {
+  background: #004d0000;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filters .form-group {
+  display: flex;
+  flex-direction: column;
+}
+.filter-input {
+  width: 100%;
+  padding: 0.25rem;
+  font-size: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+/* Barra de pesquisa aprimorada */
+    .search-container {
+      position: relative;
+      width: 300px;
+      transition: all 0.3s ease;
+    }
+
+    .search-container:focus-within {
+      width: 300px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #00a699;
+    }
+  
+    .search-input {
+      padding-left: 45px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      height: 45px;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .search-input:focus {
+      border-color: #00a699;
+      box-shadow: 0 0 0 3px rgba(0, 166, 153, 0.2);
+      padding-left: 50px;
+    }

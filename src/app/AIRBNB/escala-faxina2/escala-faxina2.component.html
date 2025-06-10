@@ -1,0 +1,140 @@
+<div class="calendar-container">
+  <!-- Barra de ações com filtros e botão -->
+  <div class="toolbar">
+    <div class="filters">
+      <div class="form-group">
+        <label>Data Inicial</label>
+        <input type="date" class="form-control" [(ngModel)]="dataInicio">
+      </div>
+      <div class="form-group">
+        <label>Data Final</label>
+        <input type="date" class="form-control" [(ngModel)]="dataFim">
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary" (click)="pesquisarPorPeriodo()">Filtrar</button>
+      </div>
+      <div class="form-group">
+         <button class="btn btn-primary" (click)="abrirModal()">
+        <i class="fas fa-plus"></i> Nova Limpeza
+      </button>
+      </div>
+    </div>
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Pesquisar por apartamento, responsável..."
+          (input)="filtrarFaxinas($event)">
+      </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <section>
+
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Dia</th>
+          <th>Apt</th>
+          <th>Check-Out</th>
+          <th>Senha Porta</th>
+          <th>Finalizado</th>
+          <th>Responsável</th>
+          <th>Total do Dia</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let faxina of faxinasFiltradas" [class.cancelada]="faxina.description === 'CANCELADA'">
+          <td>{{ faxina.end_data }}</td>
+          <td>{{ getDiaDaSemana(faxina.end_data) }}</td>
+          <td>{{ faxina.apartamento_nome }}</td>
+          <td>{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina) }}</td>
+          <td>{{ faxina.apartamento_senha }}</td>
+          <td>
+            <label class="custom-checkbox">
+              <input type="checkbox"
+                     [checked]="faxina.limpeza_realizada"
+                     (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
+              <span class="checkmark"></span>
+            </label>
+          </td>
+          <td>
+            <select class="service-select"
+                    [(ngModel)]="faxina.faxina_userId"
+                    (change)="updateReserva(faxina)">
+              <option value="">Selecione</option>
+              <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+            </select>
+          </td>
+          <td>{{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasHoje) }}</td>
+        </tr>
+        <tr *ngIf="faxinasHoje.length === 0">
+          <td colspan="8">Nenhuma faxina para hoje</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">Nova Limpeza</h3>      
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form #formLimpeza="ngForm" (ngSubmit)="saveLimpezaExtra()">
+          <div class="form-group">
+            <label>Apartamento</label>
+            <select class="form-control"
+                    name="apartamento_id"
+                    [(ngModel)]="limpezaExtra.apartamento_id"
+                    required>
+              <option [ngValue]="null">Selecione</option>
+              <option *ngFor="let apt of apartamentos" [ngValue]="apt.id">
+                {{ apt.nome }}
+              </option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group col">
+              <label>Término</label>
+              <input type="date"
+                    class="form-control"
+                    name="end_data"
+                    [(ngModel)]="limpezaExtra.end_data"
+                    required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Observações</label>
+            <textarea class="form-control"
+                      name="Observacoes"
+                      [(ngModel)]="limpezaExtra.Observacoes">
+            </textarea>
+          </div>
+          <div class="form-group">
+            <label>Responsável</label>
+            <select class="form-control"
+                    name="faxina_userId"
+                    [(ngModel)]="limpezaExtra.faxina_userId">
+              <option [ngValue]="null">Selecione</option>
+              <option *ngFor="let user of users" [ngValue]="user.id">
+                {{ user.first_name }}
+              </option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-cancel-modal" (click)="fecharModal()">Cancelar</button>
+          <button class="btn btc-save-modal"
+                  [disabled]="formLimpeza.invalid"
+                  (click)="saveLimpezaExtra()">
+            Salvar
+          </button>
+      </div>
+    </div>
+  </div>

@@ -5,8 +5,6 @@ import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento'; // caso precise usar os dados do apartamento
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
-import { Router } from '@angular/router';
 
 type SectionKey = 'hoje' | 'amanha' |'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
 
@@ -62,16 +60,12 @@ export class CalendarioAirbnbComponent implements OnInit {
     private apartamentoService: ApartamentoService,
     private checkinFormService: CheckInFormService,
     private sanitizer: DomSanitizer,
-    private authService: AuthenticationService,
-    private router: Router 
+
     
   ) { }
 
   ngOnInit(): void {
-    let user = this.authService.getUser();
-    if(user && user.role!="admin"){
-      this.router.navigate(['/login']);
-    }
+ 
     
     // Carrega a seção 'hoje' automaticamente
     this.sections.hoje = true; // Garante que a seção está visível

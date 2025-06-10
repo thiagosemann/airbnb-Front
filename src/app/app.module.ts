@@ -32,6 +32,7 @@ import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-v
 import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
 import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
 import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
+import { EscalaFaxina2Component } from './AIRBNB/escala-faxina2/escala-faxina2.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelat
     CadastroPortariasComponent,
     RelatorioGanhosComponent,
     UpladoCSVRelatorioComponent,
+    EscalaFaxina2Component,
   ],
   imports: [
     BrowserModule,

@@ -16,13 +16,12 @@
 }
 
 .tabs-header ul {
-  display: inline-flex;;
+  display: inline-flex;
   list-style: none;
   padding: 0;
   margin-bottom: 1rem;
   border-bottom: 2px solid #e4e4e4;
   white-space: nowrap;        /* impede wrap das li */
-
 }
 .tabs-header li {
   padding: 0.5rem 1rem;
@@ -33,8 +32,6 @@
   transition: color .2s, border-color .2s;
   font-size: 0.9rem;
   flex: 0 0 auto;             /* não cresce, não encolhe */
-
-
 }
 .tabs-header li:hover {
   color: #006400;
@@ -44,140 +41,82 @@
   border-color: #006400;
 }
 
-/* Conteúdo das abas */
-.tab-section {
-  display: none;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity .3s ease, transform .3s ease;
-}
-.tab-section.active {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
+/* Faxina Cards */
+.faxina-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-/* Status Indicators */
-.status-indicators {
+.faxina-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-left: 4px solid #00a699;
   display: flex;
-  justify-content: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
 }
-.status-item {
-  padding: .5rem 1.2rem;
-  border-radius: 20px;
+.faxina-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.faxina-card.cancelada {
+  border-left-color: #ff4d4f;
+  background: #fff5f5;
+}
+
+.card-header {
+  background: #f0fdf9;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e4e4e4;
+}
+.card-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #006400;
+}
+.status-badge {
+  font-size: 1rem;
   font-weight: 600;
-  font-size: .95rem;
-}
-.today {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
   background: #ffe8e9;
   color: #006400;
 }
-.ongoing {
-  background: #e8faf8;
+.status-badge.done {
+  background: #e0f8f5;
   color: #00a699;
 }
-.upcoming {
-  background: #f3f3f3;
+
+.card-body {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.15rem;
   color: #444;
 }
 
-/* Botões */
-button, .btn {
-  padding: .5rem 1rem;
-  border: 1px solid #e4e4e4;
-  border-radius: 6px;
-  background: #fff;
-  cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+.card-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e4e4e4;
   display: flex;
   align-items: center;
-  gap: .5rem;
-}
-button:hover, .btn:hover {
-  background: #00a699;
-  color: #fff;
-  border-color: #00a699;
-}
-.resumo-btn.active {
-  background: #006400;
-  color: #fff;
-  border-color: #006400;
-}
-.cancel-btn {
-  background: #f7f7f7;
-  color: #444;
-}
-.primary-btn {
-  background: #006400;
-  color: #fff;
-  border-color: #006400;
-}
-.service-select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e4e4e4;
-  border-radius: 6px;
-  background-color: #fff;
-  font-size: 0.95rem;
-  color: #444;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg fill='%23444' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.service-select:focus {
-  outline: none;
-  border-color: #00A699;
-  box-shadow: 0 0 0 2px rgba(0, 166, 153, 0.2);
-}
-
-
-/* Tabelas */
-.calendar-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  margin-bottom: 1.5rem;
-}
-.calendar-table th {
-  position: sticky;
-  background: #00A699;
-  color: #fff;
-  padding: 1rem 1.5rem;
-  font-size: .85rem;
-  text-transform: uppercase;
-  z-index: 10; /* Garante que fique acima do conteúdo da tabela */
-}
-.calendar-table td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e4e4e4;
-  color: #444;
-  font-size: .95rem;
-}
-.calendar-table tr:last-child td {
-  border-bottom: none;
-}
-.calendar-table a {
-  color: #00a699;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color .2s;
-}
-.calendar-table a:hover {
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  background: #fafafa;
   color: #006400;
-}
-
-/* Tabela de resumo com células menores */
-.resumo-table th,
-.resumo-table td {
-  padding: .5rem .75rem;
-  font-size: .85rem;
+  font-weight: bold;
 }
 
 /* Custom checkbox */
@@ -185,4 +124,59 @@ button:hover, .btn:hover {
   position: relative;
   width: 20px;
   height: 20px;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  cursor: pointer;
+}
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 2px solid #e4e4e4;
+  border-radius: 4px;
+  transition: background .3s, border-color .3s;
+}
+.custom-checkbox input:checked ~ .checkmark {
+  background: #00a699;
+  border-color: #444;
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Mensagem quando não há dados */
+.no-data {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+/* Responsividade mínima */
+@media (max-width: 768px) {
+  .tabs-header ul {
+    flex-wrap: wrap;
+  }
+  .desktop-only { display: none; }
+  .mobile-only { display: grid; }
 }

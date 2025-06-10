@@ -4,23 +4,9 @@
   <nav class="tabs-header">
     <ul>
       <ng-container *ngFor="let tab of tabs">
-        <ng-container  *ngIf="user?.role === 'tercerizado'">
-          <ng-container  *ngIf="tab.label !== 'Resumo Esta Semana' && tab.label !== 'Resumo Semana que Vem' && tab.label !== 'Futuras' && tab.label !== 'Semana que Vem'">
             <li  [class.active]="activeTab === tab.id" (click)="selectTab(tab.id)">
               {{ tab.label }}
             </li>
-          </ng-container>
-        </ng-container>
-         <ng-container  *ngIf="user?.role !== 'tercerizado'">
-          <li  [class.active]="activeTab === tab.id" (click)="selectTab(tab.id)">
-              {{ tab.label }}
-          </li>
-        </ng-container>
-      </ng-container>
-      <ng-container  *ngIf="user?.role !== 'tercerizado'">
-      <li class="btn btn-primary novo-btn" (click)="abrirModal()">
-        <span class="icon-plus"><i class="fas fa-plus"></i></span> Nova Limpeza
-      </li>
       </ng-container>
     </ul>
   </nav>
@@ -28,96 +14,8 @@
   <!-- Conteúdos por aba -->
   <div class="tabs-content">
 
-    <!-- Resumo Esta Semana -->
-    <section class="tab-section" [class.active]="activeTab === 'resumoEsta'">
-      <table class="calendar-table resumo-table">
-        <thead>
-          <tr>
-            <th>Terceirizada</th>
-            <th *ngFor="let dia of diasDaSemana">{{ dia }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of objectValues(terceirizadasResumoEsta)">
-            <td>{{ t.nome }}</td>
-            <td *ngFor="let dia of diasDaSemana">{{ t.dias[dia] || 0 }}</td>
-          </tr>
-          <tr *ngIf="!objectValues(terceirizadasResumoEsta).length">
-            <td colspan="8">Nenhuma faxina nesta semana</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Resumo Próxima Semana -->
-    <section class="tab-section" [class.active]="activeTab === 'resumoProxima'">
-      <table class="calendar-table resumo-table">
-        <thead>
-          <tr>
-            <th>Terceirizada</th>
-            <th *ngFor="let dia of diasDaSemana">{{ dia }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of objectValues(terceirizadasResumoProxima)">
-            <td>{{ t.nome }}</td>
-            <td *ngFor="let dia of diasDaSemana">{{ t.dias[dia] || 0 }}</td>
-          </tr>
-          <tr *ngIf="!objectValues(terceirizadasResumoProxima).length">
-            <td colspan="8">Nenhuma faxina na próxima semana</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Faxinas para Hoje -->
-    <section *ngIf="activeTab === 'hoje' &&  user?.role !== 'tercerizado'">
-      <table class="calendar-table">
-        <thead>
-            <tr>
-              <th>Apt</th>
-              <th>Check-Out</th>
-              <th>Senha Porta</th>
-              <th>Finalizado</th>
-              <th>Responsável</th>
-              <th>Total do Dia</th> <!-- NOVA COLUNA -->
-            </tr>
-          </thead>
-        <tbody>
-          <tr *ngFor="let faxina of faxinasHoje" [class.cancelada]="faxina.description === 'CANCELADA'">
-            <td>{{ faxina.apartamento_nome }}</td>
-            <td>{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina) }}</td>
-            <td>{{ faxina.apartamento_senha }}</td>
-            
-            <td>
-              <label class="custom-checkbox">
-                <input type="checkbox"
-                      [checked]="faxina.limpeza_realizada"
-                      (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
-                <span class="checkmark"></span>
-              </label>
-            </td>
-            <td>
-              <select
-                class="service-select"
-                [(ngModel)]="faxina.faxina_userId"
-                (change)="updateReserva(faxina)">
-                <option value="">Selecione</option>
-                <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
-              </select>
-            </td>
-            <td>
-              {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasHoje) }}
-            </td>
-          </tr>
-          <tr *ngIf="faxinasHoje.length === 0">
-              <td colspan="5">Nenhuma faxina para hoje</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section *ngIf="activeTab === 'hoje' &&  user?.role === 'tercerizado'">
+   <!-- Faxinas para Hoje -->
+    <section *ngIf="activeTab === 'hoje'">
       <div class="faxina-cards mobile-only">
         <div *ngIf="faxinasHoje.length === 0" class="no-data">
           Nenhuma faxina para hoje
@@ -165,59 +63,12 @@
       </div>
     </section>
     <!-- Faxinas Esta Semana -->
-    <section *ngIf="activeTab === 'semana' && user?.role !== 'tercerizado'">
-      <table class="calendar-table">
-        <thead>
-          <tr>
-            <th>Apt</th>
-            <th>Data</th>
-            <th>Dia</th>
-            <th>Check-Out</th>
-            <ng-container  *ngIf=" user?.role !== 'tercerizado'">
-              <th>Responsável</th>
-              <th>Total do Dia</th>
-              <th>Total da Semana</th>
-            </ng-container>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let faxina of faxinasSemana" [class.cancelada]="faxina.description === 'CANCELADA'">
-            <td>{{ faxina.apartamento_nome }}</td>
-            <td>{{ formatarData(faxina.end_data) }}</td>
-            <td>{{ getDiaDaSemana(formatarData(faxina.end_data)) }}</td>
-            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina) }}</td>
-            <ng-container  *ngIf=" user?.role !== 'tercerizado'">
-              <td>
-                <select
-                  class="service-select"
-                  [(ngModel)]="faxina.faxina_userId"
-                  (change)="updateReserva(faxina)"
-                  [disabled]="user?.role === 'tercerizado'">
-                  <option value="">Selecione</option>
-                  <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
-                </select>
-              </td>
-              <td>
-                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasSemana) }}
-              </td>
-              <td>
-                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasSemana) }}
-              </td>
-            </ng-container>
-            
-          </tr>
-          <tr *ngIf="faxinasSemana.length === 0">
-            <td colspan="5">Nenhuma faxina esta semana</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-    <section *ngIf="activeTab === 'semana' &&  user?.role === 'tercerizado'">
+    <section *ngIf="activeTab === 'futuras'">
       <div class="faxina-cards mobile-only">
-        <div *ngIf="faxinasSemana.length === 0" class="no-data">
-          Nenhuma faxina para esta semana
+        <div *ngIf="faxinasFuturas.length === 0" class="no-data">
+          Nenhuma faxina futura.
         </div>
-        <div *ngFor="let faxina of faxinasSemana"  class="faxina-card"   [class.cancelada]="faxina.description === 'CANCELADA'">
+        <div *ngFor="let faxina of faxinasFuturas"  class="faxina-card"   [class.cancelada]="faxina.description === 'CANCELADA'">
           <div class="card-header">
             <h3>Apt {{ faxina.apartamento_nome }}</h3>
             <ng-container *ngIf="faxina.description === 'CANCELADA'">
@@ -231,7 +82,6 @@
                 </span>
             </ng-container>
           </div>
-
           <div class="card-body">
             <div class="card-row">
               <strong>Data:</strong>
@@ -250,13 +100,12 @@
               <strong>{{ faxina.apartamento_senha }}</strong>
             </div>
           </div>
-
           <!-- Mantive o checkbox caso queira toggle manual -->
           <div class="card-footer">
             <label class="custom-checkbox">
               <input type="checkbox"
                     [checked]="faxina.limpeza_realizada"
-                    (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasSemana')">
+                    (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasFuturas')">
               <span class="checkmark"></span>
             </label>
             <span>Limpeza Finalizada</span>
@@ -264,140 +113,5 @@
         </div>
       </div>
     </section>
-
-    <!-- Faxinas Semana que Vem -->
-    <section *ngIf="activeTab === 'proxima' && user?.role !== 'tercerizado'">
-      <table class="calendar-table">
-        <thead>
-          <tr>
-            <th>Apt</th>
-            <th>Data</th>
-            <th>Dia</th>
-            <th>Check-Out</th>
-            <th>Responsável</th>
-            <th>Total do Dia</th> 
-            <th>Total da Semana</th>            
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let faxina of faxinasSemanaQueVem" [class.cancelada]="faxina.description === 'CANCELADA'">
-            <td>{{ faxina.apartamento_nome }}</td>
-            <td>{{ formatarData(faxina.end_data) }}</td>
-            <td>{{ getDiaDaSemana(formatarData(faxina.end_data)) }}</td>
-            <td>{{ faxina.check_out }} {{ formatarCheckInMesmoDia(faxina) }}</td>
-            <td>
-              <select
-                class="service-select"
-                [(ngModel)]="faxina.faxina_userId"
-                (change)="updateReserva(faxina)">
-                <option value="">Selecione</option>
-                <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
-              </select>
-            </td>
-            <td>
-                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasSemanaQueVem) }}
-            </td>
-            <td>
-                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasSemanaQueVem) }}
-            </td>
-          </tr>
-          <tr *ngIf="faxinasSemanaQueVem.length === 0">
-            <td colspan="6">Nenhuma faxina semana que vem</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Faxinas Futuras -->
-    <section *ngIf="activeTab === 'futuras' && user?.role !== 'tercerizado'">
-      <table class="calendar-table">
-        <thead>
-          <tr>
-            <th>Apt</th>
-            <th>Check-Out</th>
-            <th>Dias Restantes</th>
-            <th>Responsável</th>
-            <th>Total do Dia</th>     
-            <th>Total de Faxinas Futuras</th>            
-       
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let faxina of faxinasFuturas">
-            <td>{{ faxina.apartamento_nome }}</td>
-            <td>{{ formatarData(faxina.end_data) }}</td>
-            <td>{{ calcularDiasRestantes(faxina.end_data) }}</td>
-            <td>
-              <select
-                class="service-select"
-                [(ngModel)]="faxina.faxina_userId"
-                (change)="updateReserva(faxina)">
-                <option value="">Selecione</option>
-                <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
-              </select>
-            </td>
-            <td>
-                {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasFuturas) }}
-            </td>
-                        <td>
-                {{ contarFaxinasPorLista(faxina.faxina_userId, faxinasFuturas) }}
-            </td>
-          </tr>
-          <tr *ngIf="faxinasFuturas.length === 0">
-            <td colspan="5">Nenhuma faxina futura</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
   </div>
 </div>
-<div class="modal" *ngIf="showModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="mb-0">Nova Limpeza</h3>      
-        <button class="close-btn" (click)="fecharModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <form #formLimpeza="ngForm" (ngSubmit)="saveLimpezaExtra()">
-          <div class="form-group">
-            <label>Apartamento</label>
-            <select class="form-control"
-                    name="apartamento_id"
-                    [(ngModel)]="limpezaExtra.apartamento_id"
-                    required>
-              <option [ngValue]="null">Selecione</option>
-              <option *ngFor="let apt of apartamentos" [ngValue]="apt.id">
-                {{ apt.nome }}
-              </option>
-            </select>
-          </div>
-          <div class="form-row">
-            <div class="form-group col">
-              <label>Término</label>
-              <input type="date"
-                    class="form-control"
-                    name="end_data"
-                    [(ngModel)]="limpezaExtra.end_data"
-                    required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Observações</label>
-            <textarea class="form-control"
-                      name="Observacoes"
-                      [(ngModel)]="limpezaExtra.Observacoes">
-            </textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-          <button class="btn btn-cancel-modal" (click)="fecharModal()">Cancelar</button>
-          <button class="btn btc-save-modal"
-                  [disabled]="formLimpeza.invalid"
-                  (click)="saveLimpezaExtra()">
-            Salvar
-          </button>
-      </div>
-    </div>
-  </div>

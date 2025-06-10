@@ -21,6 +21,7 @@ import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-v
 import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
 import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
 import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
+import { EscalaFaxina2Component } from './AIRBNB/escala-faxina2/escala-faxina2.component';
 
 
 const routes: Routes = [
@@ -28,26 +29,26 @@ const routes: Routes = [
   { path: 'cameraApp/:id', component: CameraAppComponent },
   { path: 'reserva/:id', component: CameraAppComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent},
-  { path: 'landing', component: LandingComponent, canActivate: [AuthGuardService] },
-  { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService] },
+  { path: 'landing', component: LandingComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuardService] },
-  { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService] },
-  { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService] },
-  { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService] },
-  { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService]},
-  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService]},
-  { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService]},
-  { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService]},
-  { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService]},
-  { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService]},
-  { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService]},
-  { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService]},
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
+  { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
 
-
+  { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
-  { path: '**', component: ContentComponent, canActivate: [AuthGuardService] }, // rota de fallback quando nenhuma outra corresponder
+  { path: '**', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } }, // rota de fallback quando nenhuma outra corresponder
 
   // Outras rotas do seu aplicativo
 ];

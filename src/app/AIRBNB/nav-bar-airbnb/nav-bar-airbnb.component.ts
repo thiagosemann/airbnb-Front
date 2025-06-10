@@ -13,7 +13,6 @@ export class NavBarAirbnbComponent {
   isMenuOpen = false;
   isDesktopView = true;
   currentRoute: string = ''; // Variável para armazenar a rota atual
-
   constructor(private authService: AuthenticationService,
               private router: Router, 
               private toastr: ToastrService,
@@ -25,7 +24,6 @@ export class NavBarAirbnbComponent {
   
  ngOnInit(): void {
     this.user = this.authService.getUser();
-
   }
 
   logout(): void {

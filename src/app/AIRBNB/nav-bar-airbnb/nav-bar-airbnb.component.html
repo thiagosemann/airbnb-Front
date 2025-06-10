@@ -75,6 +75,7 @@
     </ng-container>
     <ng-container *ngIf="user.role !== 'admin'">
       <div class="ms-auto">
+        <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
         <button class="navbar-logout-btn" (click)="logout()">
           <i class="fas fa-sign-out-alt"></i> Sair
         </button>
@@ -90,16 +91,18 @@
       <button class="close-btn" (click)="toggleMenu()"><i class="fas fa-times"></i></button>
     </div>
     <div class="mobile-nav">
-      <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
-      <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
-      <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
-      <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
-      <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
-      <button (click)="cadastroPortarias(); toggleMenu()"><i class="fas fa-gear"></i> Portarias</button>
-      
-      <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
-      <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vistoria</button>
-      <button (click)="controleVistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Controle Vistoria</button>
+       <ng-container *ngIf="user.role === 'admin'">
+        <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
+        <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
+        <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
+        <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
+        <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
+        <button (click)="cadastroPortarias(); toggleMenu()"><i class="fas fa-gear"></i> Portarias</button>
+        
+        <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
+        <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vistoria</button>
+        <button (click)="controleVistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Controle Vistoria</button>
+       </ng-container>
       <button (click)="profile(); toggleMenu()"><i class="fas fa-user"></i> Perfil</button>
       <button class="logout" (click)="logout(); toggleMenu()"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>

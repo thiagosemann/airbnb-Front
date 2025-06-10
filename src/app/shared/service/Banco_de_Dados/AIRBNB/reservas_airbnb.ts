@@ -53,28 +53,18 @@ export class ReservasAirbnbService {
     );
   }
 
-  // Novos filtros de faxina
-  getReservasEncerraHoje(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/encerra-hoje`,
-      { headers: this.getHeaders() }
-    );
-  }
+  // Métodos existentes mantidos
+  getFaxinasPorPeriodo(inicio_end_data: string, fim_end_date: string): Observable<ReservaAirbnb[]> {
+    const params = new HttpParams()
+      .set('start', inicio_end_data)
+      .set('end', fim_end_date);
 
-  getReservasEncerraSemana(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/encerra-semana`,
-      { headers: this.getHeaders() }
-    );
-  }
-  getReservasEncerraSemanaQueVem(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(`${this.apiUrl}/filtro/encerra-semana-que-vem`, { headers: this.getHeaders() });
-  }
-  
-  getFaxinasFuturasUmMes(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/futuras-um-mes`,
-      { headers: this.getHeaders() }
+      `${this.apiUrl}/filtro/por-periodo`, // ajustado para rotas do backend
+      {
+        headers: this.getHeaders(),
+        params
+      }
     );
   }
 
@@ -144,5 +134,7 @@ export class ReservasAirbnbService {
       { headers: this.getHeaders() }
     );
   }
+
+
 
 }
