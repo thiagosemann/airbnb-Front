@@ -406,8 +406,26 @@
         <h5>Informações do Hóspede</h5>      
         <div *ngIf="!carregandoImagem">
           <button class="btn-primary" (click)="exportData()" style="margin-right: 10px;">
-            <i class="fas fa-file-export"></i> Exportar Tudo
+            <i class="fas fa-file-export"></i> Download Tudo
           </button>
+          <button
+            class="secondary whatsapp-btn"
+            (click)="enviarCredenciaisPorCheckins()"
+            [disabled]="whatsLoading">
+            
+            <!-- Quando NÃO estiver carregando: -->
+            <ng-container *ngIf="!whatsLoading">
+              <i class="fab fa-whatsapp whatsapp-icon"></i>
+              Enviar via Whats
+            </ng-container>
+
+            <!-- Quando estiver carregando: -->
+            <ng-container *ngIf="whatsLoading">
+              <i class="fas fa-spinner fa-spin"></i>
+              Enviando...
+            </ng-container>
+          </button>
+
         </div>
 
         <div *ngIf="carregandoImagem" class="loading-container">

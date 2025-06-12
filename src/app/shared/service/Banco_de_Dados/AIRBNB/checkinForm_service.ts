@@ -59,4 +59,14 @@ export class CheckInFormService {
   deleteCheckin(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
+
+  // Enviar lista de check-ins para WhatsApp
+  envioPorCheckins(checkinIds: number[]): Observable<any> {
+    const payload = { checkinIds };
+    return this.http.post(
+      `${this.apiUrl}/envio`,
+      payload,
+      { headers: this.getHeaders().set('Content-Type', 'application/json') }
+    );
+  }
 }

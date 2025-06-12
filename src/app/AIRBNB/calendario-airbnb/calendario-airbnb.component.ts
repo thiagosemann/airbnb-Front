@@ -5,6 +5,7 @@ import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento'; // caso precise usar os dados do apartamento
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ToastrService } from 'ngx-toastr';
 
 type SectionKey = 'hoje' | 'amanha' |'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
 
@@ -27,6 +28,8 @@ export class CalendarioAirbnbComponent implements OnInit {
   hospedesReserva:any[] =[];
   reservasBloqueadas: ReservaAirbnb[] = [];
   carregandoImagem: boolean = false; // Para controlar o carregamento da imagem
+  whatsLoading: boolean = false; // Para controlar o carregamento da imagem
+  
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
@@ -60,6 +63,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     private apartamentoService: ApartamentoService,
     private checkinFormService: CheckInFormService,
     private sanitizer: DomSanitizer,
+    private toastr: ToastrService
 
     
   ) { }
@@ -329,6 +333,30 @@ exportData(): void {
       }
    })
 }
+
+enviarCredenciaisPorCheckins(): void {
+  const ids = this.hospedesReserva.map(h => h.id);
+  if (!ids.length) {
+    console.warn('Nenhum hóspede para enviar.');
+    return;
+  }
+  this.whatsLoading = true;
+  this.checkinFormService.envioPorCheckins(ids)
+    .subscribe({
+      next: () => {
+        this.toastr.success("Mensagem enviada com sucesso!")
+        // Aqui você pode exibir toast ou modal de sucesso
+        this.whatsLoading = false;
+      },
+      error: (error) => {
+        console.error('Falha ao solicitar envio:', error);
+        // E exibir mensagem de erro ao usuário
+        this.whatsLoading = false;
+        this.toastr.error("Erro ao enviar mensagem!")
+      }
+    });
+}
+
 formatarDataparaTable(dataISO:string):string {
   const data = new Date(dataISO);
   
