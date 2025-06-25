@@ -63,6 +63,7 @@ export class ControleVistoriaComponent implements OnInit {
       console.log(list)
       this.vistorias = list;
       this.vistoriasFiltradas = [...list];
+      this.vistoriasFiltradas.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
     });
   }
 
