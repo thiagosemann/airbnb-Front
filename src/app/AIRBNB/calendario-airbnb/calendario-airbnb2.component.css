@@ -3,7 +3,7 @@
 @media (max-width:768px) {
     .modal-body .row {
     flex-direction: column;
-}
+  }
 .modal-body .col-md-4, .modal-body .col-md-8 {
     width: 100%;
     margin-bottom: 1rem;
@@ -45,66 +45,8 @@ input[type=time] {
 input[type=time]:focus, input[type=time]:hover {
     border-color: #00a699;
 }
-.modal-span {
-    font-size: 1rem;
-    color: #444;
-    margin-right: 1rem;
-}
-.modal-info-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: .5rem;
-}
-.modal-info-row label {
-    flex: 0 0 150px;
-    font-weight: 700;
-    color: #333;
-    margin-right: .5rem;
-}
-.hospede-row {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
-  }
-  
-  .hospede-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  
-  .hospede-row p {
-    margin: 0;
-    min-width: 150px;
-  }
-  
-  .hospede-section {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    margin-top: 1rem;
-  }
-.modal-item label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: .5rem;
-    color: #333;
-}
-.modal-item input, .modal-item span {
-    width: 100%;
-    padding: .5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: #f9f9f9;
-}
-.modal-section {
-    padding: .5rem 0;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 1.5rem;
-}
+
+
 .status-item.blocked {
     background-color: #fcc;
     border-color: #f99;
@@ -181,3 +123,86 @@ input[type=time]:focus, input[type=time]:hover {
   }
   
   
+
+.status-badge {
+    background: #e8faf8;
+    padding: .3rem .8rem;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: .9rem;
+    color: #00a699;
+}
+.full-width {
+    grid-column: span 2;
+}
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border: 2px solid;
+    border-radius: 4px;
+    transition: .3s;
+}
+.custom-checkbox:hover input~.checkmark {
+    background-color: #f0f9f8;
+}
+.custom-checkbox input:checked~.checkmark {
+    background-color: #00a699;
+    border-color: #444;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.custom-checkbox input:checked~.checkmark:after {
+    display: block;
+}
+/* Estilo para linhas canceladas */
+.calendar-table tr.cancelada {
+    background-color: #ffcccc !important; /* Vermelho claro */
+    position: relative;
+  }
+  
+  /* Opcional: Adicione um efeito de linha cortada */
+  .calendar-table tr.cancelada td {
+    position: relative;
+  }
+  
+  .calendar-table tr.cancelada td:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: #ff0000;
+    transform: rotate(-5deg);
+  }
+

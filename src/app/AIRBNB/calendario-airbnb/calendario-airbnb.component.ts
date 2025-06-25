@@ -6,6 +6,7 @@ import { Apartamento } from 'src/app/shared/utilitarios/apartamento'; // caso pr
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
+import { MercadoPagoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mercadoPago_service';
 
 type SectionKey = 'hoje' | 'amanha' |'andamento' | 'proximas' | 'finalizadas' | 'bloqueadas';
 
@@ -29,7 +30,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   reservasBloqueadas: ReservaAirbnb[] = [];
   carregandoImagem: boolean = false; // Para controlar o carregamento da imagem
   whatsLoading: boolean = false; // Para controlar o carregamento da imagem
-  
+  linkPagamento: string = '';
   // Objeto para controlar a visibilidade de cada seção
   sections: { [key in SectionKey]: boolean } = {
     hoje: true,
@@ -63,7 +64,9 @@ export class CalendarioAirbnbComponent implements OnInit {
     private apartamentoService: ApartamentoService,
     private checkinFormService: CheckInFormService,
     private sanitizer: DomSanitizer,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private mercadoPagoService: MercadoPagoService
+
 
     
   ) { }
@@ -452,5 +455,38 @@ formatarTelefone(telefone: string): string {
 
     // 4) retorna não-canceladas primeiro, depois canceladas
     return [...naoCancelAlfa, ...cancelAlfa];
+  }
+
+  sendEarlyPayment(hospede:any): void {
+    if (!this.selectedReservation) {
+      this.toastr.warning('Selecione uma reserva antes de enviar o pagamento.');
+      return;
+    }
+    // pega o primeiro hóspede (caso queira usar dados dele em metadata extra)
+    const primeiroHospede = hospede;
+
+    const payload: any = {
+      user_id:         primeiroHospede?.id,
+      apartamento_id:  this.selectedReservation.apartamento_id,
+      cod_reserva:     this.selectedReservation.cod_reserva,
+      valorReais:      1, // ajuste conforme sua prop
+      tipo:            'early',
+      metadata: {
+        hospede_id: primeiroHospede?.id,
+        hospede_nome: primeiroHospede?.first_name
+      }
+    };
+
+    this.mercadoPagoService.createPayment(payload)
+      .subscribe({
+        next: (resp: any) => {
+          // abre o checkout do MercadoPago em nova aba
+          this.linkPagamento = resp.redirectUrl;
+        },
+        error: (err) => {
+          console.error('Erro ao criar pagamento early:', err);
+          this.toastr.error('Não foi possível gerar o link de pagamento.');
+        }
+      });
   }
 }

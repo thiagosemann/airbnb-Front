@@ -362,7 +362,6 @@
 </div>
 
 
-<!-- Modal de Detalhes da Reserva -->
 <div class="modal" *ngIf="showModal">
   <div class="modal-content">
     <!-- Cabeçalho -->
@@ -386,6 +385,10 @@
             <span>{{ formatarData(selectedReservation!.end_data) }}</span>
           </div>
           <div class="modal-item">
+            <label>Código</label>
+            <input type="text" class="form-control" [value]="selectedReservation!.cod_reserva" readonly>
+          </div>    
+          <div class="modal-item">
             <label>Check-In</label>
             <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_in" (change)="updateTime()">
           </div>
@@ -393,107 +396,116 @@
             <label>Check-Out</label>
             <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_out" (change)="updateTime()">
           </div>
-          <div class="modal-item">
-            <label>Código</label>
-            <input type="text" class="form-control" [value]="selectedReservation!.cod_reserva" readonly>
-          </div>
+    
         </div>
       </div>
 
       <hr>
+      
       <!-- Seção: Informações do Hóspede -->
       <div class="modal-section">
-        <h5>Informações do Hóspede</h5>      
-        <div *ngIf="!carregandoImagem">
-          <button class="btn-primary" (click)="exportData()" style="margin-right: 10px;">
-            <i class="fas fa-file-export"></i> Download Tudo
-          </button>
-          <button
-            class="secondary whatsapp-btn"
-            (click)="enviarCredenciaisPorCheckins()"
-            [disabled]="whatsLoading">
-            
-            <!-- Quando NÃO estiver carregando: -->
-            <ng-container *ngIf="!whatsLoading">
-              <i class="fab fa-whatsapp whatsapp-icon"></i>
-              Enviar via Whats
-            </ng-container>
-
-            <!-- Quando estiver carregando: -->
-            <ng-container *ngIf="whatsLoading">
-              <i class="fas fa-spinner fa-spin"></i>
-              Enviando...
-            </ng-container>
-          </button>
-
+        <div class="section-header">
+          <h5>Informações do Hóspede</h5>
+          <div class="action-buttons" *ngIf="!carregandoImagem">
+            <button class="btn-primary" (click)="exportData()">
+              <i class="fas fa-file-export"></i> Download Tudo
+            </button>
+            <button class="secondary whatsapp-btn" (click)="enviarCredenciaisPorCheckins()" [disabled]="whatsLoading">
+              <ng-container *ngIf="!whatsLoading">
+                <i class="fab fa-whatsapp whatsapp-icon"></i> Enviar via Whats
+              </ng-container>
+              <ng-container *ngIf="whatsLoading">
+                <i class="fas fa-spinner fa-spin"></i> Enviando...
+              </ng-container>
+            </button>
+          </div>
         </div>
 
         <div *ngIf="carregandoImagem" class="loading-container">
           <div class="spinner"></div>
           <span>Carregando imagem...</span>
         </div>
-        <div *ngIf="hospedesReserva.length==0 && !carregandoImagem " >
+        
+        <div *ngIf="hospedesReserva.length==0 && !carregandoImagem" class="empty-state">
           <h6>Sem hóspedes cadastrados!</h6>
         </div>
-        <div class="modal-grid" >
-          <div *ngFor="let hospede of hospedesReserva" class="hospede-row">
-            <p><strong>Hóspede:</strong> {{ hospede.first_name }}</p>
-            <p><strong>CPF:</strong> {{ formatarCPF(hospede.CPF) }}</p>
-            <p><strong>Telefone:</strong> {{ formatarTelefone(hospede.Telefone) }}</p>
-            <p><strong>Horário:</strong> {{ formatarDataparaTable(hospede.created_at) }}</p>
-
-            <div class="hospede-section">
-              <!-- Exibição da imagem do hóspede -->
-  
-              <div *ngIf="hospede.imagemBase64">
-                <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
-                     alt="Imagem do Hóspede" 
-                     style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
-              </div>
         
-              <!-- Exibição do documento (PDF ou imagem) -->
-              <div *ngIf="hospede.documentBase64">
-                <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
-                  <!-- Se for PDF, exibe um iframe ou link -->
-                  <iframe [src]="getSafeUrl(hospede.documentBase64)" 
-                          style="width: 350px; height: 350px; border: 1px solid #ccc;"></iframe>
-                </ng-container>
-                <ng-template #imagemDocumento>
-                  <!-- Se for imagem, exibe como uma imagem -->
-                  <img [src]="'data:image/png;base64,' + hospede.documentBase64" 
-                       alt="Documento do Hóspede" 
-                       style="width: 350px; height: 350px; object-fit: cover; border: 1px solid #ccc; padding: 5px;">
-                </ng-template>
+        <div class="hospedes-container">
+          <div *ngFor="let hospede of hospedesReserva" class="hospede-card">
+            <div class="hospede-info">
+              <div class="info-item">
+                <strong>Nome:</strong> {{ hospede.first_name }}
+              </div>
+              <div class="info-item">
+                <strong>CPF:</strong> {{ formatarCPF(hospede.CPF) }}
+              </div>
+              <div class="info-item">
+                <strong>Telefone:</strong> {{ formatarTelefone(hospede.Telefone) }}
+              </div>
+              <div class="info-item">
+                <strong>Cadastro:</strong> {{ formatarDataparaTable(hospede.created_at) }}
+              </div>
+              
+              <div class="hospede-actions">
+                <button class="btn-primary" (click)="sendEarlyPayment(hospede)">
+                  <i class="fas fa-file-export"></i> Enviar Early
+                </button>
+                <div class="payment-link" *ngIf="linkPagamento!=''">
+                  <input type="text" class="form-control" [(ngModel)]="linkPagamento" placeholder="Link de pagamento">
+                </div>
+              </div>
+            </div>
+            
+            <div class="hospede-documents">
+              <div class="document-section">
+                <h6>Documentos</h6>
+                <div class="documents-row">
+                  <div *ngIf="hospede.imagemBase64" class="document-container">
+                    <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
+                         alt="Imagem do Hóspede" class="document-image">
+                  </div>
+                  
+                  <div *ngIf="hospede.documentBase64" class="document-container">
+                    <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
+                      <iframe [src]="getSafeUrl(hospede.documentBase64)" class="document-frame"></iframe>
+                    </ng-container>
+                    <ng-template #imagemDocumento>
+                      <img [src]="'data:image/png;base64,' + hospede.documentBase64" 
+                           alt="Documento do Hóspede" class="document-image">
+                    </ng-template>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
       
-       <!-- Seção: Informações do Apartamento -->
+      <hr>
+      
+      <!-- Seção: Informações do Apartamento -->
       <div class="modal-section">
         <h5>Informações do Apartamento</h5>
         <div class="modal-grid">
           <div class="modal-item">
             <label>Nome</label>
-            <input type="text" class="form-control" [value]="selectedApartment?.nome" readonly>
+            <span>{{ selectedApartment?.nome }}</span>
           </div>
           <div class="modal-item">
             <label>Nome do Anúncio</label>
-            <input type="text" class="form-control" [value]="selectedApartment?.nome_anuncio" readonly>
+            <span>{{ selectedApartment?.nome_anuncio }}</span>
           </div>
           <div class="modal-item">
             <label>SSID-WIFI</label>
-            <input type="text" class="form-control" [value]="selectedApartment?.ssid_wifi" readonly>
+            <span>{{ selectedApartment?.ssid_wifi }}</span>
           </div>
           <div class="modal-item">
             <label>Senha WIFI</label>
-            <input type="text" class="form-control" [value]="selectedApartment?.senha_wifi" readonly>
+            <span>{{ selectedApartment?.senha_wifi }}</span>
           </div>
           <div class="modal-item">
             <label>Senha da Porta</label>
-            <input type="text" class="form-control" [value]="selectedApartment?.senha_porta" readonly>
+            <span>{{ selectedApartment?.senha_porta }}</span>
           </div>
         </div>
       </div>

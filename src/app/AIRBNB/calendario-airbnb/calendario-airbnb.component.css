@@ -1,15 +1,10 @@
 .calendar-header h1, .calendar-table a:hover, .today {
-    color: var(--primary-color);
+    color: var(#FF5A5F);
 }
 .calendar-container, input[type=time] {
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
-:root {
-    --primary-color: #FF5A5F;
-    --secondary-color: #00A699;
-    --hover-bg: #f7f7f7;
-    --border-color: #e4e4e4;
-}
+
 .calendar-container {
     max-width: 1400px;
     margin: 2rem auto;
@@ -54,7 +49,7 @@
 .section-header {
     position: relative;
     padding: 1.5rem;
-    background: var(--hover-bg);
+    background: var(#f7f7f7);
 }
 .arrow {
     transition: transform .3s;
@@ -65,7 +60,7 @@
 }
 .section-container {
     margin-bottom: 2rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(#e4e4e4);
 }
 .section-content {
     max-height: 0;
@@ -92,7 +87,7 @@
 }
 .calendar-table td {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(#e4e4e4);
     color: #444;
     font-size: .95rem;
 }
@@ -108,7 +103,7 @@
 .btn, button {
     padding: .5rem 1rem;
     border-radius: 6px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(#e4e4e4);
     background: #fff;
     cursor: pointer;
     transition: .2s;
@@ -126,7 +121,7 @@
     color: #444;
 }
 .primary-btn {
-    background: var(--primary-color);
+    background: var(#FF5A5F);
     color: #fff;
-    border-color: var(--primary-color);
+    border-color: var(#FF5A5F);
 }

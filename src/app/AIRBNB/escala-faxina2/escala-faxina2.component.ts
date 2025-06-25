@@ -86,6 +86,8 @@ faxinasFiltradas: any[] = [];
       limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim)
     }).subscribe({
       next: ({ reservas, limpezas }) => {
+        console.log(reservas)
+        console.log(limpezas)
         this.processarFaxinas(reservas, limpezas);
         this.faxinasFiltradas = [...this.faxinasHoje];
 
