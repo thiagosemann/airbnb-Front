@@ -17,41 +17,7 @@ export class ReservasAirbnbService {
     return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
-  // Filtros de faxina
-  getReservasHoje(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/hoje`,
-      { headers: this.getHeaders() }
-    );
-  }
 
-  getReservasAmanha(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/amanha`,
-      { headers: this.getHeaders() }
-    );
-  }
-
-  getProximasReservas(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/proximas`,
-      { headers: this.getHeaders() }
-    );
-  }
-
-  getReservasFinalizadas(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/finalizadas`,
-      { headers: this.getHeaders() }
-    );
-  }
-
-  getReservasEmAndamento(): Observable<ReservaAirbnb[]> {
-    return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/em-andamento`,
-      { headers: this.getHeaders() }
-    );
-  }
 
   // Métodos existentes mantidos
   getFaxinasPorPeriodo(inicio_end_data: string, fim_end_date: string): Observable<ReservaAirbnb[]> {
@@ -60,7 +26,7 @@ export class ReservasAirbnbService {
       .set('end', fim_end_date);
 
     return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/filtro/por-periodo`, // ajustado para rotas do backend
+      `${this.apiUrl}/faxinas/por-periodo`, // ajustado para rotas do backend
       {
         headers: this.getHeaders(),
         params
@@ -75,7 +41,7 @@ export class ReservasAirbnbService {
       .set('end', endDate);
 
     return this.http.get<ReservaAirbnb[]>(
-      `${this.apiUrl}/por-periodo`, // ajustado para rotas do backend
+      `${this.apiUrl}/reservas/por-periodo`, // ajustado para rotas do backend
       {
         headers: this.getHeaders(),
         params

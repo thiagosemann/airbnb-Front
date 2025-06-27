@@ -23,4 +23,5 @@ export interface ReservaAirbnb {
   qtd_hospedes?: number;
   horarioPrevistoChegada:any[];
   contagemFaxinasDiaPorFaxineira?:number;
+  pagamentos:any[];
 }
