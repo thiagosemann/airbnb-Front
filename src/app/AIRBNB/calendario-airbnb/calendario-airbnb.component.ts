@@ -70,6 +70,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
         next: (reservas) => {
+          console.log(reservas)
           // Tratar as reservas (remover bloqueios, ordenar, etc)
           this.reservasFiltradas = this.tratarReservas(reservas);
           this.credenciaisFetias = this.reservasFiltradas.filter(r => r.credencial_made).length;
@@ -84,7 +85,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   }
 
   private isBloqueado(evento: ReservaAirbnb): boolean {
-    return evento.cod_reserva.includes(evento.apartamento_nome);
+    return evento.description !== 'Reserved';
   }
 
   formatarData(dataString: string): string {
@@ -325,7 +326,6 @@ export class CalendarioAirbnbComponent implements OnInit {
       return;
     }
     this.earlyLoading = true;
-    console.log(hospede)
     const payload: any = {
       user_id: hospede?.user_id,
       apartamento_id: this.selectedReservation.apartamento_id,
