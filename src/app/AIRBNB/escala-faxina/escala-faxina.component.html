@@ -62,13 +62,36 @@
         </div>
       </div>
     </section>
-    <!-- Faxinas Esta Semana -->
+    
+    <!-- Faxinas por Período -->
     <section *ngIf="activeTab === 'futuras'">
-      <div class="faxina-cards mobile-only">
-        <div *ngIf="faxinasFuturas.length === 0" class="no-data">
-          Nenhuma faxina futura.
+      <!-- Controles de período -->
+      <div class="periodo-controles">
+        <div class="periodo-input-group">
+          <label for="dataInicio">De</label>
+          <input type="date" id="dataInicio" [(ngModel)]="dataInicio" />
         </div>
-        <div *ngFor="let faxina of faxinasFuturas"  class="faxina-card"   [class.cancelada]="faxina.description === 'CANCELADA'">
+        
+        <div class="periodo-input-group">
+          <label for="dataFim">Até</label>
+          <input type="date" id="dataFim" [(ngModel)]="dataFim" />
+        </div>
+        
+        <button (click)="pesquisarPeriodo()" class="btn-pesquisar">
+          <i class="fas fa-search"></i> Pesquisar
+        </button>
+      </div>
+
+      <div class="faxina-cards mobile-only">
+        <div *ngIf="carregandoFuturas" class="carregando">
+          Carregando...
+        </div>
+        <div *ngIf="!carregandoFuturas && faxinasFuturas.length === 0" class="no-data">
+          Nenhuma faxina encontrada para o período selecionado.
+        </div>
+        <div *ngFor="let faxina of faxinasFuturas"  
+             class="faxina-card"   
+             [class.cancelada]="faxina.description === 'CANCELADA'">
           <div class="card-header">
             <h3>Apt {{ faxina.apartamento_nome }}</h3>
             <ng-container *ngIf="faxina.description === 'CANCELADA'">

@@ -1,0 +1,89 @@
+/* Controles de Período - Design Atualizado */
+.periodo-controles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.periodo-input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 50px;
+}
+
+.periodo-controles label {
+  font-weight: 600;
+  color: #006400;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.periodo-controles input[type="date"] {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #444;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.periodo-controles input[type="date"]:focus {
+  border-color: #00a699;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 166, 153, 0.2);
+}
+
+.btn-pesquisar {
+  padding: 12px 20px;
+  background: linear-gradient(to right, #00a699, #008577);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin-top: 22px;
+}
+
+.btn-pesquisar:hover {
+  background: linear-gradient(to right, #008577, #006e60);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 118, 101, 0.25);
+}
+
+/* Ícone de pesquisa */
+.btn-pesquisar i {
+  font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .periodo-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .periodo-input-group {
+    width: 100%;
+  }
+  
+  .btn-pesquisar {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
