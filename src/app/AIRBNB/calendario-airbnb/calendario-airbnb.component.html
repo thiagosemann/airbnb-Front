@@ -56,23 +56,24 @@
     <table class="calendar-table" *ngIf="!carregando">
       <thead>
         <tr>
-          <th style="width: 7%;">Apt</th>
-          <th style="width: 15%;">Código</th>
+          <th style="width: 6%;">Site</th>
+          <th style="width: 6%;">Apt</th>
+          <th style="width: 13%;">Código</th>
           <th style="width: 8%;">Início</th>
           <th style="width: 8%;">Fim</th>
           <th style="width: 8%;">Check-In</th>
           <th style="width: 8%;">Hóspedes</th>
           <th style="width: 8%;">Credencial</th>
           <th style="width: 8%;">Informado</th>
-          <th style="width: 7%;">Docs</th>
-          <th style="width: 7%;">Early</th>
-          <th style="width: 7%;">Late</th>
-          <th style="width: 10%;">Ações</th>
-
+          <th style="width: 6%;">Docs</th>
+          <th style="width: 6%;">Early</th>
+          <th style="width: 6%;">Late</th>
+          <th style="width: 9%;">Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let event of reservasFiltradas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+         <td>{{ typeReserva(event.link_reserva) }}</td>
           <td>
             <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
           </td>

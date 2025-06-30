@@ -372,4 +372,15 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.dataFim = iso;
     this.carregarReservasPorPeriodo();
   }
+
+  typeReserva(link: string | undefined | null): string {
+    if (!link) {
+      return 'Desconhecido';
+    }
+    if (link.toLowerCase().includes('airbnb')) {
+      return 'AIRBNB';
+    } else {
+      return 'BOOKING';
+    }
+  }
 }
