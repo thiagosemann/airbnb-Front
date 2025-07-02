@@ -64,6 +64,7 @@ export class CadastroApartamentosComponent implements OnInit {
       predio_id: [''],
       nome_anuncio: [''],
       link_airbnb_calendario: [''],
+      link_booking_calendario: [''],
       link_fotos: [''],
       endereco: [''],
       bairro: [''],
@@ -191,6 +192,7 @@ export class CadastroApartamentosComponent implements OnInit {
     this.isEditing = true;
     this.showModal = true;
     this.form.patchValue(apt);
+    console.log(apt)
     this.apartamentoSelecionado = apt;
   }
 
