@@ -4,7 +4,7 @@
         <div class="header-left">
           <h5>
             <i class="fas fa-calendar-alt"></i>
-            Calendário de Reservas
+   
           </h5>
         </div>
         
@@ -30,6 +30,15 @@
               <button class="btn btn-primary" (click)="carregarReservasPorPeriodo()">
                 <i class="fas fa-filter"></i> Filtrar
               </button>
+                <div class="filtro-item" style="margin-left: 1rem;">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Buscar apt ou código..."
+                  [(ngModel)]="searchTerm"
+                  (input)="aplicarSearch()"
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -72,7 +81,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of reservasFiltradas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+        <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
          <td>{{ typeReserva(event.link_reserva) }}</td>
           <td>
             <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
@@ -128,7 +137,7 @@
             </button>
           </td>
         </tr>
-        <tr *ngIf="reservasFiltradas.length === 0">
+        <tr *ngIf="reservasExibidas.length === 0">
           <td colspan="10">Nenhuma reserva no período selecionado</td>
         </tr>
       </tbody>

@@ -203,79 +203,106 @@ export class RelatorioGanhosComponent implements OnInit {
     }
   }
 
-  aplicarFiltros(): void {
-    // 1) Filtrar pagamentos por mês e apartamento (se houver filtro)
-    this.pagamentosFiltrados = this.pagamentos.filter(p => {
-      const atendeMes = !this.mesFiltro ||
-        (p.dataReserva && new Date(p.dataReserva).toISOString().slice(0, 7) === this.mesFiltro);
+aplicarFiltros(): void {
+  // 1) Filtrar pagamentos
+  this.pagamentosFiltrados = this.pagamentos.filter(p => {
+    const atendeMes = !this.mesFiltro ||
+      (p.dataReserva && (() => {
+        const d = new Date(p.dataReserva);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        return `${y}-${m}` === this.mesFiltro;
+      })());
+    const atendeApt = this.apartamentoFiltro === 'todos' ||
+      p.apartamento_nome === this.apartamentoFiltro;
+    return atendeMes && atendeApt;
+  });
 
-      const atendeApartamento = this.apartamentoFiltro === 'todos' ||
-        (p.apartamento_nome && p.apartamento_nome === this.apartamentoFiltro);
+  // 2) **Atualiza imediatamente o resumo de limpezas**
+  this.prepararDadosLimpeza();
 
-      return atendeMes && atendeApartamento;
-    });
+  // 3) Calcular totais financeiros
+  this.totalPagamentos = this.pagamentosFiltrados.length;
+  this.totalGeralRecebido = this.pagamentosFiltrados
+    .reduce((acc, p) => acc + this.toNumber(p.valor_reserva) + this.toNumber(p.taxas), 0);
+  this.totalNoites = this.pagamentosFiltrados
+    .reduce((acc, p) => acc + (Number(p.noites) || 0), 0);
+  this.mediaPorReserva = this.totalPagamentos > 0
+    ? this.totalGeralRecebido / this.totalPagamentos
+    : 0;
 
-    // 2) Calcular totais
-    this.totalPagamentos = this.pagamentosFiltrados.length;
-    this.totalGeralRecebido = this.pagamentosFiltrados
-      .reduce((acc, p) => acc + this.toNumber(p.valor_reserva) + this.toNumber(p.taxas), 0);
+  // 4) Atualiza lista de apartamentos
+  this.listaApartamentos = this.apartamentos.map(a => a.nome).sort();
+  this.totalApartamentos = this.listaApartamentos.length;
 
-    this.totalNoites = this.pagamentosFiltrados
-      .reduce((acc, p) => acc + (Number(p.noites) || 0), 0);
+  // 5) Atualiza gráficos
+  this.prepararGraficoTodosValor();
+  this.prepararGraficoValorProprietario();
+}
 
-    this.mediaPorReserva = this.totalPagamentos > 0
-      ? this.totalGeralRecebido / this.totalPagamentos
-      : 0;
+private prepararDadosLimpeza(): void {
+  // 1) mapas auxiliares
+  const reservasPorApt: Record<string, Set<string>> = {};
+  const agrupamento: Record<string, LimpezaResumo> = {};
 
-    // 3) Preencher lista de apartamentos (todos os imóveis)
-    this.listaApartamentos = this.apartamentos.map(a => a.nome).sort();
-    this.totalApartamentos = this.listaApartamentos.length;
+  // 2) inicializa só com os apartamentos "oficiais"
+  this.apartamentos.forEach(a => {
+    reservasPorApt[a.nome] = new Set<string>();
+    agrupamento[a.nome] = {
+      apartamento_nome: a.nome,
+      quantidade: 0,
+      valorTotalRecebido: 0,
+      valorTotalLimpeza: 0
+    };
+  });
 
-    // 4) Atualizar gráfico “Todos os Apartamentos”
-    this.prepararGraficoTodosValor();
-    this.prepararGraficoValorProprietario();
+  // 3) percorre cada pagamento filtrado
+  this.pagamentosFiltrados.forEach(p => {
+    // identifica apartamento e reserva
+    const apt = p.apartamento_nome || 'Desconhecido';
+    const codigo = p.cod_reserva ?? String(p.reserva_id ?? '');
 
-    // 5) Atualizar resumo de limpezas (mesmo apartamento sem reserva entrará zerado)
-    this.prepararDadosLimpeza();
-  }
-
-  /** Gera array resumoLimpezas incluindo apartamentos sem reservas (zerados) */
-  private prepararDadosLimpeza(): void {
-    const agrupamento: Record<string, LimpezaResumo> = {};
-
-    // Inicializar todos os apartamentos com zeros
-    this.apartamentos.forEach(a => {
-      agrupamento[a.nome] = {
-        apartamento_nome: a.nome,
+    // se for um "apt" que não tinha sido inicializado, faz aqui
+    if (!agrupamento[apt]) {
+      agrupamento[apt] = {
+        apartamento_nome: apt,
         quantidade: 0,
         valorTotalRecebido: 0,
         valorTotalLimpeza: 0
       };
-    });
+      reservasPorApt[apt] = new Set<string>();
+    }
 
-    // Somar dados das reservas filtradas
+    // 3.1) soma sempre o valor recebido
+    agrupamento[apt].valorTotalRecebido +=
+      this.toNumber(p.valor_reserva) +
+      this.toNumber(p.taxas);
 
-    this.pagamentosFiltrados.forEach(p => {
-      const apt = p.apartamento_nome || 'Desconhecido';
-      if (!agrupamento[apt]) {
-        agrupamento[apt] = {
-          apartamento_nome: apt,
-          quantidade: 0,
-          valorTotalRecebido: 0,
-          valorTotalLimpeza: 0
-        };
-      }
-
+    // 3.2) só conta a limpeza se ainda não tiver contado esta reserva
+    if (codigo && !reservasPorApt[apt].has(codigo)) {
+      reservasPorApt[apt].add(codigo);
       agrupamento[apt].quantidade += 1;
-      agrupamento[apt].valorTotalRecebido += this.toNumber(p.valor_reserva) + this.toNumber(p.taxas);
-      agrupamento[apt].valorTotalLimpeza = agrupamento[apt].quantidade * 70;
-    });
+    }
 
-    // Converter objeto em array e atualizar propriedades
-    this.resumoLimpezas = Object.values(agrupamento);
-    this.qtdTotalLimpezas = this.resumoLimpezas.reduce((soma, r) => soma + r.quantidade, 0);
-    this.totalLimpezas = this.resumoLimpezas.reduce((soma, r) => soma + r.valorTotalLimpeza, 0);
-  }
+    // 3.3) recalcula valorTotalLimpeza usando o valor_unitário correto
+    const aptInfo = this.apartamentos.find(a => a.nome === apt);
+    const valorUnitario = aptInfo?.valor_limpeza ?? 0;
+    agrupamento[apt].valorTotalLimpeza =
+      agrupamento[apt].quantidade * valorUnitario;
+  });
+
+  // 4) transforma em array e filtra só quem teve limpeza
+  this.resumoLimpezas = Object.values(agrupamento)
+    .filter(r => r.quantidade > 0);
+
+  // 5) atualiza totais para exibir nos cards
+  this.qtdTotalLimpezas = this.resumoLimpezas
+    .reduce((sum, r) => sum + r.quantidade, 0);
+  this.totalLimpezas = this.resumoLimpezas
+    .reduce((sum, r) => sum + r.valorTotalLimpeza, 0);
+}
+
+
 
   /** Prepara o gráfico “Todos os Apartamentos” sem corte (sem slice) */
   private prepararGraficoTodosValor(): void {
@@ -391,39 +418,56 @@ export class RelatorioGanhosComponent implements OnInit {
   }
 
   /** Exportar XLSX contendo todos os apartamentos e seus valores totais */
-  exportarXLSXTodosValor(): void {
-    // Reconstruir o agrupamento completo (sem limitar)
-    const agrup: Record<string, number> = {};
-    this.apartamentos.forEach(a => {
-      agrup[a.nome] = 0;
-    });
-    this.pagamentosFiltrados.forEach(p => {
-      const apt = p.apartamento_nome || 'Desconhecido';
-      const valor = this.toNumber(p.valor_reserva) + this.toNumber(p.taxas);
-      agrup[apt] = (agrup[apt] || 0) + valor;
-    });
+exportarXLSXTodosValor(): void {
+  // 1) Reconstrói o agrupamento de valores
+  const valoresPorApt: Record<string, number> = {};
+  this.apartamentos.forEach(a => valoresPorApt[a.nome] = 0);
+  this.pagamentosFiltrados.forEach(p => {
+    const apt = p.apartamento_nome || 'Desconhecido';
+    valoresPorApt[apt] = (valoresPorApt[apt] || 0)
+      + this.toNumber(p.valor_reserva)
+      + this.toNumber(p.taxas);
+  });
 
-    // Converter em array e ordenar decrescente
-    const dadosParaXLSX = Object.entries(agrup)
-      .map(([apartamento_nome, total]) => ({
-        Apartamento: apartamento_nome,
-        TotalRecebido: total
-      }))
-      .sort((a, b) => b.TotalRecebido - a.TotalRecebido);
+  // 2) Monta um mapa do valor total de limpeza por apartamento
+  const valorLimpezasPorApt: Record<string, number> = {};
+  this.resumoLimpezas.forEach(r => {
+    valorLimpezasPorApt[r.apartamento_nome] = r.valorTotalLimpeza;
+  });
 
-    // Criar worksheet e workbook
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dadosParaXLSX, {
-      header: ['Apartamento', 'TotalRecebido']
-    });
-    XLSX.utils.sheet_add_aoa(ws, [['Apartamento', 'Total Recebido (R$)']], { origin: 'A1' });
-    XLSX.utils.sheet_add_json(ws, dadosParaXLSX, { origin: 'A2', skipHeader: true });
+  // 3) Prepara o array com as colunas: Apartamento, TotalRecebido, ValorLimpezas e ValorLiquido
+  const dadosParaXLSX = Object.entries(valoresPorApt)
+    .map(([apartamento, totalRecebido]) => {
+      const valorLimpezas = valorLimpezasPorApt[apartamento] || 0;
+      const valorLiquido = totalRecebido - valorLimpezas;
+      return {
+        Apartamento: apartamento,
+        TotalRecebido: totalRecebido,
+        ValorLimpezas: valorLimpezas,
+        ValorLiquido: valorLiquido
+      };
+    })
+    .sort((a, b) => b.TotalRecebido - a.TotalRecebido);
 
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Todos_Apt_Valor');
+  // 4) Cria a planilha com o header adequado
+  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dadosParaXLSX, {
+    header: ['Apartamento', 'TotalRecebido', 'ValorLimpezas', 'ValorLiquido']
+  });
+  XLSX.utils.sheet_add_aoa(ws, [[
+    'Apartamento',
+    'Total Recebido (R$)',
+    'Valor Limpezas (R$)',
+    'Valor Líquido (R$)'
+  ]], { origin: 'A1' });
+  XLSX.utils.sheet_add_json(ws, dadosParaXLSX, { origin: 'A2', skipHeader: true });
 
-    const nomeArquivo = `apartamentos_valor_${new Date().toISOString().slice(0, 10)}.xlsx`;
-    XLSX.writeFile(wb, nomeArquivo);
-  }
+  // 5) Monta o workbook e dispara o download
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Todos_Apt_Valor');
+
+  const nomeArquivo = `apartamentos_valor_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  XLSX.writeFile(wb, nomeArquivo);
+}
 
   /** Exportar CSV para Limpezas (mantido como antes) */
   exportarCSVLimpezas(): void {

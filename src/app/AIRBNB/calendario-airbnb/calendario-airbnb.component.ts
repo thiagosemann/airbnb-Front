@@ -32,6 +32,8 @@ export class CalendarioAirbnbComponent implements OnInit {
   // Datas para filtro
   dataInicio: string;
   dataFim: string;
+  searchTerm: string = '';
+  reservasExibidas: ReservaAirbnb[] = [];
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
@@ -70,10 +72,11 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
         next: (reservas) => {
-          console.log(reservas)
-          // Tratar as reservas (remover bloqueios, ordenar, etc)
-          this.reservasFiltradas = this.tratarReservas(reservas);
+          this.todasReservas = this.tratarReservas(reservas);
+          this.reservasFiltradas = [...this.todasReservas];
           this.credenciaisFetias = this.reservasFiltradas.filter(r => r.credencial_made).length;
+          // aplica busca inicial (vazia)
+          this.aplicarSearch();
           this.carregando = false;
         },
         error: (error) => {
@@ -82,6 +85,17 @@ export class CalendarioAirbnbComponent implements OnInit {
           this.toastr.error('Erro ao carregar reservas');
         }
       });
+  }
+  aplicarSearch(): void {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) {
+      this.reservasExibidas = [...this.reservasFiltradas];
+    } else {
+      this.reservasExibidas = this.reservasFiltradas.filter(r =>
+        (r.apartamento_nome  ?? '').toLowerCase().includes(term)
+        || (r.cod_reserva     ?? '').toLowerCase().includes(term)
+      );
+    }
   }
 
   private isBloqueado(evento: ReservaAirbnb): boolean {
