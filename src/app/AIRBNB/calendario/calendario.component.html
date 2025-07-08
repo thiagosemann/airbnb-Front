@@ -1,1 +1,144 @@
-<p>calendario works!</p>
+<div class="calendar-container">
+  <!-- Header Section -->
+  <ng-container class="header-container">
+    <div class="calendar-header">
+      <!-- Navigation -->
+      <ng-container class="navigation-container">
+        <div class="navigation">
+          <button class="nav-button" (click)="changeMonth(-1)">‹</button>
+          <h2 class="current-month">{{ currentMonth }} {{ currentYear }}</h2>
+          <button class="nav-button" (click)="changeMonth(1)">›</button>
+        </div>
+      </ng-container>
+      
+      <!-- View Options -->
+      <ng-container class="view-options-container">
+        <div class="view-options">
+          <button class="view-option" [class.active]="viewMode === 'global'" (click)="setViewMode('global')">Visão Global</button>
+          <button class="view-option" [class.active]="viewMode === 'detail'" (click)="setViewMode('detail')" *ngIf="selectedApartmentId">Detalhes</button>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- Global View Section -->
+  <ng-container class="global-view-container" *ngIf="viewMode === 'global'">
+    <div class="global-view">
+      <div class="table-scroll-container" #scrollContainer>
+        <div class="table-container">
+          
+          <!-- Table Header -->
+          <ng-container class="table-header-container">
+            <div class="table-header">
+              <div class="apartments-header">
+                <ng-container class="search-container-wrapper">
+                  <div class="search-container">
+                    <input type="text" 
+                          [(ngModel)]="searchTerm" 
+                          (input)="filterApartments()"
+                          placeholder="Buscar apartamento..."
+                          class="search-input">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                  </div>
+                </ng-container>
+              </div>
+              
+              <div class="days-header-scroll">
+                <ng-container class="days-header-container">
+                  <div class="days-header">
+                    <div class="day-header" *ngFor="let day of daysInMonthRange">
+                      <div class="week-day">{{ getWeekDay(day) }}</div>
+                      <div class="month-day" [class.today]="isToday(day)">{{ day.getDate() }}</div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Table Body -->
+          <ng-container class="table-body-container">
+            <div class="table-body">
+              <div *ngFor="let apt of filteredApartments" class="apartment-row">
+                <ng-container class="apartment-cell-container">
+                  <div class="apartment-cell">
+                    <div class="apartment-info" [class.selected]="apt.id === selectedApartmentId" (click)="selectApartment(apt.id)">
+                      <div class="apartment-color" [style.background]="apt.color"></div>
+                      <div class="apartment-name">{{ apt.name }}</div>
+                    </div>
+                  </div>
+                </ng-container>
+                
+                <ng-container class="day-cells-container">
+                  <div class="day-cell" 
+                      *ngFor="let day of daysInMonthRange"
+                      [ngClass]="getDayType(apt, day)">
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Detail View Section -->
+  <ng-container class="detail-view-container" *ngIf="viewMode === 'detail' && selectedApartment">
+    <div class="detail-view">
+      
+      <!-- Apartment Header -->
+      <ng-container class="apartment-header-container">
+        <div class="apartment-header">
+          <div class="apartment-color" [style.background]="selectedApartment.color"></div>
+          <h3 class="apartment-title">{{ selectedApartment.name }}</h3>
+          <span class="status-badge"
+                [ngClass]="{
+                  'available': selectedApartment.status === 'Disponível',
+                  'occupied': selectedApartment.status === 'Ocupado',
+                  'maintenance': selectedApartment.status === 'Manutenção'
+                }">
+            {{ selectedApartment.status }}
+          </span>
+        </div>
+      </ng-container>
+      
+      <!-- Calendar Grid -->
+      <ng-container class="calendar-grid-container">
+        <div class="calendar-wrapper">
+          <div class="calendar-grid-header">
+            <div class="day-header" *ngFor="let day of weekDays">{{ day }}</div>
+          </div>
+          <div class="calendar-grid-body" #detailScroll>
+            <div class="day-cell"
+                *ngFor="let day of calendarDays"
+                [class.outside-month]="!day.isCurrentMonth"
+                [class.today]="isToday(day.date)">
+              <div class="day-number">{{ day.date.getDate() }}</div>
+              <div class="reservation-event"
+                  *ngFor="let event of day.events"
+                  [style.background]="event.color">
+                <div class="event-title">{{ event.title }}</div>
+                <div class="event-dates">{{ event.start }} - {{ event.end }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      
+      <!-- Legend -->
+      <ng-container class="legend-container-wrapper">
+        <div class="legend-container">
+          <div class="legend-item">
+            <div class="legend-color booking"></div>
+            <span>Booking</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color airbnb"></div>
+            <span>Airbnb</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>

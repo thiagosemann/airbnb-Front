@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
 
   navBarAirbnb: string[] = [
     'calendarioAirbnb',
+    'calendario',
     'cadastroPredio',
     'cadastroApartamento',
     'cadastroUsuario',
