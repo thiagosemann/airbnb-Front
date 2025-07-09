@@ -53,7 +53,7 @@ type DayType =
 @Component({
   selector: 'app-calendario',
   templateUrl: './calendario.component.html',
-  styleUrls: ['./calendario.component.css']
+  styleUrls: ['./calendario.component.css','./calendario2.component.css','./calendario3.component.css']
 })
 export class CalendarioComponent implements OnInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;

@@ -12,14 +12,19 @@
       <ng-container *ngIf="user.role === 'admin'">
         <div class="navbar-nav ms-auto">
     <!-- Calendário -->
-    <button class="navbar-perfil-btn" (click)="calendarioAirbnb()">
-      <i class="fas fa-home"></i> Calendário
-    </button>
+    <div class="dropdown">
+      <button class="navbar-perfil-btn dropdown-toggle" type="button">
+        <i class="fas fa-home"></i> Calendário
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
+        <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
+      </ul>
+    </div>
 
     <!-- Faxinas -->
     <div class="dropdown">
       <button class="navbar-perfil-btn dropdown-toggle" type="button">
-
         <i class="fas fa-broom"></i> Faxinas
       </button>
       <ul class="dropdown-menu">
@@ -94,13 +99,13 @@
     </div>
     <div class="mobile-nav">
        <ng-container *ngIf="user.role === 'admin'">
-        <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
+        <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Diário</button>
+        <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
         <button (click)="escalaFaxinaAdmin(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
         <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
         <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
         <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
         <button (click)="cadastroPortarias(); toggleMenu()"><i class="fas fa-gear"></i> Portarias</button>
-        
         <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
         <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vistoria</button>
         <button (click)="controleVistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Controle Vistoria</button>

@@ -34,6 +34,9 @@ export class NavBarAirbnbComponent {
   calendarioAirbnb(): void {
     this.router.navigate(['/calendarioAirbnb']);
   }
+  calendarioMisto(): void {
+    this.router.navigate(['/calendario']);
+  }
   cadastroPredio(): void {
     this.router.navigate(['/cadastroPredio']);
   }

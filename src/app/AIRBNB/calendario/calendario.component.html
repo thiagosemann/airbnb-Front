@@ -69,10 +69,50 @@
                   </div>
                 </ng-container>
                 
-                <ng-container class="day-cells-container">
-                  <div class="day-cell" 
-                      *ngFor="let day of daysInMonthRange"
-                      [ngClass]="getDayType(apt, day)">
+                <ng-container>
+                  <div class="day-cell" *ngFor="let day of daysInMonthRange" >
+                     <ng-container *ngIf="getDayType(apt, day)=='inAir'">
+                          <div class="day-cell-inAir"></div>
+                     </ng-container>
+                     <ng-container *ngIf="getDayType(apt, day)=='inBook'">
+                          <div class="day-cell-inBook"></div>
+                     </ng-container>
+                     <ng-container *ngIf="getDayType(apt, day)=='outAir'">
+                          <div class="day-cell-outAir"></div>
+                     </ng-container>
+                     <ng-container *ngIf="getDayType(apt, day)=='outBook'">
+                          <div class="day-cell-outBook"></div>
+                     </ng-container>
+                     <ng-container *ngIf="getDayType(apt, day)=='air'">
+                          <div class="day-cell-air"></div>
+                     </ng-container>
+                    <ng-container *ngIf="getDayType(apt, day)=='book'">
+                          <div class="day-cell-book"></div>
+                     </ng-container>
+                    <ng-container *ngIf="getDayType(apt, day)=='inOutAir'">
+                        <div class="in-out-container">
+                          <div class="half half-out" style="background: #EF4444;"></div> 
+                          <div class="half half-in"  style="background: #EF4444;"></div> 
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="getDayType(apt, day)=='inOutBook'">
+                        <div class="in-out-container">
+                          <div class="half half-out" style="background: #3B82F6;"></div> 
+                          <div class="half half-in"  style="background: #3B82F6;"></div> 
+                        </div>
+                     </ng-container>
+                      <ng-container *ngIf="getDayType(apt, day)=='inAirOutBook'">
+                               <div class="in-out-container">
+                        <div class="half half-out"  style="background: #EF4444;"></div> 
+                        <div class="half half-in"   style="background: #3B82F6;"></div> 
+                      </div>
+                     </ng-container>
+                      <ng-container *ngIf="getDayType(apt, day)=='inBookOutAir'">
+                        <div class="in-out-container">
+                          <div class="half half-out" style="background: #3B82F6;"></div>
+                          <div class="half half-in"  style="background: #EF4444;"></div>
+                        </div>
+                     </ng-container>
                   </div>
                 </ng-container>
               </div>
