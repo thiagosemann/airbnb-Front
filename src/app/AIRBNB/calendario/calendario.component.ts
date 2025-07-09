@@ -6,6 +6,7 @@ import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 
 interface Apartment {
   id: number;
+  predioId: number;       
   name: string;
   color: string;
   status: string;
@@ -81,6 +82,11 @@ export class CalendarioComponent implements OnInit {
   dataInicio: string;
   dataFim: string;
 
+  showDayTooltip = false;
+  tooltipPosition = { x: 0, y: 0 };
+  dayStats = { checkins: 0, checkouts: 0 };
+  currentHoverDay: Date | null = null;
+
   constructor(
     private apartamentoService: ApartamentoService,
     private reservasAirbnbService: ReservasAirbnbService
@@ -122,46 +128,125 @@ export class CalendarioComponent implements OnInit {
     );
   }
 
-loadData(): void {
-  this.loading = true;
-  this.apartamentoService.getAllApartamentos().subscribe({
-    next: (apts) => {
-      this.apartments = apts.map(a => ({
-        id: a.id,
-        name: a.nome,
-        color: this.getRandomColor(),
-        status: 'Disponível',
-        reservations: []
-      }));
 
-      this.reservasAirbnbService
-        .getReservasPorPeriodoCalendario(this.dataInicio, this.dataFim)
-        .subscribe({
-          next: (reservas: ReservaAirbnb[]) => {
-            // filtra apenas as reservas com description === 'Reserved'
-            const apenasReserved = reservas.filter(r =>
-              r.description &&
-              r.description.toLowerCase() === 'reserved'
-            );
-            console.log('Reservas válidas:', apenasReserved);
-            this.mapReservations(apenasReserved);
-            this.filteredApartments = [...this.apartments];
-            this.loading = false;
-            setTimeout(() => this.syncScroll(), 100);
-          },
-          error: () => this.loading = false
+  loadData(): void {
+    this.loading = true;
+    this.apartamentoService.getAllApartamentos().subscribe({
+      next: (apts) => {
+        // passo 1: extrair dados brutos e incluir predioId
+        const raw = apts.map(a => ({
+          id: a.id,
+          predioId: a.predio_id,      // <— vindo do back
+          name: a.nome,
+          status: 'Disponível',
+          reservations: [] as CalendarReservation[]
+        }));
+
+        // passo 2: para cada prédio único, gerar uma cor fixa
+        const predios = Array.from(new Set(raw.map(r => r.predioId)));
+        const buildingColors = new Map<number, string>();
+        predios.forEach((pId, idx) => {
+          // cores cíclicas ou definidas
+            const palette = [
+              '#3B82F6', // azul
+              '#EF4444', // vermelho
+              '#10B981', // verde
+              '#F59E0B', // laranja
+              '#8B5CF6', // roxo
+              '#EC4899', // rosa
+              '#06B6D4', // ciano
+              '#D97706', // âmbar escuro
+              '#059669', // verde escuro
+              '#9333EA', // violeta escuro
+              '#DC2626', // vermelho escuro
+              '#2563EB'  // azul escuro
+            ];
+            buildingColors.set(pId, palette[idx % palette.length]);
         });
-    },
-    error: () => this.loading = false
-  });
-}
 
+        // passo 3: montar o this.apartments já com cor por prédio
+        this.apartments = raw
+          .map(r => ({
+            ...r,
+            color: buildingColors.get(r.predioId)!   // cor baseada no prédio
+          }))
+          // passo 4: ordenar por predioId e depois por nome
+          .sort((a, b) => {
+            if (a.predioId !== b.predioId) {
+              return a.predioId - b.predioId;
+            }
+            return a.name.localeCompare(b.name);
+          });
 
-  private getRandomColor(): string {
-    const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#EF4444', '#06B6D4'];
-    return colors[Math.floor(Math.random() * colors.length)];
+        // passo 5: carregar reservas do backend
+        this.reservasAirbnbService
+          .getReservasPorPeriodoCalendario(this.dataInicio, this.dataFim)
+          .subscribe({
+            next: (reservas: ReservaAirbnb[]) => {
+              const apenasReserved = reservas.filter(r =>
+                r.description?.toLowerCase() === 'reserved'
+              );
+              this.mapReservations(apenasReserved);
+              this.filteredApartments = [...this.apartments];
+              this.loading = false;
+              setTimeout(() => this.syncScroll(), 100);
+            },
+            error: () => this.loading = false
+          });
+      },
+      error: () => this.loading = false
+    });
   }
 
+
+  // Método para calcular estatísticas do dia
+calculateDayStats(day: Date): void {
+  const ts = new Date(day).setHours(0, 0, 0, 0);
+  let checkins = 0;
+  let checkouts = 0;
+
+  this.apartments.forEach(apt => {
+    apt.reservations.forEach(r => {
+      const startTs = new Date(r.start).setHours(0, 0, 0, 0);
+      const endTs = new Date(r.end).setHours(0, 0, 0, 0);
+      
+      if (startTs === ts) checkins++;
+      if (endTs === ts) checkouts++;
+    });
+  });
+
+  this.dayStats = { checkins, checkouts };
+}
+
+// Mostrar tooltip
+showDayTooltipAt(event: MouseEvent, day: Date): void {
+  this.currentHoverDay = day;
+  this.calculateDayStats(day);
+  
+  this.tooltipPosition = {
+    x: event.clientX,
+    y: event.clientY - 40
+  };
+  
+  this.showDayTooltip = true;
+  
+  // Adiciona classe para animação após um pequeno delay
+  setTimeout(() => {
+    const tooltip = document.querySelector('.day-tooltip');
+    if (tooltip) tooltip.classList.add('show');
+  }, 10);
+}
+
+// Esconder tooltip
+hideDayTooltip(): void {
+  const tooltip = document.querySelector('.day-tooltip');
+  if (tooltip) tooltip.classList.remove('show');
+  
+  setTimeout(() => {
+    this.showDayTooltip = false;
+    this.currentHoverDay = null;
+  }, 200);
+}
   syncScroll(): void {
     const container = this.scrollContainer?.nativeElement;
     if (container) {

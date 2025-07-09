@@ -159,3 +159,44 @@
 
 .detail-legend-dot.booking { background: #3B82F6; }
 .detail-legend-dot.airbnb  { background: #EF4444; }
+/* cor de background suave para toda a linha */
+/* TOOLTIP ESTILOS */
+.day-tooltip {
+  position: fixed;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  pointer-events: none;
+  min-width: 140px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.day-tooltip.show {
+  opacity: 1;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tooltip-label {
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  color: #1f2937;
+}

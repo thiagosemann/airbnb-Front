@@ -1,4 +1,19 @@
 <div class="calendar-container">
+  <!-- Tooltip para informações do dia -->
+<div class="day-tooltip" *ngIf="showDayTooltip" 
+     [style.left.px]="tooltipPosition.x" 
+     [style.top.px]="tooltipPosition.y">
+  <div class="tooltip-content">
+    <div class="tooltip-row">
+      <span class="tooltip-label">Check-ins:</span>
+      <span class="tooltip-value">{{ dayStats.checkins }}</span>
+    </div>
+    <div class="tooltip-row">
+      <span class="tooltip-label">Check-outs:</span>
+      <span class="tooltip-value">{{ dayStats.checkouts }}</span>
+    </div>
+  </div>
+</div>
   <!-- Header Section -->
   <ng-container class="header-container">
     <div class="calendar-header">
@@ -45,10 +60,14 @@
               
               <div class="days-header-scroll">
                 <ng-container class="days-header-container">
-                  <div class="days-header">
-                    <div class="day-header" *ngFor="let day of daysInMonthRange">
-                      <div class="week-day">{{ getWeekDay(day) }}</div>
-                      <div class="month-day" [class.today]="isToday(day)">{{ day.getDate() }}</div>
+                  <div class="days-header" (mouseleave)="hideDayTooltip()" >
+                    <div class="day-header" 
+                        *ngFor="let day of daysInMonthRange" 
+                        [class.today-cell]="isToday(day)"
+                        (mouseenter)="showDayTooltipAt($event, day)"
+                        >
+                      <div class="week-day" [class.today-week]="isToday(day)">{{ getWeekDay(day) }}</div>
+                      <div class="month-day" [class.today-day]="isToday(day)">{{ day.getDate() }}</div>
                     </div>
                   </div>
                 </ng-container>
