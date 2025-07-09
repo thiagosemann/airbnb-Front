@@ -135,9 +135,9 @@ loadData(): void {
       }));
 
       this.reservasAirbnbService
-        .getReservasPorPeriodo(this.dataInicio, this.dataFim)
+        .getReservasPorPeriodoCalendario(this.dataInicio, this.dataFim)
         .subscribe({
-          next: (reservas) => {
+          next: (reservas: ReservaAirbnb[]) => {
             // filtra apenas as reservas com description === 'Reserved'
             const apenasReserved = reservas.filter(r =>
               r.description &&

@@ -101,6 +101,18 @@ export class ReservasAirbnbService {
     );
   }
 
+getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
+  const params = new HttpParams()
+    .set('start', startDate)
+    .set('end', endDate);
 
+  return this.http.get<ReservaAirbnb[]>(
+    `${this.apiUrl}/reservas/por-periodo-calendario`,
+    {
+      headers: this.getHeaders(),
+      params
+    }
+  );
+}
 
 }
