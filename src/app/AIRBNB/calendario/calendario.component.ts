@@ -35,6 +35,8 @@ interface CalendarEvent {
   color: string;
   start: string;
   end: string;
+  cod_reserva: string;
+  source: 'airbnb' | 'booking';
 }
 type DayType =
   | 'none'
@@ -253,17 +255,19 @@ loadData(): void {
 
     return this.selectedApartment.reservations
       .filter(r => {
-        const start = new Date(r.start); start.setHours(0,0,0,0);
-        const end = new Date(r.end); end.setHours(0,0,0,0);
-        const target = new Date(dayDate); target.setHours(0,0,0,0);
+        const start = new Date(r.start).setHours(0,0,0,0);
+        const end   = new Date(r.end).setHours(0,0,0,0);
+        const target= new Date(dayDate).setHours(0,0,0,0);
         return target >= start && target <= end;
       })
       .map(r => ({
         id: r.id,
         title: r.title,
         color: r.color,
-        start: this.formatDate(r.start),
-        end: this.formatDate(r.end)
+        start: r.start instanceof Date ? r.start.toISOString() : r.start,
+        end: r.end instanceof Date ? r.end.toISOString() : r.end,
+        cod_reserva: r.cod_reserva,
+        source: r.link.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
       }));
   }
 

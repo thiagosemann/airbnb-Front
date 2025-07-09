@@ -36,7 +36,7 @@
                     <input type="text" 
                           [(ngModel)]="searchTerm" 
                           (input)="filterApartments()"
-                          placeholder="Buscar apartamento..."
+                          placeholder="Buscar apt..."
                           class="search-input">
                     <span class="search-icon"><i class="fas fa-search"></i></span>
                   </div>
@@ -123,62 +123,60 @@
     </div>
   </ng-container>
 
-  <!-- Detail View Section -->
-  <ng-container class="detail-view-container" *ngIf="viewMode === 'detail' && selectedApartment">
-    <div class="detail-view">
-      
-      <!-- Apartment Header -->
-      <ng-container class="apartment-header-container">
-        <div class="apartment-header">
-          <div class="apartment-color" [style.background]="selectedApartment.color"></div>
-          <h3 class="apartment-title">{{ selectedApartment.name }}</h3>
-          <span class="status-badge"
-                [ngClass]="{
-                  'available': selectedApartment.status === 'Disponível',
-                  'occupied': selectedApartment.status === 'Ocupado',
-                  'maintenance': selectedApartment.status === 'Manutenção'
-                }">
-            {{ selectedApartment.status }}
-          </span>
-        </div>
-      </ng-container>
-      
-      <!-- Calendar Grid -->
-      <ng-container class="calendar-grid-container">
-        <div class="calendar-wrapper">
-          <div class="calendar-grid-header">
-            <div class="day-header" *ngFor="let day of weekDays">{{ day }}</div>
-          </div>
-          <div class="calendar-grid-body" #detailScroll>
-            <div class="day-cell"
-                *ngFor="let day of calendarDays"
-                [class.outside-month]="!day.isCurrentMonth"
-                [class.today]="isToday(day.date)">
-              <div class="day-number">{{ day.date.getDate() }}</div>
-              <div class="reservation-event"
-                  *ngFor="let event of day.events"
-                  [style.background]="event.color">
-                <div class="event-title">{{ event.title }}</div>
-                <div class="event-dates">{{ event.start }} - {{ event.end }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-      
-      <!-- Legend -->
-      <ng-container class="legend-container-wrapper">
-        <div class="legend-container">
-          <div class="legend-item">
-            <div class="legend-color booking"></div>
-            <span>Booking</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color airbnb"></div>
-            <span>Airbnb</span>
-          </div>
-        </div>
-      </ng-container>
+<!-- DETAIL VIEW CUSTOM PARA ESTA TELA -->
+<ng-container class="detail-view-container" *ngIf="viewMode === 'detail' && selectedApartment">
+  <div class="detail-root">
+
+    <!-- CABEÇALHO FIXO PERSONALIZADO -->
+    <div class="detail-header">
+      <div class="detail-apartment-info">
+        <div class="detail-apartment-dot" [style.background]="selectedApartment.color"></div>
+        <div class="detail-apartment-title">{{ selectedApartment.name }}</div>
+        <span class="detail-badge"
+              [ngClass]="{
+                'detail-available': selectedApartment.status === 'Disponível',
+                'detail-occupied': selectedApartment.status === 'Ocupado',
+                'detail-maintenance': selectedApartment.status === 'Manutenção'
+              }">
+          {{ selectedApartment.status }}
+        </span>
+      </div>
     </div>
-  </ng-container>
+
+    <!-- GRADE DO CALENDÁRIO DETALHADO -->
+    <div class="detail-calendar-container">
+      <div class="detail-weekdays-header">
+        <div class="detail-weekday" *ngFor="let w of weekDays">{{ w }}</div>
+      </div>
+      <div class="detail-days-body" #detailScroll>
+        <div class="detail-day-cell"
+             *ngFor="let day of calendarDays"
+             [class.detail-outside]="!day.isCurrentMonth"
+             [class.detail-today]="isToday(day.date)">
+          <div class="detail-day-number">{{ day.date.getDate() }}</div>
+          <ng-container *ngFor="let ev of day.events">
+            <div
+              class="detail-event"
+              [ngClass]="ev.source === 'airbnb' ? 'event-airbnb' : 'event-booking'">
+              {{ ev.cod_reserva }}
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGENDA SEPARADA -->
+    <div class="detail-legend">
+      <div class="detail-legend-item">
+        <div class="detail-legend-dot booking"></div><span>Booking</span>
+      </div>
+      <div class="detail-legend-item">
+        <div class="detail-legend-dot airbnb"></div><span>Airbnb</span>
+      </div>
+    </div>
+
+  </div>
+</ng-container>
+
+
 </div>

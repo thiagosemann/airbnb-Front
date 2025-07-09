@@ -1,157 +1,161 @@
-/* ==============================
-   VISÃO DETALHADA - CALENDÁRIO
-   ============================== */
-.detail-view {
+/* CSS DETALHADO SEPARADO */
+.detail-root {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  padding: 20px;
+  height: 100%;
+  background: #fff;
   overflow: hidden;
-  background: #ffffff;
 }
 
-.apartment-header {
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.detail-nav {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
-.apartment-header .apartment-color {
+.detail-nav-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+.detail-nav-button:hover {
+  background: #F3F4F6;
+}
+
+.detail-current-month {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.detail-apartment-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.detail-apartment-dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
 }
-
-.apartment-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
+.detail-apartment-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1f2937;
 }
-
-.status-badge {
-  padding: 4px 12px;
+.detail-badge {
+  padding: 4px 10px;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 500;
 }
+.detail-available   { background: #10B981; color: #fff; }
+.detail-occupied    { background: #EF4444; color: #fff; }
+.detail-maintenance { background: #F59E0B; color: #fff; }
 
-.status-badge.available   { background-color: #10B981; color: #ffffff; }
-.status-badge.occupied    { background-color: #EF4444; color: #ffffff; }
-.status-badge.maintenance { background-color: #F59E0B; color: #ffffff; }
-
-.calendar-wrapper {
-  display: flex;
-  flex-direction: column;
+.detail-calendar-container {
   flex: 1;
+  margin: 10px 16px;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.calendar-grid-header {
+.detail-weekdays-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: #F9FAFB;
   border-bottom: 1px solid #E5E7EB;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
-
-.calendar-grid-header .day-header {
+.detail-weekday {
   padding: 12px 0;
   text-align: center;
   font-weight: 600;
+  font-size: 0.95rem;
   color: #6B7280;
   border-right: 1px solid #E5E7EB;
 }
-
-.calendar-grid-header .day-header:last-child {
+.detail-weekday:last-child {
   border-right: none;
 }
 
-.calendar-grid-body {
+.detail-days-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   flex: 1;
   overflow-y: auto;
 }
-
-.calendar-grid-body .day-cell {
-  min-height: 100px;
-  padding: 8px;
+.detail-day-cell {
+  min-height: 80px;
+  padding: 6px;
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
   position: relative;
-  background: #FFFFFF;
+  background: #fff;
 }
-
-.calendar-grid-body .day-cell:last-child {
-  border-right: none;
-}
-
-.calendar-grid-body .day-cell.outside-month {
+.detail-day-cell.detail-outside {
   background: #F3F4F6;
   color: #9CA3AF;
 }
-
-.calendar-grid-body .day-cell.today {
+.detail-day-cell.detail-today {
+  background: #EFF6FF;
   outline: 2px solid #3B82F6;
 }
-
-.day-number {
+.detail-day-number {
   font-weight: 600;
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 2;
+  margin-bottom: 6px;
 }
 
-.reservation-event {
+.detail-event {
   margin-bottom: 4px;
-  padding: 4px;
+  padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.85rem;
+  color: #fff;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  position: relative;
-  z-index: 2;
 }
 
-.event-title {
-  font-weight: 500;
-}
-
-.event-dates {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-/* ==============================
-   LEGENDA
-   ============================== */
-.legend-container {
+.detail-legend {
   display: flex;
+  justify-content: flex-end;
   gap: 20px;
-  padding: 15px 20px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
 }
-
-.legend-item {
+.detail-legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
-  color: #4b5563;
+  color: #4B5563;
 }
-
-.legend-color {
-  width: 20px;
-  height: 20px;
+.detail-legend-dot {
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
 }
+.detail-event.event-airbnb   { background-color: #EF4444; }
+.detail-event.event-booking  { background-color: #3B82F6; }
 
-.legend-color.booking { background: #3B82F6; }
-.legend-color.airbnb  { background: #EF4444; }
+.detail-legend-dot.booking { background: #3B82F6; }
+.detail-legend-dot.airbnb  { background: #EF4444; }

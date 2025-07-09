@@ -11,7 +11,7 @@
 }
 
 .apartment-cell {
-  width: 250px;
+  width: 180px;
   padding: 0 15px;
   flex-shrink: 0;
   display: flex;
