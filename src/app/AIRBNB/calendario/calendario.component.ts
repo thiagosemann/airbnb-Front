@@ -66,6 +66,7 @@ export class CalendarioComponent implements OnInit {
 
   selectedApartmentId: number | null = null;
   selectedApartment: Apartment | null = null;
+  selectedDay: Date | null = null;
 
   weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   viewMode: 'global' | 'detail' = 'global';
@@ -86,6 +87,11 @@ export class CalendarioComponent implements OnInit {
   tooltipPosition = { x: 0, y: 0 };
   dayStats = { checkins: 0, checkouts: 0 };
   currentHoverDay: Date | null = null;
+
+  // Novas propriedades para ocupação
+  totalDiasDisponiveis: number = 0;
+  totalDiasReservados: number = 0;
+  taxaOcupacao: number = 0;
 
   constructor(
     private apartamentoService: ApartamentoService,
@@ -117,16 +123,27 @@ export class CalendarioComponent implements OnInit {
   }
 
   filterApartments(): void {
-    if (!this.searchTerm) {
-      this.filteredApartments = [...this.apartments];
-      return;
+    let filtered = [...this.apartments];
+    
+    // 1) filtro por nome
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(apt =>
+        apt.name.toLowerCase().includes(term)
+      );
     }
 
-    const term = this.searchTerm.toLowerCase();
-    this.filteredApartments = this.apartments.filter(apt =>
-      apt.name.toLowerCase().includes(term)
-    );
+   
+    // 3) filtro por intervalo de datas (dataInicio & dataFim)
+    if (this.dataInicio && this.dataFim) {
+      filtered = filtered.filter(apt =>
+        this.isApartmentFreeInRange(apt, this.dataInicio, this.dataFim)
+      );
+    }
+    
+    this.filteredApartments = filtered;
   }
+
 
 
   loadData(): void {
@@ -187,6 +204,7 @@ export class CalendarioComponent implements OnInit {
                 r.description?.toLowerCase() === 'reserved'
               );
               this.mapReservations(apenasReserved);
+              this.calcularOcupacao();
               this.filteredApartments = [...this.apartments];
               this.loading = false;
               setTimeout(() => this.syncScroll(), 100);
@@ -452,4 +470,84 @@ hideDayTooltip(): void {
       return 'none';
     }
 
+    private calcularOcupacao(): void {
+      // Resetar contadores
+      this.totalDiasDisponiveis = 0;
+      this.totalDiasReservados = 0;
+      
+      // Calcular dias disponíveis (apartamentos × dias no mês)
+      this.totalDiasDisponiveis = this.apartments.length * this.daysInMonthRange.length;
+      
+      // Calcular dias reservados
+      this.apartments.forEach(apt => {
+        apt.reservations.forEach(reserva => {
+          const start = new Date(reserva.start);
+          const end = new Date(reserva.end);
+          
+          // Filtrar apenas reservas dentro do mês atual
+          const mesAtual = this.currentDate.getMonth();
+          const anoAtual = this.currentDate.getFullYear();
+          
+          if (
+            (start.getMonth() === mesAtual && start.getFullYear() === anoAtual) ||
+            (end.getMonth() === mesAtual && end.getFullYear() === anoAtual)
+          ) {
+            // Calcular dias da reserva dentro do mês atual
+            const dataInicio = start < new Date(anoAtual, mesAtual, 1) 
+              ? new Date(anoAtual, mesAtual, 1) 
+              : start;
+            
+            const dataFim = end > new Date(anoAtual, mesAtual + 1, 0)
+              ? new Date(anoAtual, mesAtual + 1, 0)
+              : end;
+            
+            const diff = Math.ceil(
+              (dataFim.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24)
+            ) + 1;
+            
+            this.totalDiasReservados += diff;
+          }
+        });
+      });
+      
+      // Calcular taxa de ocupação
+      this.taxaOcupacao = this.totalDiasDisponiveis > 0 
+        ? this.totalDiasReservados / this.totalDiasDisponiveis
+        : 0;
+    }
+
+
+    // Verifica se o apartamento está livre em um dia específico
+  isApartmentFree(apt: Apartment, day: Date): boolean {
+    const ts = day.getTime();
+    
+    for (const r of apt.reservations) {
+      const startTs = new Date(r.start).setHours(0,0,0,0);
+      const endTs = new Date(r.end).setHours(0,0,0,0);
+      
+      // Se o dia está dentro do período de reserva, não está livre
+      if (ts >= startTs && ts <= endTs) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  isApartmentFreeInRange(apt: Apartment, startStr: string, endStr: string): boolean {
+    const start = new Date(startStr).setHours(0,0,0,0);
+    const end   = new Date(endStr).setHours(0,0,0,0);
+    
+    // percorre todas as reservas procurando conflitos
+    for (const r of apt.reservations) {
+      const rStart = new Date(r.start).setHours(0,0,0,0);
+      const rEnd   = new Date(r.end).setHours(0,0,0,0);
+      
+      // há sobreposição se (rStart ≤ end) e (rEnd ≥ start)
+      if (rStart <= end && rEnd >= start) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

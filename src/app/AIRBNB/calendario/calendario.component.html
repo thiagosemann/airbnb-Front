@@ -25,7 +25,47 @@
           <button class="nav-button" (click)="changeMonth(1)">›</button>
         </div>
       </ng-container>
-      
+         <!-- Card de Taxa de Ocupação -->
+      <div class="occupancy-card" *ngIf="viewMode === 'global'">
+        <div class="occupancy-stats">
+          <div class="occupancy-header">
+            <label for="dataInicio" style="margin-right: 5px;">Início:</label>
+            <input id="dataInicio" type="date"
+                  [(ngModel)]="dataInicio"
+                  class="date-input" />
+          </div>
+          <div class="occupancy-header">
+            <label for="dataFim" style="margin-right: 5px;">Fim:</label>
+            <input id="dataFim" type="date"
+                  [(ngModel)]="dataFim"
+                  class="date-input" />
+          </div>
+          <div class="occupancy-header">
+            <button class="btn-apply" (click)="filterApartments()">Disponíveis </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="occupancy-card" *ngIf="viewMode === 'global'">
+        <div class="occupancy-stats">
+          <div class="occupancy-header">
+            <i class="fas fa-chart-line"></i>
+            <span>Ocupação do Mês</span>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Dias Reservados</div>
+            <div class="stat-value">{{ totalDiasReservados }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Total Dias</div>
+            <div class="stat-value">{{ totalDiasDisponiveis }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Taxa</div>
+            <div class="stat-value">{{ taxaOcupacao | percent:'1.1-1' }}</div>
+          </div>
+        </div>
+      </div>
       <!-- View Options -->
       <ng-container class="view-options-container">
         <div class="view-options">
@@ -60,12 +100,13 @@
               
               <div class="days-header-scroll">
                 <ng-container class="days-header-container">
+                  <!-- No cabeçalho dos dias -->
                   <div class="days-header" (mouseleave)="hideDayTooltip()" >
                     <div class="day-header" 
                         *ngFor="let day of daysInMonthRange" 
                         [class.today-cell]="isToday(day)"
                         (mouseenter)="showDayTooltipAt($event, day)"
-                        >
+                       > <!-- Novo evento de clique -->
                       <div class="week-day" [class.today-week]="isToday(day)">{{ getWeekDay(day) }}</div>
                       <div class="month-day" [class.today-day]="isToday(day)">{{ day.getDate() }}</div>
                     </div>

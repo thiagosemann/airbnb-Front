@@ -200,3 +200,15 @@
   font-weight: 600;
   color: #1f2937;
 }
+/* Adicione ao seu CSS */
+.selected-day {
+  background-color: #3B82F6;
+  color: white;
+  cursor: pointer;
+}
+
+.selected-day .week-day,
+.selected-day .month-day {
+  color: white !important;
+  font-weight: bold;
+}

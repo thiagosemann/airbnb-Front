@@ -187,3 +187,64 @@
 }
 
 
+/* Adicione ao seu arquivo CSS */
+.occupancy-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 5px 10px;
+  width: 30%;
+  margin: 0 10px;
+}
+
+.occupancy-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #007000;
+  font-weight: 500;
+  margin-right: 15px;;
+}
+
+.occupancy-header i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.occupancy-stats {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F2937;
+}
+.date-input {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.btn-apply {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #10B981;
+  color: white;
+  cursor: pointer;
+}
+.btn-apply:hover {
+  background-color: #059669;
+}
