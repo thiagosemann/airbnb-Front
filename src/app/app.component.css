@@ -7,7 +7,7 @@
 
 /* Quando a navbar está presente, ajusta a altura do container */
 app-nav-bar-airbnb + .containerAux {
-    height: 88vh; /* Altura quando a navbar está visível */
+    height: 85vh; /* Altura quando a navbar está visível */
 }
 
 /* Estilos da scrollbar (mantidos do código original) */

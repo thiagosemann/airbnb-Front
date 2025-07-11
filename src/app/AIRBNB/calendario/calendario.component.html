@@ -17,34 +17,36 @@
   <!-- Header Section -->
   <ng-container class="header-container">
     <div class="calendar-header">
-      <!-- Navigation -->
-      <ng-container class="navigation-container">
-        <div class="navigation">
-          <button class="nav-button" (click)="changeMonth(-1)">‹</button>
-          <h2 class="current-month">{{ currentMonth }} {{ currentYear }}</h2>
-          <button class="nav-button" (click)="changeMonth(1)">›</button>
+        <!-- Card de Taxa de Ocupação -->
+        <div class="occupancy-card" *ngIf="viewMode === 'global'" style="width: 45%;">
+          <div class="occupancy-stats">
+            <div class="occupancy-header">
+              <label for="dataInicio">Início:</label>
+              <input id="dataInicio" type="date"
+                [(ngModel)]="dataInicio"
+                class="date-input" />
+            </div>
+            <div class="occupancy-header">
+              <label for="dataFim">Fim:</label>
+              <input id="dataFim" type="date"
+                    [(ngModel)]="dataFim" 
+                    class="date-input" />
+            </div>
+            <!-- Substituir os botões por checkbox -->
+            <div class="occupancy-header">
+             <div>
+              <button class="view-option active" (click)="onDateChange()">Buscar</button>
+             </div>
+              <label class="checkbox-container" style="margin-left: 10px;">
+                <input type="checkbox" 
+                      [(ngModel)]="showOnlyAvailable"
+                      (change)="filterApartments()">
+                <span class="checkmark"></span>
+                Mostrar apenas disponíveis
+              </label>
+            </div>
+          </div>
         </div>
-      </ng-container>
-         <!-- Card de Taxa de Ocupação -->
-      <div class="occupancy-card" *ngIf="viewMode === 'global'">
-        <div class="occupancy-stats">
-          <div class="occupancy-header">
-            <label for="dataInicio" style="margin-right: 5px;">Início:</label>
-            <input id="dataInicio" type="date"
-                  [(ngModel)]="dataInicio"
-                  class="date-input" />
-          </div>
-          <div class="occupancy-header">
-            <label for="dataFim" style="margin-right: 5px;">Fim:</label>
-            <input id="dataFim" type="date"
-                  [(ngModel)]="dataFim"
-                  class="date-input" />
-          </div>
-          <div class="occupancy-header">
-            <button class="btn-apply" (click)="filterApartments()">Disponíveis </button>
-          </div>
-        </div>
-      </div>
 
       <div class="occupancy-card" *ngIf="viewMode === 'global'">
         <div class="occupancy-stats">

@@ -1,12 +1,13 @@
-// calendario.component.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { forkJoin, debounceTime } from 'rxjs';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 
 interface Apartment {
   id: number;
-  predioId: number;       
+  predioId: number;
   name: string;
   color: string;
   status: string;
@@ -19,7 +20,6 @@ interface CalendarReservation {
   start: Date;
   end: Date;
   color: string;
-  type: 'reservation' | 'checkin' | 'checkout' | 'block';
   cod_reserva: string;
   link: string;
 }
@@ -39,24 +39,21 @@ interface CalendarEvent {
   cod_reserva: string;
   source: 'airbnb' | 'booking';
 }
+
 type DayType =
-  | 'none'
-  | 'air'           // span interno Airbnb
-  | 'book'          // span interno Booking
-  | 'inAir'         // check-in Airbnb
-  | 'inBook'        // check-in Booking
-  | 'outAir'        // check-out Airbnb
-  | 'outBook'       // check-out Booking
-  | 'inOutAir'      // check-in + check-out Airbnb
-  | 'inOutBook'     // check-in + check-out Booking
-  | 'inAirOutBook'  // check-in Airbnb + check-out Booking
-  | 'inBookOutAir'  // check-in Booking + check-out Airbnb
-;
+  | 'none' | 'air' | 'book'
+  | 'inAir' | 'inBook' | 'outAir' | 'outBook'
+  | 'inOutAir' | 'inOutBook' | 'inAirOutBook' | 'inBookOutAir';
 
 @Component({
   selector: 'app-calendario',
   templateUrl: './calendario.component.html',
-  styleUrls: ['./calendario.component.css','./calendario2.component.css','./calendario3.component.css']
+  styleUrls: [
+    './calendario.component.css',
+    './calendario2.component.css',
+    './calendario3.component.css'
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarioComponent implements OnInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
@@ -66,18 +63,21 @@ export class CalendarioComponent implements OnInit {
 
   selectedApartmentId: number | null = null;
   selectedApartment: Apartment | null = null;
-  selectedDay: Date | null = null;
 
   weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   viewMode: 'global' | 'detail' = 'global';
-  searchTerm: string = '';
+
+  searchControl = new FormControl('');
+  searchTerm = '';
 
   currentDate = new Date();
   currentMonth = this.currentDate.toLocaleString('default', { month: 'long' });
   currentYear = this.currentDate.getFullYear();
   daysInMonthRange: Date[] = [];
-  visibleDays: Date[] = [];
   calendarDays: CalendarDay[] = [];
+
+  // pre-calc timestamps for range
+  private daysTs: number[] = [];
 
   loading = false;
   dataInicio: string;
@@ -86,233 +86,223 @@ export class CalendarioComponent implements OnInit {
   showDayTooltip = false;
   tooltipPosition = { x: 0, y: 0 };
   dayStats = { checkins: 0, checkouts: 0 };
-  currentHoverDay: Date | null = null;
 
-  // Novas propriedades para ocupação
-  totalDiasDisponiveis: number = 0;
-  totalDiasReservados: number = 0;
-  taxaOcupacao: number = 0;
+  totalDiasDisponiveis = 0;
+  totalDiasReservados = 0;
+  taxaOcupacao = 0;
+
+  showOnlyAvailable = false;
+
+  // cache for getDayType
+  private dayTypeCache = new Map<string, DayType>();
 
   constructor(
     private apartamentoService: ApartamentoService,
-    private reservasAirbnbService: ReservasAirbnbService
+    private reservasAirbnbService: ReservasAirbnbService,
+    private cdr: ChangeDetectorRef
   ) {
     const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-    const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
-
+    const lastDay  = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
     this.dataInicio = this.toInputDate(firstDay);
-    this.dataFim = this.toInputDate(lastDay);
+    this.dataFim    = this.toInputDate(lastDay);
 
     this.generateDaysInMonth();
     this.generateCalendarDays();
   }
 
   ngOnInit(): void {
+    this.generateDaysInRange();
+    this.setupSearchDebounce();
     this.loadData();
   }
 
   private toInputDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const y   = d.getFullYear();
+    const m   = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+
+  private setupSearchDebounce() {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200))
+      .subscribe(term => {
+        this.searchTerm = term ?? '';
+        this.filterApartments();
+        this.cdr.markForCheck();
+      });
   }
 
   getWeekDay(date: Date): string {
     return this.weekDays[date.getDay()];
   }
 
-  filterApartments(): void {
-    let filtered = [...this.apartments];
-    
-    // 1) filtro por nome
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(apt =>
-        apt.name.toLowerCase().includes(term)
-      );
+  private generateDaysInRange(): void {
+    // usa parseLocalDate para criar Date em horário local
+    const startDate = this.parseLocalDate(this.dataInicio);
+    const endDate   = this.parseLocalDate(this.dataFim);
+
+    this.daysTs = [];
+    for (let ts = startDate.getTime(); ts <= endDate.getTime(); ts += 86400000) {
+      this.daysTs.push(ts);
     }
 
-   
-    // 3) filtro por intervalo de datas (dataInicio & dataFim)
-    if (this.dataInicio && this.dataFim) {
+    this.daysInMonthRange = this.daysTs.map(ts => new Date(ts));
+  }
+  // --- NOVO método de parsing local ---
+  private parseLocalDate(str: string): Date {
+    const [year, month, day] = str.split('-').map(s => Number(s));
+    const d = new Date(year, month - 1, day);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+
+  filterApartments(): void {
+    let filtered = this.apartments;
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(apt => apt.name.toLowerCase().includes(term));
+    }
+
+    if (this.showOnlyAvailable) {
       filtered = filtered.filter(apt =>
         this.isApartmentFreeInRange(apt, this.dataInicio, this.dataFim)
       );
     }
-    
+
     this.filteredApartments = filtered;
   }
 
-
+  onDateChange(): void {
+    if (new Date(this.dataInicio) > new Date(this.dataFim)) {
+      this.dataFim = this.dataInicio;
+    }
+    this.generateDaysInRange();
+    this.loadData();
+  }
 
   loadData(): void {
     this.loading = true;
-    this.apartamentoService.getAllApartamentos().subscribe({
-      next: (apts) => {
-        // passo 1: extrair dados brutos e incluir predioId
-        const raw = apts.map(a => ({
-          id: a.id,
-          predioId: a.predio_id,      // <— vindo do back
-          name: a.nome,
-          status: 'Disponível',
-          reservations: [] as CalendarReservation[]
-        }));
 
-        // passo 2: para cada prédio único, gerar uma cor fixa
-        const predios = Array.from(new Set(raw.map(r => r.predioId)));
-        const buildingColors = new Map<number, string>();
-        predios.forEach((pId, idx) => {
-          // cores cíclicas ou definidas
-            const palette = [
-              '#3B82F6', // azul
-              '#EF4444', // vermelho
-              '#10B981', // verde
-              '#F59E0B', // laranja
-              '#8B5CF6', // roxo
-              '#EC4899', // rosa
-              '#06B6D4', // ciano
-              '#D97706', // âmbar escuro
-              '#059669', // verde escuro
-              '#9333EA', // violeta escuro
-              '#DC2626', // vermelho escuro
-              '#2563EB'  // azul escuro
-            ];
-            buildingColors.set(pId, palette[idx % palette.length]);
-        });
-
-        // passo 3: montar o this.apartments já com cor por prédio
-        this.apartments = raw
-          .map(r => ({
-            ...r,
-            color: buildingColors.get(r.predioId)!   // cor baseada no prédio
-          }))
-          // passo 4: ordenar por predioId e depois por nome
-          .sort((a, b) => {
-            if (a.predioId !== b.predioId) {
-              return a.predioId - b.predioId;
-            }
-            return a.name.localeCompare(b.name);
-          });
-
-        // passo 5: carregar reservas do backend
-        this.reservasAirbnbService
-          .getReservasPorPeriodoCalendario(this.dataInicio, this.dataFim)
-          .subscribe({
-            next: (reservas: ReservaAirbnb[]) => {
-              const apenasReserved = reservas.filter(r =>
-                r.description?.toLowerCase() === 'reserved'
-              );
-              this.mapReservations(apenasReserved);
-              this.calcularOcupacao();
-              this.filteredApartments = [...this.apartments];
-              this.loading = false;
-              setTimeout(() => this.syncScroll(), 100);
-            },
-            error: () => this.loading = false
-          });
+    forkJoin({
+      apartamentos: this.apartamentoService.getAllApartamentos(),
+      reservas:    this.reservasAirbnbService.getReservasPorPeriodoCalendario(this.dataInicio, this.dataFim)
+    }).subscribe({
+      next: ({ apartamentos, reservas }) => {
+        this.processApartments(apartamentos);
+        const apenasReserved = reservas.filter(r =>
+          r.description?.toLowerCase() === 'reserved'
+        );
+        this.mapReservations(apenasReserved);
+        this.calcularOcupacao();
+        this.filteredApartments = [...this.apartments];
+        this.loading = false;
+        setTimeout(() => this.syncScroll(), 100);
+        this.cdr.markForCheck();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
+  private processApartments(apts: any[]): void {
+    const raw = apts.map(a => ({
+      id: a.id,
+      predioId: a.predio_id,
+      name: a.nome,
+      status: 'Disponível',
+      reservations: [] as CalendarReservation[]
+    }));
 
-  // Método para calcular estatísticas do dia
-calculateDayStats(day: Date): void {
-  const ts = new Date(day).setHours(0, 0, 0, 0);
-  let checkins = 0;
-  let checkouts = 0;
+    const predios = Array.from(new Set(raw.map(r => r.predioId)));
+    const palette = [
+      '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
+      '#8B5CF6', '#EC4899', '#06B6D4', '#D97706',
+      '#059669', '#9333EA', '#DC2626', '#2563EB'
+    ];
+    const buildingColors = new Map<number, string>();
+    predios.forEach((pId, idx) => buildingColors.set(pId, palette[idx % palette.length]));
 
-  this.apartments.forEach(apt => {
-    apt.reservations.forEach(r => {
-      const startTs = new Date(r.start).setHours(0, 0, 0, 0);
-      const endTs = new Date(r.end).setHours(0, 0, 0, 0);
-      
-      if (startTs === ts) checkins++;
-      if (endTs === ts) checkouts++;
-    });
-  });
+    this.apartments = raw
+      .map(r => ({ ...r, color: buildingColors.get(r.predioId)! }))
+      .sort((a, b) => a.predioId - b.predioId || a.name.localeCompare(b.name));
+    this.dayTypeCache.clear();
+  }
 
-  this.dayStats = { checkins, checkouts };
-}
+  calculateDayStats(day: Date): void {
+    const ts = day.getTime();
+    let checkins = 0;
+    let checkouts = 0;
 
-// Mostrar tooltip
-showDayTooltipAt(event: MouseEvent, day: Date): void {
-  this.currentHoverDay = day;
-  this.calculateDayStats(day);
-  
-  this.tooltipPosition = {
-    x: event.clientX,
-    y: event.clientY - 40
-  };
-  
-  this.showDayTooltip = true;
-  
-  // Adiciona classe para animação após um pequeno delay
-  setTimeout(() => {
+    for (const apt of this.apartments) {
+      for (const r of apt.reservations) {
+        const startTs = new Date(r.start).setHours(0,0,0,0);
+        const endTs   = new Date(r.end).setHours(0,0,0,0);
+        if (startTs === ts) checkins++;
+        if (endTs === ts)   checkouts++;
+      }
+    }
+
+    this.dayStats = { checkins, checkouts };
+  }
+
+  showDayTooltipAt(event: MouseEvent, day: Date): void {
+    this.calculateDayStats(day);
+    this.tooltipPosition = { x: event.clientX, y: event.clientY - 40 };
+    this.showDayTooltip = true;
+    setTimeout(() => {
+      const tooltip = document.querySelector('.day-tooltip');
+      if (tooltip) tooltip.classList.add('show');
+    }, 10);
+  }
+
+  hideDayTooltip(): void {
     const tooltip = document.querySelector('.day-tooltip');
-    if (tooltip) tooltip.classList.add('show');
-  }, 10);
-}
+    if (tooltip) tooltip.classList.remove('show');
+    setTimeout(() => this.showDayTooltip = false, 200);
+  }
 
-// Esconder tooltip
-hideDayTooltip(): void {
-  const tooltip = document.querySelector('.day-tooltip');
-  if (tooltip) tooltip.classList.remove('show');
-  
-  setTimeout(() => {
-    this.showDayTooltip = false;
-    this.currentHoverDay = null;
-  }, 200);
-}
   syncScroll(): void {
     const container = this.scrollContainer?.nativeElement;
     if (container) {
       container.addEventListener('scroll', () => {
-        const scrollLeft = container.scrollLeft;
         const header = container.querySelector('.days-header');
-        if (header) {
-          header.scrollLeft = scrollLeft;
-        }
+        if (header) header.scrollLeft = container.scrollLeft;
       });
     }
   }
 
   private mapReservations(reservas: ReservaAirbnb[]): void {
-    this.apartments.forEach(apt => apt.reservations = []);
-
-    reservas.forEach(r => {
+    for (const apt of this.apartments) {
+      apt.reservations = [];
+    }
+    for (const r of reservas) {
       const apt = this.apartments.find(a => a.id === r.apartamento_id);
-      if (!apt) return;
-
-      const event: CalendarReservation = {
+      if (!apt) continue;
+      apt.reservations.push({
         id: r.id!,
         title: r.apartamento_nome || r.cod_reserva,
         start: new Date(r.start_date),
         end:   new Date(r.end_data),
-        color: this.getColorByType(r),   // pode continuar usando description pra cor
-        type:  'reservation',             // **sempre reservation**
+        color: this.getColorByType(r),
         cod_reserva: r.cod_reserva,
         link: r.link_reserva
-      };
-
-      apt.reservations.push(event);
-    });
+      });
+    }
+    this.dayTypeCache.clear();
   }
-
 
   private getColorByType(r: ReservaAirbnb): string {
     switch (r.description.toLowerCase()) {
-      case 'reserved':
-        return '#3B82F6';
-      case 'cancelada':
-        return '#999999';
-      case 'check-in':
-        return '#10B981';
-      case 'check-out':
-        return '#8B5CF6';
-      default:
-        return '#EF4444';
+      case 'reserved':  return '#3B82F6';
+      case 'cancelada': return '#999999';
+      case 'check-in':  return '#10B981';
+      case 'check-out': return '#8B5CF6';
+      default:          return '#EF4444';
     }
   }
 
@@ -320,8 +310,9 @@ hideDayTooltip(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
     const daysCount = new Date(year, month + 1, 0).getDate();
-    this.daysInMonthRange = Array.from({ length: daysCount }, (_, i) => new Date(year, month, i + 1));
-    this.visibleDays = [...this.daysInMonthRange];
+    this.daysInMonthRange = Array.from({ length: daysCount }, (_, i) =>
+      new Date(year, month, i + 1)
+    );
   }
 
   generateCalendarDays(): void {
@@ -329,25 +320,22 @@ hideDayTooltip(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const prevLast = new Date(year, month, 0).getDate();
+    const lastDay  = new Date(year, month + 1, 0);
 
-    // Dias do mês anterior
+    // mês anterior
     for (let i = firstDay.getDay() - 1; i >= 0; i--) {
-      const d = new Date(year, month - 1, prevLast - i);
+      const d = new Date(year, month - 1, new Date(year, month, 0).getDate() - i);
       this.calendarDays.push({ date: d, isCurrentMonth: false, events: [] });
     }
 
-    // Dias do mês atual
+    // mês atual
     for (let i = 1; i <= lastDay.getDate(); i++) {
       const d = new Date(year, month, i);
-      const events = this.getEventsForDay(d);
-      this.calendarDays.push({ date: d, isCurrentMonth: true, events });
+      this.calendarDays.push({ date: d, isCurrentMonth: true, events: this.getEventsForDay(d) });
     }
 
-    // Dias do próximo mês
-    const lastWeekday = lastDay.getDay();
-    for (let i = 1; i <= 6 - lastWeekday; i++) {
+    // próximo mês
+    for (let i = 1; i <= 6 - lastDay.getDay(); i++) {
       const d = new Date(year, month + 1, i);
       this.calendarDays.push({ date: d, isCurrentMonth: false, events: [] });
     }
@@ -355,27 +343,23 @@ hideDayTooltip(): void {
 
   getEventsForDay(dayDate: Date): CalendarEvent[] {
     if (!this.selectedApartment) return [];
+    const ts = new Date(dayDate).setHours(0,0,0,0);
 
     return this.selectedApartment.reservations
       .filter(r => {
         const start = new Date(r.start).setHours(0,0,0,0);
         const end   = new Date(r.end).setHours(0,0,0,0);
-        const target= new Date(dayDate).setHours(0,0,0,0);
-        return target >= start && target <= end;
+        return ts >= start && ts <= end;
       })
       .map(r => ({
         id: r.id,
         title: r.title,
         color: r.color,
-        start: r.start instanceof Date ? r.start.toISOString() : r.start,
-        end: r.end instanceof Date ? r.end.toISOString() : r.end,
+        start: r.start.toISOString(),
+        end:   r.end.toISOString(),
         cod_reserva: r.cod_reserva,
         source: r.link.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
       }));
-  }
-
-  formatDate(d: Date): string {
-    return d.toLocaleDateString('pt-BR');
   }
 
   selectApartment(id: number): void {
@@ -383,6 +367,7 @@ hideDayTooltip(): void {
     this.selectedApartment = this.apartments.find(a => a.id === id) || null;
     this.viewMode = 'detail';
     this.generateCalendarDays();
+    this.cdr.markForCheck();
   }
 
   setViewMode(mode: 'global' | 'detail') {
@@ -392,6 +377,7 @@ hideDayTooltip(): void {
     } else if (this.selectedApartment) {
       this.generateCalendarDays();
     }
+    this.cdr.markForCheck();
   }
 
   changeMonth(delta: number): void {
@@ -400,154 +386,113 @@ hideDayTooltip(): void {
     this.currentYear = this.currentDate.getFullYear();
 
     const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-    const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
-
+    const lastDay  = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
     this.dataInicio = this.toInputDate(firstDay);
-    this.dataFim = this.toInputDate(lastDay);
+    this.dataFim    = this.toInputDate(lastDay);
 
     this.generateDaysInMonth();
+    this.generateDaysInRange();
     this.loadData();
 
-    if (this.viewMode === 'detail') this.generateCalendarDays();
+    if (this.viewMode === 'detail') {
+      this.generateCalendarDays();
+    }
+    this.cdr.markForCheck();
   }
+
+  trackByApartmentId(_: number, apt: Apartment) { return apt.id; }
+  trackByDay(_: number, day: Date)       { return day.getTime(); }
 
   isToday(day: Date): boolean {
     const today = new Date();
     today.setHours(0,0,0,0);
-    const ts = new Date(day).setHours(0,0,0,0);
-    return today.getTime() === ts;
+    return today.getTime() === new Date(day).setHours(0,0,0,0);
   }
+
   getDayType(apt: Apartment, day: Date): DayType {
-      const ts = new Date(day).setHours(0,0,0,0);
-
-      // flags para Airbnb
-      let inAir = false;
-      let outAir = false;
-      let spanAir = false;
-
-      // flags para Booking
-      let inBook = false;
-      let outBook = false;
-      let spanBook = false;
-
-      for (const r of apt.reservations) {
-        const startTs = new Date(r.start).setHours(0,0,0,0);
-        const endTs   = new Date(r.end).setHours(0,0,0,0);
-
-        // detecta se é Airbnb ou Booking (ajuste conforme sua fonte de verdade)
-        const isAir = r.link.toLowerCase().includes('airbnb');
-       
-        if (ts === startTs) {
-          if (isAir) inAir = true;
-          else       inBook = true;
-        }
-        if (ts === endTs) {
-          if (isAir) outAir = true;
-          else       outBook = true;
-        }
-        if (ts > startTs && ts < endTs) {
-          if (isAir)  spanAir = true;
-          else        spanBook = true;
-        }
-      }
-
-      // composições de check-in + check-out
-      if (inAir && outAir)         return 'inOutAir';
-      if (inBook && outBook)       return 'inOutBook';
-      if (inAir && outBook)        return 'inAirOutBook';
-      if (inBook && outAir)        return 'inBookOutAir';
-
-      // casos individuais
-      if (inAir)   return 'inAir';
-      if (outAir)  return 'outAir';
-      if (inBook)  return 'inBook';
-      if (outBook) return 'outBook';
-
-      // spans (dias intermediários)
-      if (spanAir)  return 'air';
-      if (spanBook) return 'book';
-
-      return 'none';
+    const ts = new Date(day).setHours(0,0,0,0);
+    const key = `${apt.id}_${ts}`;
+    if (this.dayTypeCache.has(key)) {
+      return this.dayTypeCache.get(key)!;
     }
 
-    private calcularOcupacao(): void {
-      // Resetar contadores
-      this.totalDiasDisponiveis = 0;
-      this.totalDiasReservados = 0;
-      
-      // Calcular dias disponíveis (apartamentos × dias no mês)
-      this.totalDiasDisponiveis = this.apartments.length * this.daysInMonthRange.length;
-      
-      // Calcular dias reservados
-      this.apartments.forEach(apt => {
-        apt.reservations.forEach(reserva => {
-          const start = new Date(reserva.start);
-          const end = new Date(reserva.end);
-          
-          // Filtrar apenas reservas dentro do mês atual
-          const mesAtual = this.currentDate.getMonth();
-          const anoAtual = this.currentDate.getFullYear();
-          
-          if (
-            (start.getMonth() === mesAtual && start.getFullYear() === anoAtual) ||
-            (end.getMonth() === mesAtual && end.getFullYear() === anoAtual)
-          ) {
-            // Calcular dias da reserva dentro do mês atual
-            const dataInicio = start < new Date(anoAtual, mesAtual, 1) 
-              ? new Date(anoAtual, mesAtual, 1) 
-              : start;
-            
-            const dataFim = end > new Date(anoAtual, mesAtual + 1, 0)
-              ? new Date(anoAtual, mesAtual + 1, 0)
-              : end;
-            
-            const diff = Math.ceil(
-              (dataFim.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24)
-            ) + 1;
-            
-            this.totalDiasReservados += diff;
-          }
-        });
-      });
-      
-      // Calcular taxa de ocupação
-      this.taxaOcupacao = this.totalDiasDisponiveis > 0 
-        ? this.totalDiasReservados / this.totalDiasDisponiveis
-        : 0;
-    }
+    let inAir = false, outAir = false, spanAir = false;
+    let inBook = false, outBook = false, spanBook = false;
 
-
-    // Verifica se o apartamento está livre em um dia específico
-  isApartmentFree(apt: Apartment, day: Date): boolean {
-    const ts = day.getTime();
-    
     for (const r of apt.reservations) {
       const startTs = new Date(r.start).setHours(0,0,0,0);
-      const endTs = new Date(r.end).setHours(0,0,0,0);
-      
-      // Se o dia está dentro do período de reserva, não está livre
-      if (ts >= startTs && ts <= endTs) {
-        return false;
-      }
+      const endTs   = new Date(r.end).setHours(0,0,0,0);
+      const isAir   = r.link.toLowerCase().includes('airbnb');
+
+      if (ts === startTs)      isAir ? inAir = true  : inBook = true;
+      if (ts === endTs)        isAir ? outAir = true : outBook = true;
+      if (ts > startTs && ts < endTs) isAir ? spanAir = true : spanBook = true;
     }
-    
-    return true;
+
+    let result: DayType = 'none';
+    if (inAir && outAir)     result = 'inOutAir';
+    else if (inBook && outBook)   result = 'inOutBook';
+    else if (inAir && outBook)    result = 'inAirOutBook';
+    else if (inBook && outAir)    result = 'inBookOutAir';
+    else if (inAir)               result = 'inAir';
+    else if (outAir)              result = 'outAir';
+    else if (inBook)              result = 'inBook';
+    else if (outBook)             result = 'outBook';
+    else if (spanAir)             result = 'air';
+    else if (spanBook)            result = 'book';
+
+    this.dayTypeCache.set(key, result);
+    return result;
   }
 
-  isApartmentFreeInRange(apt: Apartment, startStr: string, endStr: string): boolean {
-    const start = new Date(startStr).setHours(0,0,0,0);
-    const end   = new Date(endStr).setHours(0,0,0,0);
-    
-    // percorre todas as reservas procurando conflitos
+private calcularOcupacao(): void {
+  const startDate = this.parseLocalDate(this.dataInicio).getTime();
+  const endDate   = this.parseLocalDate(this.dataFim).getTime();
+  const daysCount = Math.ceil((endDate - startDate) / 86400000) + 1;
+
+  this.totalDiasDisponiveis = this.apartments.length * daysCount;
+  this.totalDiasReservados = 0;
+
+  for (const apt of this.apartments) {
+    const diasOcupados = new Set<number>();
+
     for (const r of apt.reservations) {
-      const rStart = new Date(r.start).setHours(0,0,0,0);
-      const rEnd   = new Date(r.end).setHours(0,0,0,0);
-      
-      // há sobreposição se (rStart ≤ end) e (rEnd ≥ start)
-      if (rStart <= end && rEnd >= start) {
-        return false;
+      const rStart = this.parseLocalDate(this.toInputDate(new Date(r.start))).getTime();
+      const rEnd   = this.parseLocalDate(this.toInputDate(new Date(r.end))).getTime();
+
+      // define o último dia efetivamente contado (um dia antes do checkout)
+      const effectiveEnd = rEnd > rStart
+        ? rEnd - 86400000
+        : rStart;
+
+      // interseção com o período selecionado
+      const overlapStart = Math.max(rStart, startDate);
+      const overlapEnd   = Math.min(effectiveEnd, endDate);
+
+      if (overlapStart <= overlapEnd) {
+        // adiciona todos os dias de overlapStart até overlapEnd (inclusive)
+        for (let ts = overlapStart; ts <= overlapEnd; ts += 86400000) {
+          diasOcupados.add(ts);
+        }
       }
     }
-    return true;
+
+    this.totalDiasReservados += diasOcupados.size;
+  }
+
+  this.taxaOcupacao = this.totalDiasDisponiveis
+    ? this.totalDiasReservados / this.totalDiasDisponiveis
+    : 0;
+}
+
+
+  private isApartmentFreeInRange(apt: Apartment, startStr: string, endStr: string): boolean {
+    const start = new Date(startStr).setHours(0,0,0,0);
+    const end   = new Date(endStr).setHours(0,0,0,0);
+    return !apt.reservations.some(r => {
+      const rStart = new Date(r.start).setHours(0,0,0,0);
+      const rEnd   = new Date(r.end).setHours(0,0,0,0);
+      return rStart <= end && rEnd >= start;
+    });
   }
 }
