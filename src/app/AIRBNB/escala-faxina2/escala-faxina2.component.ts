@@ -101,26 +101,43 @@ faxinasFiltradas: any[] = [];
     });
   }
 
-  private processarFaxinas(reservas: ReservaAirbnb[], limpezas: LimpezaExtra[]): void {
-    const normExtra = limpezas.map(e => ({
-      id: e.id,
-      apartamento_nome: e.apartamento_nome,
-      apartamento_senha: e.apartamento_senha,
-      end_data: e.end_data,
-      check_out: '11:00',
-      description: 'LIMPEZA',
-      faxina_userId: e.faxina_userId,
-      limpeza_realizada: e.limpeza_realizada,
-      apartamento_id: e.apartamento_id,
-      Observacoes: e.Observacoes
-    }));
+private processarFaxinas(reservas: ReservaAirbnb[], limpezas: LimpezaExtra[]): void {
+  const normExtra = limpezas.map(e => ({
+    id: e.id,
+    apartamento_nome: e.apartamento_nome,
+    apartamento_senha: e.apartamento_senha,
+    end_data: e.end_data,        // ISO yyyy-MM-dd
+    check_out: '11:00',
+    description: 'LIMPEZA',
+    faxina_userId: e.faxina_userId,
+    limpeza_realizada: e.limpeza_realizada,
+    apartamento_id: e.apartamento_id,
+    Observacoes: e.Observacoes
+  }));
 
-    let todasFaxinas = [...reservas, ...normExtra];
-    todasFaxinas = this.ordenarCanceladasPorUltimo(todasFaxinas);
-    todasFaxinas = this.formatDates(todasFaxinas);
-    // Atualizar lista principal
-    this.faxinasHoje = todasFaxinas;
-  }
+  // 1) Une reservas e extras
+  let todasFaxinas = [...reservas, ...normExtra];
+
+  // 2) Ordena por data e, em caso de empate, coloca CANCELADAS por último
+  todasFaxinas.sort((a, b) => {
+    const dtA = new Date(a.end_data).getTime();
+    const dtB = new Date(b.end_data).getTime();
+    if (dtA !== dtB) {
+      return dtA - dtB;  // ordena do mais antigo para o mais novo
+    }
+    // mesma data: canceladas por último
+    const aCancel = a.description === 'CANCELADA' ? 1 : 0;
+    const bCancel = b.description === 'CANCELADA' ? 1 : 0;
+    return aCancel - bCancel;
+  });
+
+  // 3) Formata as datas para exibição
+  todasFaxinas = this.formatDates(todasFaxinas);
+
+  // 4) Atualiza o array que vai para o template
+  this.faxinasHoje = todasFaxinas;
+}
+
 
 filtrarFaxinas(event: Event) {
   const termo = (event.target as HTMLInputElement).value.toLowerCase().trim();
