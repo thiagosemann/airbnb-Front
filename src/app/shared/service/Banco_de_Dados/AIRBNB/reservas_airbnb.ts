@@ -114,5 +114,10 @@ getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<
     }
   );
 }
-
+  getReservasCanceladasHoje(): Observable<ReservaAirbnb[]> {
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/cancelados/hoje`,
+      { headers: this.getHeaders() }
+    );
+  }
 }
