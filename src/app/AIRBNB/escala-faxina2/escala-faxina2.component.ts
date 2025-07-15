@@ -39,6 +39,7 @@ export class EscalaFaxina2Component {
 };
 
 faxinasFiltradas: any[] = [];
+canceladasHoje: any[] = [];
 
   constructor(private reservasService: ReservasAirbnbService,
               private userService: UserService,
@@ -62,6 +63,10 @@ faxinasFiltradas: any[] = [];
     this.getUsersByRole();
     this.apartamentosService.getAllApartamentos().subscribe(list => {
      this.apartamentos = list;
+    });
+    this.reservasService.getReservasCanceladasHoje().subscribe(canceladas => {
+      console.log(this.canceladasHoje)
+      this.canceladasHoje = this.formatDates(canceladas);
     });
   }
 
@@ -101,26 +106,43 @@ faxinasFiltradas: any[] = [];
     });
   }
 
-  private processarFaxinas(reservas: ReservaAirbnb[], limpezas: LimpezaExtra[]): void {
-    const normExtra = limpezas.map(e => ({
-      id: e.id,
-      apartamento_nome: e.apartamento_nome,
-      apartamento_senha: e.apartamento_senha,
-      end_data: e.end_data,
-      check_out: '11:00',
-      description: 'LIMPEZA',
-      faxina_userId: e.faxina_userId,
-      limpeza_realizada: e.limpeza_realizada,
-      apartamento_id: e.apartamento_id,
-      Observacoes: e.Observacoes
-    }));
+private processarFaxinas(reservas: ReservaAirbnb[], limpezas: LimpezaExtra[]): void {
+  const normExtra = limpezas.map(e => ({
+    id: e.id,
+    apartamento_nome: e.apartamento_nome,
+    apartamento_senha: e.apartamento_senha,
+    end_data: e.end_data,        // ISO yyyy-MM-dd
+    check_out: '11:00',
+    description: 'LIMPEZA',
+    faxina_userId: e.faxina_userId,
+    limpeza_realizada: e.limpeza_realizada,
+    apartamento_id: e.apartamento_id,
+    Observacoes: e.Observacoes
+  }));
 
-    let todasFaxinas = [...reservas, ...normExtra];
-    todasFaxinas = this.ordenarCanceladasPorUltimo(todasFaxinas);
-    todasFaxinas = this.formatDates(todasFaxinas);
-    // Atualizar lista principal
-    this.faxinasHoje = todasFaxinas;
-  }
+  // 1) Une reservas e extras
+  let todasFaxinas = [...reservas, ...normExtra];
+
+  // 2) Ordena por data e, em caso de empate, coloca CANCELADAS por último
+  todasFaxinas.sort((a, b) => {
+    const dtA = new Date(a.end_data).getTime();
+    const dtB = new Date(b.end_data).getTime();
+    if (dtA !== dtB) {
+      return dtA - dtB;  // ordena do mais antigo para o mais novo
+    }
+    // mesma data: canceladas por último
+    const aCancel = a.description === 'CANCELADA' ? 1 : 0;
+    const bCancel = b.description === 'CANCELADA' ? 1 : 0;
+    return aCancel - bCancel;
+  });
+
+  // 3) Formata as datas para exibição
+  todasFaxinas = this.formatDates(todasFaxinas);
+
+  // 4) Atualiza o array que vai para o template
+  this.faxinasHoje = todasFaxinas;
+}
+
 
 filtrarFaxinas(event: Event) {
   const termo = (event.target as HTMLInputElement).value.toLowerCase().trim();
@@ -207,6 +229,61 @@ getResponsavelNome(userId: number): string {
     this.updateReserva(reserva)
 
   }
+ // ---------------------------------- Canceladas ----------------------------------
+    confirmarVerificacaoCancelada(cancelada: any): void {
+      if (
+        window.confirm(
+          `Confirma marcar a reserva do apto "${cancelada.apartamento_nome}" como CANCELADA‑VERIFICADA sem criar limpeza?`
+        )
+      ) {
+        this.updateDescritionParaCanceladaVerificado(cancelada);
+      }
+    }
+
+    updateDescritionParaCanceladaVerificado(cancelada: any): void {
+      cancelada.description = 'CANCELADA-VERIFICADA';
+      this.updateReserva(cancelada);
+      this.canceladasHoje = this.canceladasHoje.filter(r => r.id !== cancelada.id);
+    }
+
+    adicionarLimpezaExtra(cancelada: any): void {
+      if (!cancelada.novo_end_data) {
+        this.toastr.warning('Escolha a data de término da limpeza');
+        return;
+      }
+
+      if (
+        !window.confirm(
+          `Criar limpeza extra para o apartamento "${cancelada.apartamento_nome}" em ${cancelada.novo_end_data}?`
+        )
+      ) {
+        return;
+      }
+
+      // 1) Atualiza reserva original para CANCELADA‑VERIFICADA
+      cancelada.description = 'CANCELADA-VERIFICADA';
+      this.updateReserva(cancelada);
+
+      // 2) Cria objeto LimpezaExtra
+      const limpeza: LimpezaExtra = {
+        apartamento_id: cancelada.apartamento_id,
+        end_data: cancelada.novo_end_data,
+        Observacoes: `Limpeza extra criada através da verificação manual do código de reserva: ${cancelada.cod_reserva}`,
+        faxina_userId: cancelada.faxina_userId || null
+      } as LimpezaExtra;
+
+      this.limpezaExtraService.createLimpezaExtra(limpeza).subscribe({
+        next: () => {
+          this.toastr.success('Limpeza extra criada');
+          // Remove da lista cancelada
+          this.canceladasHoje = this.canceladasHoje.filter(r => r.id !== cancelada.id);
+          // Atualiza listagem principal
+          this.pesquisarPorPeriodo();
+        },
+        error: () => this.toastr.error('Erro ao criar limpeza extra')
+      });
+    }
+
 
   formatarCheckInMesmoDia(faxina: any | undefined): string {
     if(faxina.description == "LIMPEZA"){
@@ -258,13 +335,7 @@ getResponsavelNome(userId: number): string {
     }).length;
   }
 
-private ordenarCanceladasPorUltimo(lista: any[]): any[] {
-  return lista.sort((a, b) => {
-    const aCancelada = a.description === 'CANCELADA';
-    const bCancelada = b.description === 'CANCELADA';
-    return Number(aCancelada) - Number(bCancelada); // false (0) vem antes de true (1)
-  });
-}
+
 
 private formatDates(lista: any[]): any[] {
   lista.forEach(f=>{
