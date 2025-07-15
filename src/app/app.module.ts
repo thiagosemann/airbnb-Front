@@ -34,6 +34,7 @@ import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/r
 import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
 import { EscalaFaxina2Component } from './AIRBNB/escala-faxina2/escala-faxina2.component';
 import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
+import { CalendarioPorApartamentoComponent } from './AIRBNB/calendario-por-apartamento/calendario-por-apartamento.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
     UpladoCSVRelatorioComponent,
     EscalaFaxina2Component,
     CalendarioComponent,
+    CalendarioPorApartamentoComponent,
   ],
   imports: [
     BrowserModule,

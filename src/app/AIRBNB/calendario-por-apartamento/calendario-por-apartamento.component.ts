@@ -1,0 +1,158 @@
+// calendario-por-apartamento.component.ts
+import { Component, Input, OnInit } from '@angular/core';
+import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
+import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
+import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
+
+interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+  events: CalendarEvent[];
+}
+
+interface CalendarEvent {
+  id: number;
+  title: string;
+  color: string;
+  start: string;
+  end: string;
+  cod_reserva: string;
+  source: 'airbnb' | 'booking';
+}
+
+interface Apartment {
+  id: number;
+  name: string;
+  status: string;
+  color: string;
+}
+
+@Component({
+  selector: 'app-calendario-por-apartamento',
+  templateUrl: './calendario-por-apartamento.component.html',
+  styleUrls: ['./calendario-por-apartamento.component.css']
+})
+export class CalendarioPorApartamentoComponent implements OnInit {
+  selectedApartment!: Apartment;
+  @Input() weekDays: string[] = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  calendarDays: CalendarDay[] = [];
+  currentDate = new Date();
+  loading: boolean = false;
+
+  // Métricas de cabeçalho
+  occupancyRate = 0;
+  airbnbCount = 0;
+  bookingCount = 0;
+
+  constructor(
+    private reservasService: ReservasAirbnbService,
+    private apartamentoService: ApartamentoService
+  ) {}
+
+  ngOnInit(): void {
+    this.apartamentoService.getApartamentoById(27).subscribe(apartment => {
+      this.selectedApartment = {
+        id: apartment.id,
+        name: apartment.nome, // Use the correct property name from Apartamento
+        status: 'Disponível', // Use the correct property name from Apartamento
+        color:'#3B82F6' // Use the correct property name from Apartamento
+      };
+      this.loadCalendar();
+    });
+  }
+
+  /* --------------------- Navegação --------------------*/
+  get currentMonthLabel(): string {
+    return this.currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  }
+
+  changeMonth(offset: number): void {
+    this.loading = true;
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + offset, 1);
+    this.loadCalendar();
+  }
+
+  /* -------------------- Carregamento ------------------*/
+  private loadCalendar(): void {
+    if (!this.selectedApartment) return;
+
+    const start = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
+    const end = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+
+    this.reservasService
+      .getReservasPorPeriodoCalendarioPorApartamento(
+        this.selectedApartment.id,
+        start.toISOString().split('T')[0],
+        end.toISOString().split('T')[0]
+      )
+      .subscribe(reservas => {
+        this.buildCalendarDays(reservas, start, end);
+        this.loading = false;
+
+      });
+  }
+
+  /* -------------------- Monta grade + Métricas --------*/
+  private buildCalendarDays(reservas: ReservaAirbnb[], inicio: Date, fim: Date): void {
+    const days: CalendarDay[] = [];
+    const occupiedSet = new Set<number>();
+    let airbnb = 0;
+    let booking = 0;
+
+    for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
+      const curr = new Date(d);
+      curr.setHours(0, 0, 0, 0);
+
+      const events = reservas
+        .filter(r => {
+          const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
+          const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
+          return curr >= s && curr <= e && r.description === 'Reserved';
+        })
+        .map(r => {
+          // Contabiliza reservas e dias ocupados
+          (r.link_reserva.toLowerCase().includes('airbnb') ? airbnb++ : booking++);
+          const s = new Date(r.start_date);
+          const e = new Date(r.end_data);
+          for (let dt = new Date(s); dt <= e; dt.setDate(dt.getDate() + 1)) {
+            if (dt.getMonth() === this.currentDate.getMonth()) {
+              occupiedSet.add(dt.getDate());
+            }
+          }
+
+          return {
+            id: r.id!,
+            title: r.apartamento_nome || r.cod_reserva,
+            color: this.selectedApartment.color,
+            start: r.start_date,
+            end: r.end_data,
+            cod_reserva: r.cod_reserva,
+            source: r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
+          } as CalendarEvent;
+        });
+
+      days.push({
+        date: new Date(curr),
+        isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
+        events
+      });
+    }
+
+    // Métricas
+    const totalDays = fim.getDate();
+    this.occupancyRate = Math.round((occupiedSet.size / totalDays) * 100);
+    this.airbnbCount = airbnb;
+    this.bookingCount = booking;
+
+    this.calendarDays = days;
+  }
+
+  /* ----------------------- Util ----------------------*/
+  isToday(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(date); d.setHours(0, 0, 0, 0);
+    return today.getTime() === d.getTime();
+  }
+}

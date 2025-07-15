@@ -1,0 +1,241 @@
+/* calendario-por-apartamento.component.css */
+.detail-root {
+display: flex;
+flex-direction: column;
+height: 100%;
+background: #fff;
+overflow: hidden;
+}
+
+.detail-header {
+display: flex;
+flex-direction: column;
+gap: 12px;
+padding: 16px;
+background: #ffffff;
+border-bottom: 1px solid #E5E7EB;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.header-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.detail-apartment-info {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.detail-apartment-dot {
+width: 14px;
+height: 14px;
+border-radius: 50%;
+}
+
+.detail-apartment-title {
+font-size: 1.1rem;
+font-weight: 600;
+color: #1f2937;
+}
+
+.detail-badge {
+padding: 4px 10px;
+border-radius: 12px;
+font-size: 0.85rem;
+font-weight: 500;
+}
+
+.detail-available   { background: #10B981; color: #fff; }
+.detail-occupied    { background: #EF4444; color: #fff; }
+.detail-maintenance { background: #F59E0B; color: #fff; }
+
+.detail-nav {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.detail-nav-button {
+background: linear-gradient(90deg, #4F46E5 0%, #3B82F6 100%);
+color: #fff;
+border: none;
+border-radius: 8px;
+padding: 6px 14px;
+font-size: 0.85rem;
+font-weight: 600;
+cursor: pointer;
+transition: transform 0.15s, box-shadow 0.15s;
+box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.detail-nav-button:hover {
+transform: translateY(-1px);
+box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.detail-current-month {
+font-weight: 600;
+font-size: 1rem;
+color: #111827;
+}
+
+.header-metrics {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.metric {
+background: #F3F4F6;
+border-radius: 8px;
+padding: 6px 12px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+min-width: 100px;
+}
+
+.metric-label {
+font-size: 0.75rem;
+color: #6B7280;
+}
+
+.metric-value {
+font-weight: 700;
+font-size: 1.1rem;
+}
+
+.metric.airbnb   { border-left: 4px solid #E61E4D; }
+.metric.booking  { border-left: 4px solid #003580; }
+
+.detail-calendar-container {
+flex: 1;
+margin: 10px 16px;
+border: 1px solid #E5E7EB;
+border-radius: 8px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+}
+
+.detail-weekdays-header {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+background: #F9FAFB;
+border-bottom: 1px solid #E5E7EB;
+}
+
+.detail-weekday {
+padding: 12px 0;
+text-align: center;
+font-weight: 600;
+font-size: 0.95rem;
+color: #6B7280;
+border-right: 1px solid #E5E7EB;
+}
+
+.detail-weekday:last-child {
+border-right: none;
+}
+
+.detail-days-body {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+flex: 1;
+overflow-y: auto;
+}
+
+.detail-day-cell {
+min-height: 80px;
+padding: 6px;
+border-right: 1px solid #E5E7EB;
+border-bottom: 1px solid #E5E7EB;
+position: relative;
+background: #fff;
+}
+
+.detail-day-cell.detail-outside {
+background: #F3F4F6;
+color: #9CA3AF;
+}
+
+.detail-day-cell.detail-today {
+background: #EFF6FF;
+outline: 2px solid #3B82F6;
+}
+
+.detail-day-number {
+font-weight: 600;
+margin-bottom: 6px;
+}
+
+.detail-event {
+margin-bottom: 4px;
+padding: 4px 6px;
+border-radius: 4px;
+font-size: 0.85rem;
+color: #fff;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.detail-event.event-airbnb  { background-color: #EF4444; }
+.detail-event.event-booking { background-color: #3B82F6; }
+
+.detail-legend {
+display: flex;
+justify-content: flex-end;
+gap: 20px;
+padding: 12px 16px;
+background: #F9FAFB;
+border-top: 1px solid #E5E7EB;
+}
+
+.detail-legend-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 0.9rem;
+color: #4B5563;
+}
+
+.detail-legend-dot {
+width: 16px;
+height: 16px;
+border-radius: 4px;
+}
+
+.detail-legend-dot.booking { background: #3B82F6; }
+.detail-legend-dot.airbnb  { background: #EF4444; }
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #3B82F6;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -23,6 +23,7 @@ import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelat
 import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
 import { EscalaFaxina2Component } from './AIRBNB/escala-faxina2/escala-faxina2.component';
 import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
+import { CalendarioPorApartamentoComponent } from './AIRBNB/calendario-por-apartamento/calendario-por-apartamento.component';
 
 
 const routes: Routes = [
@@ -39,6 +40,7 @@ const routes: Routes = [
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendarioDetalhado', component: CalendarioPorApartamentoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
