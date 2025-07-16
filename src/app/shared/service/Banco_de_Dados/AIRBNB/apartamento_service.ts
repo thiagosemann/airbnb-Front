@@ -43,4 +43,8 @@ export class ApartamentoService {
   getApartamentoById(id: number): Observable<Apartamento> {
     return this.http.get<Apartamento>(`${this.url}/apartamentos-airbnb/${id}`, { headers: this.getHeaders() });
   }
+    // Nova função para buscar um apartamento pelo id
+  getApartamentoByCodProprietario(cod_link_proprietario: string): Observable<Apartamento> {
+    return this.http.get<Apartamento>(`${this.url}/apartamentos-airbnb/codigo-proprietario/${cod_link_proprietario}`, { headers: this.getHeaders() });
+  }
 }

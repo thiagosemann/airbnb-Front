@@ -40,7 +40,7 @@ const routes: Routes = [
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'calendarioDetalhado', component: CalendarioPorApartamentoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },

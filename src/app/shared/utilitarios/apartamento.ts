@@ -47,4 +47,5 @@ export interface Apartamento {
   user_prioridade2?:number;
   user_prioridade3?:number;
   vaga_garagem: boolean;
+  cod_link_proprietario: string;
 }

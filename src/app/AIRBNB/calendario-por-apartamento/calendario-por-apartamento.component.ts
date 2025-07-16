@@ -1,5 +1,6 @@
 // calendario-por-apartamento.component.ts
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
@@ -47,11 +48,16 @@ export class CalendarioPorApartamentoComponent implements OnInit {
 
   constructor(
     private reservasService: ReservasAirbnbService,
-    private apartamentoService: ApartamentoService
+    private apartamentoService: ApartamentoService,
+    private route: ActivatedRoute // <-- injeta o ActivatedRoute
+
   ) {}
 
   ngOnInit(): void {
-    this.apartamentoService.getApartamentoById(27).subscribe(apartment => {
+  const cod = this.route.snapshot.paramMap.get('cod');
+  console.log(cod)
+  if (!cod) return;
+    this.apartamentoService.getApartamentoByCodProprietario(cod).subscribe(apartment => {
       this.selectedApartment = {
         id: apartment.id,
         name: apartment.nome, // Use the correct property name from Apartamento

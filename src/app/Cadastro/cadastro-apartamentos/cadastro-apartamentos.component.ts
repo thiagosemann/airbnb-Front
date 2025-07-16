@@ -106,7 +106,9 @@ export class CadastroApartamentosComponent implements OnInit {
       itens_limpeza: [''],
       air_fryer: [false],
       modificado_user_id: [0],
-      data_ultima_modificacao: ['']
+      data_ultima_modificacao: [''],
+      cod_link_proprietario: ['']
+
     });
 
     // Adiciona sub-FormGroup para as amenidades do prédio
