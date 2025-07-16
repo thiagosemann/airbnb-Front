@@ -31,7 +31,7 @@ interface Apartment {
 @Component({
   selector: 'app-calendario-por-apartamento',
   templateUrl: './calendario-por-apartamento.component.html',
-  styleUrls: ['./calendario-por-apartamento.component.css']
+  styleUrls: ['./calendario-por-apartamento.component.css','./calendario-por-apartamento2.component.css']
 })
 export class CalendarioPorApartamentoComponent implements OnInit {
   selectedApartment!: Apartment;
