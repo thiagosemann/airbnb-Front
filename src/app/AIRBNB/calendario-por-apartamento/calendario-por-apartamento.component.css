@@ -137,6 +137,7 @@
   font-weight: 700;
   font-size: 1.2rem;
   color: #1e293b;
+  margin-left: 10px;
 }
 
 .metric.airbnb   { border-top: 3px solid #E61E4D; }
