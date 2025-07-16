@@ -1,30 +1,34 @@
 <!-- calendario-por-apartamento.component.html -->
 <div class="detail-root" *ngIf="selectedApartment">
-  <!-- CABEÇALHO COMPLETO -->
+  <div class="logo-header">
+    <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
+  </div>
+  <!-- CABEÇALHO OTIMIZADO PARA MOBILE -->
   <div class="detail-header">
-    <!-- Linha superior: info + navegação -->
-    <div class="header-top">
+    <!-- Informações principais -->
+    <div class="mobile-apartment-header">
       <div class="detail-apartment-info">
         <div class="detail-apartment-dot" [style.background]="selectedApartment.color"></div>
         <div class="detail-apartment-title">{{ selectedApartment.name }}</div>
-        <span class="detail-badge"
-              [ngClass]="{
-                'detail-available': selectedApartment.status === 'Disponível',
-                'detail-occupied': selectedApartment.status === 'Ocupado',
-                'detail-maintenance': selectedApartment.status === 'Manutenção'
-              }">
-          {{ selectedApartment.status }}
-        </span>
       </div>
-
-      <div class="detail-nav">
-        <button class="detail-nav-button prev" (click)="changeMonth(-1)" aria-label="Mês anterior">‹ Anterior</button>
+      
+      <!-- Navegação do mês - versão mobile -->
+      <div class="mobile-month-nav">
+        <button class="nav-icon-button" (click)="changeMonth(-1)" aria-label="Mês anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
         <div class="detail-current-month">{{ currentMonthLabel | titlecase }}</div>
-        <button class="detail-nav-button next" (click)="changeMonth(1)" aria-label="Próximo mês">Próximo ›</button>
+        <button class="nav-icon-button" (click)="changeMonth(1)" aria-label="Próximo mês">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <!-- Linha inferior: métricas -->
+    <!-- Métricas em grid responsivo -->
     <div class="header-metrics">
       <div class="metric">
         <span class="metric-label">Ocupação</span>
@@ -40,38 +44,49 @@
       </div>
     </div>
   </div>
-<div *ngIf="loading" class="loading-overlay">
-  <div class="spinner"></div>
-</div>
 
-  <!-- CALENDÁRIO -->
+  <!-- Overlay de loading -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- CALENDÁRIO OTIMIZADO PARA MOBILE -->
   <div class="detail-calendar-container">
+    <!-- Cabeçalho dos dias da semana -->
     <div class="detail-weekdays-header">
-      <div class="detail-weekday" *ngFor="let w of weekDays">{{ w }}</div>
+      <div class="detail-weekday" *ngFor="let w of weekDays">{{ w.charAt(0) }}</div>
     </div>
 
+    <!-- Corpo do calendário -->
     <div class="detail-days-body">
       <div class="detail-day-cell"
            *ngFor="let day of calendarDays"
            [class.detail-outside]="!day.isCurrentMonth"
            [class.detail-today]="isToday(day.date)">
         <div class="detail-day-number">{{ day.date.getDate() }}</div>
-        <ng-container *ngFor="let ev of day.events">
-          <div class="detail-event" [ngClass]="ev.source === 'airbnb' ? 'event-airbnb' : 'event-booking'">
-            {{ ev.cod_reserva }}
+        <div class="mobile-events-container">
+          <ng-container *ngFor="let ev of day.events; let i = index">
+            <div *ngIf="i < 2" class="mobile-event-tag" 
+                 [ngClass]="ev.source === 'airbnb' ? 'event-airbnb' : 'event-booking'">
+              {{ ev.cod_reserva | slice:0:4 }}...
+            </div>
+          </ng-container>
+          <div class="event-more" *ngIf="day.events.length > 2">
+            +{{ day.events.length - 2 }}
           </div>
-        </ng-container>
-      </div>
+        </div>
     </div>
   </div>
 
-  <!-- LEGENDA -->
+  <!-- LEGENDA FIXA NO RODAPÉ -->
   <div class="detail-legend">
     <div class="detail-legend-item">
-      <div class="detail-legend-dot booking"></div><span>Booking</span>
+      <div class="detail-legend-dot booking"></div>
+      <span>Booking</span>
     </div>
     <div class="detail-legend-item">
-      <div class="detail-legend-dot airbnb"></div><span>Airbnb</span>
+      <div class="detail-legend-dot airbnb"></div>
+      <span>Airbnb</span>
     </div>
   </div>
 </div>
