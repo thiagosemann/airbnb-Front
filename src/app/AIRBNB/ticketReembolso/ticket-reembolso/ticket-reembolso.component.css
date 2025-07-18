@@ -1,0 +1,193 @@
+.ticket-reembolso-container {
+  padding: 1.5rem;
+  max-width: 700px;
+  margin: auto;
+}
+
+.card {
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  background-color: #198754;
+  color: white;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  display: block;
+  color: #495057;
+}
+
+.form-control-sm, .form-select-sm {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+.input-group-sm > .form-control, 
+.input-group-sm > .input-group-text {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.input-group-text {
+  background-color: #e9f5ef;
+  border-color: #ced4da;
+  color: #198754;
+}
+
+.file-upload-container {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+  border: 1px solid #ced4da;
+}
+
+.file-upload-container:hover {
+  border-color: #198754;
+}
+
+.confirmation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.confirmation-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #eaeaea;
+}
+
+.confirmation-item span {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.confirmation-item strong {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.badge {
+  padding: 0.5em 0.8em;
+  border-radius: 4px;
+  font-weight: normal;
+  font-size: 0.8rem;
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+.btn {
+  font-size: 0.9rem;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-primary:hover {
+  background-color: #146c43;
+  border-color: #146c43;
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-success:hover {
+  background-color: #146c43;
+  border-color: #146c43;
+}
+
+.btn-outline-secondary {
+  border-color: #dee2e6;
+  color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #6c757d;
+}
+
+.btn-close {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  color: #198754;
+}
+
+.btn-close:hover {
+  opacity: 1;
+  color: #146c43;
+}
+
+.alert-info {
+  background-color: rgba(25, 135, 84, 0.1);
+  border-color: rgba(25, 135, 84, 0.3);
+  color: #198754;
+}
+
+.text-info {
+  color: #198754 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.bi {
+  color: #198754;
+}
+
+/* Estilo para o hover dos botões de remover arquivo */
+.badge .btn-close:hover {
+  color: #146c43 !important;
+}
+
+/* Adicionando cor primária nas bordas dos selects e inputs */
+.form-select-sm.border-primary-subtle,
+.form-control-sm.border-primary-subtle {
+  border-color: #a3cfbb !important;
+}
+
+/* Efeito hover nos campos */
+.form-select-sm.border-primary-subtle:hover,
+.form-control-sm.border-primary-subtle:hover {
+  border-color: #198754 !important;
+}

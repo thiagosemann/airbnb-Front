@@ -1,0 +1,173 @@
+<div class="container py-3">
+  <!-- Cabeçalho + SearchBar -->
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3">
+    <h2 class="mb-2 mb-sm-0">Tickets de Reembolso</h2>
+    <div class="d-flex mb-3 w-sm-auto align-items-center">
+      <div class="input-group me-2 w-100 w-sm-auto search-mobile">
+        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search"></i></span>
+        <input 
+          type="text" 
+          class="form-control border-start-0" 
+          placeholder="Pesquisar por apê, item ou status..." 
+          (input)="filtrarTickets($event)">
+      </div>
+      <button class="btn btn-primary flex-shrink-0" (click)="redirectToNovoTicket()">Novo</button>
+    </div>
+  </div>
+
+  <!-- Cards mobile -->
+  <div class="row row-cols-1 row-cols-sm-2 g-3 d-block d-md-flex flex-md-wrap d-md-none">
+    <div *ngFor="let ticket of ticketsFiltrados" class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title mb-0">Apê: {{ ticket.apartamento_id }}</h5>
+            <small class="text-muted">{{ ticket.status }}</small>
+          </div>
+          <div class="mb-1">
+            <span class="badge bg-success-subtle me-2" *ngIf="ticket.valor_material">Material: R$ {{ ticket.valor_material | number:'1.2-2' }}</span>
+            <span class="badge bg-success-subtle" *ngIf="ticket.valor_mao_obra">Mão de obra: R$ {{ ticket.valor_mao_obra | number:'1.2-2' }}</span>
+          </div>
+          <div class="mb-2"><strong>Item:</strong> {{ ticket.item_problema }}</div>
+          <div class="small text-muted mb-2">{{ ticket.descricao_problema }}</div>
+          <div class="d-flex justify-content-end gap-1">
+            <button class="btn btn-sm btn-outline-primary" (click)="editarTicket(ticket)"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-outline-danger" (click)="excluirTicket(ticket.id!)"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="!ticketsFiltrados.length" class="col-12 text-center py-4 text-muted">
+      Nenhum ticket encontrado.
+    </div>
+  </div>
+
+  <!-- Tabela para md+ -->
+  <div class="table-wrapper d-none d-md-block">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Apt.</th>
+            <th>Item</th>
+            <th>Status</th>
+            <th>Material (R$)</th>
+            <th>Mão de Obra (R$)</th>
+            <th>Autorização</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of ticketsFiltrados">
+            <td>{{ ticket.apartamento_id }}</td>
+            <td>{{ ticket.item_problema }}</td>
+            <td>{{ ticket.status }}</td>
+            <td>{{ ticket.valor_material | number:'1.2-2' }}</td>
+            <td>{{ ticket.valor_mao_obra | number:'1.2-2' }}</td>
+            <td>
+              <span *ngIf="ticket.autorizado_proprietario">Sim</span>
+              <span *ngIf="!ticket.autorizado_proprietario">Não</span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="editarTicket(ticket)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="excluirTicket(ticket.id!)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!ticketsFiltrados.length">
+            <td colspan="7" class="text-center py-4 text-muted">Nenhum ticket encontrado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de edição/visualização -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">Editar Ticket</h3>
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Apartamento ID</label>
+            <input type="number" class="form-control" formControlName="apartamento_id">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Item</label>
+            <input type="text" class="form-control" formControlName="item_problema">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="2" formControlName="descricao_problema"></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Solução</label>
+            <input type="text" class="form-control" formControlName="solucao">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Valor Material (R$)</label>
+            <input type="number" class="form-control" formControlName="valor_material">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Valor Mão de Obra (R$)</label>
+            <input type="number" class="form-control" formControlName="valor_mao_obra">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="PENDENTE">Pendente</option>
+              <option value="AGUARDANDO PAGAMENTO">Aguardando Pagamento</option>
+              <option value="PAGO">Pago</option>
+              <option value="CANCELADO">Cancelado</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <div class="form-check form-switch mt-4">
+              <input class="form-check-input" type="checkbox" formControlName="autorizado_proprietario" id="autorizado_proprietario">
+              <label class="form-check-label" for="autorizado_proprietario">Autorizado Proprietário</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Data Autorização</label>
+            <input type="date" class="form-control" formControlName="data_autorizacao">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Data Conclusão</label>
+            <input type="date" class="form-control" formControlName="data_conclusao">
+          </div>
+            <div class="col-12 mt-3" *ngIf="arquivosModal.length">
+            <label class="form-label">Arquivos anexados:</label>
+            <div class="d-flex flex-wrap gap-2">
+                <ng-container *ngFor="let file of arquivosModal; let i = index">
+                <div class="file-preview-box p-2 border rounded bg-light text-center" style="width:90px;">
+                    <ng-container *ngIf="file.type.startsWith('image'); else pdfBox">
+                    <img [src]="file.imagemBase64" alt="Imagem {{i+1}}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;box-shadow:0 1px 2px #0001;">
+                    <div class="small mt-1">Imagem</div>
+                    </ng-container>
+                    <ng-template #pdfBox>
+                    <a [href]="file.imagemBase64" target="_blank">
+                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                        <div class="small mt-1">PDF</div>
+                    </a>
+                    </ng-template>
+                </div>
+                </ng-container>
+            </div>
+            </div>
+
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="form.invalid">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -100,59 +100,80 @@ export class CalendarioPorApartamentoComponent implements OnInit {
   }
 
   /* -------------------- Monta grade + Métricas --------*/
-  private buildCalendarDays(reservas: ReservaAirbnb[], inicio: Date, fim: Date): void {
-    const days: CalendarDay[] = [];
-    const occupiedSet = new Set<number>();
-    let airbnb = 0;
-    let booking = 0;
+private buildCalendarDays(reservas: ReservaAirbnb[], inicio: Date, fim: Date): void {
+  const days: CalendarDay[] = [];
+  const dailyOccupancy = new Map<string, { source: 'airbnb' | 'booking', counted: boolean }>();
 
-    for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
-      const curr = new Date(d);
-      curr.setHours(0, 0, 0, 0);
+  let airbnb = 0;
+  let booking = 0;
 
-      const events = reservas
-        .filter(r => {
-          const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
-          const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
-          return curr >= s && curr <= e && r.description === 'Reserved';
-        })
-        .map(r => {
-          // Contabiliza reservas e dias ocupados
-          (r.link_reserva.toLowerCase().includes('airbnb') ? airbnb++ : booking++);
-          const s = new Date(r.start_date);
-          const e = new Date(r.end_data);
-          for (let dt = new Date(s); dt <= e; dt.setDate(dt.getDate() + 1)) {
-            if (dt.getMonth() === this.currentDate.getMonth()) {
-              occupiedSet.add(dt.getDate());
-            }
-          }
+  // Construção visual do calendário
+  for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
+    const curr = new Date(d);
+    curr.setHours(0, 0, 0, 0);
 
-          return {
-            id: r.id!,
-            title: r.apartamento_nome || r.cod_reserva,
-            color: this.selectedApartment.color,
-            start: r.start_date,
-            end: r.end_data,
-            cod_reserva: r.cod_reserva,
-            source: r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
-          } as CalendarEvent;
-        });
-
-      days.push({
-        date: new Date(curr),
-        isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
-        events
+    const events = reservas
+      .filter(r => {
+        const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
+        const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
+        return curr >= s && curr < e && r.description === 'Reserved'; // exclui o dia do checkout
+      })
+      .map(r => {
+        return {
+          id: r.id!,
+          title: r.apartamento_nome || r.cod_reserva,
+          color: this.selectedApartment.color,
+          start: r.start_date,
+          end: r.end_data,
+          cod_reserva: r.cod_reserva,
+          source: r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
+        } as CalendarEvent;
       });
-    }
 
-    // Métricas
-    const totalDays = fim.getDate();
-    this.occupancyRate = Math.round((occupiedSet.size / totalDays) * 100);
-    this.airbnbCount = airbnb;
-    this.bookingCount = booking;
-
-    this.calendarDays = days;
+    days.push({
+      date: new Date(curr),
+      isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
+      events
+    });
   }
+
+  // Lógica de contagem sem afetar a visualização
+  reservas.forEach(r => {
+    const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
+    const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
+    const source = r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking';
+
+    for (let dt = new Date(s); dt < e; dt.setDate(dt.getDate() + 1)) {
+      if (dt.getMonth() !== this.currentDate.getMonth()) continue;
+
+      const key = dt.toISOString().split('T')[0];
+
+      if (!dailyOccupancy.has(key)) {
+        dailyOccupancy.set(key, { source, counted: false });
+      } else {
+        const existing = dailyOccupancy.get(key)!;
+        if (existing.source !== source && dt.getTime() === s.getTime()) {
+          dailyOccupancy.set(key, { source, counted: false });
+        }
+      }
+    }
+  });
+
+  for (const { source, counted } of dailyOccupancy.values()) {
+    if (!counted) {
+      if (source === 'airbnb') airbnb++;
+      else booking++;
+    }
+  }
+
+  const totalDays = fim.getDate();
+  const uniqueDays = dailyOccupancy.size;
+  this.occupancyRate = Math.round((uniqueDays / totalDays) * 100);
+  this.airbnbCount = airbnb;
+  this.bookingCount = booking;
+  this.calendarDays = days;
+}
+
 
   /* ----------------------- Util ----------------------*/
   isToday(date: Date): boolean {

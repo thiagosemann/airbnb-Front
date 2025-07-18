@@ -1,0 +1,182 @@
+<div class="ticket-reembolso-container">
+  <!-- Passo 1 - Formulário -->
+  <div *ngIf="step === 1" class="card shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-1-circle"></i> Informações do Reembolso
+      </h5>
+    </div>
+    <form [formGroup]="formTicket" class="card-body">
+      <div class="row g-3">
+        <!-- Apartamento -->
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-muted">Apartamento *</label>
+          <select formControlName="apartamento_id" class="form-select form-select-sm border-primary-subtle">
+            <option [ngValue]="null" disabled>-- Selecione --</option>
+            <option *ngFor="let apto of apartamentos" [ngValue]="apto.id">{{ apto.nome }}</option>
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-muted">Status *</label>
+          <select formControlName="status" class="form-select form-select-sm border-primary-subtle">
+            <option value="PENDENTE">Pendente</option>
+            <option value="AGUARDANDO PAGAMENTO">Aguardando Pagamento</option>
+            <option value="PAGO">Pago</option>
+            <option value="CANCELADO">Cancelado</option>
+          </select>
+        </div>
+
+        <!-- Item/problema -->
+        <div class="col-12">
+          <label class="form-label small fw-bold text-muted">Item / Problema *</label>
+          <input formControlName="item_problema" type="text" class="form-control form-control-sm border-primary-subtle" 
+                 placeholder="Ex: Geladeira, Torneira, etc" />
+        </div>
+
+        <!-- Descrição -->
+        <div class="col-12">
+          <label class="form-label small fw-bold text-muted">Descrição do Problema *</label>
+          <textarea formControlName="descricao_problema" rows="3" 
+                    class="form-control form-control-sm border-primary-subtle" 
+                    placeholder="Descreva detalhadamente o ocorrido..."></textarea>
+        </div>
+
+        <!-- Solução -->
+        <div class="col-12">
+          <label class="form-label small fw-bold text-muted">Solução *</label>
+          <select formControlName="solucao" class="form-select form-select-sm border-primary-subtle">
+            <option value="Selecione" disabled>Selecione o tipo de solução</option>
+            <option value="Preventiva">Manutenção Preventiva</option>
+            <option value="Corretiva">Manutenção Corretiva</option>
+            <option value="Substituicao">Substituição</option>
+          </select>
+        </div>
+
+        <!-- Valores -->
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-muted">Valor do Material (R$)</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">R$</span>
+            <input formControlName="valor_material" type="number" 
+                   class="form-control border-primary-subtle" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-muted">Valor da Mão de Obra (R$)</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">R$</span>
+            <input formControlName="valor_mao_obra" type="number" 
+                   class="form-control border-primary-subtle" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <!-- Upload de arquivos -->
+        <div class="col-12">
+          <label class="form-label small fw-bold text-muted">Comprovante(s) ou Foto(s)</label>
+          <div class="file-upload-container">
+            <input type="file" class="form-control form-control-sm" 
+                   multiple (change)="onFileChange($event)" 
+                   accept="image/*,application/pdf" />
+            <div class="preview-files mt-2 d-flex flex-wrap gap-2" *ngIf="arquivos && arquivos.length">
+              <div *ngFor="let file of arquivos; let i = index" 
+                   class="badge d-flex align-items-center">
+                <i class="bi me-1" [class.bi-file-earmark]="!file.type.startsWith('image')" 
+                   [class.bi-image]="file.type.startsWith('image')"></i>
+                {{ (file.name || 'Arquivo') }}
+                <button type="button" class="btn-close ms-1 fs-8" (click)="removeArquivo(i)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="card-footer bg-transparent text-end border-top py-3">
+      <button class="btn btn-primary px-4" (click)="next()">
+        <i class="bi bi-arrow-right me-1"></i> Próximo
+      </button>
+    </div>
+  </div>
+
+  <!-- Passo 2 - Confirmação -->
+  <div *ngIf="step === 2" class="card shadow-sm mt-4">
+    <div class="card-header">
+      <h5 class="mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-2-circle"></i> Confirmar e Enviar Ticket
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Confira as informações abaixo antes de enviar</strong>
+      </div>
+      
+      <div class="confirmation-grid">
+        <div class="confirmation-item">
+          <span>Apartamento:</span>
+          <strong>{{ getAptoNome(formTicket.value.apartamento_id) }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Item:</span>
+          <strong>{{ formTicket.value.item_problema }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Descrição:</span>
+          <strong>{{ formTicket.value.descricao_problema }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Solução:</span>
+          <strong>{{ formTicket.value.solucao }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Valor Material:</span>
+          <strong class="text-success">R$ {{ formTicket.value.valor_material || 0 | number:'1.2-2' }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Valor Mão de Obra:</span>
+          <strong class="text-success">R$ {{ formTicket.value.valor_mao_obra || 0 | number:'1.2-2' }}</strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Total:</span>
+          <strong class="text-success fs-6">
+            R$ {{ (formTicket.value.valor_material || 0) + (formTicket.value.valor_mao_obra || 0) | number:'1.2-2' }}
+          </strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Status:</span>
+          <strong [ngClass]="{
+            'text-info': formTicket.value.status === 'PENDENTE',
+            'text-warning': formTicket.value.status === 'AGUARDANDO PAGAMENTO',
+            'text-success': formTicket.value.status === 'PAGO',
+            'text-danger': formTicket.value.status === 'CANCELADO'
+          }">
+            {{ formTicket.value.status }}
+          </strong>
+        </div>
+        <div class="confirmation-item">
+          <span>Arquivos:</span>
+          <strong>{{ arquivos.length }} anexo(s)</strong>
+        </div>
+      </div>
+      
+      <div class="preview-files mt-3 d-flex flex-wrap gap-2" *ngIf="arquivos && arquivos.length">
+        <div *ngFor="let file of arquivos; let i = index" 
+             class="badge d-flex align-items-center">
+          <i class="bi me-1" [class.bi-file-earmark]="!file.type.startsWith('image')" 
+             [class.bi-image]="file.type.startsWith('image')"></i>
+          {{ (file.name || 'Arquivo') }}
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-transparent d-flex justify-content-between border-top py-3">
+      <button class="btn btn-outline-secondary" (click)="back()">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+      </button>
+      <button class="btn btn-success px-4" (click)="submit()">
+        <i class="bi bi-check-circle me-1"></i> Enviar Ticket
+      </button>
+    </div>
+  </div>
+</div>

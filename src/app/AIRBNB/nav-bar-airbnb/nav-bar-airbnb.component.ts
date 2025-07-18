@@ -65,6 +65,13 @@ export class NavBarAirbnbComponent {
     this.router.navigate(['/controle-vistoria']);
   } 
 
+  ticket(): void {
+    this.router.navigate(['/ticketReembolso']);
+  }
+  controleTicket(): void {
+    this.router.navigate(['/controleTicketReembolso']);
+  } 
+
   cadastroPortarias():void{
     this.router.navigate(['/cadastroPortaria']);
   }
