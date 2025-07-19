@@ -18,6 +18,7 @@ export class CameraAppComponent implements OnInit {
     telefone: '',
     horarioPrevistoChegada: '15:00' // Horário padrão
   };
+  isSubmitting = false;
   photoDataUrl: string | null = null; // Imagem capturada
   documentPhotoUrl: string | null = null; // Imagem capturada
   documentFile: string | null = null; // Arquivo do documento
@@ -57,20 +58,18 @@ export class CameraAppComponent implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
   
-    const isPDF = file.type === 'application/pdf';
     const isSizeValid = file.size <= 5 * 1024 * 1024; // 1MB
   
-    if (!isPDF) {
-      this.toastr.warning('Se necessário tire uma foto do documento.');
-      this.toastr.warning('Somente arquivos PDF são permitidos.');
+    const isPDF = file.type === 'application/pdf';
+    const isImage = file.type.startsWith('image/');
+    if (!isPDF && !isImage) {
+      this.toastr.warning('Envie um PDF ou uma foto do documento.');
       return;
     }
   
     if (!isSizeValid) {
       this.toastr.warning('Se necessário tire uma foto do documento.');
       this.toastr.warning('Arquivo maior que 5MB.');
-
-
       return;
     }
 
@@ -78,7 +77,7 @@ export class CameraAppComponent implements OnInit {
     reader.onload = () => {
       const base64String = reader.result as string;
       this.documentFile = base64String;
-      this.toastr.success('Documento PDF selecionado com sucesso.');
+      this.toastr.success('Documento selecionado com sucesso.');
     };
     reader.onerror = () => {
       this.toastr.error('Erro ao ler o arquivo.');
@@ -125,6 +124,11 @@ export class CameraAppComponent implements OnInit {
 
   // Captura a foto da câmera
   capturePhoto() {
+    if (!this.videoElement?.nativeElement?.videoWidth) {
+      this.toastr.error('Câmera não inicializada! Tente novamente.');
+      this.startCamera();
+      return;
+    }
     const canvas = document.createElement('canvas');
     canvas.width = this.videoElement.nativeElement.videoWidth;
     canvas.height = this.videoElement.nativeElement.videoHeight;
@@ -160,43 +164,64 @@ export class CameraAppComponent implements OnInit {
   }
 
   // Envia a foto e as informações para o Google Apps Script
-// Modifique o método sendData() para isto:
-sendData() {
-  // Validar campos obrigatórios
-  if (!this.photoDataUrl || !this.formData.cpf || !this.formData.nome || !this.formData.telefone || (!this.documentPhotoUrl && !this.documentFile)) {
-    this.toastr.warning('Preencha todos os campos obrigatórios, incluindo o documento.');
-    return;
-  }
+  // Modifique o método sendData() para isto:
+  sendData() {
+    // Validar campos obrigatórios
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
-  // Construir o objeto conforme o model do backend
-  const checkinData = {
-    cod_reserva: this.id, // Supondo que o id da rota seja o cod_reserva
-    CPF: this.formData.cpf,
-    Nome: this.formData.nome.toUpperCase(),
-    Telefone: this.formData.telefone,
-    horarioPrevistoChegada: this.formData.horarioPrevistoChegada,  // ← inclua aqui
-    imagemBase64: this.photoDataUrl.split(',')[1], // Remove o prefixo Data URL
-    tipo: 'guest', // Ou outro valor conforme sua regra de negócio
-    documentBase64: this.documentPhotoUrl 
-      ? this.documentPhotoUrl.split(',')[1] 
-      : this.documentFile?.split(',')[1] || null,
-    reserva_id: this.id // Supondo que reserva_id é o mesmo que cod_reserva
-  };
-
-  this.step = 4; // Mostrar loading
-
-  this.checkinFormService.createCheckin(checkinData).subscribe(
-    (response) => {
-      this.step = 5; // Sucesso
-      this.toastr.success('Check-in realizado com sucesso!');
-    },
-    (error) => {
-      console.error('Erro no check-in:', error);
-      this.toastr.error('Erro ao realizar check-in');
-      this.resetFlow();
+    if (!this.photoDataUrl || !this.formData.cpf || !this.formData.nome || !this.formData.telefone || (!this.documentPhotoUrl && !this.documentFile)) {
+      this.toastr.warning('Preencha todos os campos obrigatórios, incluindo o documento.');
+      return;
     }
-  );
-}
+    if (!this.photoDataUrl || this.photoDataUrl.length < 100) {
+    this.toastr.warning('Tire a foto do rosto antes de continuar!');
+    return;
+    }
+    if (!this.documentPhotoUrl && !this.documentFile) {
+      this.toastr.warning('Envie o documento antes de continuar!');
+      return;
+    }
+    if (this.documentPhotoUrl && this.documentPhotoUrl.length < 100) {
+      this.toastr.warning('A foto do documento não foi capturada corretamente!');
+      return;
+    }
+    if (this.documentFile && this.documentFile.length < 100) {
+      this.toastr.warning('O arquivo do documento está inválido!');
+      return;
+    }
+    // Construir o objeto conforme o model do backend
+    const checkinData = {
+      cod_reserva: this.id, // Supondo que o id da rota seja o cod_reserva
+      CPF: this.formData.cpf,
+      Nome: this.formData.nome.toUpperCase(),
+      Telefone: this.formData.telefone,
+      horarioPrevistoChegada: this.formData.horarioPrevistoChegada,  // ← inclua aqui
+      imagemBase64: this.photoDataUrl.split(',')[1], // Remove o prefixo Data URL
+      tipo: 'guest', // Ou outro valor conforme sua regra de negócio
+      documentBase64: this.documentPhotoUrl 
+        ? this.documentPhotoUrl.split(',')[1] 
+        : this.documentFile?.split(',')[1] || null,
+      reserva_id: this.id // Supondo que reserva_id é o mesmo que cod_reserva
+    };
+
+    this.step = 4; // Mostrar loading
+
+    this.checkinFormService.createCheckin(checkinData).subscribe(
+      (response) => {
+        this.step = 5; // Sucesso
+        this.toastr.success('Check-in realizado com sucesso!');
+        this.isSubmitting = false;
+
+      },
+      (error) => {
+        console.error('Erro no check-in:', error);
+        this.toastr.error('Erro ao realizar check-in');
+        this.resetFlow();
+        this.isSubmitting = false;
+      }
+    );
+  }
 
   // Reseta o fluxo para o início
   resetFlow() {
@@ -304,7 +329,7 @@ sendData() {
       this.step = 2; // Avançar para a etapa de captura de foto
       this.startCamera(); // Iniciar a câmera
     }else if (this.step < 5) {
-      this.step++; // Decrementa a etapa
+      this.step++; // Incrementa a etapa
     }
   }
 

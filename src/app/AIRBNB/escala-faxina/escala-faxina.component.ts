@@ -9,6 +9,7 @@ import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ToastrService } from 'ngx-toastr';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-escala-faxina',
@@ -38,24 +39,38 @@ export class EscalaFaxinaComponent implements OnInit {
     private authService: AuthenticationService,
     private limpezaExtraService: LimpezaExtraService,
     private apartamentosService: ApartamentoService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private route: ActivatedRoute, // <-- injeta o ActivatedRoute
+    private userService: UserService
   ) { }
 
   ngOnInit(): void {
-    this.user = this.authService.getUser();
-    
+    const cod = this.route.snapshot.paramMap.get('cod');
+    if (!cod) return;
+
+    // Busca usuário pelo telefone (cod já é string)
+    this.userService.getUserByTelefone(cod).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.initDatasPadrao();
+        this.carregarDados();
+        this.apartamentosService.getAllApartamentos().subscribe(list => {
+          this.apartamentos = list;
+        });
+      },
+      error: (err) => {
+        this.toastr.error('Usuário não encontrado para o telefone informado.');
+        this.carregando = false;
+      }
+    });
+  }
+  private initDatasPadrao(): void {
     // Inicializar datas padrão (próximos 30 dias)
     const hoje = new Date();
     const futuro = new Date();
     futuro.setDate(hoje.getDate() + 30);
-    
-    this.dataInicio = this.formatarDataParaInput(new Date());
+    this.dataInicio = this.formatarDataParaInput(hoje);
     this.dataFim = this.formatarDataParaInput(futuro);
-
-    this.carregarDados();
-    this.apartamentosService.getAllApartamentos().subscribe(list => {
-      this.apartamentos = list;
-    });
   }
 
   private carregarDados(): void {

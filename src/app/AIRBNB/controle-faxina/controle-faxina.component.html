@@ -1,8 +1,14 @@
 <div class="controle-container">
   <div class="payment-screen">
-    <h2>Gestão de Pagamentos</h2>
+    <div class="header">
+      <h2><i class="icon fas fa-broom"></i> Gestão de Pagamentos</h2>
+    </div>
     
     <div class="payment-filter">
+      <div class="filter-label">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Selecione o período:</span>
+      </div>
       <select class="month-select" [(ngModel)]="selectedMonth" (change)="loadPayments()">
         <option value="">Selecione o mês</option>
         <option *ngFor="let month of monthOptions" [value]="month.value">
@@ -11,33 +17,204 @@
       </select>
     </div>
 
-    <div class="payment-summary">
-      <div class="summary-card">
-        <h3>Total do Mês</h3>
-        <p class="amount">R$ {{ totalMes | number:'1.2-2' }}</p>
-        <div class="divider"></div>
-        <div class="summary-details">
-          <div>Valor por Faxina: R$ {{ valorPorFaxina | number:'1.2-2' }}</div>
-          <div>Total de Faxinas: {{ totalFaxinas }}</div>
+    <div class="stats-summary">
+      <div class="stat-card">
+        <div class="stat-icon bg-blue">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total do Mês</div>
+          <div class="stat-value">R$ {{ totalMes | number:'1.2-2' }}</div>
         </div>
       </div>
-
-      <div class="transaction-list">
-        <div class="payment-table-header">
-          <div>Terceirizado</div>
-          <div>Faxinas Realizadas</div>
-          <div>Valor a Pagar</div>
+      
+      <div class="stat-card">
+        <div class="stat-icon bg-green">
+          <i class="fas fa-broom"></i>
         </div>
+        <div class="stat-content">
+          <div class="stat-title">Valor Médio por Faxina</div>
+          <div class="stat-value">R$ {{ valorPorFaxina | number:'1.2-2' }}</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon bg-purple">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total de Faxinas</div>
+          <div class="stat-value">{{ totalFaxinas }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-summary">
+      <div class="transaction-list">
+        <div class="section-header">
+          <h3><i class="fas fa-users"></i> Pagamentos por Terceirizado</h3>
+          <div class="total-indicator">
+            {{ pagamentos.length }} terceirizado(s)
+          </div>
+        </div>
+        
+        <div class="payment-table-header">
+          <div class="col-user">Terceirizado</div>
+          <div class="col-count">Faxinas</div>
+          <div class="col-value">Valor</div>
+          <div class="col-actions">Ações</div>
+        </div>
+        
         <div class="payment-items">
+          <div *ngIf="pagamentos.length === 0" class="no-data">
+            <i class="fas fa-file-alt"></i>
+            <p>Nenhum dado disponível</p>
+            <p>Selecione um mês para visualizar os pagamentos</p>
+          </div>
+          
           <div class="payment-item" *ngFor="let pagamento of pagamentos">
-            <div class="tercerizado-name">{{ pagamento.user.first_name }}</div>
-            <div class="faxinas-count">{{ pagamento.totalFaxinas }}</div>
+            <div class="tercerizado-info">
+              <div class="avatar">{{ getInitials(pagamento.user.first_name) }}</div>
+              <div class="tercerizado-name">{{ pagamento.user.first_name }}</div>
+            </div>
+            <div class="faxinas-count">
+              {{ pagamento.totalFaxinas }}
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="getProgressWidth(pagamento.totalFaxinas) + '%'"></div>
+              </div>
+            </div>
             <div class="payment-value">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</div>
-            <div class="tercerizado-name">
-              <button (click)="downloadXls(pagamento)">Baixar XLS</button>
+            <div class="tercerizado-actions">
+              <button class="download-btn" (click)="downloadXls(pagamento)">
+                <i class="fas fa-download"></i> XLS
+              </button>
+              <button class="details-btn" (click)="openDetails(pagamento)">
+                <i class="fas fa-eye"></i> Detalhes
+              </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+   <!-- Modal de Detalhes do Terceirizado - Versão Melhorada -->
+  <div class="tercerizado-modal" *ngIf="showModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-container">
+          <h3><i class="fas fa-user-circle"></i> Detalhes do Terceirizado</h3>
+          <div class="modal-subtitle">{{ selectedTercerizado?.user?.first_name }}</div>
+        </div>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="tercerizado-summary">
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-broom"></i>
+            </div>
+            <div class="summary-content">
+              <div class="summary-label">Faxinas Realizadas</div>
+              <div class="summary-value">{{ selectedTercerizado?.totalFaxinas }}</div>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="summary-content">
+              <div class="summary-label">Total Recebido</div>
+              <div class="summary-value">R$ {{ selectedTercerizado?.valorTotal | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="summary-content">
+              <div class="summary-label">Avaliação Média</div>
+              <div class="summary-value">{{ getRating() }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="stats-grid">
+          <div class="stat-card-sm">
+            <div class="stat-icon-sm bg-blue">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-content-sm">
+              <div class="stat-title-sm">Média Mensal</div>
+              <div class="stat-value-sm">{{ getAverageFaxinas() }}</div>
+            </div>
+          </div>
+          
+          <div class="stat-card-sm">
+            <div class="stat-icon-sm bg-green">
+              <i class="fas fa-money-bill"></i>
+            </div>
+            <div class="stat-content-sm">
+              <div class="stat-title-sm">Valor Médio</div>
+              <div class="stat-value-sm">R$ {{ getAverageValue() | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          
+          <div class="stat-card-sm">
+            <div class="stat-icon-sm bg-purple">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content-sm">
+              <div class="stat-title-sm">Última Faxina</div>
+              <div class="stat-value-sm">{{ getLastCleaning() }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-header">
+          <h4><i class="fas fa-history"></i> Histórico de Faxinas</h4>
+          <div class="total-faxinas">{{ faxinasDetalhadas.length }} faxinas</div>
+        </div>
+        
+        <div class="faxinas-container">
+          <div class="faxina-header">
+            <div class="col-date">Data</div>
+            <div class="col-apartamento">Apartamento</div>
+            <div class="col-value">Valor</div>
+            <div class="col-status">Status</div>
+          </div>
+          
+          <div class="faxina-items">
+            <div *ngIf="faxinasDetalhadas.length === 0" class="no-data-sm">
+              <i class="fas fa-file-alt"></i>
+              <p>Nenhuma faxina encontrada</p>
+            </div>
+            
+            <div class="faxina-item" *ngFor="let faxina of faxinasDetalhadas">
+              <div class="faxina-date">
+                <div class="faxina-day">{{ getDay(faxina.end_data) }}</div>
+                <div class="faxina-month">{{ getMonth(faxina.end_data) }}</div>
+              </div>
+              <div class="faxina-apartamento">{{ faxina.apartamento_nome || 'N/A' }}</div>
+              <div class="faxina-value">R$ {{ faxina.valor_limpeza | number:'1.2-2' }}</div>
+              <div class="faxina-status">
+                <span class="status-badge completed" *ngIf="faxina.limpeza_realizada">Concluída</span>
+                <span class="status-badge pending" *ngIf="!faxina.limpeza_realizada">Pendente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="download-all-btn" (click)="downloadXls(selectedTercerizado)">
+          <i class="fas fa-download"></i> Baixar Relatório Completo
+        </button>
       </div>
     </div>
   </div>

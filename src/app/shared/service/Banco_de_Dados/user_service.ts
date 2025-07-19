@@ -83,4 +83,12 @@ export class UserService {
       return this.http.get<User[]>(`${this.url}/users-airbnb/role/${role}`, { headers });
     }
 
+    getUserByTelefone(telefone: string): Observable<User> {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = new HttpHeaders({
+        Authorization: 'Bearer ' + token,
+      });
+
+      return this.http.get<User>(`${this.url}/users-airbnb/telefone/${telefone}`, { headers });
+    }
 }

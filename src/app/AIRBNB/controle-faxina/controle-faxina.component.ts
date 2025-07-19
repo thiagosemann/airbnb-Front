@@ -19,12 +19,17 @@ export class ControleFaxinaComponent implements OnInit {
   totalMes: number = 0;
   totalFaxinas: number = 0;
   valorPorFaxina: number = 50;
+  maxFaxinas: number = 0;
+  
+  // Variáveis para detalhamento
+  showModal: boolean = false;
+  selectedTercerizado: any = null;
+  faxinasDetalhadas: any[] = [];
 
   constructor(
     private userService: UserService,
     private reservasService: ReservasAirbnbService,
     private limpezaExtraService: LimpezaExtraService
-    
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +49,7 @@ export class ControleFaxinaComponent implements OnInit {
       });
       date.setMonth(date.getMonth() - 1);
     }
-    this.monthOptions = months.reverse();
+    this.monthOptions = months;
   }
 
   getUsers(): void {
@@ -53,50 +58,55 @@ export class ControleFaxinaComponent implements OnInit {
     });
   }
 
-async loadPayments() {
-  if (!this.selectedMonth) return;
+  async loadPayments() {
+    if (!this.selectedMonth) return;
 
-  try {
-    const [startDate, endDate] = this.getMonthDateRange();
-    const reservas = await this.reservasService.getReservasPorPeriodo(startDate, endDate).toPromise();
-    const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
-    console.log(limpezasExtras)
-    const pagamentosMap = new Map<number, any>();
+    try {
+      const [startDate, endDate] = this.getMonthDateRange();
+      const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
+      const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
+      
+      const pagamentosMap = new Map<number, any>();
+      this.maxFaxinas = 0;
+      const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
+      
+      allServicos.forEach(servico => {
+        const userId = servico.faxina_userId;
+        const data = new Date(servico.end_data);
 
-    const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
-
-    allServicos.forEach(servico => {
-      const userId = servico.faxina_userId;
-      const data = new Date(servico.end_data);
-
-      if (
-        servico.limpeza_realizada &&
-        userId &&
-        data.getMonth() === new Date(this.selectedMonth).getMonth() &&
-        data.getFullYear() === new Date(this.selectedMonth).getFullYear()
-      ) {
-        if (!pagamentosMap.has(userId)) {
-          pagamentosMap.set(userId, {
-            user: this.users.find(u => u.id === userId),
-            totalFaxinas: 0,
-            valorTotal: 0
-          });
+        if (
+          servico.limpeza_realizada &&
+          userId &&
+          data.getMonth() === new Date(this.selectedMonth).getMonth() &&
+          data.getFullYear() === new Date(this.selectedMonth).getFullYear()
+        ) {
+          if (!pagamentosMap.has(userId)) {
+            pagamentosMap.set(userId, {
+              user: this.users.find(u => u.id === userId),
+              totalFaxinas: 0,
+              valorTotal: 0
+            });
+          }
+          
+          const entry = pagamentosMap.get(userId);
+          entry.totalFaxinas++; 
+          entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
+          
+          if (entry.totalFaxinas > this.maxFaxinas) {
+            this.maxFaxinas = entry.totalFaxinas;
+          }
         }
+      });
 
-        const entry = pagamentosMap.get(userId);
-        entry.totalFaxinas++;
-        entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
-      }
-    });
-
-    this.pagamentos = Array.from(pagamentosMap.values());
-    this.calcularTotais();
-  } catch (error) {
-    console.error('Erro ao carregar pagamentos:', error);
+      this.pagamentos = Array.from(pagamentosMap.values());
+      this.calcularTotais();
+      const totalFaxinasRealizadas = this.totalFaxinas;
+      const somaValoresFaxinas = this.totalMes;
+      this.valorPorFaxina = totalFaxinasRealizadas > 0 ? (somaValoresFaxinas / totalFaxinasRealizadas) : 0;
+    } catch (error) {
+      console.error('Erro ao carregar pagamentos:', error);
+    }
   }
-}
-
-
 
   getMonthDateRange(): [string, string] {
     const date = new Date(this.selectedMonth);
@@ -141,5 +151,107 @@ async loadPayments() {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Reservas');
       XLSX.writeFile(workbook, `reservas_${pagamento.user.first_name}.xlsx`);
     });
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    const names = name.split(' ');
+    let initials = names[0].substring(0, 1).toUpperCase();
+    
+    if (names.length > 1) {
+      initials += names[names.length - 1].substring(0, 1).toUpperCase();
+    }
+    
+    return initials;
+  }
+
+  getProgressWidth(count: number): number {
+    if (this.maxFaxinas === 0) return 0;
+    return (count / this.maxFaxinas) * 100;
+  }
+  
+  // Métodos para o detalhamento
+  async openDetails(pagamento: any) {
+    this.selectedTercerizado = pagamento;
+    
+    try {
+      const [startDate, endDate] = this.getMonthDateRange();
+      const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
+      const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
+      
+      const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
+      
+      this.faxinasDetalhadas = allServicos.filter(servico => {
+        const data = new Date(servico.end_data);
+        return (
+          servico.faxina_userId === pagamento.user.id &&
+          servico.limpeza_realizada &&
+          data.getMonth() === new Date(this.selectedMonth).getMonth() &&
+          data.getFullYear() === new Date(this.selectedMonth).getFullYear()
+        );
+      });
+      
+      this.showModal = true;
+    } catch (error) {
+      console.error('Erro ao carregar detalhes:', error);
+    }
+  }
+  
+  closeModal() {
+    this.showModal = false;
+    this.selectedTercerizado = null;
+    this.faxinasDetalhadas = [];
+  }
+  
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  }
+  
+  getAverageFaxinas(): string {
+    // Implementar lógica real de cálculo de média histórica
+    const avg = this.selectedTercerizado?.totalFaxinas * 0.85;
+    return avg ? avg.toFixed(1) : 'N/A';
+  }
+  
+  getAverageValue(): number {
+    // Implementar lógica real de cálculo de valor médio
+    return this.selectedTercerizado?.valorTotal / this.selectedTercerizado?.totalFaxinas || 0;
+  }
+  
+  getRating(): string {
+    // Implementar lógica real de avaliação
+    const ratings = [4.2, 4.5, 4.8, 4.0, 4.7];
+    return ratings[Math.floor(Math.random() * ratings.length)].toFixed(1);
+  }
+  // Adicione estas novas funções ao componente TypeScript
+
+  // Função para obter o dia da data
+  getDay(dateString: string): string {
+    if (!dateString) return '--';
+    const date = new Date(dateString);
+    return date.getDate().toString().padStart(2, '0');
+  }
+
+  // Função para obter o mês abreviado
+  getMonth(dateString: string): string {
+    if (!dateString) return '--';
+    const date = new Date(dateString);
+    return date.toLocaleString('pt-BR', { month: 'short' });
+  }
+
+  // Função para obter a data da última faxina
+  getLastCleaning(): string {
+    if (!this.faxinasDetalhadas || this.faxinasDetalhadas.length === 0) {
+      return 'N/A';
+    }
+    
+    // Ordenar por data (mais recente primeiro)
+    const sortedFaxinas = [...this.faxinasDetalhadas].sort((a, b) => 
+      new Date(b.end_data).getTime() - new Date(a.end_data).getTime()
+    );
+    
+    const lastDate = new Date(sortedFaxinas[0].end_data);
+    return lastDate.toLocaleDateString('pt-BR');
   }
 }

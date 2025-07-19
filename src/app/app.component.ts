@@ -29,7 +29,6 @@ export class AppComponent implements OnInit {
     'cadastroPredio',
     'cadastroApartamento',
     'cadastroUsuario',
-    'escalaFaxina',
     'escalaFaxinaAdmin',
     'ticketReembolso',
     'controleTicketReembolso',
