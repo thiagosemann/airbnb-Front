@@ -36,7 +36,7 @@ const routes: Routes = [
   { path: 'landing', component: LandingComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'profile', component: ProfileComponent },
   { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
@@ -46,7 +46,7 @@ const routes: Routes = [
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
 
-  { path: 'escalaFaxina/:cod', component: EscalaFaxinaComponent },
+  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
 
   { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },

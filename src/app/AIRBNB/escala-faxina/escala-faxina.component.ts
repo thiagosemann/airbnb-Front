@@ -45,33 +45,22 @@ export class EscalaFaxinaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const cod = this.route.snapshot.paramMap.get('cod');
-    if (!cod) return;
-
-    // Busca usuário pelo telefone (cod já é string)
-    this.userService.getUserByTelefone(cod).subscribe({
-      next: (user) => {
-        this.user = user;
-        this.initDatasPadrao();
-        this.carregarDados();
-        this.apartamentosService.getAllApartamentos().subscribe(list => {
-          this.apartamentos = list;
-        });
-      },
-      error: (err) => {
-        this.toastr.error('Usuário não encontrado para o telefone informado.');
-        this.carregando = false;
-      }
-    });
-  }
-  private initDatasPadrao(): void {
+    this.user = this.authService.getUser();
+    
     // Inicializar datas padrão (próximos 30 dias)
     const hoje = new Date();
     const futuro = new Date();
     futuro.setDate(hoje.getDate() + 30);
-    this.dataInicio = this.formatarDataParaInput(hoje);
+    
+    this.dataInicio = this.formatarDataParaInput(new Date());
     this.dataFim = this.formatarDataParaInput(futuro);
+
+    this.carregarDados();
+    this.apartamentosService.getAllApartamentos().subscribe(list => {
+      this.apartamentos = list;
+    });
   }
+
 
   private carregarDados(): void {
     this.carregando = true;

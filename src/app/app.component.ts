@@ -20,7 +20,6 @@ export class AppComponent implements OnInit {
     'forgotPassword',
     'landing',
     'register',
-    'profile',
   ];
 
   navBarAirbnb: string[] = [
@@ -29,6 +28,7 @@ export class AppComponent implements OnInit {
     'cadastroPredio',
     'cadastroApartamento',
     'cadastroUsuario',
+    'escalaFaxina',
     'escalaFaxinaAdmin',
     'ticketReembolso',
     'controleTicketReembolso',
@@ -37,8 +37,8 @@ export class AppComponent implements OnInit {
     'controle-vistoria',
     'cadastroPortaria',
     'uploadRelatorioCSV',
-    'relatoriosGanhos'
-    
+    'relatoriosGanhos',
+    'profile'
   ];
 
   ngOnInit() {
