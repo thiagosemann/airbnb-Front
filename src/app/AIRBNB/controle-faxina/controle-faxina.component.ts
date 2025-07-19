@@ -9,7 +9,7 @@ import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBN
 @Component({
   selector: 'app-controle-faxina',
   templateUrl: './controle-faxina.component.html',
-  styleUrls: ['./controle-faxina.component.css']
+  styleUrls: ['./controle-faxina.component.css','./controle-faxina.component2.css','./controle-faxina.component3.css']
 })
 export class ControleFaxinaComponent implements OnInit {
   users: User[] = [];
