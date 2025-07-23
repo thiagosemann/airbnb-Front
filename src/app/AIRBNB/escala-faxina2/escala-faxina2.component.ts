@@ -91,11 +91,9 @@ canceladasHoje: any[] = [];
       limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim)
     }).subscribe({
       next: ({ reservas, limpezas }) => {
-        console.log(reservas)
-        console.log(limpezas)
+   
         this.processarFaxinas(reservas, limpezas);
         this.faxinasFiltradas = [...this.faxinasHoje];
-
         this.carregando = false;
       },
       error: (err) => {
@@ -295,17 +293,20 @@ getResponsavelNome(userId: number): string {
     }
   }
   getDiaDaSemana(dataStr: string): string {
-    // Divide a string em [dia, mês, ano]
-    const partes = dataStr.split('/');
-    if (partes.length !== 3) {
+    let data: Date;
+
+    // Detecta formato ISO (yyyy-MM-dd)
+    if (dataStr.includes('-')) {
+      const [ano, mes, dia] = dataStr.split('-').map(Number);
+      data = new Date(ano, mes - 1, dia);
+    } else if (dataStr.includes('/')) {
+      // Formato dd/MM/yyyy
+      const [dia, mes, ano] = dataStr.split('/').map(Number);
+      data = new Date(ano, mes - 1, dia);
+    } else {
       throw new Error(`Formato de data inválido: ${dataStr}`);
     }
 
-    const dia   = parseInt(partes[0], 10);
-    const mes   = parseInt(partes[1], 10) - 1; // JS: meses de 0 (jan) a 11 (dez)
-    const ano   = parseInt(partes[2], 10);
-
-    const data = new Date(ano, mes, dia);
     if (isNaN(data.getTime())) {
       throw new Error(`Data inválida: ${dataStr}`);
     }
@@ -322,7 +323,6 @@ getResponsavelNome(userId: number): string {
 
     return nomes[data.getDay()];
   }
-
 
   contarFaxinasPorDia(userId: number | null | undefined, dataIso: string, lista: ReservaAirbnb[]): number {
     if (!userId) return 0;
