@@ -22,7 +22,7 @@ export class EscalaFaxinaComponent implements OnInit {
   apartamentos: { id: number; nome: string }[] = [];
   tabs = [
     { id: 'hoje',          label: 'Hoje' },
-    { id: 'futuras',        label: 'Personalizado' },
+    { id: 'futuras',        label: 'Outras Datas' },
   ];
   activeTab = 'hoje';
   objectValues = (obj: any): any[] => Object.values(obj);
