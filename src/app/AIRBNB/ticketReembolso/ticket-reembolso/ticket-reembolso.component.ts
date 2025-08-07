@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { TicketReembolso, TicketReembolsoArquivo } from 'src/app/shared/utilitarios/ticketReembolso';
@@ -10,10 +10,11 @@ import { TicketReembolsoService } from 'src/app/shared/service/Banco_de_Dados/AI
   templateUrl: './ticket-reembolso.component.html',
   styleUrls: ['./ticket-reembolso.component.css']
 })
-export class TicketReembolsoComponent implements OnInit {
+export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
   step = 1;
   formTicket!: FormGroup;
   apartamentos: Apartamento[] = [];
+  @ViewChild('inputFile') inputFile!: ElementRef<HTMLInputElement>;
   arquivos: TicketReembolsoArquivo[] = [];
 
   constructor(
@@ -25,6 +26,26 @@ export class TicketReembolsoComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.aptoSrv.getAllApartamentos().subscribe(a => this.apartamentos = a);
+  }
+  ngAfterViewInit(): void {
+    this.inputFile.nativeElement.addEventListener('change', (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      if (input.files && input.files.length) {
+        Array.from(input.files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = (e: ProgressEvent<FileReader>) => {
+            this.arquivos.push({
+              name: file.name,
+              imagemBase64: e.target?.result as string,
+              type: file.type,
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+        // Limpar o input para permitir o upload do mesmo arquivo novamente, se precisar
+        input.value = '';
+      }
+    });
   }
 
   initForm() {
@@ -58,23 +79,7 @@ export class TicketReembolsoComponent implements OnInit {
     this.step = 1;
   }
 
-  onFileChange(event: any) {
-    const files: FileList = event.target.files;
-    if (files && files.length) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.arquivos.push({
-            name: file.name,  // Adiciona o nome do arquivo
-            imagemBase64: e.target.result,
-            type: file.type,
-          });
-        };
-        reader.readAsDataURL(file);
-      });
-      event.target.value = '';
-    }
-  }
+
 
   removeArquivo(idx: number) {
     this.arquivos.splice(idx, 1);

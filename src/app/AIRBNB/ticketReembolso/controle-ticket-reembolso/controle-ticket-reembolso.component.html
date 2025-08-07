@@ -9,7 +9,8 @@
           type="text" 
           class="form-control border-start-0" 
           placeholder="Pesquisar por apê, item ou status..." 
-          (input)="filtrarTickets($event)">
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="filtrarTickets()">
       </div>
       <button class="btn btn-primary flex-shrink-0" (click)="redirectToNovoTicket()">Novo</button>
     </div>
@@ -53,7 +54,6 @@
             <th>Status</th>
             <th>Material (R$)</th>
             <th>Mão de Obra (R$)</th>
-            <th>Autorização</th>
             <th class="text-center">Ações</th>
           </tr>
         </thead>
@@ -64,10 +64,6 @@
             <td>{{ ticket.status }}</td>
             <td>{{ ticket.valor_material | number:'1.2-2' }}</td>
             <td>{{ ticket.valor_mao_obra | number:'1.2-2' }}</td>
-            <td>
-              <span *ngIf="ticket.autorizado_proprietario">Sim</span>
-              <span *ngIf="!ticket.autorizado_proprietario">Não</span>
-            </td>
             <td class="text-center">
               <button class="btn btn-sm btn-outline-primary me-1" (click)="editarTicket(ticket)">
                 <i class="fas fa-edit"></i>

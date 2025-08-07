@@ -16,7 +16,7 @@ export class ControleTicketReembolsoComponent implements OnInit {
   form!: FormGroup;
   selectedId?: number;
   arquivosModal: TicketReembolsoArquivo[] = [];
-
+  searchTerm: string = '';
   constructor(
     private service: TicketReembolsoService,
     private fb: FormBuilder,
@@ -44,7 +44,6 @@ export class ControleTicketReembolsoComponent implements OnInit {
       descricao_problema: [''],
       solucao: [''],
       status: ['PENDENTE', Validators.required],
-      autorizado_proprietario: [false],
       data_autorizacao: [null],
       valor_material: [null],
       valor_mao_obra: [null],
@@ -52,8 +51,8 @@ export class ControleTicketReembolsoComponent implements OnInit {
     });
   }
 
-  filtrarTickets(event: any) {
-    const term = event.target.value.toLowerCase();
+  filtrarTickets() {
+    const term = this.searchTerm.toLowerCase();
     this.ticketsFiltrados = this.tickets.filter(t =>
       t.apartamento_id?.toString().includes(term) ||
       (t.item_problema ?? '').toLowerCase().includes(term) ||
@@ -70,7 +69,6 @@ export class ControleTicketReembolsoComponent implements OnInit {
       console.log(resp);
       this.form.patchValue({
         ...resp,
-        autorizado_proprietario: !!resp.autorizado_proprietario,
         data_autorizacao: resp.data_autorizacao ? resp.data_autorizacao.substring(0, 10) : null,
         data_conclusao: resp.data_conclusao ? resp.data_conclusao.substring(0, 10) : null,
         // outros campos que precisar
@@ -87,7 +85,6 @@ export class ControleTicketReembolsoComponent implements OnInit {
   onSubmit() {
     const payload: Partial<TicketReembolso> = {
       ...this.form.value,
-      autorizado_proprietario: this.form.value.autorizado_proprietario ? 1 : 0,
       data_autorizacao: this.form.value.data_autorizacao || null,
       data_conclusao: this.form.value.data_conclusao || null
     };
