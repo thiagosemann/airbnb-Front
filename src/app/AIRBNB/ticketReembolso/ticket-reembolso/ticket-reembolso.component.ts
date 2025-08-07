@@ -34,7 +34,6 @@ export class TicketReembolsoComponent implements OnInit {
       descricao_problema: ['', Validators.required],
       solucao: ['Selecione', Validators.required],
       status: ['PENDENTE', Validators.required],
-      autorizado_proprietario: [false],    // boolean (0/1)
       data_autorizacao: [null],            // date string/null
       notificado_forest: [false],          // boolean (0/1)
       data_notificacao: [null],            // date string/null
@@ -102,7 +101,6 @@ export class TicketReembolsoComponent implements OnInit {
       descricao_problema: raw.descricao_problema,
       solucao: raw.solucao || null,
       status: raw.status || 'Aberto',
-      autorizado_proprietario: raw.autorizado_proprietario ? 1 : 0,
       data_autorizacao: raw.data_autorizacao || null,
       notificado_forest: raw.notificado_forest ? 1 : 0,
       data_notificacao: raw.data_notificacao || null,
@@ -133,7 +131,6 @@ export class TicketReembolsoComponent implements OnInit {
       solucao: 'Selecione',
       valor_material: 0,
       valor_mao_obra: 0,
-      autorizado_proprietario: false,
       notificado_forest: false,
       pagamento_confirmado: false,
     });

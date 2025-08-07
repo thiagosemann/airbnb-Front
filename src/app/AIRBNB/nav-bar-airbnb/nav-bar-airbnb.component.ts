@@ -46,6 +46,9 @@ export class NavBarAirbnbComponent {
   cadastroApartamento(): void {
     this.router.navigate(['/cadastroApartamento']);
   }
+  cadastroProprietarios(): void {
+    this.router.navigate(['/cadastroProprietarios']);
+  }
   cadastroUsuario(): void {
     this.router.navigate(['/cadastroUsuario']);
   }

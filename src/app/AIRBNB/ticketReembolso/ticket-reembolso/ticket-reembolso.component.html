@@ -22,7 +22,6 @@
           <label class="form-label small fw-bold text-muted">Status *</label>
           <select formControlName="status" class="form-select form-select-sm border-primary-subtle">
             <option value="PENDENTE">Pendente</option>
-            <option value="AGUARDANDO PAGAMENTO">Aguardando Pagamento</option>
             <option value="PAGO">Pago</option>
             <option value="CANCELADO">Cancelado</option>
           </select>
@@ -150,7 +149,8 @@
             'text-info': formTicket.value.status === 'PENDENTE',
             'text-warning': formTicket.value.status === 'AGUARDANDO PAGAMENTO',
             'text-success': formTicket.value.status === 'PAGO',
-            'text-danger': formTicket.value.status === 'CANCELADO'
+            'text-danger': formTicket.value.status === 'CANCELADO',
+            'text-primary': formTicket.value.status === 'AUTORIZADO'
           }">
             {{ formTicket.value.status }}
           </strong>

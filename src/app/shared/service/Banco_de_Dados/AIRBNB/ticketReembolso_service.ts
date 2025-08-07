@@ -61,4 +61,19 @@ export class TicketReembolsoService {
       { headers: this.getHeaders() }
     );
   }
+
+  /** Busca um ticket por código de autorização (auth) */
+  getReembolsoByAuth(auth: string): Observable<TicketReembolso> {
+    return this.http.get<TicketReembolso>(`${this.url}/ticket-reembolso/auth/${auth}`, {
+      headers: this.getHeaders()
+    });
+  }
+  /** Aceite do proprietário para o reembolso */
+  aceitarReembolsoProprietario(id: number): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(
+      `${this.url}/ticket-reembolso/${id}/aceite-proprietario`,
+      {}, // corpo vazio
+      { headers: this.getHeaders() }
+    );
+  }
 }

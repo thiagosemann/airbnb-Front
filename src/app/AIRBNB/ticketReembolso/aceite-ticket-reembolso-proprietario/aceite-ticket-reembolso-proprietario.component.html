@@ -1,0 +1,129 @@
+<!-- aceite-ticket-reembolso-proprietario.component.html -->
+<div class="ticket-container">
+  <div class="header-card">
+    <div class="header-icon">
+        <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
+    </div>
+    <div class="status-badge" [ngClass]="statusClass()">
+      {{ ticket?.status }}
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="bi bi-building"></i> Dados do Apartamento
+      </h2>
+      <div class="info-row">
+        <span class="info-label">Apartamento:</span>
+        <span class="info-value">{{ ticket?.apartamento_nome}}</span>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="bi bi-tools"></i> Detalhes do Serviço
+      </h2>
+      <div class="info-row">
+        <span class="info-label">Item:</span>
+        <span class="info-value">{{ ticket?.item_problema }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Descrição:</span>
+        <span class="info-value descricao-problema">{{ ticket?.descricao_problema }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Solução:</span>
+        <span class="info-value">{{ getSolucaoNome(ticket?.solucao) }}</span>
+
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="bi bi-cash-coin"></i> Valores
+      </h2>
+      <div class="info-row">
+        <span class="info-label">Material:</span>
+        <span class="info-value text-success">R$ {{ ticket?.valor_material || 0 | number:'1.2-2' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Mão de obra:</span>
+        <span class="info-value text-success">R$ {{ ticket?.valor_mao_obra || 0 | number:'1.2-2' }}</span>
+      </div>
+      <div class="info-row total-row">
+        <span class="info-label">Total:</span>
+        <span class="info-value total-value">R$ {{ totalValor | number:'1.2-2' }}</span>
+      </div>
+      <div *ngIf="ticket?.status === 'PENDENTE'" class="mt-3 text-center">
+        <button class="btn btn-success" (click)="realizarPagamento()">
+          <i class="bi bi-check-circle"></i> Pagar
+        </button>
+      </div>
+    </div>
+
+    <div class="info-section" *ngIf="arquivosVisiveis && arquivosVisiveis.length">
+        <button class="btn-download mb-2" (click)="downloadAllFiles()">
+            <i class="bi bi-download"></i> Baixar Todos os Arquivos
+        </button>
+        <h2 class="section-title">
+        <i class="bi bi-paperclip"></i> Anexos ({{ arquivosVisiveis.length }})
+
+      </h2>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <h5 class="mb-2"><i class="bi bi-images"></i> Fotos</h5>
+          <div class="attachments-grid attachments-scroll">
+            <ng-container *ngFor="let file of getFotos()">
+              <div class="attachment-item" (click)="openFileModal(file)">
+                <img [src]="file.url" alt="Imagem" class="attachment-image">
+              </div>
+            </ng-container>
+            <div *ngIf="getFotos().length === 0" class="text-muted">Nenhuma foto enviada</div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <h5 class="mb-2"><i class="bi bi-file-earmark-pdf"></i> Documentos</h5>
+          <div class="attachments-grid attachments-scroll">
+            <ng-container *ngFor="let file of getDocumentos()">
+              <div class="attachment-item" (click)="downloadFile(file)">
+                <div class="pdf-link" style="width:100px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <img src="../../../assets/images/PDF.png" alt="PDF" style="width:32px;height:32px;object-fit:contain;">
+                  <div class="attachment-name" style="font-size:0.8rem;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ file.name }}</div>
+                </div>
+              </div>
+            </ng-container>
+            <div *ngIf="getDocumentos().length === 0" class="text-muted">Nenhum documento enviado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal para imagem em tamanho maior -->
+<!-- Modal para arquivos -->
+<div class="file-modal-backdrop" *ngIf="modalFile" (click)="closeFileModal()">
+  <div class="file-modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeFileModal()">
+      <i class="fa fa-close"></i>
+    </button>
+
+    <div class="modal-body">
+      <ng-container *ngIf="modalFile.type.startsWith('image'); else pdfModal">
+        <img [src]="modalFile.url" alt="Imagem ampliada" class="modal-file-image">
+      </ng-container>
+      
+      <ng-template #pdfModal>
+        <div class="pdf-preview">
+          <iframe [src]="modalFile.url" width="100%" height="500px" style="border:none;"></iframe>
+        </div>
+      </ng-template>
+      
+      <div class="modal-actions">
+        <a [href]="modalFile.url" download class="btn-download">
+          <i class="bi bi-download"></i> Baixar Arquivo
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

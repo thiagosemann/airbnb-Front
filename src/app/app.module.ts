@@ -37,6 +37,8 @@ import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
 import { CalendarioPorApartamentoComponent } from './AIRBNB/calendario-por-apartamento/calendario-por-apartamento.component';
 import { TicketReembolsoComponent } from './AIRBNB/ticketReembolso/ticket-reembolso/ticket-reembolso.component';
 import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/controle-ticket-reembolso/controle-ticket-reembolso.component';
+import { CadastroProprietariosComponent } from './Cadastro/cadastro-proprietarios/cadastro-proprietarios.component';
+import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReembolso/aceite-ticket-reembolso-proprietario/aceite-ticket-reembolso-proprietario.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,9 @@ import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/contr
     CalendarioPorApartamentoComponent,
     TicketReembolsoComponent,
     ControleTicketReembolsoComponent,
-  ],
+    CadastroProprietariosComponent,
+    AceiteTicketReembolsoProprietarioComponent
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,
