@@ -11,7 +11,7 @@ import { ApartamentosProprietarioService } from 'src/app/shared/service/Banco_de
 @Component({
   selector: 'app-cadastro-proprietarios',
   templateUrl: './cadastro-proprietarios.component.html',
-  styleUrls: ['./cadastro-proprietarios.component.css']
+  styleUrls: ['./cadastro-proprietarios.component.css','./cadastro-proprietarios2.component.css','./cadastro-proprietarios3.component.css']
 })
 export class CadastroProprietariosComponent implements OnInit {
   users: User[] = [];
