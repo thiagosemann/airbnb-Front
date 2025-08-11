@@ -25,6 +25,8 @@ export class CadastroProprietariosComponent implements OnInit {
   userCheckins: any[] = [];
   apartamentos: Apartamento[] = [];
   apartamentosSelecionados: number[] = [];
+  searchAptoTerm: string = '';
+  apartamentosFiltrados: Apartamento[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -54,11 +56,28 @@ export class CadastroProprietariosComponent implements OnInit {
     this.apartamentoService.getAllApartamentos().subscribe(
       (apartamentos: Apartamento[]) => {
         this.apartamentos = apartamentos;
+        this.apartamentosFiltrados = [...apartamentos]; // Inicializa com todos os apartamentos
       },
       (error) => {
         console.error('Erro ao carregar apartamentos:', error);
       }
     );
+  }
+
+  filtrarApartamentos() {
+    if (!this.searchAptoTerm) {
+      this.apartamentosFiltrados = [...this.apartamentos];
+      return;
+    }
+    const term = this.searchAptoTerm.toLowerCase().trim();
+    this.apartamentosFiltrados = this.apartamentos.filter(apto => 
+      apto.nome.toLowerCase().includes(term) || 
+      apto.id.toString().includes(term)
+    );
+  }
+  limparPesquisaAptos() {
+    this.searchAptoTerm = '';
+    this.apartamentosFiltrados = [...this.apartamentos];
   }
 
   async carregarUsuarios() {

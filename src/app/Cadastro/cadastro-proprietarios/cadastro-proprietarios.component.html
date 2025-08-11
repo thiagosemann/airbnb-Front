@@ -153,8 +153,23 @@
           <div class="form-section">
             <h3><i class="bi bi-building"></i> Apartamentos Vinculados</h3>
             
+            <!-- Campo de pesquisa para apartamentos -->
+            <div class="apto-search-container">
+              <i class="bi bi-search"></i>
+              <input 
+                type="text" 
+                placeholder="Pesquisar apartamentos..."
+                [(ngModel)]="searchAptoTerm"
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="filtrarApartamentos()"
+              >
+              <button class="btn-clear-search" *ngIf="searchAptoTerm" (click)="limparPesquisaAptos()">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+            
             <div class="apartamentos-container">
-              <div *ngFor="let apto of apartamentos" class="apartamento-item">
+              <div *ngFor="let apto of apartamentosFiltrados" class="apartamento-item">
                 <input 
                   type="checkbox" 
                   [id]="'apto-' + apto.id"
@@ -166,8 +181,8 @@
                 </label>
               </div>
               
-              <div *ngIf="apartamentos.length === 0" class="no-apartamentos">
-                Nenhum apartamento cadastrado no sistema
+              <div *ngIf="apartamentosFiltrados.length === 0" class="no-apartamentos">
+                Nenhum apartamento encontrado
               </div>
             </div>
           </div>
