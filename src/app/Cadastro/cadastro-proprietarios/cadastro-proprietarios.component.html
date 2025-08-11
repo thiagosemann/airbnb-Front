@@ -1,191 +1,174 @@
-<!-- users-control.component.html -->
-<div class="container py-4">
+<!-- cadastro-proprietarios.component.html -->
+<div class="container">
+  <div class="header-card">
+    <div class="header-title">
+      <i class="bi bi-people-fill"></i>
+      <h1>Proprietários</h1>
+    </div>
+    
+    <div class="header-actions">
+      <div class="search-container">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Pesquisar proprietários..."
+          [(ngModel)]="searchTerm"
+          (input)="filtrar()"
+        >
+      </div>
+      <button class="btn-add" (click)="abrirModal()">
+        <i class="bi bi-plus-lg"></i> Novo Proprietário
+      </button>
+    </div>
+  </div>
 
-
-  <div class="card border-success shadow-lg">
-    <div class="card-header bg-success text-white py-3">
-      <div class="row align-items-center">
-        <div class="col-md-4">
-          <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Usuários</h5>
+  <div class="users-grid">
+    <div *ngFor="let user of filteredUsers" class="user-card">
+      <div class="user-header">
+        <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+        <div class="user-cpf">{{ formatCPF(user.cpf) }}</div>
+      </div>
+      
+      <div class="user-details">
+        <div class="detail-item">
+          <i class="bi bi-telephone"></i>
+          {{ formtarTelefone(user.Telefone) }}
         </div>
-        <div class="col-md-6">
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input 
-              type="text" 
-              class="form-control search-input" 
-              placeholder="Pesquisar por nome, CPF ou telefone..."
-              [(ngModel)]="searchTerm"
-              (input)="filtrar()"
-            >
-          </div>
+        <div class="detail-item">
+          <i class="bi bi-envelope"></i>
+          {{ user.email || 'Não informado' }}
         </div>
-        <div class="col-md-2 text-end">
-          <button class="btn btn-addUser" (click)="abrirModal()">
-            <i class="fas fa-plus me-2"></i>Novo
-          </button>
-        </div>
+      </div>
+      
+      <div class="user-actions">
+        <button class="btn-edit" (click)="editarUsuario(user)" title="Editar">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
+          <i class="bi bi-trash"></i>
+        </button>
       </div>
     </div>
-    <div class="card-body p-0">
-      <div class="table-wrapper">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-success align-middle">
-              <tr>
-                <th class="py-3">Nome</th>
-                <th class="py-3">CPF</th>
-                <th class="py-3">Telefone</th>
-                <th class="py-3">Tipo</th>
-                <th class="py-3 text-end">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of filteredUsers" class="align-middle">
-                <td class="fw-medium">{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ formatCPF(user.cpf) }}</td>
-                <td>{{ formtarTelefone(user.Telefone) }}</td>
-                <td>
-                  <span class="badge bg-success-subtle text-success">
-                    {{ user.role | titlecase }}
-                  </span>
-                </td>
-                <td class="text-end">
-                  <div class="d-flex justify-content-end gap-2">
-                    <button class="btn btn-sm btn-outline-success" (click)="editarUsuario(user)"
-                      title="Editar usuário">
-                      <i class="fas fa-pencil-alt"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)"
-                      title="Excluir usuário">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    
+    <div *ngIf="filteredUsers.length === 0" class="no-results">
+      <i class="bi bi-people"></i>
+      <p>Nenhum proprietário encontrado</p>
     </div>
   </div>
 
   <!-- Modal -->
-  <!-- Modal -->
-<div class="modal" *ngIf="showModal">
-  <div class="modal-content">
-    <div class="modal-header bg-success text-white">
-      <h3 class="mb-0">{{ isEditing ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
-      <button class="close-btn" (click)="fecharModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-success" role="status">
-          <span class="visually-hidden">Carregando...</span>
-        </div>
+  <div class="modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Editar Proprietário' : 'Novo Proprietário' }}</h2>
+        <button class="modal-close" (click)="fecharModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
-
-      <form *ngIf="!isLoading" [formGroup]="userForm" class="row g-3">
-        <!-- Seção 1: Informações Pessoais -->
-        <div class="col-md-6">
-          <div class="section-header mb-3">
-            <h5 class="section-title"><i class="fas fa-user-circle me-2"></i>Informações Pessoais</h5>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label fw-medium">Nome</label>
-            <input type="text" class="form-control border-success" formControlName="first_name">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label fw-medium">Sobrenome</label>
-            <input type="text" class="form-control border-success" formControlName="last_name">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-medium">CPF</label>
-            <input type="text" class="form-control border-success" 
-                   formControlName="cpf" mask="000.000.000-00">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-medium">Telefone</label>
-            <input type="text" class="form-control border-success" 
-                   formControlName="Telefone" mask="(00) 00000-0000">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-medium">Email</label>
-            <input type="text" class="form-control border-success" 
-                   formControlName="email" >
-          </div>
-
+      
+      <div class="modal-body">
+        <div *ngIf="isLoading" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Carregando informações...</p>
         </div>
-
-                  <!-- Seção 2: Documentos -->
-          <!-- ... seção de Informações Pessoais acima ... -->
-
-          <!-- Seção 2: Documentos – somente em edição -->
-          <div class="col-md-6" *ngIf="isEditing">
-            <div class="section-header mb-3">
-              <h5 class="section-title"><i class="fas fa-file-alt me-2"></i>Documentos</h5>
+        
+        <form *ngIf="!isLoading" [formGroup]="userForm">
+          <!-- Informações Pessoais -->
+          <div class="form-section">
+            <h3><i class="bi bi-person-circle"></i> Informações Pessoais</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nome *</label>
+                <input type="text" formControlName="first_name" placeholder="Nome do proprietário">
+              </div>
+              
+              <div class="form-group">
+                <label>Sobrenome</label>
+                <input type="text" formControlName="last_name" placeholder="Sobrenome">
+              </div>
             </div>
-
-            <div class="row g-3">
-              <!-- Selfie -->
-              <div class="col-12">
-                <div class="mb-3">
-                  <label class="form-label fw-medium">Selfie</label>
-                  <div *ngIf="userForm.get('imagemBase64')?.value; else noImage">
-                    <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value"
-                        alt="Selfie do usuário"
-                        class="img-fluid rounded shadow-sm">
-                  </div>
-                  <ng-template #noImage>
-                    <p class="text-muted small">Nenhuma selfie cadastrada.</p>
-                  </ng-template>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>CPF *</label>
+                <input type="text" formControlName="cpf" mask="000.000.000-00" placeholder="000.000.000-00">
+              </div>
+              
+              <div class="form-group">
+                <label>Telefone *</label>
+                <input type="text" formControlName="Telefone" mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" formControlName="email" placeholder="email@exemplo.com">
+            </div>
+          </div>
+          
+          <!-- Apartamentos Vinculados -->
+          <div class="form-section">
+            <h3><i class="bi bi-building"></i> Apartamentos Vinculados</h3>
+            
+            <div class="apartamentos-container">
+              <div *ngFor="let apto of apartamentos" class="apartamento-item">
+                <input 
+                  type="checkbox" 
+                  [id]="'apto-' + apto.id"
+                  [checked]="apartamentosSelecionados.includes(apto.id)"
+                  (change)="toggleAptoSelection(apto.id)"
+                >
+                <label [for]="'apto-' + apto.id">
+                  {{ apto.nome }} <span>(ID: {{ apto.id }})</span>
+                </label>
+              </div>
+              
+              <div *ngIf="apartamentos.length === 0" class="no-apartamentos">
+                Nenhum apartamento cadastrado no sistema
+              </div>
+            </div>
+          </div>
+          
+          <!-- Documentos (só em edição) -->
+          <div *ngIf="isEditing" class="form-section">
+            <h3><i class="bi bi-file-earmark"></i> Documentos</h3>
+            
+            <div class="document-preview">
+              <div *ngIf="userForm.get('imagemBase64')?.value; else noImage">
+                <img [src]="'data:image/png;base64,' + userForm.get('imagemBase64')?.value" alt="Selfie do usuário">
+              </div>
+              <ng-template #noImage>
+                <div class="no-document">
+                  <i class="bi bi-image"></i>
+                  <p>Nenhuma selfie cadastrada</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          
+          <!-- Check-ins (só em edição) -->
+          <div *ngIf="isEditing && userCheckins?.length" class="form-section">
+            <h3><i class="bi bi-clipboard-check"></i> Check-ins Realizados</h3>
+            
+            <div class="checkins-container">
+              <div *ngFor="let ci of userCheckins" class="checkin-item">
+                <div class="checkin-info">
+                  <div><strong>Cód. Reserva:</strong> {{ ci.cod_reserva }}</div>
+                  <div><strong>Apartamento:</strong> {{ getAptoName(ci.apartamento_id) }}</div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Seção 3: Check-ins realizados – somente em edição -->
-          <div class="col-12" *ngIf="isEditing">
-            <div class="section-header mb-3">
-              <h5 class="section-title">
-                <i class="fas fa-clipboard-list me-2"></i>Check-ins Realizados
-              </h5>
-            </div>
-
-            <div *ngIf="userCheckins?.length; else noCheckins">
-              <div >
-                <table class="table table-bordered align-middle mb-0">
-                  <thead class="table-success">
-                    <tr>
-                      <th>Cod Reserva</th>
-                      <th>Apartamento ID</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let ci of userCheckins">
-                      <td>{{ ci.cod_reserva }}</td>
-                      <td>{{ ci.apartamento_id }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <ng-template #noCheckins>
-              <p class="text-muted small">Este usuário ainda não realizou nenhum check-in.</p>
-            </ng-template>
-          </div>
-
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
-      <button class="btn btn-success" (click)="salvarUsuario()" >
-        <i class="fas fa-save me-2"></i>{{ isEditing ? 'Atualizar' : 'Salvar' }}
-      </button>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+        <button class="btn-save" (click)="salvarUsuario()" [disabled]="userForm.invalid">
+          {{ isEditing ? 'Atualizar' : 'Salvar' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 </div>
