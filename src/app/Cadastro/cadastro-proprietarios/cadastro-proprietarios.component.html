@@ -22,7 +22,49 @@
     </div>
   </div>
 
-  <div class="users-grid">
+  <!-- Tabela para desktop -->
+  <div class="d-none d-md-block">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-header">
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ formatCPF(user.cpf) }}</td>
+            <td>{{ formtarTelefone(user.Telefone) }}</td>
+            <td>{{ user.email || '-' }}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-edit" (click)="editarUsuario(user)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredUsers.length === 0">
+            <td colspan="5" class="no-results-table">
+              <i class="bi bi-people"></i>
+              Nenhum proprietário encontrado
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cards para mobile -->
+  <div class="users-grid d-block d-md-none">
     <div *ngFor="let user of filteredUsers" class="user-card">
       <div class="user-header">
         <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
