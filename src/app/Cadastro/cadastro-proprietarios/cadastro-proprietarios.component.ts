@@ -129,11 +129,11 @@ export class CadastroProprietariosComponent implements OnInit {
             '$1.$2.$3-$4'
           )
         });
-        
         // Buscar apartamentos já vinculados
         this.aptoProprietarioService.getApartamentosByProprietario(user.id).subscribe(
           (apartamentos: any[]) => {
             this.apartamentosSelecionados = apartamentos.map(a => a.id);
+            this.ordenarApartamentosFiltrados();
             this.isLoading = false;
           },
           (err) => {
@@ -146,6 +146,13 @@ export class CadastroProprietariosComponent implements OnInit {
         console.error('Erro ao carregar usuário:', error);
       }
     );
+  }
+
+  ordenarApartamentosFiltrados() {
+    this.apartamentosFiltrados = [
+      ...this.apartamentos.filter(a => this.apartamentosSelecionados.includes(a.id)),
+      ...this.apartamentos.filter(a => !this.apartamentosSelecionados.includes(a.id))
+    ];
   }
 
   async excluirUsuario(userId: number) {
