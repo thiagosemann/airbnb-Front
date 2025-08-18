@@ -35,7 +35,7 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
           const reader = new FileReader();
           reader.onload = (e: ProgressEvent<FileReader>) => {
             this.arquivos.push({
-              name: file.name,
+              file_name: file.name,
               imagemBase64: e.target?.result as string,
               type: file.type,
             });
@@ -53,17 +53,18 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
       apartamento_id: [null, Validators.required],
       item_problema: ['', Validators.required],
       descricao_problema: ['', Validators.required],
-      solucao: ['Selecione', Validators.required],
-      status: ['PENDENTE', Validators.required],
-      data_autorizacao: [null],            // date string/null
-      notificado_forest: [false],          // boolean (0/1)
-      data_notificacao: [null],            // date string/null
-      valor_material: [0, [Validators.min(0)]],
-      valor_mao_obra: [0, [Validators.min(0)]],
-      data_conclusao: [null],              // date string/null
-      pagamento_confirmado: [false],       // boolean (0/1)
-      data_pagamento: [null],              // date string/null
-      data_arquivamento: [null],           // date string/null
+      solucao: ['', Validators.required],
+      notificado_forest: [0, Validators.required],
+      data_notificacao: [null],
+      valor_material: [null],
+      valor_mao_obra: [null],
+      data_realizado: [null],
+      pagamento_confirmado: [0, Validators.required],
+      data_pagamento: [null],
+      created_at: [null],
+      updated_at: [null],
+      auth: [''],
+      link_pagamento: ['']
     });
   }
 
@@ -95,29 +96,26 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
       this.formTicket.markAllAsTouched();
       return;
     }
-
-    // Monta o payload garantindo todos os campos do backend
     const raw = this.formTicket.value;
-
-    // Converte booleanos do formulário para 0/1, nulo para campos de data/string
     const payload: Omit<TicketReembolso, 'id' | 'files'> = {
       apartamento_id: raw.apartamento_id,
       item_problema: raw.item_problema,
       descricao_problema: raw.descricao_problema,
-      solucao: raw.solucao || null,
-      status: raw.status || 'Aberto',
-      data_autorizacao: raw.data_autorizacao || null,
-      notificado_forest: raw.notificado_forest ? 1 : 0,
+      solucao: raw.solucao,
+      status: 'PENDENTE',
+      notificado_forest: raw.notificado_forest,
       data_notificacao: raw.data_notificacao || null,
       valor_material: raw.valor_material || null,
       valor_mao_obra: raw.valor_mao_obra || null,
-      data_conclusao: raw.data_conclusao || null,
-      pagamento_confirmado: raw.pagamento_confirmado ? 1 : 0,
+      data_realizado: raw.data_realizado || null,
+      pagamento_confirmado: raw.pagamento_confirmado,
       data_pagamento: raw.data_pagamento || null,
-      data_arquivamento: raw.data_arquivamento || null,
+      created_at: raw.created_at || null,
+      updated_at: raw.updated_at || null,
+      auth: raw.auth || '',
+      link_pagamento: raw.link_pagamento || '',
       arquivos: this.arquivos || [],
     };
-
     this.ticketSrv.createReembolso(payload).subscribe({
       next: () => {
         alert('Ticket de reembolso criado com sucesso!');

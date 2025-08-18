@@ -1,215 +1,194 @@
-/* Container principal */
+/* controle-ticket-reembolso.component.css */
+/* Importar ícones Bootstrap */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css');
+
 .container {
-  padding: 20px;
-  max-height: 90vh;
+  padding: 16px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
-/* Estilização do card que envolve a tabela */
-.card {
-  margin-bottom: 20px;
+/* Header */
+.header-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Títulos das seções do formulário */
-.section-title {
-  border-bottom: 2px solid #198754;
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-title i {
+  font-size: 24px;
   color: #198754;
-  margin-bottom: 15px;
-  padding-bottom: 5px;
 }
 
-/* Tabela com scroll e hover */
-.table-wrapper {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+.header-title h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
 }
 
-/* Scrollbar customizada */
-.table-wrapper::-webkit-scrollbar {
-  width: 7px;
-}
-.table-wrapper::-webkit-scrollbar-track {
-  background: #e0e0e0; 
-  border-radius: 10px;
-}
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #006400; 
-  border-radius: 10px;
-}
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #0056b3;
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Card Header */
-.card-header {
-  background-color: #198754;
-  color: #fff;
-  border-bottom: 2px solid rgba(25, 135, 84, 0.1);
-  padding: 0.75rem 1.25rem;
-}
-
-/* Search */
 .search-container {
   position: relative;
-  width: 300px;
+  display: flex;
+  align-items: center;
 }
-.search-icon {
+
+.search-container i {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
-  opacity: 0.8;
-}
-.search-input {
-  padding-left: 36px;
-  border-radius: 25px;
-  border: none;
-  height: 32px;
-  font-size: 0.9rem;
+  color: #6c757d;
+  font-size: 1.1rem;
 }
 
-/* Table */
-.table-hover tbody tr:hover {
-  background-color: rgba(25, 135, 84, 0.05);
-}
-.table th {
-  background-color: #198754;
-  color: #fff;
-  font-weight: 500;
-  vertical-align: middle;
-}
-.align-middle th,
-.align-middle td {
-  vertical-align: middle !important;
-}
-
-/* Badges */
-.badge.bg-success-subtle {
-  background-color: #d1e7dd !important;
-  color: #0f5132;
-  padding: 0.25em 0.5em;
-  border-radius: 0.5rem;
-  font-weight: 500;
-}
-
-/* Ações centralizadas */
-.text-center button {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-}
-
-
-/* Customização da barra de rolagem na modal-body (opcional) */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background-color: #b7b7b7;
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
-
-/* Modal (fundo escurecido e centralização) */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
+.search-container input {
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 16px 10px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #f8f9fa;
+}
+
+.btn-add {
+  background-color: #198754;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1050;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.3s;
 }
 
-/* Modal Content com largura maior para comportar o formulário */
-.modal-content {
-  background: #fff;
-  width: 90%;
-  max-width: 900px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+.btn-add:hover {
+  background-color: #157347;
 }
 
-/* Cabeçalho da modal */
-.modal-header {
+/* Cards para mobile */
+.tickets-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.ticket-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #198754;
-  color: #fff;
-  padding: 10px 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
+.ticket-apartment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
 }
 
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
+.ticket-status {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
-/* Corpo da modal com scroll interno, se necessário */
-.modal-body {
-  padding: 20px;
-  max-height: 60vh;
-  overflow-y: auto;
+.status-pendente {
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
-/* Rodapé da modal */
-.modal-footer {
+.status-autorizado {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pagamento {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.status-pago {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-cancelado {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.ticket-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.ticket-values {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.value-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.value-item span {
+  color: #6c757d;
+}
+
+.value-item strong {
+  color: #198754;
+  font-weight: 500;
+}
+
+.ticket-actions {
   display: flex;
   justify-content: flex-end;
-  padding: 10px 15px;
-  background: #f4f4f4;
-  gap: 10px;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
 }
-/* Search bar mobile-first */
-.search-mobile {
-  max-width: 100%;
-}
-.search-mobile .input-group-text {
-  border-right: 0;
-  background: #fff;
-}
-.search-mobile .form-control {
-  border-left: 0;
-  border-radius: 0 1.5rem 1.5rem 0;
-}
-
-/* Cards grid responsive */
-@media (max-width: 767px) {
-  .card h-5.card-title {
-    font-size: 1rem;
-  }
-  .card .list-unstyled li {
-    display: flex;
-    align-items: center;
-    margin-bottom: .25rem;
-  }
-  .card .list-unstyled li i {
-    width: 1.25rem;
-  }
-}
-
-/* Ajustes visuais */
-.card.shadow-sm {
-  transition: transform .2s, box-shadow .2s;
-}
-.card.shadow-sm:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-

@@ -17,16 +17,6 @@
           </select>
         </div>
 
-        <!-- Status -->
-        <div class="col-md-6">
-          <label class="form-label small fw-bold text-muted">Status *</label>
-          <select formControlName="status" class="form-select form-select-sm border-primary-subtle">
-            <option value="PENDENTE">Pendente</option>
-            <option value="PAGO">Pago</option>
-            <option value="CANCELADO">Cancelado</option>
-          </select>
-        </div>
-
         <!-- Item/problema -->
         <div class="col-12">
           <label class="form-label small fw-bold text-muted">Item / Problema *</label>
@@ -82,7 +72,7 @@
                    class="badge d-flex align-items-center">
                 <i class="bi me-1" [class.bi-file-earmark]="!file.type.startsWith('image')" 
                    [class.bi-image]="file.type.startsWith('image')"></i>
-                {{ (file.name || 'Arquivo') }}
+                {{ (file.file_name || 'Arquivo') }}
                 <button type="button" class="btn-close ms-1 fs-8" (click)="removeArquivo(i)"></button>
               </div>
             </div>
@@ -143,14 +133,8 @@
         </div>
         <div class="confirmation-item">
           <span>Status:</span>
-          <strong [ngClass]="{
-            'text-info': formTicket.value.status === 'PENDENTE',
-            'text-warning': formTicket.value.status === 'AGUARDANDO PAGAMENTO',
-            'text-success': formTicket.value.status === 'PAGO',
-            'text-danger': formTicket.value.status === 'CANCELADO',
-            'text-primary': formTicket.value.status === 'AUTORIZADO'
-          }">
-            {{ formTicket.value.status }}
+          <strong class="text-info">
+            PENDENTE
           </strong>
         </div>
         <div class="confirmation-item">
@@ -164,7 +148,7 @@
              class="badge d-flex align-items-center">
           <i class="bi me-1" [class.bi-file-earmark]="!file.type.startsWith('image')" 
              [class.bi-image]="file.type.startsWith('image')"></i>
-          {{ (file.name || 'Arquivo') }}
+          {{ (file.file_name || 'Arquivo') }}
         </div>
       </div>
     </div>

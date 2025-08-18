@@ -76,4 +76,30 @@ export class TicketReembolsoService {
       { headers: this.getHeaders() }
     );
   }
+
+  /** Cria um arquivo para um ticket de reembolso */
+  createArquivoReembolso(reembolso_id: number, imagemBase64: string, type: string) {
+    return this.http.post<{ insertId: number }>(
+      `${this.url}/ticket-reembolso/arquivo`,
+      { reembolso_id, imagemBase64, type },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  /** Atualiza um arquivo de ticket de reembolso */
+  updateArquivoReembolso(id: number, fields: Partial<{ imagemBase64: string; type: string }>) {
+    return this.http.put<{ message: string }>(
+      `${this.url}/ticket-reembolso/arquivo/${id}`,
+      fields,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  /** Deleta um arquivo de ticket de reembolso */
+  deleteArquivoReembolso(id: number) {
+    return this.http.delete<{ message: string }>(
+      `${this.url}/ticket-reembolso/arquivo/${id}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }

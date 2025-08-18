@@ -1,0 +1,283 @@
+.form-group {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input, 
+.form-group textarea, 
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.arquivos-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  min-height: 120px;
+}
+
+.arquivo-item {
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.arquivo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.arquivo-item a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #dc3545;
+  width: 100%;
+  height: 100%;
+}
+
+.arquivo-item i {
+  font-size: 2rem;
+}
+
+.arquivo-item span {
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.arquivo-actions {
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-top: 1px solid #eaeaea;
+}
+
+.btn-arquivo-delete {
+  background: none;
+  border: none;
+  color: #dc3545;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.btn-arquivo-delete:hover {
+  color: #bd2130;
+}
+
+.no-arquivos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: #6c757d;
+  padding: 20px;
+}
+
+.no-arquivos i {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.no-arquivos p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.novo-arquivo {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.file-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px dashed #198754;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.3s;
+}
+
+.file-input-container:hover {
+  background-color: #e8f5e9;
+}
+
+.file-input-container input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-input-container i {
+  color: #198754;
+  font-size: 1.2rem;
+}
+
+.file-input-container span {
+  font-size: 0.95rem;
+}
+
+.file-hint {
+  display: block;
+  margin-top: 8px;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+/* Estilos para tabela de anexos */
+.anexos-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-top: 12px;
+  overflow: hidden;
+}
+.anexos-table th, .anexos-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+.anexos-table th {
+  background: #198754;
+  color: #fff;
+  font-weight: 500;
+  text-align: left;
+}
+.anexos-table tr:last-child td {
+  border-bottom: none;
+}
+.arquivo-nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdf-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #198754;
+  font-weight: 500;
+}
+.pdf-link:hover {
+  text-decoration: underline;
+  color: #24bd75;
+}
+/* Estilos para o rodapé do modal */
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancel {
+  background-color: white;
+  color: #495057;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+  background-color: #f8f9fa;
+}
+
+.btn-save {
+  background-color: #198754;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.btn-save:hover {
+  background-color: #157347;
+}
+
+.btn-save:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.input-like-span {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  color: #6c757d;
+  min-height: 38px;
+  line-height: 1.5;
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+  .header-actions {
+    flex-direction: row;
+  }
+  
+  .tickets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .tickets-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

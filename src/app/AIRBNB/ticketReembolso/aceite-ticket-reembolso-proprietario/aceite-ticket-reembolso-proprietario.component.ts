@@ -37,7 +37,7 @@ export class AceiteTicketReembolsoProprietarioComponent implements OnInit {
           id: a.id ?? 0,
           type: a.type,
           url: a.type === 'application/pdf' ? this.sanitizer.bypassSecurityTrustResourceUrl(a.imagemBase64) : a.imagemBase64,
-          name: a.name || (a.type.startsWith('image') ? 'Imagem' : 'Documento.pdf')
+          name: a.file_name || (a.type.startsWith('image') ? 'Imagem' : 'Documento.pdf')
         }));
 
         this.totalValor = (Number(ticket.valor_material) || 0) + (Number(ticket.valor_mao_obra) || 0);
