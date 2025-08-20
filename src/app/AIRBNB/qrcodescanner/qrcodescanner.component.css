@@ -1,0 +1,252 @@
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+.qr-card {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.qr-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, #0e7f3b, #2acb70, #0e7f3b);
+  z-index: 2;
+}
+
+.qr-card h3 {
+  color: #2A4954;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.qr-card h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #0e7f3b, #2acb70);
+  border-radius: 2px;
+}
+
+/* Estilos para a mensagem de sucesso */
+.success-container {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background-color: #0e7f3b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-icon svg {
+  width: 40px;
+  height: 40px;
+  fill: white;
+}
+
+.success-container h3 {
+  color: #0e7f3b;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.success-container p {
+  color: #2A4954;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.btn-refresh {
+  background: linear-gradient(90deg, #0e7f3b, #2acb70);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(14, 127, 59, 0.4);
+}
+
+/* Seção de termos */
+.terms {
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, #f8fff9, #ffffff);
+  border-radius: 1rem;
+  border: 1px solid #e0f2e5;
+  box-shadow: 0 4px 12px rgba(14, 127, 59, 0.1);
+}
+
+.terms p {
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.terms-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Scanner */
+.scanner-section {
+  text-align: center;
+}
+
+.scanner-wrapper {
+  margin: 1.5rem auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  border: 3px solid #0e7f3b;
+  box-shadow: 0 8px 20px rgba(14, 127, 59, 0.3);
+  background: #f0faf3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.scanner-wrapper:hover .scanner-overlay {
+  opacity: 1;
+}
+
+.scanner-overlay i {
+  font-size: 4rem;
+  color: #0e7f3b;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+.scanner {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(3);
+}
+
+.scanner-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #0e7f3b;
+  font-weight: 600;
+}
+
+.scanner-placeholder i {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.spinner-border {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0.4rem solid #0E7F3B;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner span {
+  margin-top: 1rem;
+  color: #0E7F3B;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}

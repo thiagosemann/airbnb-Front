@@ -1,0 +1,41 @@
+<div class="qr-container">
+  <div class="qr-card">
+    <div *ngIf="loading" class="spinner">
+      <div class="spinner-border"></div>
+      <span>Carregando reserva...</span>
+    </div>
+    <div *ngIf="error && !loading" class="alert alert-danger">
+      {{ error }}
+    </div>
+    
+    <!-- Seção de sucesso após abertura da porta -->
+    <div *ngIf="portaAbertaSucesso" class="success-container">
+      <div class="success-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <h3>Porta aberta com sucesso!</h3>
+      <p>Acesso liberado!!</p>
+      <button class="btn-refresh" (click)="reiniciarProcesso()">Ler novamente.</button>
+    </div>
+    
+    <div *ngIf="!loading && reserva && cameraEnabled && !portaAbertaSucesso">
+      <h3>Leia o QRCODE</h3>
+      <p><strong>Apartamento:</strong> {{ reserva.apartamento_nome }}</p>
+      <p><strong>Período:</strong> {{ reserva.start_date | date:'dd/MM/yyyy' }} até {{ reserva.end_data | date:'dd/MM/yyyy' }}</p>
+      <div class="scanner-wrapper">
+        <zxing-scanner
+          [formats]="[barcodeFormat]"
+          (scanSuccess)="onQrCodeScanned($event)"
+          class="scanner"
+        ></zxing-scanner>
+      </div>
+    </div>
+    <div *ngIf="!loading && reserva && !cameraEnabled && !error && !portaAbertaSucesso">
+      <div class="alert alert-warning">
+        A data de hoje não está dentro do período da reserva.
+      </div>
+    </div>
+  </div>
+</div>

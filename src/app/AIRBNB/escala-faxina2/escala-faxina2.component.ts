@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
-import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
+import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';

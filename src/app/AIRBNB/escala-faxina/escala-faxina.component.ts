@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb';
+import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';

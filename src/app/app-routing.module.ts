@@ -28,6 +28,7 @@ import { TicketReembolsoComponent } from './AIRBNB/ticketReembolso/ticket-reembo
 import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/controle-ticket-reembolso/controle-ticket-reembolso.component';
 import { CadastroProprietariosComponent } from './Cadastro/cadastro-proprietarios/cadastro-proprietarios.component';
 import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReembolso/aceite-ticket-reembolso-proprietario/aceite-ticket-reembolso-proprietario.component';
+import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.component';
 
 
 const routes: Routes = [
@@ -49,6 +50,7 @@ const routes: Routes = [
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent},
+  { path: 'qrCode/:auth', component: QrcodescannerComponent},
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
