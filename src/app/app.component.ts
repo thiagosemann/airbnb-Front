@@ -39,7 +39,8 @@ export class AppComponent implements OnInit {
     'cadastroPortaria',
     'uploadRelatorioCSV',
     'relatoriosGanhos',
-    'profile'
+    'profile',
+    'controleNodeMcuPortas'
   ];
 
   ngOnInit() {

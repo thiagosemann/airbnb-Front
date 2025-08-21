@@ -40,6 +40,7 @@ import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/contr
 import { CadastroProprietariosComponent } from './Cadastro/cadastro-proprietarios/cadastro-proprietarios.component';
 import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReembolso/aceite-ticket-reembolso-proprietario/aceite-ticket-reembolso-proprietario.component';
 import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.component';
+import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 
 @NgModule({
   declarations: [
@@ -71,7 +72,8 @@ import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.com
     ControleTicketReembolsoComponent,
     CadastroProprietariosComponent,
     AceiteTicketReembolsoProprietarioComponent,
-    QrcodescannerComponent
+    QrcodescannerComponent,
+    ControlePortasComponent
     ],
   imports: [
     BrowserModule,

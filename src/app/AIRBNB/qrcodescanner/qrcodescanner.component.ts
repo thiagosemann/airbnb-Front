@@ -82,11 +82,13 @@ export class QrcodescannerComponent implements OnInit {
         } else {
           this.toastr.error('Falha ao abrir a porta.', 'Erro');
           this.leuQrCode = false;
+          this.cameraEnabled = true; // Permite tentar novamente
         }
       },
       error: (err) => {
         this.toastr.error(err.error?.message || 'Erro ao liberar a porta.');
         this.leuQrCode = false;
+        this.cameraEnabled = true; // Permite tentar novamente
       },
     });
   }

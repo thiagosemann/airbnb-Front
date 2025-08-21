@@ -1,0 +1,167 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-title">
+      <h1> <i class="bi bi-door-closed"></i> Controle de Acessos</h1>
+    </div>
+  </div>
+
+  <!-- Seletor de Prédio e Filtros -->
+  <div class="filters-card">
+    <div class="filters-container">
+      <div class="filter-group">
+        <label for="predio-select">Prédio:</label>
+        <select 
+          id="predio-select" 
+          [(ngModel)]="predioSelecionado" 
+          (change)="onPredioSelecionado()"
+          class="form-select">
+          <option [value]="null">Selecione um prédio</option>
+          <option *ngFor="let predio of predios" [value]="predio.id">
+            {{ predio.nome }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="data-inicio">Data Início:</label>
+        <input 
+          id="data-inicio" 
+          type="date" 
+          [(ngModel)]="dataInicio" 
+          (change)="carregarAcessos()"
+          class="form-input" />
+      </div>
+      
+      <div class="filter-group">
+        <label for="data-fim">Data Fim:</label>
+        <input 
+          id="data-fim" 
+          type="date" 
+          [(ngModel)]="dataFim" 
+          (change)="carregarAcessos()"
+          class="form-input" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Dispositivos (Cards para mobile) -->
+  <div class="dispositivos-container" *ngIf="dispositivos.length > 0">
+    <h3><i class="bi bi-device-ssd"></i> Dispositivos de Entrada</h3>
+    
+    <div class="dispositivos-grid d-none d-md-grid">
+      <div *ngFor="let dispositivo of dispositivos" class="dispositivo-card">
+        <div class="dispositivo-header">
+          <div class="status-container">
+            <div 
+              class="status-indicador" 
+              [class.connected]="dispositivo.isConnected" 
+              [class.disconnected]="!dispositivo.isConnected">
+            </div>
+            <span class="device-id">{{ dispositivo.name }}</span>
+          </div>
+          <span class="status-text" [class.connected]="dispositivo.isConnected">
+            {{ dispositivo.isConnected ? 'Conectado' : 'Desconectado' }}
+          </span>
+        </div>
+        
+        <div class="dispositivo-actions">
+          <button 
+            class="btn-liberar" 
+            (click)="liberarPortao(dispositivo)"
+            [disabled]="!dispositivo.isConnected">
+            <i class="bi bi-unlock"></i> Liberar Portão
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Versão mobile -->
+    <div class="d-block d-md-none">
+      <div *ngFor="let dispositivo of dispositivos" class="dispositivo-card-mobile">
+        <div class="mobile-header">
+          <div class="status-container">
+            <div 
+              class="status-indicador" 
+              [class.connected]="dispositivo.isConnected" 
+              [class.disconnected]="!dispositivo.isConnected">
+            </div>
+            <span class="device-id">{{ dispositivo.name }}</span>
+          </div>
+          <span class="status-text" [class.connected]="dispositivo.isConnected">
+            {{ dispositivo.isConnected ? 'Conectado' : 'Desconectado' }}
+          </span>
+        </div>
+        
+        <div class="mobile-actions">
+          <button 
+            class="btn-liberar" 
+            (click)="liberarPortao(dispositivo)"
+            [disabled]="!dispositivo.isConnected">
+            <i class="bi bi-unlock"></i> Liberar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Acessos -->
+  <div class="acessos-container" *ngIf="acessos.length > 0">
+    <h3><i class="bi bi-clock-history"></i> Registro de Acessos</h3>
+    
+    <!-- Tabela para desktop -->
+    <div class="d-none d-md-block">
+      <div class="table-responsive">
+        <table class="acessos-table">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Código Reserva</th>
+              <th>Dispositivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let acesso of acessos"> 
+              <td>{{ acesso.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ acesso.cod_reserva }}</td>
+              <td>{{ acesso.nodemcu_name || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cards para mobile -->
+    <div class="d-block d-md-none">
+      <div *ngFor="let acesso of acessos" class="acesso-card-mobile">
+        <div class="acesso-item">
+          <i class="bi bi-calendar"></i>
+          <span>{{ acesso.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="acesso-item">
+          <i class="bi bi-device-ssd"></i>
+          <span>{{ acesso.idNodemcu }}</span>
+        </div>
+        <div class="acesso-item">
+          <i class="bi bi-person"></i>
+          <span>{{ acesso.cod_reserva }}</span>
+        </div>
+        <div class="acesso-item">
+          <i class="bi bi-door-closed"></i>
+          <span>{{ acesso.nodemcu_name || '-' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado vazio -->
+  <div class="empty-state" *ngIf="predioSelecionado && dispositivos.length === 0">
+    <i class="bi bi-inboxes"></i>
+    <p>Nenhum dispositivo encontrado para este prédio</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!predioSelecionado">
+    <i class="bi bi-door-closed"></i>
+    <p>Selecione um prédio para visualizar os dispositivos e acessos</p>
+  </div>
+</div>

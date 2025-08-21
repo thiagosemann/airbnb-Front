@@ -2,21 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'enviroments';
+import { NodemcuPredio } from 'src/app/shared/utilitarios/nodemcuPredio';
 
-export interface NodemcuPredio {
-  id?: number;
-  predio_id: number;
-  idNodemcu: string;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class NodemcuPrediosService {
   private url = environment.backendUrl;
-
   constructor(private http: HttpClient) { }
-
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     return new HttpHeaders({
@@ -34,6 +28,10 @@ export class NodemcuPrediosService {
 
   getNodemcuPredioByNodemcu(idNodemcu: string): Observable<NodemcuPredio> {
     return this.http.get<NodemcuPredio>(`${this.url}/nodemcu-predios/nodemcu/${idNodemcu}`, { headers: this.getHeaders() });
+  }
+
+  getNodemcuPrediosByPredioId(predio_id: number): Observable<NodemcuPredio[]> {
+    return this.http.get<NodemcuPredio[]>(`${this.url}/nodemcu-predios/predio/${predio_id}`, { headers: this.getHeaders() });
   }
 
   createNodemcuPredio(data: { predio_id: number; idNodemcu: string }): Observable<any> {

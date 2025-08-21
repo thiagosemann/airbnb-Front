@@ -29,6 +29,7 @@ import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/contr
 import { CadastroProprietariosComponent } from './Cadastro/cadastro-proprietarios/cadastro-proprietarios.component';
 import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReembolso/aceite-ticket-reembolso-proprietario/aceite-ticket-reembolso-proprietario.component';
 import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.component';
+import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 
 
 const routes: Routes = [
@@ -49,6 +50,8 @@ const routes: Routes = [
   { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+
   { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent},
   { path: 'qrCode/:auth', component: QrcodescannerComponent},
 
