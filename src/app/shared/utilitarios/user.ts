@@ -20,6 +20,7 @@ export interface User {
     sexta?: number;
     sabado?: number;
     domingo?: number;
+    empresa_id?: number; // ← nova propriedade
     [key: string]: any; // Índice para acessar propriedades com base em uma string
 
   }

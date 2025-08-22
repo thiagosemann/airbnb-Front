@@ -11,7 +11,7 @@ import { User } from 'src/app/shared/utilitarios/user';
 @Component({
   selector: 'app-users-control',
   templateUrl: './users-control.component.html',
-  styleUrls: ['./users-control.component.css']
+  styleUrls: ['./users-control.component.css','./users-control2.component.css']
 })
 export class UsersControlComponent implements OnInit {
   users: User[] = [];
@@ -74,10 +74,12 @@ export class UsersControlComponent implements OnInit {
     this.showModal = true;
     this.isEditing = false;
     this.selectedUserId = null;
-  
-    // Reseta o form e limpa validação de imagens
+
+    // Se não for empresa 1, força o tipo terceirizado
+    const roleValue = this.user?.empresa_id === 1 ? 'guest' : 'terceirizado';
+
     this.userForm.reset({
-      role: 'guest',
+      role: roleValue,
       imagemBase64: '',
       documentBase64: ''
     });

@@ -52,7 +52,7 @@ export class LoginComponent {
           this.toastr.success("Bem vindo admin!")
           this.router.navigate(['/calendarioAirbnb']);
           return;
-        }else  if(user && user.role.toUpperCase() == 'terceirizado'){
+        }else  if(user && user.role.toUpperCase() == 'TERCEIRIZADO'){
           this.toastr.success("Logado com sucesso!")
           this.router.navigate(['/escalaFaxina']);
         }
