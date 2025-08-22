@@ -23,7 +23,7 @@ export class ControleFaxinaComponent implements OnInit {
   
   // Variáveis para detalhamento
   showModal: boolean = false;
-  selectedTercerizado: any = null;
+  selectedterceirizado: any = null;
   faxinasDetalhadas: any[] = [];
 
   constructor(
@@ -53,7 +53,7 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   getUsers(): void {
-    this.userService.getUsersByRole('tercerizado').subscribe(users => {
+    this.userService.getUsersByRole('terceirizado').subscribe(users => {
       this.users = users;
     });
   }
@@ -231,7 +231,7 @@ export class ControleFaxinaComponent implements OnInit {
   
   // Métodos para o detalhamento
   async openDetails(pagamento: any) {
-    this.selectedTercerizado = pagamento;
+    this.selectedterceirizado = pagamento;
     
     try {
       const [startDate, endDate] = this.getMonthDateRange();
@@ -258,7 +258,7 @@ export class ControleFaxinaComponent implements OnInit {
   
   closeModal() {
     this.showModal = false;
-    this.selectedTercerizado = null;
+    this.selectedterceirizado = null;
     this.faxinasDetalhadas = [];
   }
   
@@ -269,13 +269,13 @@ export class ControleFaxinaComponent implements OnInit {
   
   getAverageFaxinas(): string {
     // Implementar lógica real de cálculo de média histórica
-    const avg = this.selectedTercerizado?.totalFaxinas * 0.85;
+    const avg = this.selectedterceirizado?.totalFaxinas * 0.85;
     return avg ? avg.toFixed(1) : 'N/A';
   }
   
   getAverageValue(): number {
     // Implementar lógica real de cálculo de valor médio
-    return this.selectedTercerizado?.valorTotal / this.selectedTercerizado?.totalFaxinas || 0;
+    return this.selectedterceirizado?.valorTotal / this.selectedterceirizado?.totalFaxinas || 0;
   }
   
   getRating(): string {

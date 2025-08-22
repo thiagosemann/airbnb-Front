@@ -206,7 +206,7 @@
   background-color: #f8f9ff;
 }
 
-.tercerizado-info {
+.terceirizado-info {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -225,7 +225,7 @@
   font-size: 14px;
 }
 
-.tercerizado-name {
+.terceirizado-name {
   font-weight: 500;
   color: #2d3748;
 }

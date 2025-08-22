@@ -76,9 +76,9 @@
           </div>
           
           <div class="payment-item" *ngFor="let pagamento of pagamentos">
-            <div class="tercerizado-info">
+            <div class="terceirizado-info">
               <div class="avatar">{{ getInitials(pagamento.user.first_name) }}</div>
-              <div class="tercerizado-name">{{ pagamento.user.first_name }}</div>
+              <div class="terceirizado-name">{{ pagamento.user.first_name }}</div>
             </div>
             <div class="faxinas-count">
               {{ pagamento.totalFaxinas }}
@@ -87,7 +87,7 @@
               </div>
             </div>
             <div class="payment-value">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</div>
-            <div class="tercerizado-actions">
+            <div class="terceirizado-actions">
               <button class="download-btn" (click)="downloadXls(pagamento)">
                 <i class="fas fa-download"></i> XLS
               </button>
@@ -102,25 +102,25 @@
   </div>
 
    <!-- Modal de Detalhes do Terceirizado - Versão Melhorada -->
-  <div class="tercerizado-modal" *ngIf="showModal">
+  <div class="terceirizado-modal" *ngIf="showModal">
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-title-container">
           <h3><i class="fas fa-user-circle"></i> Detalhes do Terceirizado</h3>
-          <div class="modal-subtitle">{{ selectedTercerizado?.user?.first_name }}</div>
+          <div class="modal-subtitle">{{ selectedterceirizado?.user?.first_name }}</div>
         </div>
         <button class="close-btn" (click)="closeModal()">&times;</button>
       </div>
       
       <div class="modal-body">
-        <div class="tercerizado-summary">
+        <div class="terceirizado-summary">
           <div class="summary-item">
             <div class="summary-icon">
               <i class="fas fa-broom"></i>
             </div>
             <div class="summary-content">
               <div class="summary-label">Faxinas Realizadas</div>
-              <div class="summary-value">{{ selectedTercerizado?.totalFaxinas }}</div>
+              <div class="summary-value">{{ selectedterceirizado?.totalFaxinas }}</div>
             </div>
           </div>
           
@@ -130,7 +130,7 @@
             </div>
             <div class="summary-content">
               <div class="summary-label">Total Recebido</div>
-              <div class="summary-value">R$ {{ selectedTercerizado?.valorTotal | number:'1.2-2' }}</div>
+              <div class="summary-value">R$ {{ selectedterceirizado?.valorTotal | number:'1.2-2' }}</div>
             </div>
           </div>
           
@@ -215,7 +215,7 @@
       </div>
       
       <div class="modal-footer">
-        <button class="download-all-btn" (click)="downloadXls(selectedTercerizado)">
+        <button class="download-all-btn" (click)="downloadXls(selectedterceirizado)">
           <i class="fas fa-download"></i> Baixar Relatório Completo
         </button>
       </div>

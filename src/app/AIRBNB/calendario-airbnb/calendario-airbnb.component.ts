@@ -393,8 +393,10 @@ export class CalendarioAirbnbComponent implements OnInit {
     }
     if (link.toLowerCase().includes('airbnb')) {
       return 'AIRBNB';
-    } else {
+    } else  if (link.toLowerCase().includes('booking')) {
       return 'BOOKING';
+    } else {
+      return 'STAYS';
     }
   }
 }

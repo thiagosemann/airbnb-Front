@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { User } from 'src/app/shared/utilitarios/user';
 
@@ -22,6 +23,7 @@ export class UsersControlComponent implements OnInit {
   isLoading = false;           // ← nova flag
   searchTerm:string = "";
   userCheckins: any[] = []; // ← armazena os check-ins do user
+  user: User | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -29,6 +31,7 @@ export class UsersControlComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private checkinService: CheckInFormService,
     private toastr: ToastrService,
+    private authService: AuthenticationService,
     
   ) {
     this.userForm = this.fb.group({
@@ -44,6 +47,8 @@ export class UsersControlComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.user = this.authService.getUser();
+    console.log(this.user);
     this.carregarUsuarios();
   }
 

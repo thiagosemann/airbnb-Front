@@ -55,7 +55,7 @@ const routes: Routes = [
   { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent},
   { path: 'qrCode/:auth', component: QrcodescannerComponent},
 
-  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'tercerizado' } },
+  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'terceirizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
 
   { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },

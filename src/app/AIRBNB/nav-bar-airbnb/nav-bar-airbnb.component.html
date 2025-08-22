@@ -12,77 +12,112 @@
       <ng-container *ngIf="user.role === 'admin'">
         <div class="navbar-nav ms-auto">
           <!-- Calendário -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-home"></i> Calendário
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
-              <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
-            </ul>
-          </div>
+            <ng-container *ngIf="user.empresa_id !== 1">
+                          <div class="dropdown">
+                <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                  <i class="fas fa-home"></i> Calendário
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
+                  <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
+                </ul>
+            </div>
+              <!-- Faxinas -->
+              <div class="dropdown">
+                <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                  <i class="fas fa-broom"></i> Faxinas
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
+                </ul>
+              </div>
+              <!-- Gerenciamento -->
+              <div class="dropdown">
+                <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                  <i class="fas fa-gear"></i> Gerenciamento
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
+                  <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+                </ul>
+              </div>
+              <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
+              <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </ng-container>
+            <ng-container *ngIf="user.empresa_id === 1">
+            <div class="dropdown">
+                <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                  <i class="fas fa-home"></i> Calendário
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
+                  <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
+                </ul>
+            </div>
+             <!-- Faxinas -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-broom"></i> Faxinas
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
+                <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
+              </ul>
+            </div>
 
-          <!-- Faxinas -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-broom"></i> Faxinas
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
-              <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
-            </ul>
-          </div>
-          <!-- Ticket -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-money"></i> Reembolsos
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="ticket()">Ticket</a></li>
-              <li><a class="dropdown-item" (click)="controleTicket()">Controle Tickets</a></li>
-            </ul>
-          </div>
-          <!-- Vistorias -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+            <!-- Ticket -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-money"></i> Reembolsos
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="ticket()">Ticket</a></li>
+                <li><a class="dropdown-item" (click)="controleTicket()">Controle Tickets</a></li>
+              </ul>
+            </div>
+            <!-- Vistorias -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
 
-              <i class="fas fa-check-to-slot"></i> Vistorias
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
-              <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
-            </ul>
-          </div>
+                <i class="fas fa-check-to-slot"></i> Vistorias
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
+                <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
+              </ul>
+            </div>
 
-          <!-- Gerenciamento -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-gear"></i> Gerenciamento
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
-              <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
-              <li><a class="dropdown-item" (click)="cadastroProprietarios()">Proprietários</a></li>
-              <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
-              <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
-            </ul>
-          </div>
+            <!-- Gerenciamento -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-gear"></i> Gerenciamento
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
+                <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
+                <li><a class="dropdown-item" (click)="cadastroProprietarios()">Proprietários</a></li>
+                <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
+                <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+              </ul>
+            </div>
 
-              <!-- Relatorios -->
-          <div class="dropdown">
-            <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-gear"></i> Relatórios
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
-              <li><a class="dropdown-item" (click)="relatorioGanhos()">Relatórios</a></li>
+                <!-- Relatorios -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-gear"></i> Relatórios
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
+                <li><a class="dropdown-item" (click)="relatorioGanhos()">Relatórios</a></li>
 
-              
-            </ul>
-          </div>
-          <!-- Perfil / Logout -->
-          <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
-          <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                
+              </ul>
+            </div>
+            <!-- Perfil / Logout -->
+            <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
+            <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+           </ng-container>
+
         </div>
     </ng-container>
     <ng-container *ngIf="user.role !== 'admin'">

@@ -71,7 +71,7 @@ canceladasHoje: any[] = [];
   }
 
   getUsersByRole():void{
-    this.userService.getUsersByRole('tercerizado').subscribe(
+    this.userService.getUsersByRole('terceirizado').subscribe(
       users => {
         this.users = users;
       },
