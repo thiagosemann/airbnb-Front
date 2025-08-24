@@ -96,13 +96,17 @@ export class CalendarioComponent implements OnInit {
   // cache for getDayType
   private dayTypeCache = new Map<string, DayType>();
 
+  // Agrupamento de apartamentos por prédio
+  buildings: { [predioId: number]: { name: string, color: string, apartments: Apartment[] } } = {};
+  expandedBuildings: { [predioId: number]: boolean } = {};
+
   constructor(
     private apartamentoService: ApartamentoService,
     private reservasAirbnbService: ReservasAirbnbService,
     private cdr: ChangeDetectorRef
   ) {
-    const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-    const lastDay  = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+    const firstDay = new Date();
+    const lastDay  = new Date(firstDay.getTime() + 30 * 86400000); // +30 dias
     this.dataInicio = this.toInputDate(firstDay);
     this.dataFim    = this.toInputDate(lastDay);
 
@@ -209,29 +213,78 @@ export class CalendarioComponent implements OnInit {
     });
   }
 
-  private processApartments(apts: any[]): void {
-    const raw = apts.map(a => ({
+private processApartments(apts: any[]): void {
+  // Cores por prédio
+  const palette = [
+    '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
+    '#8B5CF6', '#EC4899', '#06B6D4', '#D97706',
+    '#059669', '#9333EA', '#DC2626', '#2563EB'
+  ];
+
+  // Agrupa apartamentos por predioId
+  const groupedByPredio: { [predioId: number]: Apartment[] } = {};
+  const predioNames: { [predioId: number]: string } = {};
+  apts.forEach((a: any) => {
+    const predioId = a.predio_id;
+    const predio_name = a.predio_name;
+    predioNames[predioId] = predio_name;
+    if (!groupedByPredio[predioId]) groupedByPredio[predioId] = [];
+    // color será preenchido depois
+    groupedByPredio[predioId].push({
       id: a.id,
-      predioId: a.predio_id,
+      predioId: predioId,
       name: a.nome,
+      color: '', // placeholder
       status: 'Disponível',
-      reservations: [] as CalendarReservation[]
-    }));
+      reservations: []
+    });
+  });
 
-    const predios = Array.from(new Set(raw.map(r => r.predioId)));
-    const palette = [
-      '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
-      '#8B5CF6', '#EC4899', '#06B6D4', '#D97706',
-      '#059669', '#9333EA', '#DC2626', '#2563EB'
-    ];
-    const buildingColors = new Map<number, string>();
-    predios.forEach((pId, idx) => buildingColors.set(pId, palette[idx % palette.length]));
+  // Ordena os predios pelo nome
+  const predioIdsOrdenados = Object.keys(groupedByPredio)
+    .map(id => +id)
+    .sort((a, b) => predioNames[a].localeCompare(predioNames[b]));
 
-    this.apartments = raw
-      .map(r => ({ ...r, color: buildingColors.get(r.predioId)! }))
-      .sort((a, b) => a.predioId - b.predioId || a.name.localeCompare(b.name));
-    this.dayTypeCache.clear();
+  // Cores por prédio
+  const buildingColors = new Map<number, string>();
+  predioIdsOrdenados.forEach((pId, idx) => buildingColors.set(pId, palette[idx % palette.length]));
+
+  // Preenche estrutura buildings e estado expandido
+  this.buildings = {};
+  this.expandedBuildings = {};
+  for (const [idx, predioId] of predioIdsOrdenados.entries()) {
+    const color = buildingColors.get(predioId)!;
+    // Preenche color em cada apt
+    groupedByPredio[predioId].forEach(apt => apt.color = color);
+    this.buildings[predioId] = {
+      name: predioNames[predioId],
+      color,
+      apartments: groupedByPredio[predioId]
+    };
+    this.expandedBuildings[predioId] = true; // Começa minimizado
   }
+
+  // Junta todos os apartamentos ordenados para manter compatibilidade
+  const ordered: Apartment[] = [];
+  for (const predioId of predioIdsOrdenados) {
+    ordered.push(...this.buildings[predioId].apartments);
+  }
+  this.apartments = ordered;
+
+  this.dayTypeCache.clear();
+}
+
+// Alterna expansão do prédio
+public toggleBuilding(predioId: number): void {
+  this.expandedBuildings[predioId] = !this.expandedBuildings[predioId];
+}
+
+// Retorna lista de prédios ordenados
+getOrderedBuildingIds(): number[] {
+  return Object.keys(this.buildings)
+    .map(id => +id)
+    .sort((a, b) => this.buildings[a].name.localeCompare(this.buildings[b].name));
+}
 
   calculateDayStats(day: Date): void {
     const ts = day.getTime();

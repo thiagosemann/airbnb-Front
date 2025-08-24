@@ -3,11 +3,18 @@
 /* --- Navbar container --- */
 .navbar {
   background: #FFFFFF;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 10px 15px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1000;
+}
+
+.navbar-brand-container {
+  display: flex;
+  align-items: center;
 }
 
 /* --- Logo --- */
@@ -15,6 +22,11 @@
   width: 110px;
   height: auto;
   margin: 0;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 /* --- Botões perfil/logout (desktop) --- */
@@ -22,17 +34,32 @@
 .navbar-logout-btn {
   background: #fff;
   color: #006400;
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 15px;
   border: none;
-  border-radius: 5px;
-  padding: 8px 12px;
-  margin: 5px 0;
-  transition: background-color 0.3s;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin: 0 5px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }
+
 .navbar-perfil-btn:hover,
 .navbar-logout-btn:hover {
-  background-color: lightgray;
+  background-color: #f0f7f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,100,0,0.1);
+}
+
+.navbar-logout-btn {
+  color: #cc0000;
+}
+
+.navbar-logout-btn:hover {
+  background-color: #fff0f0;
 }
 
 /* --- Botão hamburguer --- */
@@ -41,17 +68,41 @@
   background: none;
   font-size: 1.5rem;
   margin-left: auto;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  color: #006400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.navbar-toggler:hover {
+  background-color: #f0f7f0;
+}
+
+.navbar-toggler-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --- Collapse desktop --- */
 @media (min-width: 992px) {
-  .navbar-toggler { display: none; }
+  .navbar-toggler { 
+    display: none; 
+  }
+  
   .navbar-nav {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 5px;
     margin-left: auto;
+    align-items: center;
   }
+  
   .navbar-nav button {
     width: auto;
     margin: 0;
@@ -73,26 +124,34 @@
 /* Overlay atrás do painel */
 .mobile-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0; 
+  left: 0;
+  width: 100vw; 
+  height: 100vh;
   background: rgba(0,0,0,0.5);
-  z-index: 998;
-  animation: fadeIn 0.3s;
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
 }
 
 /* Painel lateral */
 .mobile-panel {
   position: fixed;
-  top: 0; right: 0;
-  width: 80%;
-  max-width: 300px;
+  top: 0; 
+  right: 0;
+  width: 85%;
+  max-width: 320px;
   height: 100vh;
   background: #fff;
-  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-  z-index: 999;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  animation: slideIn 0.3s forwards;
+  transform: translateX(100%);
+  transition: transform 0.4s ease;
+}
+
+.mobile-panel.active {
+  transform: translateX(0);
 }
 
 /* Header com logo pequenina e botão fechar */
@@ -100,17 +159,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #eee;
+  background: #f9f9f9;
 }
+
 .logo-sm {
   width: 120px;
   height: auto;
 }
+
 .close-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
+  color: #666;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
 }
 
 /* Itens do menu mobile */
@@ -119,34 +193,82 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 0.5rem;
+  padding: 1rem 0;
+  gap: 0;
 }
+
 .mobile-nav button {
   background: none;
   border: none;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #006400;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
   text-align: left;
-  padding: 0.75rem 0;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
 }
+
 .mobile-nav button:hover {
   background: #f5f5f5;
 }
+
+.mobile-nav button i {
+  width: 24px;
+  text-align: center;
+}
+
 .mobile-nav .logout {
   margin-top: auto;
-  color: #b00;
+  color: #cc0000;
   border-top: 1px solid #f0f0f0;
+  font-weight: 600;
+}
+
+/* Dropdown para mobile */
+.mobile-dropdown {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-dropdown-toggle {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.mobile-dropdown-toggle .dropdown-arrow {
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.mobile-dropdown.active .mobile-dropdown-toggle .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.mobile-dropdown-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  background: #f9f9f9;
+}
+
+.mobile-dropdown.active .mobile-dropdown-menu {
+  max-height: 500px;
+}
+
+.mobile-dropdown-menu button {
+  padding-left: 3rem;
+  font-size: 15px;
+  color: #555;
 }
 
 /* Animações */
-@keyframes slideIn {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
-}
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -159,10 +281,11 @@
     display: none;
   }
 }
+
 /* Ajustes para navbar mais compacta em mobile */
 @media (max-width: 576px) {
   .navbar {
-    padding: 5px 10px;
+    padding: 8px 12px;
   }
 
   .logo {
@@ -171,14 +294,17 @@
 
   .navbar-perfil-btn,
   .navbar-logout-btn {
-    padding: 6px 10px;
+    padding: 8px 12px;
     font-size: 14px;
     margin: 3px 0;
   }
 
-  /* Se quiser também compactar o painel mobile */
+  .mobile-panel {
+    width: 85%;
+  }
+  
   .mobile-header {
-    padding: 0.5rem;
+    padding: 0.8rem 1rem;
   }
 
   .logo-sm {
@@ -186,8 +312,12 @@
   }
 
   .mobile-nav button {
-    padding: 0.5rem 0;
-    font-size: 1rem;
+    padding: 0.9rem 1.2rem;
+    font-size: 15px;
+  }
+  
+  .mobile-dropdown-menu button {
+    padding-left: 2.5rem;
   }
 }
 
@@ -197,7 +327,6 @@
   display: inline-block;
 }
 
-
 /* --- Dropdown menu --- */
 .dropdown-menu {
   position: absolute;
@@ -205,20 +334,25 @@
   left: 0;
   z-index: 1000;
   display: none;
-  min-width: 180px;
+  min-width: 200px;
   padding: 0.5rem 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #212529;
   text-align: left;
   background-color: #fff;
-  border: 1px solid rgba(0,0,0,0.15);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  animation: fadeInDropdown 0.3s ease;
+}
+
+@keyframes fadeInDropdown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Mostrar menu ao hover --- */
-.dropdown:hover .dropdown-menu,
-.dropdown-menu:hover {
+.dropdown:hover .dropdown-menu {
   display: block;
 }
 
@@ -226,7 +360,7 @@
 .dropdown-item {
   display: block;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   clear: both;
   font-weight: normal;
   color: #006400;
@@ -235,10 +369,25 @@
   background-color: transparent;
   border: 0;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  text-align: left;
 }
 
 .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f7f0;
   color: #004d00;
+  padding-left: 1.5rem;
+}
+
+/* Melhorias para tablets */
+@media (max-width: 991px) and (min-width: 577px) {
+  .mobile-panel {
+    width: 60%;
+  }
+  
+  .navbar-perfil-btn, 
+  .navbar-logout-btn {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
 }

@@ -13,6 +13,13 @@ export class NavBarAirbnbComponent {
   isMenuOpen = false;
   isDesktopView = true;
   currentRoute: string = ''; // Variável para armazenar a rota atual
+  mobileDropdowns: { [key: string]: boolean } = {
+    faxinas: false,
+    reembolsos: false,
+    vistorias: false,
+    gerenciamento: false,
+    relatorios: false
+  };
   constructor(private authService: AuthenticationService,
               private router: Router, 
               private toastr: ToastrService,
@@ -81,15 +88,31 @@ export class NavBarAirbnbComponent {
   }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+    
+    // Se estiver fechando o menu, fecha todos os dropdowns também
+    if (!this.isMenuOpen) {
+      Object.keys(this.mobileDropdowns).forEach(key => {
+        this.mobileDropdowns[key] = false;
+      });
+    }
   }
-
   subirCSVRelatorio(): void {
     this.router.navigate(['/uploadRelatorioCSV']);
   }
   relatorioGanhos(): void {
     this.router.navigate(['/relatoriosGanhos']);
   }
-
+  toggleMobileDropdown(dropdownName: string): void {
+    // Fecha todos os outros dropdowns
+    Object.keys(this.mobileDropdowns).forEach(key => {
+      if (key !== dropdownName) {
+        this.mobileDropdowns[key] = false;
+      }
+    });
+    
+    // Alterna o dropdown atual
+    this.mobileDropdowns[dropdownName] = !this.mobileDropdowns[dropdownName];
+  }
 
   private checkViewport(): void {
     const width = window.innerWidth;

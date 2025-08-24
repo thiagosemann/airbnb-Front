@@ -28,7 +28,9 @@
           (input)="filtrarFaxinas($event)">
       </div>
   </div>
-  <section *ngIf="canceladasHoje.length > 0">
+
+  <!-- Reservas Canceladas - Desktop View -->
+  <section *ngIf="canceladasHoje.length > 0" class="desktop-view">
     <h4 class="mt-3 mb-2">Reservas Canceladas</h4>
     <table class="calendar-table canceladas">
       <thead>
@@ -75,9 +77,57 @@
     </table>
   </section>
 
-  <!-- Conteúdo principal -->
-  <section>
+  <!-- Reservas Canceladas - Mobile View -->
+  <section *ngIf="canceladasHoje.length > 0" class="mobile-view">
+    <h4 class="section-title">Reservas Canceladas</h4>
+    <div class="cards-container">
+      <div *ngFor="let cancelada of canceladasHoje" class="card cancelada-card">
+        <div class="card-header">
+          <span class="card-badge cancelada-badge">Cancelada</span>
+          <span class="card-title">Apt: {{ cancelada.apartamento_nome }}</span>
+        </div>
+        
+        <div class="card-content">
+          <div class="card-row">
+            <i class="fas fa-hashtag"></i>
+            <span>Código: {{ cancelada.cod_reserva }}</span>
+          </div>
+          
+          <div class="card-row">
+            <i class="fas fa-calendar-day"></i>
+            <span>Data: {{ cancelada.start_date }} - {{ cancelada.end_date }}</span>
+          </div>
+          
+          <div class="card-row">
+            <label>Nova Data:</label>
+            <input type="date" class="form-control" [(ngModel)]="cancelada.novo_end_data">
+          </div>
+          
+          <div class="card-row">
+            <label>Responsável:</label>
+            <select class="service-select"
+                    [(ngModel)]="cancelada.faxina_userId"
+                    (change)="updateReserva(cancelada)">
+              <option value="">Selecione</option>
+              <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button class="btn btn-secondary" (click)="confirmarVerificacaoCancelada(cancelada)">
+            <i class="fas fa-times-circle"></i> Sem Limpeza
+          </button>
+          <button class="btn btn-primary" (click)="adicionarLimpezaExtra(cancelada)">
+            <i class="fas fa-broom"></i> Adicionar Limpeza
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Conteúdo principal - Desktop View -->
+  <section class="desktop-view">
     <table class="calendar-table">
       <thead>
         <tr>
@@ -122,8 +172,76 @@
       </tbody>
     </table>
   </section>
+
+  <!-- Faxinas Agendadas - Mobile View -->
+  <section class="mobile-view" style="margin-top: 25px;">
+    <h4 class="section-title">Faxinas Agendadas</h4>
+    
+    <div *ngIf="faxinasHoje.length === 0" class="empty-state">
+      <i class="fas fa-broom"></i>
+      <p>Nenhuma faxina para o período selecionado</p>
+    </div>
+    
+    <div class="cards-container">
+      <div *ngFor="let faxina of faxinasFiltradas" class="card faxina-card" [class.cancelada]="faxina.description === 'CANCELADA'">
+        <div class="card-header">
+          <span class="card-badge" [class.cancelada-badge]="faxina.description === 'CANCELADA'"
+                [class.limpeza-badge]="faxina.description === 'LIMPEZA'">
+            {{ faxina.description === 'CANCELADA' ? 'Cancelada' : (faxina.description === 'LIMPEZA' ? 'Limpeza Manual' : 'Reserva') }}
+          </span>
+          <span class="card-title">Apt: {{ faxina.apartamento_nome }}</span>
+        </div>
+        
+        <div class="card-content">
+          <div class="card-row">
+            <i class="fas fa-calendar-day"></i>
+            <span>{{ faxina.end_data }} - {{ getDiaDaSemana(faxina.end_data) }}</span>
+          </div>
+          
+          <div class="card-row">
+            <i class="fas fa-door-open"></i>
+            <span>Check-Out: {{ faxina.check_out }}</span>
+          </div>
+          
+          <div class="card-row">
+            <i class="fas fa-key"></i>
+            <span>Senha: {{ faxina.apartamento_senha }}</span>
+          </div>
+          
+          <div class="card-row">
+            <i class="fas fa-user"></i>
+            <span>Responsável: {{ getResponsavelNome(faxina.faxina_userId) || 'Não definido' }}</span>
+          </div>
+          
+          <div class="card-row">
+            <label class="custom-checkbox">
+              <input type="checkbox"
+                     [checked]="faxina.limpeza_realizada"
+                     (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
+              <span class="checkmark"></span>
+              Limpeza Finalizada
+            </label>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <select class="service-select"
+                  [(ngModel)]="faxina.faxina_userId"
+                  (change)="updateReserva(faxina)">
+            <option value="">Atribuir funcionária</option>
+            <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+          </select>
+        </div>
+        
+        <div class="card-footer">
+          <span>Total da funcionária no dia: {{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasHoje) }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
+<!-- Modal para Nova Limpeza -->
 <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <div class="modal-header">

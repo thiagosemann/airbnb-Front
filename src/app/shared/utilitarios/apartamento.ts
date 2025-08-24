@@ -48,4 +48,10 @@ export interface Apartamento {
   user_prioridade3?:number;
   vaga_garagem: boolean;
   cod_link_proprietario: string;
+  predio_name?: string;
+  link_booking_calendario?: string;
+  link_stays_calendario?: string;
+  modificado_user_nome?: string;
+  modificado_user_id?: number;
+  data_ultima_modificacao?: string;
 }

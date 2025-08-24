@@ -1,4 +1,4 @@
-/* Container geral */
+/* ===== ESTILOS GLOBAIS ===== */
 .calendar-container {
   max-width: 1400px;
   margin: 2rem auto;
@@ -9,77 +9,206 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-/* Abas */
-.tabs-header {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.tabs-header ul {
-  display: inline-flex;
-  list-style: none;
-  padding: 0;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #e4e4e4;
-  white-space: nowrap;
+.filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
-.tabs-header li {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
   font-weight: 600;
-  color: #00a699;
-  border-bottom: 4px solid transparent;
-  transition: color .2s, border-color .2s;
   font-size: 0.9rem;
-  flex: 0 0 auto;
-}
-.tabs-header li:hover {
-  color: #006400;
-}
-.tabs-header li.active {
-  color: #006400;
-  border-color: #006400;
+  color: #333;
 }
 
-/* Botões */
-button, .btn {
-  padding: .5rem 1rem;
-  border: 1px solid #e4e4e4;
-  border-radius: 6px;
+.search-container {
+  position: relative;
+  min-width: 250px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.search-input {
+  padding-left: 40px;
+}
+
+.btn-primary {
   background: #00a699;
+  color: white;
+  border: none;
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+  transition: background-color 0.2s;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: .5rem;
-}
-button:hover, .btn:hover {
-  background: #01554e;
-  color: #fff;
-  border-color: #01554e;
-}
-.service-select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e4e4e4;
-  border-radius: 6px;
-  background-color: #fff;
-  font-size: 0.95rem;
-  color: #444;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg fill='%23444' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  gap: 0.5rem;
 }
 
-.service-select:focus {
-  outline: none;
-  border-color: #00A699;
-  box-shadow: 0 0 0 2px rgba(0, 166, 153, 0.2);
+.btn-primary:hover {
+  background: #00857a;
+}
+
+/* Custom checkbox */
+.custom-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+  background: #00a699;
+  border-color: #00a699;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.btn-cancel-modal {
+  background: #f8f9fa;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btc-save-modal {
+  background: #00a699;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btc-save-modal:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* ===== ESTILOS PARA DESKTOP ===== */
+.desktop-view {
+  display: block;
 }
 
 /* Tabelas */
@@ -108,85 +237,218 @@ button:hover, .btn:hover {
   border-bottom: none;
 }
 
-/* Custom checkbox */
-.custom-checkbox {
-  position: relative;
-  width: 20px;
-  height: 20px;
-}
-
-.custom-checkbox input {
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  cursor: pointer;
-}
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 2px solid #e4e4e4;
-  border-radius: 4px;
-  transition: background .3s, border-color .3s;
-}
-.custom-checkbox input:checked ~ .checkmark {
-  background: #00a699;
-  border-color: #444;
-}
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-  left: 6px;
-  top: 2px;
-  width: 5px;
-  height: 10px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-.custom-checkbox input:checked ~ .checkmark:after {
-  display: block;
-}
-
 /* Estilo para linhas canceladas */
 .calendar-table tr.cancelada {
-    background-color: #ffcccc;
-    position: relative;
-  }
-  
-.calendar-table tr.cancelada td {
-    position: relative;
-  }
-  
-.calendar-table tr.cancelada td:before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 1px;
-    background-color: #ff0000;
-    transform: rotate(-5deg);
-  }
-
-/* Responsividade mínima */
-@media (max-width: 768px) {
-  .tabs-header ul {
-    flex-wrap: wrap;
-  }
-  .calendar-table {
-    display: block;
-    overflow-x: auto;
-  }
-  .calendar-table th,
-  .calendar-table td {
-    min-width: 120px;
-    padding: .8rem;
-  }
+  background-color: #ffcccc;
+  position: relative;
 }
 
+.calendar-table tr.cancelada td {
+  position: relative;
+}
+
+.calendar-table tr.cancelada td:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background-color: #ff0000;
+  transform: rotate(-5deg);
+}
+
+.service-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e4e4e4;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 0.95rem;
+  color: #444;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='%23444' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.service-select:focus {
+  outline: none;
+  border-color: #00A699;
+  box-shadow: 0 0 0 2px rgba(0, 166, 153, 0.2);
+}
+
+/* ===== ESTILOS PARA MOBILE ===== */
+.mobile-view {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-view {
+    display: none;
+  }
+  
+  .mobile-view {
+    display: block;
+  }
+  
+  .calendar-container {
+    padding: 1rem;
+    margin: 1rem auto;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .form-group {
+    width: 100%;
+    margin-bottom: 0.8rem;
+  }
+
+  .search-container {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  /* Cards Container */
+  .cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  /* Card Styles */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-left: 4px solid #00A699;
+  }
+
+  .cancelada-card {
+    border-left-color: #ff4d4f;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  .card-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .cancelada-badge {
+    background: #ff4d4f;
+    color: white;
+  }
+
+  .limpeza-badge {
+    background: #00A699;
+    color: white;
+  }
+
+  .card-title {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .card-row i {
+    width: 20px;
+    color: #666;
+  }
+
+  .card-actions {
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card-footer {
+    padding: 0.75rem 1rem;
+    background: #f0f2f5;
+    border-top: 1px solid #eaeaea;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  /* Section Styles */
+  .section-title {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #00A699;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+  }
+
+  /* Button Styles for Mobile */
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+  }
+
+  /* Form Controls */
+  .service-select, .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+}

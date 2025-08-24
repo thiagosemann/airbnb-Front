@@ -232,3 +232,45 @@
   color:white;
   font-size: 20px;
 }
+.building-row {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: 10px 25px;
+  position: sticky;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  width: 180px;
+  transition: background-color 0.2s;
+  font-weight: 600;
+  left: 0;
+  z-index: 40;
+}
+
+.building-row:hover {
+  background-color: #e9ecef;
+}
+
+.building-toggle {
+  margin-right: 10px;
+  font-size: 1.1rem;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.building-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.building-toggle-icon {
+  color: #6c757d;
+  transition: transform 0.3s ease;
+  width: 16px;
+  display: flex;
+  justify-content: center;
+}

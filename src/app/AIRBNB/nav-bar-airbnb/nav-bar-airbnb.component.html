@@ -1,92 +1,40 @@
 <!-- navbar.component.html -->
 <nav class="navbar navbar-expand-lg sticky-top">
-  <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
+  <div class="navbar-brand-container">
+    <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo">
+  </div>
 
-    <!-- Botão hamburguer / fechar -->
-    <button class="navbar-toggler" type="button" (click)="toggleMenu()">
+  <!-- Botão hamburguer / fechar -->
+  <button class="navbar-toggler" type="button" (click)="toggleMenu()" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon">
       <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
-    </button>
+    </span>
+  </button>
 
-    <!-- Menu desktop (colapsa em mobile) -->
-    <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
-      <ng-container *ngIf="user.role === 'admin'">
-        <div class="navbar-nav ms-auto">
-          <!-- Calendário -->
-            <ng-container *ngIf="user.empresa_id !== 1">
-                          <div class="dropdown">
+  <!-- Menu desktop (colapsa em mobile) -->
+  <div class="collapse navbar-collapse" [ngClass]="{ 'show': isMenuOpen }">
+    <!-- Conteúdo existente mantido igual -->
+    <ng-container *ngIf="user.role === 'admin'">
+      <div class="navbar-nav ms-auto">
+        <!-- Calendário -->
+          <ng-container *ngIf="user.empresa_id !== 1">
+          <div class="dropdown">
                 <button class="navbar-perfil-btn dropdown-toggle" type="button">
                   <i class="fas fa-home"></i> Calendário
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
                   <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
                 </ul>
             </div>
-              <!-- Faxinas -->
-              <div class="dropdown">
-                <button class="navbar-perfil-btn dropdown-toggle" type="button">
-                  <i class="fas fa-broom"></i> Faxinas
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
-                </ul>
-              </div>
-              <!-- Gerenciamento -->
-              <div class="dropdown">
-                <button class="navbar-perfil-btn dropdown-toggle" type="button">
-                  <i class="fas fa-gear"></i> Gerenciamento
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
-                  <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
-                </ul>
-              </div>
-              <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
-              <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-            </ng-container>
-            <ng-container *ngIf="user.empresa_id === 1">
-            <div class="dropdown">
-                <button class="navbar-perfil-btn dropdown-toggle" type="button">
-                  <i class="fas fa-home"></i> Calendário
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
-                  <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
-                </ul>
-            </div>
-             <!-- Faxinas -->
+            <!-- Faxinas -->
             <div class="dropdown">
               <button class="navbar-perfil-btn dropdown-toggle" type="button">
                 <i class="fas fa-broom"></i> Faxinas
               </button>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
-                <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
               </ul>
             </div>
-
-            <!-- Ticket -->
-            <div class="dropdown">
-              <button class="navbar-perfil-btn dropdown-toggle" type="button">
-                <i class="fas fa-money"></i> Reembolsos
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" (click)="ticket()">Ticket</a></li>
-                <li><a class="dropdown-item" (click)="controleTicket()">Controle Tickets</a></li>
-              </ul>
-            </div>
-            <!-- Vistorias -->
-            <div class="dropdown">
-              <button class="navbar-perfil-btn dropdown-toggle" type="button">
-
-                <i class="fas fa-check-to-slot"></i> Vistorias
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
-                <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
-              </ul>
-            </div>
-
             <!-- Gerenciamento -->
             <div class="dropdown">
               <button class="navbar-perfil-btn dropdown-toggle" type="button">
@@ -95,66 +43,187 @@
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
                 <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
-                <li><a class="dropdown-item" (click)="cadastroProprietarios()">Proprietários</a></li>
-                <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
                 <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
               </ul>
             </div>
-
-                <!-- Relatorios -->
-            <div class="dropdown">
-              <button class="navbar-perfil-btn dropdown-toggle" type="button">
-                <i class="fas fa-gear"></i> Relatórios
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
-                <li><a class="dropdown-item" (click)="relatorioGanhos()">Relatórios</a></li>
-
-                
-              </ul>
-            </div>
-            <!-- Perfil / Logout -->
             <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
             <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-           </ng-container>
+          </ng-container>
+          <ng-container *ngIf="user.empresa_id === 1">
+          <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-home"></i> Calendário
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
+                <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
+              </ul>
+          </div>
+           <!-- Faxinas -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-broom"></i> Faxinas
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
+              <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
+            </ul>
+          </div>
 
-        </div>
-    </ng-container>
-    <ng-container *ngIf="user.role !== 'admin'">
-      <div class="ms-auto">
-        <button class="navbar-perfil-btn" (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
-        <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
-        <button class="navbar-logout-btn" (click)="logout()">
-          <i class="fas fa-sign-out-alt"></i> Sair
-        </button>
+          <!-- Ticket -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-money"></i> Reembolsos
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="ticket()">Ticket</a></li>
+              <li><a class="dropdown-item" (click)="controleTicket()">Controle Tickets</a></li>
+            </ul>
+          </div>
+          <!-- Vistorias -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-check-to-slot"></i> Vistorias
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
+              <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
+            </ul>
+          </div>
+
+          <!-- Gerenciamento -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-gear"></i> Gerenciamento
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
+              <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
+              <li><a class="dropdown-item" (click)="cadastroProprietarios()">Proprietários</a></li>
+              <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
+              <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+            </ul>
+          </div>
+
+              <!-- Relatorios -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-chart-bar"></i> Relatórios
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
+              <li><a class="dropdown-item" (click)="relatorioGanhos()">Relatórios</a></li>
+            </ul>
+          </div>
+          <!-- Perfil / Logout -->
+          <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
+          <button class="navbar-perfil-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+         </ng-container>
+
       </div>
-    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="user.role !== 'admin'">
+    <div class="ms-auto">
+      <button class="navbar-perfil-btn" (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
+      <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
+      <button class="navbar-logout-btn" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Sair
+      </button>
+    </div>
+  </ng-container>
   </div>
 
   <!-- Overlay e painel mobile -->
   <div class="mobile-overlay" *ngIf="isMenuOpen" (click)="toggleMenu()"></div>
-  <div class="mobile-panel" *ngIf="isMenuOpen">
+  <div class="mobile-panel" [class.active]="isMenuOpen">
     <div class="mobile-header">
       <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo-sm">
-      <button class="close-btn" (click)="toggleMenu()"><i class="fas fa-times"></i></button>
+      <button class="close-btn" (click)="toggleMenu()" aria-label="Fechar menu"><i class="fas fa-times"></i></button>
     </div>
     <div class="mobile-nav">
-       <ng-container *ngIf="user.role === 'admin'">
-        <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-home"></i> Diário</button>
-        <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
-        <button (click)="escalaFaxinaAdmin(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
-        <button (click)="cadastroPredio(); toggleMenu()"><i class="fas fa-gear"></i> Prédios</button>
-        <button (click)="cadastroApartamento(); toggleMenu()"><i class="fas fa-gear"></i> Apartamentos</button>
-        <button (click)="cadastroProprietarios(); toggleMenu()"><i class="fas fa-gear"></i> Proprietários</button>
-        <button (click)="cadastroUsuario(); toggleMenu()"><i class="fas fa-gear"></i> Usuários</button>
-        <button (click)="cadastroPortarias(); toggleMenu()"><i class="fas fa-gear"></i> Portarias</button>
-        <button (click)="controleFaxina(); toggleMenu()"><i class="fas fa-gear"></i> Controle Faxina</button>
-        <button (click)="vistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Vistoria</button>
-        <button (click)="controleVistoria(); toggleMenu()"><i class="fas fa-check-to-slot"></i> Controle Vistoria</button>
-       </ng-container>
-        <ng-container *ngIf="user.role !== 'admin'">
-          <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-home"></i> Escala Faxina</button>
+      <ng-container *ngIf="user.role === 'admin'">
+        <ng-container *ngIf="user.empresa_id !== 1">
+          <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-home"></i> Calendário</button>
+          <button (click)="escalaFaxinaAdmin(); toggleMenu()"><i class="fas fa-broom"></i> Escala Faxina</button>
+          
+          <!-- Dropdown para Gerenciamento -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['gerenciamento']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('gerenciamento')">
+              <i class="fas fa-gear"></i> Gerenciamento <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['gerenciamento'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="cadastroPredio(); toggleMenu()">Prédios</button>
+              <button (click)="cadastroApartamento(); toggleMenu()">Apartamentos</button>
+              <button (click)="cadastroUsuario(); toggleMenu()">Usuários</button>
+            </div>
+          </div>
         </ng-container>
+        <ng-container *ngIf="user.empresa_id === 1">
+          <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-calendar-day"></i> Diário</button>
+          <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-calendar-alt"></i> Calendário</button>
+          
+          <!-- Dropdown para Faxinas -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['faxinas']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('faxinas')">
+              <i class="fas fa-broom"></i> Faxinas <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['faxinas'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="escalaFaxinaAdmin(); toggleMenu()">Escala Faxina</button>
+              <button (click)="controleFaxina(); toggleMenu()">Controle Faxina</button>
+            </div>
+          </div>
+          
+          <!-- Dropdown para Reembolsos -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['reembolsos']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('reembolsos')">
+              <i class="fas fa-money-bill-wave"></i> Reembolsos <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['reembolsos'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="ticket(); toggleMenu()">Ticket</button>
+              <button (click)="controleTicket(); toggleMenu()">Controle Tickets</button>
+            </div>
+          </div>
+          
+          <!-- Dropdown para Vistorias -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['vistorias']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('vistorias')">
+              <i class="fas fa-check-to-slot"></i> Vistorias <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['vistorias'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="vistoria(); toggleMenu()">Vistoria</button>
+              <button (click)="controleVistoria(); toggleMenu()">Controle Vistoria</button>
+            </div>
+          </div>
+          
+          <!-- Dropdown para Gerenciamento -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['gerenciamento']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('gerenciamento')">
+              <i class="fas fa-gear"></i> Gerenciamento <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['gerenciamento'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="cadastroPredio(); toggleMenu()">Prédios</button>
+              <button (click)="cadastroApartamento(); toggleMenu()">Apartamentos</button>
+              <button (click)="cadastroProprietarios(); toggleMenu()">Proprietários</button>
+              <button (click)="cadastroPortarias(); toggleMenu()">Portarias</button>
+              <button (click)="cadastroUsuario(); toggleMenu()">Usuários</button>
+            </div>
+          </div>
+          
+          <!-- Dropdown para Relatórios -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['relatorios']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('relatorios')">
+              <i class="fas fa-chart-bar"></i> Relatórios <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['relatorios'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="subirCSVRelatorio(); toggleMenu()">Subir CSV</button>
+              <button (click)="relatorioGanhos(); toggleMenu()">Relatórios</button>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="user.role !== 'admin'">
+        <button (click)="escalaFaxina(); toggleMenu()"><i class="fas fa-broom"></i> Escala Faxina</button>
+      </ng-container>
       <button (click)="profile(); toggleMenu()"><i class="fas fa-user"></i> Perfil</button>
       <button class="logout" (click)="logout(); toggleMenu()"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>

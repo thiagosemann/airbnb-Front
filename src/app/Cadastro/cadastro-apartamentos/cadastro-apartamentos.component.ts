@@ -15,8 +15,8 @@ import { User } from 'src/app/shared/utilitarios/user';
   styleUrls: ['./cadastro-apartamentos.component.css']
 })
 export class CadastroApartamentosComponent implements OnInit {
-  apartamentos: any[] = [];
-  apartamentosFiltrados: any[] = [];
+  apartamentos: Apartamento[] = [];
+  apartamentosFiltrados: Apartamento[] = [];
   predios: Predio[] = [];
 
   showModal = false;
@@ -65,6 +65,7 @@ export class CadastroApartamentosComponent implements OnInit {
       nome_anuncio: [''],
       link_airbnb_calendario: [''],
       link_booking_calendario: [''],
+      link_stays_calendario: [''],
       link_fotos: [''],
       endereco: [''],
       bairro: [''],
@@ -133,6 +134,28 @@ export class CadastroApartamentosComponent implements OnInit {
       },
       error: err => console.error('Erro ao carregar prédios:', err)
     });
+
+    // Lógica de desabilitar campos de links de calendário
+    this.form.get('link_stays_calendario')?.valueChanges.subscribe((stays: string) => {
+      if (stays && stays.trim() !== '') {
+        this.form.get('link_airbnb_calendario')?.disable({ emitEvent: false });
+        this.form.get('link_booking_calendario')?.disable({ emitEvent: false });
+      } else {
+        this.form.get('link_airbnb_calendario')?.enable({ emitEvent: false });
+        this.form.get('link_booking_calendario')?.enable({ emitEvent: false });
+      }
+    });
+    const disableStaysIfOther = () => {
+      const airbnb = this.form.get('link_airbnb_calendario')?.value;
+      const booking = this.form.get('link_booking_calendario')?.value;
+      if ((airbnb && airbnb.trim() !== '') || (booking && booking.trim() !== '')) {
+        this.form.get('link_stays_calendario')?.disable({ emitEvent: false });
+      } else {
+        this.form.get('link_stays_calendario')?.enable({ emitEvent: false });
+      }
+    };
+    this.form.get('link_airbnb_calendario')?.valueChanges.subscribe(disableStaysIfOther);
+    this.form.get('link_booking_calendario')?.valueChanges.subscribe(disableStaysIfOther);
   }
 
   /** Configura listener para quando o usuário escolher um prédio no form */
