@@ -177,6 +177,11 @@
       <div class="modal-row" >
         <span>{{ apartamentoSelecionado?.endereco }}</span>
       </div>
+      <div class="modal-row">
+        <button class="btn-info" *ngIf="apartamentoSelecionado?.endereco" (click)="abrirGoogleMaps(apartamentoSelecionado?.endereco)">
+          Ver rota no Google Maps
+        </button>
+      </div>
 
     </div>
     

@@ -288,4 +288,9 @@ export class EscalaFaxinaComponent implements OnInit {
     this.modalAberto = false;
     this.apartamentoSelecionado = null;
   }
+
+  abrirGoogleMaps(endereco: string): void {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(endereco)}`;
+    window.open(url, '_blank');
+  }
 }
