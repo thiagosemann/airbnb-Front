@@ -19,7 +19,6 @@ import { ActivatedRoute } from '@angular/router';
 export class EscalaFaxinaComponent implements OnInit {
   faxinasHoje: ReservaAirbnb[] = [];
   faxinasFuturas: ReservaAirbnb[] = [];
-  apartamentos: { id: number; nome: string }[] = [];
   tabs = [
     { id: 'hoje',          label: 'Hoje' },
     { id: 'futuras',        label: 'Outras Datas' },
@@ -33,6 +32,8 @@ export class EscalaFaxinaComponent implements OnInit {
   // Variáveis para controle de período
   dataInicio: string = '';
   dataFim: string = '';
+  modalAberto: boolean = false;
+  apartamentoSelecionado: any = null;
 
   constructor(
     private reservasService: ReservasAirbnbService,
@@ -56,9 +57,7 @@ export class EscalaFaxinaComponent implements OnInit {
     this.dataFim = this.formatarDataParaInput(futuro);
 
     this.carregarDados();
-    this.apartamentosService.getAllApartamentos().subscribe(list => {
-      this.apartamentos = list;
-    });
+
   }
 
 
@@ -275,4 +274,18 @@ export class EscalaFaxinaComponent implements OnInit {
     });
     return lista;
   } 
+  // Adicione estes métodos à classe
+  abrirModal(faxina: any): void {
+    this.apartamentoSelecionado = faxina;
+    this.apartamentosService.getApartamentoById(faxina.apartamento_id).subscribe( apt => {
+      this.apartamentoSelecionado.endereco = apt.endereco || "Sem endereço cadastrado.";
+      this.modalAberto = true;
+    });
+    
+  }
+
+  fecharModal(): void {
+    this.modalAberto = false;
+    this.apartamentoSelecionado = null;
+  }
 }

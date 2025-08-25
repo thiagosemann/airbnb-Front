@@ -58,6 +58,8 @@
               <span class="checkmark"></span>
             </label>
             <span>Limpeza Finalizada</span>
+            <button class="btn-info" (click)="abrirModal(faxina)">Mais</button>
+
           </div>
         </div>
       </div>
@@ -136,5 +138,50 @@
         </div>
       </div>
     </section>
+  </div>
+</div>
+<!-- Modal para detalhes do apartamento -->
+<div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="fecharModal()">&times;</button>
+    
+    <h2>Apt {{ apartamentoSelecionado?.apartamento_nome }}</h2>
+    
+    <div class="modal-body">
+      <div class="modal-row">
+        <strong>Status:</strong>
+        <span [class]="apartamentoSelecionado?.limpeza_realizada ? 'status-finalizado' : 'status-pendente'">
+          {{ apartamentoSelecionado?.limpeza_realizada ? '✔ Finalizado' : '⌛️ Pendente' }}
+        </span>
+      </div>
+      <div class="modal-row">
+        <strong>Data:</strong>
+        <span>{{ apartamentoSelecionado?.end_data }}</span>
+      </div>
+      <div class="modal-row">
+        <strong>Dia da semana:</strong>
+        <span>{{ getDiaDaSemana(formatarData(apartamentoSelecionado?.end_data)) }}</span>
+      </div>
+      <div class="modal-row">
+        <strong>Senha:</strong>
+        <span>{{ apartamentoSelecionado?.apartamento_senha }}</span>
+      </div>  
+      <div class="modal-row">
+        <strong>Check-Out:</strong>
+        <span>{{ apartamentoSelecionado?.check_out }} – {{ formatarCheckInMesmoDia(apartamentoSelecionado) }}</span>
+      </div>
+      
+      <div class="modal-row" >
+        <strong>Endereço:</strong>
+      </div>
+      <div class="modal-row" >
+        <span>{{ apartamentoSelecionado?.endereco }}</span>
+      </div>
+
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-fechar" (click)="fecharModal()">Fechar</button>
+    </div>
   </div>
 </div>
