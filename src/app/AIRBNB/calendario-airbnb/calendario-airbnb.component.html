@@ -1,149 +1,222 @@
- <div class="calendar-container">
-    <header class="calendar-header">
-      <div class="header-row">
-        <div class="header-left">
-          <h5>
-            <i class="fas fa-calendar-alt"></i>
-   
-          </h5>
-        </div>
-        
-        <div class="header-center">
-          <div class="filtro-controles">
-            <div class="filter-buttons">
-              <button class="btn filtro-btn" (click)="setPeriodoHoje()">
-                <i class="fas fa-sun"></i> Hoje
-              </button>
-              <button class="btn filtro-btn" (click)="setPeriodoAmanha()">
-                <i class="fas fa-calendar-day"></i> Amanhã
-              </button>
-            </div>
-            
-            <div class="filtro-periodo-inputs">
-              <div class="filtro-item">
-              
-                <input type="date" id="dataInicio" [(ngModel)]="dataInicio">
-              </div>
-              <div class="filtro-item">
-                <input type="date" id="dataFim" [(ngModel)]="dataFim">
-              </div>
-              <button class="btn btn-primary" (click)="carregarReservasPorPeriodo()">
-                <i class="fas fa-filter"></i> Filtrar
-              </button>
-                <div class="filtro-item" style="margin-left: 1rem;">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Buscar apt ou código..."
-                  [(ngModel)]="searchTerm"
-                  (input)="aplicarSearch()"
-                >
-              </div>
-            </div>
+<div class="calendar-container">
+  <header class="calendar-header">
+    <div class="header-row">
+      <div class="header-left">
+        <h5>
+          <i class="fas fa-calendar-alt"></i> 
+        </h5>
+      </div>
+      
+      <div class="header-center">
+        <div class="filtro-controles">
+          <div class="filter-buttons">
+            <button class="btn filtro-btn" (click)="setPeriodoHoje()">
+              <i class="fas fa-sun"></i> Hoje
+            </button>
+            <button class="btn filtro-btn" (click)="setPeriodoAmanha()">
+              <i class="fas fa-calendar-day"></i> Amanhã
+            </button>
           </div>
-        </div>
-        
-        <div class="header-right">
-          <div class="status-indicators">
-            <div class="status-item total">
-              <i class="fas fa-list"></i>
-              <span>Total: {{ reservasFiltradas.length }}</span>
+          <div class="filtro-periodo-inputs">
+            <div class="filtro-item">
+              <input type="date" id="dataInicio" [(ngModel)]="dataInicio">
             </div>
-            <div class="status-item credenciais">
-              <i class="fas fa-key"></i>
-              <span>Credenciais: {{ credenciaisFetias }}</span>
+            <div class="filtro-item">
+              <input type="date" id="dataFim" [(ngModel)]="dataFim">
+            </div>
+            <button class="btn btn-primary" (click)="carregarReservasPorPeriodo()">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <div class="filtro-item" style="margin-left: 1rem;">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Buscar apt ou código..."
+                [(ngModel)]="searchTerm"
+                (input)="aplicarSearch()"
+              >
             </div>
           </div>
         </div>
       </div>
-    </header>
-
-    <div *ngIf="carregando" class="loading-overlay">
-      <div class="spinner"></div>
+      
+      <div class="header-right">
+        <div class="status-indicators">
+          <div class="status-item total">
+            <i class="fas fa-list"></i>
+            <span>Total: {{ reservasFiltradas.length }}</span>
+          </div>
+          <div class="status-item credenciais">
+            <i class="fas fa-key"></i>
+            <span>Credenciais: {{ credenciaisFetias }}</span>
+          </div>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <table class="calendar-table" *ngIf="!carregando">
-      <thead>
-        <tr>
-          <th style="width: 6%;">Site</th>
-          <th style="width: 6%;">Apt</th>
-          <th style="width: 13%;">Código</th>
-          <th style="width: 8%;">Início</th>
-          <th style="width: 8%;">Fim</th>
-          <th style="width: 8%;">Check-In</th>
-          <th style="width: 8%;">Hóspedes</th>
-          <th style="width: 8%;">Credencial</th>
-          <th style="width: 8%;">Informado</th>
-          <th style="width: 6%;">Docs</th>
-          <th style="width: 6%;">Early</th>
-          <th style="width: 6%;">Late</th>
-          <th style="width: 9%;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
-         <td>{{ typeReserva(event.link_reserva) }}</td>
-          <td>
-            <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
-          </td>
-          <td>{{ event.cod_reserva }}</td>
-          <td>{{ formatarData(event.start_date) }}</td>
-          <td>{{ formatarData(event.end_data) }}</td>
-          <td>{{ event.check_in }}</td>
-          <td>{{ event.qtd_hospedes }}</td>
-          <td>
-            <label class="custom-checkbox">
-              <input type="checkbox" 
-                     [checked]="event.credencial_made" 
-                     (change)="updateStatus(event, 'credencial_made', $event)">
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>
-            <label class="custom-checkbox">
-              <input type="checkbox" 
-                     [checked]="event.informed" 
-                     (change)="updateStatus(event, 'informed', $event)">
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>
-            <label class="custom-checkbox">
-              <input type="checkbox" 
-                     [checked]="event.documentosEnviados" 
-                     (change)="updateStatus(event, 'documentosEnviados', $event)">
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>
-            <label class="custom-checkbox">
-              <input type="checkbox" 
-                     [checked]="hasPaymentType('early', event)" 
-                    disabled>
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>
-            <label class="custom-checkbox">
-              <input type="checkbox" 
-                     [checked]="hasPaymentType('late', event)" 
-                    disabled>
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>
-            <button class="btn btn-action" (click)="openModal(event)">
-              <i class="fas fa-plus"></i> Mais 
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="reservasExibidas.length === 0">
-          <td colspan="10">Nenhuma reserva no período selecionado</td>
-        </tr>
-      </tbody>
-    </table>
+  <div *ngIf="carregando" class="loading-overlay">
+    <div class="spinner"></div>
   </div>
 
+  <!-- Cards para mobile -->
+  <div class="cards-container d-block d-lg-none" *ngIf="!carregando">
+    <div class="row row-cols-1 g-3">
+      <div *ngFor="let event of reservasExibidas" class="col">
+        <div class="card h-100 shadow-sm" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title mb-0">{{ event.apartamento_nome }}</h6>
+              <span class="badge" [ngClass]="{
+                'bg-success': event.description !== 'CANCELADA',
+                'bg-danger': event.description === 'CANCELADA'
+              }">
+                {{ typeReserva(event.link_reserva) }}
+              </span>
+            </div>
+            
+            <div class="reserva-info">
+              <div class="info-item">
+                <i class="fas fa-hashtag"></i>
+                <span>{{ event.cod_reserva }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-calendar-day"></i>
+                <span>{{ formatarData(event.start_date) }} - {{ formatarData(event.end_data) }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-users"></i>
+                <span>{{ event.qtd_hospedes }} hóspedes</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-door-open"></i>
+                <span>Check-in: {{ event.check_in }}</span>
+              </div>
+            </div>
+            
+            <div class="status-checks mt-3">
+              <div class="status-check-item">
+                <label class="form-check-label">Credencial</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" 
+                         [checked]="event.credencial_made" 
+                         (change)="updateStatus(event, 'credencial_made', $event)">
+                </div>
+              </div>
+              <div class="status-check-item">
+                <label class="form-check-label">Informado</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" 
+                         [checked]="event.informed" 
+                         (change)="updateStatus(event, 'informed', $event)">
+                </div>
+              </div>
+              <div class="status-check-item">
+                <label class="form-check-label">Documentos</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" 
+                         [checked]="event.documentosEnviados" 
+                         (change)="updateStatus(event, 'documentosEnviados', $event)">
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-actions mt-3">
+              <button class="btn btn-primary btn-sm" (click)="openModal(event)">
+                <i class="fas fa-plus"></i> Detalhes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="reservasExibidas.length === 0" class="col-12 text-center py-4 text-muted">
+      Nenhuma reserva no período selecionado
+    </div>
+  </div>
+
+  <!-- Tabela para desktop -->
+  <table class="calendar-table d-none d-lg-table" *ngIf="!carregando">
+    <thead>
+      <tr>
+        <th style="width: 6%;">Site</th>
+        <th style="width: 6%;">Apt</th>
+        <th style="width: 13%;">Código</th>
+        <th style="width: 8%;">Início</th>
+        <th style="width: 8%;">Fim</th>
+        <th style="width: 8%;">Check-In</th>
+        <th style="width: 8%;">Hóspedes</th>
+        <th style="width: 8%;">Credencial</th>
+        <th style="width: 8%;">Informado</th>
+        <th style="width: 6%;">Docs</th>
+        <th style="width: 6%;">Early</th>
+        <th style="width: 6%;">Late</th>
+        <th style="width: 9%;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+        <td>{{ typeReserva(event.link_reserva) }}</td>
+        <td>
+          <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
+        </td>
+        <td>{{ event.cod_reserva }}</td>
+        <td>{{ formatarData(event.start_date) }}</td>
+        <td>{{ formatarData(event.end_data) }}</td>
+        <td>{{ event.check_in }}</td>
+        <td>{{ event.qtd_hospedes }}</td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox" 
+                    [checked]="event.credencial_made" 
+                    (change)="updateStatus(event, 'credencial_made', $event)">
+            <span class="checkmark"></span>
+          </label>
+        </td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox" 
+                    [checked]="event.informed" 
+                    (change)="updateStatus(event, 'informed', $event)">
+            <span class="checkmark"></span>
+          </label>
+        </td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox" 
+                    [checked]="event.documentosEnviados" 
+                    (change)="updateStatus(event, 'documentosEnviados', $event)">
+            <span class="checkmark"></span>
+          </label>
+        </td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox" 
+                    [checked]="hasPaymentType('early', event)" 
+                    disabled>
+            <span class="checkmark"></span>
+          </label>
+        </td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox" 
+                    [checked]="hasPaymentType('late', event)" 
+                    disabled>
+            <span class="checkmark"></span>
+          </label>
+        </td>
+        <td>
+          <button class="btn btn-action" (click)="openModal(event)">
+            <i class="fas fa-plus"></i> Mais 
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="reservasExibidas.length === 0">
+        <td colspan="13">Nenhuma reserva no período selecionado</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
   <!-- Modal -->
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
