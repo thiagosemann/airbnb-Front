@@ -278,7 +278,12 @@ export class EscalaFaxinaComponent implements OnInit {
   abrirModal(faxina: any): void {
     this.apartamentoSelecionado = faxina;
     this.apartamentosService.getApartamentoById(faxina.apartamento_id).subscribe( apt => {
-      this.apartamentoSelecionado.endereco = apt.endereco || "Sem endereço cadastrado.";
+      if(apt.endereco){
+        this.apartamentoSelecionado.endereco = apt.endereco + ", " + apt.bairro ;
+
+      }else{
+         this.apartamentoSelecionado.endereco =  "Sem endereço cadastrado.";
+      }
       this.modalAberto = true;
     });
     
