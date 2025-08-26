@@ -1,6 +1,6 @@
 // cadastro-proprietarios.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { User } from 'src/app/shared/utilitarios/user';
@@ -38,7 +38,7 @@ export class CadastroProprietariosComponent implements OnInit {
     this.userForm = this.fb.group({
       first_name: ['', Validators.required],
       last_name: [''],
-      cpf: ['', [Validators.required, Validators.pattern(/^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/)]],
+      cpf: ['', [Validators.required, cpfValidator]],
       Telefone: ['', Validators.required],
       email: ['', [Validators.email]],
       role: ['proprietario', Validators.required],
@@ -157,18 +157,22 @@ export class CadastroProprietariosComponent implements OnInit {
 
   async excluirUsuario(userId: number) {
     if (confirm('Tem certeza que deseja excluir este proprietário?')) {
-      try {
-        await this.usersService.deleteUser(userId);
-        this.carregarUsuarios();
-        this.toastr.success('Proprietário excluído com sucesso!');
-      } catch (error) {
-        console.error('Erro ao excluir usuário:', error);
-        this.toastr.error('Erro ao excluir proprietário');
-      }
+      this.usersService.deleteUser(userId).subscribe({
+        next: () => {
+          this.carregarUsuarios();
+          this.toastr.success('Proprietário excluído com sucesso!');
+        },
+        error: (error) => {
+          console.error('Erro ao excluir usuário:', error);
+          this.toastr.error('Erro ao excluir proprietário');
+        }
+      });
     }
   }
 
   async salvarUsuario() {
+    console.log(this.userForm.value);
+    console.log(this.userForm)
     if (this.userForm.invalid) {
       this.toastr.warning('Preencha os campos obrigatórios');
       return;
@@ -186,7 +190,7 @@ export class CadastroProprietariosComponent implements OnInit {
         this.toastr.success('Proprietário atualizado com sucesso!');
       } else {
         const resp: any = await this.usersService.addUser(userData).toPromise();
-        const novoId = resp?.id || resp?.user?.id;
+        const novoId = resp?.insertId;
         if (novoId) {
           this.selectedUserId = novoId;
           await this.atualizarVinculosApartamentos();
@@ -256,4 +260,22 @@ export class CadastroProprietariosComponent implements OnInit {
       this.apartamentosSelecionados = [...this.apartamentosSelecionados, aptoId];
     }
   }
+}
+
+// Validador customizado para CPF
+export function cpfValidator(control: AbstractControl): ValidationErrors | null {
+  const cpf = (control.value || '').replace(/\D/g, '');
+  if (!cpf || cpf.length !== 11) return { cpfInvalido: true };
+  if (/^(\d)\1+$/.test(cpf)) return { cpfInvalido: true };
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.charAt(9))) return { cpfInvalido: true };
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.charAt(10))) return { cpfInvalido: true };
+  return null;
 }

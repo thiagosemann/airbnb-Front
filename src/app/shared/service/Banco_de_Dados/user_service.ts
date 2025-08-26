@@ -58,7 +58,7 @@ export class UserService {
       Authorization: 'Bearer ' + token,
     });
 
-    return this.http.delete<{ message: string }>(`${this.url}/users/${userId}`, { headers });
+    return this.http.delete<{ message: string }>(`${this.url}/users-airbnb/${userId}`, { headers });
   }
 
 

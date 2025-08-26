@@ -222,7 +222,7 @@
       
       <div class="modal-footer">
         <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
-        <button class="btn-save" (click)="salvarUsuario()" [disabled]="userForm.invalid">
+        <button class="btn-save" (click)="salvarUsuario()">
           {{ isEditing ? 'Atualizar' : 'Salvar' }}
         </button>
       </div>
