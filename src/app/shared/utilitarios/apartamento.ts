@@ -54,4 +54,6 @@ export interface Apartamento {
   modificado_user_nome?: string;
   modificado_user_id?: number;
   data_ultima_modificacao?: string;
+  link_anuncio_airbnb?: string;
+  link_anuncio_booking?: string;
 }

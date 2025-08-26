@@ -82,11 +82,17 @@
   <div class="detail-legend">
     <div class="detail-legend-item">
       <div class="detail-legend-dot booking"></div>
-      <span>Booking</span>
+      <ng-container *ngIf="selectedApartment.link_anuncio_booking; else bookingText">
+        <a [href]="selectedApartment.link_anuncio_booking" target="_blank" rel="noopener noreferrer">Booking</a>
+      </ng-container>
+      <ng-template #bookingText>Booking</ng-template>
     </div>
     <div class="detail-legend-item">
       <div class="detail-legend-dot airbnb"></div>
-      <span>Airbnb</span>
+      <ng-container *ngIf="selectedApartment.link_anuncio_airbnb; else airbnbText">
+        <a [href]="selectedApartment.link_anuncio_airbnb" target="_blank" rel="noopener noreferrer">Airbnb</a>
+      </ng-container>
+      <ng-template #airbnbText>Airbnb</ng-template>
     </div>
   </div>
 </div>

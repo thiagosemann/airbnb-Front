@@ -106,6 +106,8 @@ export class CadastroApartamentosComponent implements OnInit {
       aquecedor: [false],
       itens_limpeza: [''],
       air_fryer: [false],
+      link_anuncio_airbnb: [''],
+      link_anuncio_booking: [''],
       modificado_user_id: [0],
       data_ultima_modificacao: [''],
       cod_link_proprietario: ['']

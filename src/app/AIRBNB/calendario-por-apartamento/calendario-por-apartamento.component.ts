@@ -26,6 +26,8 @@ interface Apartment {
   name: string;
   status: string;
   color: string;
+  link_anuncio_airbnb?: string;
+  link_anuncio_booking?: string;
 }
 
 @Component({
@@ -61,6 +63,8 @@ export class CalendarioPorApartamentoComponent implements OnInit {
       this.selectedApartment = {
         id: apartment.id,
         name: apartment.nome, // Use the correct property name from Apartamento
+        link_anuncio_airbnb: apartment.link_anuncio_airbnb,
+        link_anuncio_booking: apartment.link_anuncio_booking,
         status: 'Disponível', // Use the correct property name from Apartamento
         color:'#3B82F6' // Use the correct property name from Apartamento
       };
