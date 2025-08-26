@@ -7,6 +7,7 @@ import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { MercadoPagoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mercadoPago_service';
+import { CadastroMensagemViaLinkService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mensagemCadastroViaLink_service';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -41,7 +42,8 @@ export class CalendarioAirbnbComponent implements OnInit {
     private checkinFormService: CheckInFormService,
     private sanitizer: DomSanitizer,
     private toastr: ToastrService,
-    private mercadoPagoService: MercadoPagoService
+    private mercadoPagoService: MercadoPagoService,
+    private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -123,7 +125,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.carregandoImagem = true;
     this.hospedesReserva = [];
     this.showModal = true;
-
+    console.log(event)
     console.log('Reserva selecionada:', this.selectedReservation);
     if (this.selectedReservation.id) {
       this.getRespostasByReservaId(
@@ -404,4 +406,48 @@ export class CalendarioAirbnbComponent implements OnInit {
       return 'STAYS';
     }
   }
+  updateTelefone(): void {
+    if(!this.selectedReservation){
+      return
+    }
+    if(!this.selectedReservation.telefone_principal){
+      return
+    }
+    if(this.selectedReservation.telefone_principal.length !== 11) {
+      return;
+    }
+    this.selectedReservation.start_date = this.formatarDataBanco(this.selectedReservation.start_date);
+    this.selectedReservation.end_data = this.formatarDataBanco(this.selectedReservation.end_data);
+
+    if (this.selectedReservation) {
+      this.reservasAirbnbService.updateReserva(this.selectedReservation).subscribe(
+        () => {
+          console.log('Telefone atualizado com sucesso');
+        },
+        error => {
+          console.error('Erro ao atualizar o telefone', error);
+        }
+      );
+    }
+  }
+
+  sendMensagemCadastroViaLink(): void {
+    console.log('Enviando mensagem de cadastro via link...');
+    if (!this.selectedReservation) {
+      return;
+    }
+    if(!this.selectedReservation.id){
+      return
+    }
+    this.cadastroMensagemViaLinkService.enviarMensagemCadastro(this.selectedReservation.id).subscribe({
+      next: () => {
+        this.toastr.success("Mensagem enviada com sucesso!");
+      },
+      error: (error) => {
+        console.error('Falha ao solicitar envio:', error);
+        this.toastr.error("Erro ao enviar mensagem!");
+      }
+    });
+  }
+
 }

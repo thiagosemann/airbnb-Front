@@ -249,6 +249,17 @@
               <label>Check-Out</label>
               <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_out" (change)="updateTime()">
             </div>
+            <div class="modal-item">
+              <label>Telefone Da Reserva</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()" mask="(00) 00000-0000">
+            </div>
+            <div class="modal-item">
+              <label>Telefone Da Reserva</label>
+              <button class="btn btn-primary" (click)="sendMensagemCadastroViaLink()">
+                 Enviar  
+              </button>
+            </div>
+            
           </div>
         </div>
 
