@@ -163,20 +163,7 @@ export class CalendarioComponent implements OnInit {
 
 
   filterApartments(): void {
-    let filtered = this.apartments;
 
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(apt => apt.name.toLowerCase().includes(term));
-    }
-
-    if (this.showOnlyAvailable) {
-      filtered = filtered.filter(apt =>
-        this.isApartmentFreeInRange(apt, this.dataInicio, this.dataFim)
-      );
-    }
-
-    this.filteredApartments = filtered;
   }
 
   onDateChange(): void {
@@ -261,7 +248,7 @@ private processApartments(apts: any[]): void {
       color,
       apartments: groupedByPredio[predioId]
     };
-    this.expandedBuildings[predioId] = true; // Começa minimizado
+    this.expandedBuildings[predioId] = false; // Começa minimizado
   }
 
   // Junta todos os apartamentos ordenados para manter compatibilidade

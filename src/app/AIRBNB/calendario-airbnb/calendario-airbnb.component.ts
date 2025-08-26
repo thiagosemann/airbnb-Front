@@ -335,10 +335,14 @@ export class CalendarioAirbnbComponent implements OnInit {
   }
 
   sendEarlyPayment(hospede: any): void {
+    if (!window.confirm('Tem certeza que deseja enviar o pagamento antecipado para este hóspede?')) {
+      return;
+    }
     if (!this.selectedReservation) {
       this.toastr.warning('Selecione uma reserva antes de enviar o pagamento.');
       return;
     }
+    
     this.earlyLoading = true;
     const payload: any = {
       user_id: hospede?.user_id,
@@ -355,7 +359,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.mercadoPagoService.createPayment(payload)
       .subscribe({
         next: (resp: any) => {
-          this.linkPagamento = resp.redirectUrl;
+           this.linkPagamento = resp.redirectUrl;
            this.earlyLoading = false;
         },
         error: (err) => {
@@ -363,6 +367,7 @@ export class CalendarioAirbnbComponent implements OnInit {
           this.toastr.error('Não foi possível gerar o link de pagamento.');
         }
       });
+      
   }
   /** Retorna true se existir algum pagamento do tipo especificado */
   hasPaymentType(type: string, reserva: ReservaAirbnb | undefined): boolean {
