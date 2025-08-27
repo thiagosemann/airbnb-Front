@@ -15,8 +15,17 @@
           <input type="text" class="form-control" id="id" [(ngModel)]="id" name="id" disabled required>
         </div>
         <div class="form-group">
-          <label for="cpf">CPF:</label>
-          <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" [(ngModel)]="formData.cpf" name="cpf" required mask="000.000.000-00">
+          <label for="cpf">Sou estrangeiro?</label>
+          <input type="checkbox" id ="souEstrangeiro" [(ngModel)]="souEstrangeiro" name="souEstrangeiro">
+          <ng-container *ngIf="souEstrangeiro">
+            <label for="passaport">Passaporte:</label>
+            <input type="text" class="form-control" id="cpf" placeholder="Digite o Passaporte" [(ngModel)]="formData.cpf" name="cpf" required >
+          </ng-container>
+          <ng-container *ngIf="!souEstrangeiro">
+            <label for="cpf">CPF:</label>
+            <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" [(ngModel)]="formData.cpf" name="cpf" required mask="000.000.000-00">
+          </ng-container>
+
         </div>
         <div class="form-group">
           <label for="name">Nome:</label>

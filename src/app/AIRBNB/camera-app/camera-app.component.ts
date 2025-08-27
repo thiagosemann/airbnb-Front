@@ -29,7 +29,7 @@ export class CameraAppComponent implements OnInit {
   private documentMediaStream: MediaStream | null = null; // Para parar a câmera do documento
   loadingCamera:Boolean=false;
   hourOptions: string[] = [];
-
+  souEstrangeiro:boolean=false;
   constructor(
     private checkinFormService: CheckInFormService,
     private route: ActivatedRoute, // Injete o ActivatedRoute
@@ -306,7 +306,7 @@ export class CameraAppComponent implements OnInit {
   
   goForward() {
     if(this.step==1){
-      if (!this.validateCPF(this.formData.cpf)) {
+      if (!this.souEstrangeiro &&!this.validateCPF(this.formData.cpf)) {
         this.toastr.warning("CPF inválido!")
         return;
       }
