@@ -248,7 +248,7 @@ private processApartments(apts: any[]): void {
       color,
       apartments: groupedByPredio[predioId]
     };
-    this.expandedBuildings[predioId] = false; // Começa minimizado
+    this.expandedBuildings[predioId] = true; // Começa minimizado
   }
 
   // Junta todos os apartamentos ordenados para manter compatibilidade
