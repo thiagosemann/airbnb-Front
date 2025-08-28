@@ -47,4 +47,11 @@ export class ApartamentoService {
   getApartamentoByCodProprietario(cod_link_proprietario: string): Observable<Apartamento> {
     return this.http.get<Apartamento>(`${this.url}/apartamentos-airbnb/codigo-proprietario/${cod_link_proprietario}`, { headers: this.getHeaders() });
   }
+  validarIcalBackend(icalData: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.url}/validar-ical`,
+      { icalData },
+      { headers: this.getHeaders() }
+    );
+  }
 }

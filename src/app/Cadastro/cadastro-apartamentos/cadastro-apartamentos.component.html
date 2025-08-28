@@ -331,22 +331,61 @@
               <input type="text" class="form-control" formControlName="cod_link_proprietario">
             </div>
           </div>
-
-
-          <!-- Seção 11: Calendário Airbnb -->
           <div class="col-md-12">
             <h5 class="section-title">Links</h5>
+            
+            <!-- Link Airbnb -->
             <div class="mb-3">
               <label class="form-label">Link Calendário Airbnb</label>
-              <input type="text" class="form-control" formControlName="link_airbnb_calendario">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [class.is-valid]="icalValid['airbnb'] === true"
+                  [class.is-invalid]="icalValid['airbnb'] === false"
+                  formControlName="link_airbnb_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['airbnb']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['airbnb'] && icalValid['airbnb'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['airbnb'] && icalValid['airbnb'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
             </div>
+
+            <!-- Link Booking -->
             <div class="mb-3">
               <label class="form-label">Link Calendário Booking</label>
-              <input type="text" class="form-control" formControlName="link_booking_calendario">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [class.is-valid]="icalValid['booking'] === true"
+                  [class.is-invalid]="icalValid['booking'] === false"
+                  formControlName="link_booking_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['booking']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['booking'] && icalValid['booking'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['booking'] && icalValid['booking'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
             </div>
+
+            <!-- Link Stays -->
             <div class="mb-3">
               <label class="form-label">Link Calendário Stays</label>
-              <input type="text" class="form-control" formControlName="link_stays_calendario">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [class.is-valid]="icalValid['stays'] === true"
+                  [class.is-invalid]="icalValid['stays'] === false"
+                  formControlName="link_stays_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['stays']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['stays'] && icalValid['stays'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['stays'] && icalValid['stays'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Link Fotos</label>

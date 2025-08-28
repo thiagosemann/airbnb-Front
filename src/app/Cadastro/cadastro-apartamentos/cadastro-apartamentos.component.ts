@@ -8,6 +8,7 @@ import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service'
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { Predio } from 'src/app/shared/utilitarios/predio';
 import { User } from 'src/app/shared/utilitarios/user';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cadastro-apartamentos',
@@ -24,6 +25,18 @@ export class CadastroApartamentosComponent implements OnInit {
   currentUserId: number | undefined;
   apartamentoSelecionado: Apartamento | undefined;
   form: FormGroup;
+  // Novas propriedades para validação iCal
+  validatingIcal: { [key: string]: boolean } = {
+    airbnb: false,
+    booking: false,
+    stays: false
+  };
+  
+  icalValid: { [key: string]: boolean | null } = {
+    airbnb: null,
+    booking: null,
+    stays: null
+  };
 
   // Definição das comodidades do prédio
   amenidadesPredio = [
@@ -158,8 +171,53 @@ export class CadastroApartamentosComponent implements OnInit {
     };
     this.form.get('link_airbnb_calendario')?.valueChanges.subscribe(disableStaysIfOther);
     this.form.get('link_booking_calendario')?.valueChanges.subscribe(disableStaysIfOther);
-  }
+    this.setupIcalValidation();
 
+  }
+  private setupIcalValidation(): void {
+      const icalFields = {
+        'link_airbnb_calendario': 'airbnb',
+        'link_booking_calendario': 'booking', 
+        'link_stays_calendario': 'stays'
+      };
+
+      Object.entries(icalFields).forEach(([fieldName, icalKey]) => {
+        this.form.get(fieldName)?.valueChanges
+          .pipe(
+            debounceTime(1000),
+            distinctUntilChanged()
+          )
+          .subscribe((value: string) => {
+            if (value && value.trim() !== '') {
+              this.validateIcal(value, icalKey);
+            } else {
+              this.icalValid[icalKey] = null;
+            }
+          });
+      });
+    }
+    validateIcal(icalUrl: string, icalKey: string): void {
+    this.validatingIcal[icalKey] = true;
+    this.icalValid[icalKey] = null;
+
+    this.apartamentoService.validarIcalBackend(icalUrl).subscribe({
+      next: (response) => {
+        this.validatingIcal[icalKey] = false;
+        this.icalValid[icalKey] = response.valido;
+        if (!response.valido) {
+          this.toastr.warning(`Link do ${icalKey} parece ser inválido: ${response.message || ''}`);
+        } else if (response.valido && response.possuiEventos === false) {
+          this.toastr.info(`Link do ${icalKey} é válido, mas não possui eventos.`);
+        }
+      },
+      error: (err) => {
+        this.validatingIcal[icalKey] = false;
+        this.icalValid[icalKey] = false;
+        this.toastr.error(`Erro ao validar link do ${icalKey}`);
+        console.error('Erro na validação iCal:', err);
+      }
+    });
+  }
   /** Configura listener para quando o usuário escolher um prédio no form */
   private setupPredioListener(): void {
     this.form.get('predio_id')!.valueChanges.subscribe((pid: number) => {
@@ -181,16 +239,6 @@ export class CadastroApartamentosComponent implements OnInit {
     this.apartamentoService.getAllApartamentos().subscribe({
       next: data => {
         this.apartamentos = data.sort((a, b) => a.nome.localeCompare(b.nome));
-        this.apartamentos.forEach(apt => {
-          if (apt.modificado_user_id) {
-            this.userService.getUser(apt.modificado_user_id).subscribe({
-              next: user => apt.modificado_user_nome = user.first_name,
-              error: () => apt.modificado_user_nome = '—'
-            });
-          } else {
-            apt.modificado_user_nome = '—';
-          }
-        });
         this.apartamentosFiltrados = [...this.apartamentos];
       },
       error: err => console.error('Erro ao carregar apartamentos:', err)
@@ -235,6 +283,26 @@ export class CadastroApartamentosComponent implements OnInit {
   }
 
   onSubmit(): void {
+    // Verificar se há pelo menos 1 link de calendário preenchido
+    const links = [
+      this.form.get('link_airbnb_calendario')?.value,
+      this.form.get('link_booking_calendario')?.value,
+      this.form.get('link_stays_calendario')?.value
+    ];
+    const algumLinkPreenchido = links.some(link => link && link.trim() !== '');
+    if (!algumLinkPreenchido) {
+      this.toastr.error('Informe pelo menos um link de calendário (Airbnb, Booking ou Stays) para cadastrar.');
+      return;
+    }
+    // Verificar se há links iCal inválidos
+    const invalidLinks = Object.entries(this.icalValid)
+      .filter(([key, valid]) => valid === false)
+      .map(([key]) => key);
+
+    if (invalidLinks.length > 0) {
+      this.toastr.error(`Por favor, corrija os links inválidos: ${invalidLinks.join(', ')}`);
+      return;
+    }
     const aptPayload = this.form.value;
 
     // Atualiza comodidades do prédio antes de salvar apartamento
