@@ -57,7 +57,6 @@ export class CalendarioPorApartamentoComponent implements OnInit {
 
   ngOnInit(): void {
   const cod = this.route.snapshot.paramMap.get('cod');
-  console.log(cod)
   if (!cod) return;
     this.apartamentoService.getApartamentoByCodProprietario(cod).subscribe(apartment => {
       this.selectedApartment = {

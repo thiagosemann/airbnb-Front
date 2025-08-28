@@ -26,7 +26,6 @@ async generateCondoStatement(data: any): Promise<Blob> {
   return pdfBlob;
 }
 async pdfResumido1(data: any): Promise<Blob>{
-  console.log(data)
   const pdf = new jsPDF({
     unit: 'mm',
     format: 'a4',
@@ -62,7 +61,6 @@ async pdfResumido1(data: any): Promise<Blob>{
 
 
 async pdfCompleto(data: any): Promise<Blob>{
-  console.log(data)
   const pdf = new jsPDF({
     unit: 'mm',
     format: 'a4',

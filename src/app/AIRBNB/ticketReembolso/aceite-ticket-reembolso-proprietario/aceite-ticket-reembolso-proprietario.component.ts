@@ -29,7 +29,6 @@ export class AceiteTicketReembolsoProprietarioComponent implements OnInit {
     const auth = this.route.snapshot.paramMap.get('auth');
     if (auth) {
       this.ticketSrv.getReembolsoByAuth(auth).subscribe(ticket => {
-        console.log(ticket);
         this.ticket = ticket;
         const arquivos = ticket.arquivos || ticket.files || [];
         this.arquivos = arquivos;

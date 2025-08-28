@@ -123,7 +123,8 @@ export class CadastroApartamentosComponent implements OnInit {
       link_anuncio_booking: [''],
       modificado_user_id: [0],
       data_ultima_modificacao: [''],
-      cod_link_proprietario: ['']
+      cod_link_proprietario: [''],
+      categoria: ['']
 
     });
 
@@ -267,7 +268,6 @@ export class CadastroApartamentosComponent implements OnInit {
     this.isEditing = true;
     this.showModal = true;
     this.form.patchValue(apt);
-    console.log(apt)
     this.apartamentoSelecionado = apt;
   }
 

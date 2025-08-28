@@ -125,8 +125,6 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.carregandoImagem = true;
     this.hospedesReserva = [];
     this.showModal = true;
-    console.log(event)
-    console.log('Reserva selecionada:', this.selectedReservation);
     if (this.selectedReservation.id) {
       this.getRespostasByReservaId(
         this.selectedReservation.id.toString(),
@@ -172,10 +170,10 @@ export class CalendarioAirbnbComponent implements OnInit {
 
       this.reservasAirbnbService.updateReserva(this.selectedReservation).subscribe(
         () => {
-          console.log('Horário atualizado com sucesso');
+          this.toastr.success('Horário atualizado com sucesso');
         },
         error => {
-          console.error('Erro ao atualizar o horário', error);
+          this.toastr.error('Erro ao atualizar o horário', error);
         }
       );
     }
@@ -422,17 +420,16 @@ export class CalendarioAirbnbComponent implements OnInit {
     if (this.selectedReservation) {
       this.reservasAirbnbService.updateReserva(this.selectedReservation).subscribe(
         () => {
-          console.log('Telefone atualizado com sucesso');
+          this.toastr.success('Telefone atualizado com sucesso');
         },
         error => {
-          console.error('Erro ao atualizar o telefone', error);
+          this.toastr.error('Erro ao atualizar o telefone', error);
         }
       );
     }
   }
 
   sendMensagemCadastroViaLink(): void {
-    console.log('Enviando mensagem de cadastro via link...');
     if (!this.selectedReservation) {
       return;
     }

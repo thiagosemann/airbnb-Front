@@ -31,7 +31,6 @@ export class NavBarAirbnbComponent {
   
  ngOnInit(): void {
     this.user = this.authService.getUser();
-    console.log('Usuário logado:', this.user);
   }
 
   logout(): void {

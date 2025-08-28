@@ -22,21 +22,18 @@ export class GoogleScriptService {
   //Envia os dados para o Google Script
   enviarDados(cod_reserva: string, CPF: string, Nome: string, Telefone: string): Observable<any> {
     const dados = { cod_reserva, CPF, Nome, Telefone };
-    console.log('Enviando dados para o backend:', dados);
     return this.http.post(this.apiUrlDados, dados, { headers: this.getHeaders() });
   }
 
   //Envia a imagem (Base64) para o Google Script
   enviarImagem(imagemBase64: string,cod_reserva: string, CPF: string ,tipo:string): Observable<any> {
     const dados = { imagemBase64,cod_reserva,CPF,tipo };
-    console.log('Enviando imagem para o backend:', dados);
     return this.http.post(this.apiUrlImagem, dados, { headers: this.getHeaders() });
   }
 
   //Envia o PDF (Base64) para o Google Script
   enviarPDF(documentBase64: string,cod_reserva: string, CPF: string): Observable<any> {
     const dados = { documentBase64,cod_reserva,CPF };
-    console.log('Enviando PDF para o backend:', dados);
     return this.http.post(this.apiUrlPDF, dados, { headers: this.getHeaders() });
   }
 }

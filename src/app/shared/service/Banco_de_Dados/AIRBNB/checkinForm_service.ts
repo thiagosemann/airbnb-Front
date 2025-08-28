@@ -51,7 +51,6 @@ export class CheckInFormService {
 
   // Atualizar um check-in por ID
   updateCheckin(id: string, checkinData: any): Observable<any> {
-    console.log('Atualizando check-in no backend:', checkinData);
     return this.http.put(`${this.apiUrl}/${id}`, checkinData, { headers: this.getHeaders() });
   }
 

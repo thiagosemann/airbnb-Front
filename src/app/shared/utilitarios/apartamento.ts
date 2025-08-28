@@ -56,4 +56,5 @@ export interface Apartamento {
   data_ultima_modificacao?: string;
   link_anuncio_airbnb?: string;
   link_anuncio_booking?: string;
+  categoria?: string;
 }

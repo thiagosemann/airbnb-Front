@@ -17,7 +17,6 @@ async generatePdfPrestacao(data: any): Promise<string> {
   const footerPath = '../../../assets/images/footerPdf.png';
   let months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   let startX = 5;
-  console.log(data)
   // Carregar imagens como base64
   const logoData = await this.getImageAsBase64(logoPath);
   const footerData = await this.getImageAsBase64(footerPath);

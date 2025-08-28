@@ -48,7 +48,6 @@ export class UsersControlComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = this.authService.getUser();
-    console.log(this.user);
     this.carregarUsuarios();
   }
 
@@ -56,7 +55,6 @@ export class UsersControlComponent implements OnInit {
     try {
       this.usersService.getUsers().subscribe(
         (users: User[]) => {
-          console.log(users);
           this.users = users;
           this.filteredUsers = [...users]; // Inicializa filteredUsers
         },
@@ -165,7 +163,6 @@ export class UsersControlComponent implements OnInit {
     userData.id = this.selectedUserId;
     try {
       if (this.isEditing && this.selectedUserId) {
-        console.log(userData)
           this.usersService.updateUser(userData).subscribe(
             (resp) => {
               // aqui você pode exibir uma mensagem de sucesso se quiser

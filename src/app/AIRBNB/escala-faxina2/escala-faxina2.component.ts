@@ -65,7 +65,6 @@ canceladasHoje: any[] = [];
      this.apartamentos = list;
     });
     this.reservasService.getReservasCanceladasHoje().subscribe(canceladas => {
-      console.log(this.canceladasHoje)
       this.canceladasHoje = this.formatDates(canceladas);
     });
   }
@@ -170,7 +169,6 @@ getResponsavelNome(userId: number): string {
 
   updateReserva(reserva: any): void {
     // Garante que faxina_userId seja uma string vazia se for null ou undefined
-    console.log(reserva)
     if(reserva.description == "LIMPEZA"){
       reserva.faxina_userId = reserva.faxina_userId || null;
       reserva.end_data = this.formatarDataBanco(reserva.end_data);

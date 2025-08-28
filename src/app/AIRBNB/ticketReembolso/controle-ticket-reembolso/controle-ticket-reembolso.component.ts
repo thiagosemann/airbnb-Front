@@ -92,7 +92,6 @@ export class ControleTicketReembolsoComponent implements OnInit {
   }
 
   editarTicket(ticket: TicketReembolso) {
-    console.log('Editando ticket:', ticket);
     if (!ticket.id) return;
     this.selectedId = ticket.id;
     this.arquivosModal = [];

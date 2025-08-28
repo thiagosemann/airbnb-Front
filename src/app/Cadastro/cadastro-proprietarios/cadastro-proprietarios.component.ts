@@ -171,8 +171,6 @@ export class CadastroProprietariosComponent implements OnInit {
   }
 
   async salvarUsuario() {
-    console.log(this.userForm.value);
-    console.log(this.userForm)
     if (this.userForm.invalid) {
       this.toastr.warning('Preencha os campos obrigatórios');
       return;
