@@ -74,6 +74,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
         next: (reservas) => {
+          console.log(reservas);
           this.todasReservas = this.tratarReservas(reservas);
           this.reservasFiltradas = [...this.todasReservas];
           this.credenciaisFetias = this.reservasFiltradas.filter(r => r.credencial_made).length;
@@ -392,16 +393,17 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.carregarReservasPorPeriodo();
   }
 
-  typeReserva(link: string | undefined | null): string {
-    if (!link) {
+  typeReserva(cod_reserva: string | undefined | null): string {
+    console.log(cod_reserva)
+    if (!cod_reserva) {
       return 'Desconhecido';
     }
-    if (link.toLowerCase().includes('airbnb')) {
-      return 'AIRBNB';
-    } else  if (link.toLowerCase().includes('booking')) {
+    if (cod_reserva.toLowerCase().includes('b-')) {
       return 'BOOKING';
-    } else {
+    } else  if (cod_reserva.toLowerCase().includes('stays')) {
       return 'STAYS';
+    } else {
+      return 'AIRBNB';
     }
   }
   updateTelefone(): void {
