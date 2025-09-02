@@ -51,6 +51,7 @@ export interface Apartamento {
   predio_name?: string;
   link_booking_calendario?: string;
   link_stays_calendario?: string;
+  link_ayrton_calendario?: string;
   modificado_user_nome?: string;
   modificado_user_id?: number;
   data_ultima_modificacao?: string;

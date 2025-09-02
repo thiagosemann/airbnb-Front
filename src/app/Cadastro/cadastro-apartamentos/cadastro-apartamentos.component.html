@@ -399,6 +399,22 @@
               </div>
             </div>
             <div class="mb-3">
+              <label class="form-label">Link Calendário Ayrton</label>
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [class.is-valid]="icalValid['ayrton'] === true"
+                  [class.is-invalid]="icalValid['ayrton'] === false"
+                  formControlName="link_ayrton_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['ayrton']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['ayrton'] && icalValid['ayrton'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['ayrton'] && icalValid['ayrton'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Link Fotos</label>
               <input type="text" class="form-control" formControlName="link_fotos">
             </div>

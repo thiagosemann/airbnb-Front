@@ -29,13 +29,15 @@ export class CadastroApartamentosComponent implements OnInit {
   validatingIcal: { [key: string]: boolean } = {
     airbnb: false,
     booking: false,
-    stays: false
+    stays: false,
+    ayrton: false
   };
   
   icalValid: { [key: string]: boolean | null } = {
     airbnb: null,
     booking: null,
-    stays: null
+    stays: null,
+    ayrton: null
   };
 
   // Definição das comodidades do prédio
@@ -78,7 +80,8 @@ export class CadastroApartamentosComponent implements OnInit {
       nome_anuncio: [''],
       link_airbnb_calendario: [''],
       link_booking_calendario: [''],
-      link_stays_calendario: [''],
+  link_stays_calendario: [''],
+  link_ayrton_calendario: [''],
       link_fotos: [''],
       endereco: [''],
       bairro: [''],
@@ -151,35 +154,49 @@ export class CadastroApartamentosComponent implements OnInit {
       error: err => console.error('Erro ao carregar prédios:', err)
     });
 
-    // Lógica de desabilitar campos de links de calendário
-    this.form.get('link_stays_calendario')?.valueChanges.subscribe((stays: string) => {
-      if (stays && stays.trim() !== '') {
+    // Nova lógica de habilitação dos campos de calendário
+    const updateCalendarFields = () => {
+      const airbnb = this.form.get('link_airbnb_calendario')?.value?.trim();
+      const booking = this.form.get('link_booking_calendario')?.value?.trim();
+      const stays = this.form.get('link_stays_calendario')?.value?.trim();
+      const ayrton = this.form.get('link_ayrton_calendario')?.value?.trim();
+
+      if (stays) {
+        this.form.get('link_stays_calendario')?.enable({ emitEvent: false });
         this.form.get('link_airbnb_calendario')?.disable({ emitEvent: false });
         this.form.get('link_booking_calendario')?.disable({ emitEvent: false });
+        this.form.get('link_ayrton_calendario')?.disable({ emitEvent: false });
+      } else if (ayrton) {
+        this.form.get('link_ayrton_calendario')?.enable({ emitEvent: false });
+        this.form.get('link_airbnb_calendario')?.disable({ emitEvent: false });
+        this.form.get('link_booking_calendario')?.disable({ emitEvent: false });
+        this.form.get('link_stays_calendario')?.disable({ emitEvent: false });
+      } else if (airbnb || booking) {
+        this.form.get('link_airbnb_calendario')?.enable({ emitEvent: false });
+        this.form.get('link_booking_calendario')?.enable({ emitEvent: false });
+        this.form.get('link_stays_calendario')?.disable({ emitEvent: false });
+        this.form.get('link_ayrton_calendario')?.disable({ emitEvent: false });
       } else {
         this.form.get('link_airbnb_calendario')?.enable({ emitEvent: false });
         this.form.get('link_booking_calendario')?.enable({ emitEvent: false });
-      }
-    });
-    const disableStaysIfOther = () => {
-      const airbnb = this.form.get('link_airbnb_calendario')?.value;
-      const booking = this.form.get('link_booking_calendario')?.value;
-      if ((airbnb && airbnb.trim() !== '') || (booking && booking.trim() !== '')) {
-        this.form.get('link_stays_calendario')?.disable({ emitEvent: false });
-      } else {
         this.form.get('link_stays_calendario')?.enable({ emitEvent: false });
+        this.form.get('link_ayrton_calendario')?.enable({ emitEvent: false });
       }
     };
-    this.form.get('link_airbnb_calendario')?.valueChanges.subscribe(disableStaysIfOther);
-    this.form.get('link_booking_calendario')?.valueChanges.subscribe(disableStaysIfOther);
+    this.form.get('link_stays_calendario')?.valueChanges.subscribe(updateCalendarFields);
+    this.form.get('link_ayrton_calendario')?.valueChanges.subscribe(updateCalendarFields);
+    this.form.get('link_airbnb_calendario')?.valueChanges.subscribe(updateCalendarFields);
+    this.form.get('link_booking_calendario')?.valueChanges.subscribe(updateCalendarFields);
+    updateCalendarFields();
     this.setupIcalValidation();
 
   }
   private setupIcalValidation(): void {
       const icalFields = {
         'link_airbnb_calendario': 'airbnb',
-        'link_booking_calendario': 'booking', 
-        'link_stays_calendario': 'stays'
+        'link_booking_calendario': 'booking',
+        'link_stays_calendario': 'stays',
+        'link_ayrton_calendario': 'ayrton'
       };
 
       Object.entries(icalFields).forEach(([fieldName, icalKey]) => {
@@ -287,7 +304,8 @@ export class CadastroApartamentosComponent implements OnInit {
     const links = [
       this.form.get('link_airbnb_calendario')?.value,
       this.form.get('link_booking_calendario')?.value,
-      this.form.get('link_stays_calendario')?.value
+      this.form.get('link_stays_calendario')?.value,
+      this.form.get('link_ayrton_calendario')?.value
     ];
     const algumLinkPreenchido = links.some(link => link && link.trim() !== '');
     if (!algumLinkPreenchido) {
