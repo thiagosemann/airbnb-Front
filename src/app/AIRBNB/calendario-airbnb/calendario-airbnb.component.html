@@ -156,7 +156,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
-        <td>{{ typeReserva(event.link_reserva) }}</td>
+        <td>{{ typeReserva(event.cod_reserva) }}</td>
         <td>
           <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
         </td>

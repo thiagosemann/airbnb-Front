@@ -394,7 +394,6 @@ export class CalendarioAirbnbComponent implements OnInit {
   }
 
   typeReserva(cod_reserva: string | undefined | null): string {
-    console.log(cod_reserva)
     if (!cod_reserva) {
       return 'Desconhecido';
     }
