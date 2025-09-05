@@ -4,8 +4,17 @@
       <div class="spinner-border"></div>
       <span>Carregando reserva...</span>
     </div>
-    <div *ngIf="error && !loading" class="alert alert-danger">
-      {{ error }}
+    <div *ngIf="error && !loading" class="error-card">
+      <div class="error-icon">⚠️</div>
+      <div class="error-content">
+        <p class="error-message">{{ error }}</p>
+        <div *ngIf="reserva" class="error-details">
+          <div class="row"><span>Apartamento</span><strong>{{ reserva.apartamento_nome }}</strong></div>
+          <div class="row"><span>Período</span><strong>{{ reserva.start_date | date:'dd/MM/yyyy' }} → {{ reserva.end_data | date:'dd/MM/yyyy' }}</strong></div>
+          <div class="row" *ngIf="allowedStart && allowedEnd"><span>Janela de acesso</span><strong>{{ allowedStart | date:'dd/MM HH:mm' }} até {{ allowedEnd | date:'dd/MM HH:mm' }}</strong></div>
+          <div class="row" *ngIf="reserva.check_in || reserva.check_out"><span>Check-in/Check-out</span><strong>{{ reserva.check_in || '15:00' }} / {{ reserva.check_out || '11:00' }}</strong></div>
+        </div>
+      </div>
     </div>
     
     <!-- Seção de sucesso após abertura da porta -->
@@ -24,17 +33,24 @@
       <h3>Leia o QRCODE</h3>
       <p><strong>Apartamento:</strong> {{ reserva.apartamento_nome }}</p>
       <p><strong>Período:</strong> {{ reserva.start_date | date:'dd/MM/yyyy' }} até {{ reserva.end_data | date:'dd/MM/yyyy' }}</p>
+  <p *ngIf="validadeTexto" class="subtle">Válido por mais {{ validadeTexto }}.</p>
       <div class="scanner-wrapper">
         <zxing-scanner
           [formats]="[barcodeFormat]"
           (scanSuccess)="onQrCodeScanned($event)"
           class="scanner"
         ></zxing-scanner>
+        <div class="scanner-overlay" *ngIf="abrindoPorta">
+          <div class="spinner-border"></div>
+        </div>
       </div>
+  <p class="status" *ngIf="statusMessage">{{ statusMessage }}</p>
     </div>
-    <div *ngIf="!loading && reserva && !cameraEnabled && !error && !portaAbertaSucesso">
-      <div class="alert alert-warning">
-        A data de hoje não está dentro do período da reserva.
+    <div *ngIf="!loading && reserva && !cameraEnabled && !error && !portaAbertaSucesso" class="warning-card">
+      <div class="warning-icon">ℹ️</div>
+      <div>
+        <p>Fora da janela de acesso.</p>
+        <small *ngIf="allowedStart && allowedEnd">Validade: {{ allowedStart | date:'dd/MM HH:mm' }} até {{ allowedEnd | date:'dd/MM HH:mm' }}</small>
       </div>
     </div>
   </div>

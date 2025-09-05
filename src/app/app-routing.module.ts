@@ -53,7 +53,7 @@ const routes: Routes = [
   { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
 
   { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent},
-  { path: 'qrCode/:auth', component: QrcodescannerComponent},
+  { path: 'acessoPredio/:auth', component: QrcodescannerComponent},
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'terceirizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },

@@ -120,6 +120,15 @@ getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<
       { headers: this.getHeaders() }
     );
   }
+  
+  // Novo endpoint: /reservas-airbnb/reservas/cod/:cod_reserva
+  getReservaByCodReserva(codReserva: number | string): Observable<ReservaAirbnb[]> {
+    const cod = encodeURIComponent(String(codReserva));
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/reservas/cod/${cod}`,
+      { headers: this.getHeaders() }
+    );
+  }
 getReservasPorPeriodoCalendarioPorApartamento(apartamentoId: number, startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
   const params = new HttpParams()
     .set('start', startDate)

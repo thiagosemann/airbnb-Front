@@ -393,6 +393,13 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.carregarReservasPorPeriodo();
   }
 
+  setPeriodoUmaSemana(): void {
+    const umaSemana = new Date();
+    umaSemana.setDate(umaSemana.getDate() + 7);
+    const iso = this.formatarDataParaInput(umaSemana);
+    this.dataFim = iso;
+    this.carregarReservasPorPeriodo();
+  }
   typeReserva(cod_reserva: string | undefined | null): string {
     if (!cod_reserva) {
       return 'Desconhecido';

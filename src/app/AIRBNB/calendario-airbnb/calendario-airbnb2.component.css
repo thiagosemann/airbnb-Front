@@ -109,6 +109,8 @@
   font-weight: 600;
   font-size: .85rem;
   text-transform: uppercase;
+  /* Ensure header stays above row content (checkbox inputs use z-index:1) */
+  z-index: 5;
 }
 
 .calendar-table td {
