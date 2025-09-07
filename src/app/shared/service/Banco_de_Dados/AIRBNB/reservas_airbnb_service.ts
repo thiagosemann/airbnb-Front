@@ -121,6 +121,21 @@ getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<
     );
   }
   
+  // Novo endpoint: /reservas-airbnb/cancelados/por-periodo
+  getReservasCanceladasPorPeriodo(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
+    const params = new HttpParams()
+      .set('start', startDate)
+      .set('end', endDate);
+
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/cancelados/por-periodo`,
+      {
+        headers: this.getHeaders(),
+        params
+      }
+    );
+  }
+  
   // Novo endpoint: /reservas-airbnb/reservas/cod/:cod_reserva
   getReservaByCodReserva(codReserva: number | string): Observable<ReservaAirbnb[]> {
     const cod = encodeURIComponent(String(codReserva));

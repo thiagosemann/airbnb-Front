@@ -64,9 +64,6 @@ canceladasHoje: any[] = [];
     this.apartamentosService.getAllApartamentos().subscribe(list => {
      this.apartamentos = list;
     });
-    this.reservasService.getReservasCanceladasHoje().subscribe(canceladas => {
-      this.canceladasHoje = this.formatDates(canceladas);
-    });
   }
 
   getUsersByRole():void{
@@ -87,12 +84,14 @@ canceladasHoje: any[] = [];
     this.carregando = true;
     forkJoin({
       reservas: this.reservasService.getFaxinasPorPeriodo(this.dataInicio, this.dataFim),
-      limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim)
+      limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim),
+      canceladas: this.reservasService.getReservasCanceladasPorPeriodo(this.dataInicio, this.dataFim)
     }).subscribe({
-      next: ({ reservas, limpezas }) => {
+      next: ({ reservas, limpezas, canceladas }) => {
    
         this.processarFaxinas(reservas, limpezas);
         this.faxinasFiltradas = [...this.faxinasHoje];
+        this.canceladasHoje = this.formatDates(canceladas);
         this.carregando = false;
       },
       error: (err) => {
