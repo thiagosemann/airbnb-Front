@@ -93,7 +93,10 @@
               </div>
               <div class="info-item">
                 <i class="fas fa-door-open"></i>
-                <span>Check-in: {{ event.check_in }}</span>
+                <span>
+                  Check-in: {{ event.check_in }}
+                  | Previsto: {{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}
+                </span>
               </div>
             </div>
             
@@ -147,7 +150,8 @@
         <th style="width: 13%;">Código</th>
         <th style="width: 8%;">Início</th>
         <th style="width: 8%;">Fim</th>
-        <th style="width: 8%;">Check-In</th>
+  <th style="width: 8%;">Check-In</th>
+  <th style="width: 8%;">Previsto</th>
         <th style="width: 8%;">Hóspedes</th>
         <th style="width: 8%;">Credencial</th>
         <th style="width: 8%;">Informado</th>
@@ -166,7 +170,8 @@
         <td>{{ event.cod_reserva }}</td>
         <td>{{ formatarData(event.start_date) }}</td>
         <td>{{ formatarData(event.end_data) }}</td>
-        <td>{{ event.check_in }}</td>
+  <td>{{ event.check_in }}</td>
+  <td>{{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}</td>
         <td>{{ event.qtd_hospedes }}</td>
         <td>
           <label class="custom-checkbox">
@@ -215,7 +220,7 @@
         </td>
       </tr>
       <tr *ngIf="reservasExibidas.length === 0">
-        <td colspan="13">Nenhuma reserva no período selecionado</td>
+        <td colspan="14">Nenhuma reserva no período selecionado</td>
       </tr>
     </tbody>
   </table>
@@ -247,6 +252,10 @@
             <div class="modal-item">
               <label>Check-In</label>
               <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_in" (change)="updateTime()">
+            </div>
+            <div class="modal-item">
+              <label>Previsto de Chegada</label>
+              <input type="time" class="form-control" [value]="getMenorHorarioPrevistoChegada(selectedReservation!.horarioPrevistoChegada || [])" readonly>
             </div>
             <div class="modal-item">
               <label>Check-Out</label>
@@ -306,6 +315,10 @@
                 </div>
                 <div class="info-item">
                   <strong>Telefone:</strong> {{ formatarTelefone(hospede.Telefone) }}
+                </div>
+                <div class="info-item">
+                  <strong>Horário previsto de chegada:</strong>
+                  {{ hospede.horarioPrevistoChegada || 'Não informado' }}
                 </div>
                 <div class="info-item">
                   <strong>Cadastro:</strong> {{ formatarDataparaTable(hospede.created_at) }}
