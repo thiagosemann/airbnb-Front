@@ -58,4 +58,5 @@ export interface Apartamento {
   link_anuncio_airbnb?: string;
   link_anuncio_booking?: string;
   categoria?: string;
+  qtd_banheiros?: number;
 }

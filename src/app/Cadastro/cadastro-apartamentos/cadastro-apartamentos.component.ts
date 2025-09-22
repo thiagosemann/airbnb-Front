@@ -100,6 +100,7 @@ export class CadastroApartamentosComponent implements OnInit {
       qtd_cama_solteiro: [0],
       qtd_cama_casal: [0],
       qtd_sofa_cama: [0],
+      qtd_banheiros: [0],
       qtd_taca_vinho: [0],
       tipo_checkin: ['self-checkin'],
       acesso_predio: [''],
@@ -278,7 +279,7 @@ export class CadastroApartamentosComponent implements OnInit {
   abrirModal(): void {
     this.showModal = true;
     this.isEditing = false;
-    this.form.reset({ numero_hospedes: 1, porcentagem_cobrada: 0, valor_enxoval: 0, valor_limpeza: 0, modificado_user_id: this.currentUserId });
+    this.form.reset({ numero_hospedes: 1, porcentagem_cobrada: 0, valor_enxoval: 0, valor_limpeza: 0, qtd_banheiros: 0, modificado_user_id: this.currentUserId });
   }
 
   editarApartamento(apt: any): void {
