@@ -161,6 +161,19 @@ export class CalendarioComponent implements OnInit {
     return d;
   }
 
+  // --- NOVO: parse ISO 'yyyy-MM-dd' ou 'yyyy-MM-ddTHH:mm' para Date local (00:00) ---
+  private parseIsoLocalDate(str: string): Date {
+    if (!str) return new Date('Invalid');
+    const onlyDate = String(str).split('T')[0];
+    const m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return new Date('Invalid');
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    const dt = new Date(y, mo - 1, d);
+    dt.setHours(0, 0, 0, 0);
+    return dt;
+  }
 
   filterApartments(): void {
 
@@ -326,8 +339,9 @@ getOrderedBuildingIds(): number[] {
       apt.reservations.push({
         id: r.id!,
         title: r.apartamento_nome || r.cod_reserva,
-        start: new Date(r.start_date),
-        end:   new Date(r.end_data),
+        // Usa parsing local para evitar deslocamento de 1 dia
+        start: this.parseIsoLocalDate(String(r.start_date)),
+        end:   this.parseIsoLocalDate(String(r.end_data)),
         color: this.getColorByType(r),
         cod_reserva: r.cod_reserva,
         link: r.link_reserva
@@ -527,9 +541,11 @@ private calcularOcupacao(): void {
 
 
   private isApartmentFreeInRange(apt: Apartment, startStr: string, endStr: string): boolean {
-    const start = new Date(startStr).setHours(0,0,0,0);
-    const end   = new Date(endStr).setHours(0,0,0,0);
+    // Usa parsing local para as datas do filtro
+    const start = this.parseLocalDate(startStr).getTime();
+    const end   = this.parseLocalDate(endStr).getTime();
     return !apt.reservations.some(r => {
+      // Datas das reservas já estão normalizadas em local 00:00
       const rStart = new Date(r.start).setHours(0,0,0,0);
       const rEnd   = new Date(r.end).setHours(0,0,0,0);
       return rStart <= end && rEnd >= start;

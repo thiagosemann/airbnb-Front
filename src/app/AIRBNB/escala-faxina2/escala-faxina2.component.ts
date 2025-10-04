@@ -334,14 +334,39 @@ getResponsavelNome(userId: number): string {
 
 
 
+// Converte para dd/MM/yyyy sem criar Date (evitando deslocamento por fuso)
+private toBrDate(dateStr: any): any {
+  if (!dateStr || typeof dateStr !== 'string') return dateStr;
+  // já está em dd/MM/yyyy
+  if (dateStr.includes('/')) return dateStr;
+  // descarta parte de tempo caso exista
+  const onlyDate = dateStr.split('T')[0];
+  const m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    const [, y, mth, d] = m;
+    return `${d}/${mth}/${y}`;
+  }
+  // fallback seguro usando UTC
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const yy = d.getUTCFullYear();
+    return `${dd}/${mm}/${yy}`;
+  }
+  return dateStr;
+}
+
 private formatDates(lista: any[]): any[] {
-  lista.forEach(f=>{
-    const data = new Date(f.end_data); 
-    f.end_data = data.toLocaleDateString('pt-BR');
-    const data2 = new Date(f.start_date); 
-    f.start_date = data2.toLocaleDateString('pt-BR');
-  })
-  return lista
+  lista.forEach(f => {
+    if (f && f.end_data) {
+      f.end_data = this.toBrDate(f.end_data);
+    }
+    if (f && f.start_date) {
+      f.start_date = this.toBrDate(f.start_date);
+    }
+  });
+  return lista;
 } 
 
   abrirModal(): void {

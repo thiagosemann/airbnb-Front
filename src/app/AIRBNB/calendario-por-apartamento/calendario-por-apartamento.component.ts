@@ -92,8 +92,8 @@ export class CalendarioPorApartamentoComponent implements OnInit {
     this.reservasService
       .getReservasPorPeriodoCalendarioPorApartamento(
         this.selectedApartment.id,
-        start.toISOString().split('T')[0],
-        end.toISOString().split('T')[0]
+        this.formatarDataParaInput(start),
+        this.formatarDataParaInput(end)
       )
       .subscribe(reservas => {
         this.buildCalendarDays(reservas, start, end);
@@ -102,81 +102,135 @@ export class CalendarioPorApartamentoComponent implements OnInit {
       });
   }
 
+  // Converte 'yyyy-MM-dd' (ou 'yyyy-MM-ddTHH:mm') para Date local sem UTC
+  private toLocalDateFromIso(dateStr: string): Date {
+    if (!dateStr) return new Date('Invalid');
+    const onlyDate = String(dateStr).split('T')[0];
+    const m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      const [, y, mth, d] = m;
+      return new Date(Number(y), Number(mth) - 1, Number(d));
+    }
+    // fallback: ainda assim evita deslocamento ao usar UTC getters
+    const d2 = new Date(dateStr);
+    if (!isNaN(d2.getTime())) {
+      return new Date(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
+    }
+    return new Date('Invalid');
+  }
+
+  // Helpers baseados em inteiros (YYYYMMDD) para evitar timezone totalmente
+  private ymdIntFromStr(dateStr: string): number {
+    if (!dateStr) return NaN;
+    const onlyDate = String(dateStr).split('T')[0];
+    const m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      const y = Number(m[1]);
+      const mo = Number(m[2]);
+      const d = Number(m[3]);
+      return y * 10000 + mo * 100 + d;
+    }
+    return NaN;
+  }
+  private ymdIntFromDate(dt: Date): number {
+    return dt.getFullYear() * 10000 + (dt.getMonth() + 1) * 100 + dt.getDate();
+  }
+  private dateFromYmdInt(ymd: number): Date {
+    const y = Math.floor(ymd / 10000);
+    const mo = Math.floor((ymd % 10000) / 100);
+    const d = ymd % 100;
+    return new Date(y, mo - 1, d);
+  }
+  private nextDayInt(ymd: number): number {
+    const dt = this.dateFromYmdInt(ymd);
+    dt.setDate(dt.getDate() + 1);
+    return this.ymdIntFromDate(dt);
+  }
+
+  // Formata Date local em 'yyyy-MM-dd' sem UTC
+  private formatarDataParaInput(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   /* -------------------- Monta grade + Métricas --------*/
-private buildCalendarDays(reservas: ReservaAirbnb[], inicio: Date, fim: Date): void {
-  const days: CalendarDay[] = [];
-  const dailyOccupancy = new Map<string, { source: 'airbnb' | 'booking', counted: boolean }>();
+  private buildCalendarDays(reservas: ReservaAirbnb[], inicio: Date, fim: Date): void {
+    const days: CalendarDay[] = [];
+    const dailyOccupancy = new Map<string, { source: 'airbnb' | 'booking', counted: boolean }>();
 
-  let airbnb = 0;
-  let booking = 0;
+    let airbnb = 0;
+    let booking = 0;
 
-  // Construção visual do calendário
-  for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
-    const curr = new Date(d);
-    curr.setHours(0, 0, 0, 0);
+    // Construção visual do calendário
+    for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
+      const curr = new Date(d);
+      curr.setHours(0, 0, 0, 0);
+      const cInt = this.ymdIntFromDate(curr);
 
-    const events = reservas
-      .filter(r => {
-        const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
-        const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
-        return curr >= s && curr < e && r.description === 'Reserved'; // exclui o dia do checkout
-      })
-      .map(r => {
-        return {
+      const events = reservas
+        .filter(r => {
+          const sInt = this.ymdIntFromStr(String(r.start_date));
+          const eInt = this.ymdIntFromStr(String(r.end_data));
+          return Number.isFinite(sInt) && Number.isFinite(eInt)
+            && cInt >= sInt && cInt <= eInt // inclui o dia do checkout
+            && r.description === 'Reserved';
+        })
+        .map(r => ({
           id: r.id!,
           title: r.apartamento_nome || r.cod_reserva,
           color: this.selectedApartment.color,
           start: r.start_date,
           end: r.end_data,
           cod_reserva: r.cod_reserva,
-          source: r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
-        } as CalendarEvent;
+          source: (r.link_reserva || '').toLowerCase().includes('airbnb') ? 'airbnb' : 'booking'
+        } as CalendarEvent));
+
+      days.push({
+        date: new Date(curr),
+        isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
+        events
       });
+    }
 
-    days.push({
-      date: new Date(curr),
-      isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
-      events
-    });
-  }
+    // Lógica de contagem (inclui checkout)
+    reservas.forEach(r => {
+      const sInt = this.ymdIntFromStr(String(r.start_date));
+      const eInt = this.ymdIntFromStr(String(r.end_data));
+      if (!Number.isFinite(sInt) || !Number.isFinite(eInt)) return;
+      const source = (r.link_reserva || '').toLowerCase().includes('airbnb') ? 'airbnb' : 'booking';
 
-  // Lógica de contagem sem afetar a visualização
-  reservas.forEach(r => {
-    const s = new Date(r.start_date); s.setHours(0, 0, 0, 0);
-    const e = new Date(r.end_data);  e.setHours(0, 0, 0, 0);
-    const source = r.link_reserva.toLowerCase().includes('airbnb') ? 'airbnb' : 'booking';
+      for (let dInt = sInt; dInt <= eInt; dInt = this.nextDayInt(dInt)) {
+        const dt = this.dateFromYmdInt(dInt);
+        if (dt.getMonth() !== this.currentDate.getMonth()) continue;
 
-    for (let dt = new Date(s); dt < e; dt.setDate(dt.getDate() + 1)) {
-      if (dt.getMonth() !== this.currentDate.getMonth()) continue;
-
-      const key = dt.toISOString().split('T')[0];
-
-      if (!dailyOccupancy.has(key)) {
-        dailyOccupancy.set(key, { source, counted: false });
-      } else {
-        const existing = dailyOccupancy.get(key)!;
-        if (existing.source !== source && dt.getTime() === s.getTime()) {
+        const key = this.formatarDataParaInput(dt);
+        if (!dailyOccupancy.has(key)) {
           dailyOccupancy.set(key, { source, counted: false });
+        } else {
+          const existing = dailyOccupancy.get(key)!;
+          if (existing.source !== source && dInt === sInt) {
+            dailyOccupancy.set(key, { source, counted: false });
+          }
         }
       }
-    }
-  });
+    });
 
-  for (const { source, counted } of dailyOccupancy.values()) {
-    if (!counted) {
-      if (source === 'airbnb') airbnb++;
-      else booking++;
+    for (const { source, counted } of dailyOccupancy.values()) {
+      if (!counted) {
+        if (source === 'airbnb') airbnb++;
+        else booking++;
+      }
     }
+
+    const totalDays = fim.getDate();
+    const uniqueDays = dailyOccupancy.size;
+    this.occupancyRate = Math.round((uniqueDays / totalDays) * 100);
+    this.airbnbCount = airbnb;
+    this.bookingCount = booking;
+    this.calendarDays = days;
   }
-
-  const totalDays = fim.getDate();
-  const uniqueDays = dailyOccupancy.size;
-  this.occupancyRate = Math.round((uniqueDays / totalDays) * 100);
-  this.airbnbCount = airbnb;
-  this.bookingCount = booking;
-  this.calendarDays = days;
-}
-
 
   /* ----------------------- Util ----------------------*/
   isToday(date: Date): boolean {

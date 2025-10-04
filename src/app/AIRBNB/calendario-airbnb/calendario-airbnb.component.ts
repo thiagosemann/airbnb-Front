@@ -67,6 +67,24 @@ export class CalendarioAirbnbComponent implements OnInit {
     return `${ano}-${mes}-${dia}`;
   }
 
+  // Converte 'yyyy-MM-dd' (ou 'yyyy-MM-ddTHH:mm') para 'dd/MM/yyyy' sem criar Date
+  private toBrDate(dateStr: string): string {
+    if (!dateStr) return dateStr;
+    const onlyDate = String(dateStr).split('T')[0];
+    const m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+    return dateStr;
+  }
+  // Converte 'dd/MM/yyyy' para 'yyyy-MM-dd' (ou retorna já ISO se vier assim)
+  private toIsoDate(dateStr: string): string {
+    if (!dateStr) return dateStr;
+    const onlyDate = String(dateStr).split('T')[0];
+    if (/^\d{4}-\d{2}-\d{2}$/.test(onlyDate)) return onlyDate;
+    const m = onlyDate.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+    return dateStr;
+  }
+
   carregarReservasPorPeriodo(): void {
     this.carregando = true;
     
@@ -106,19 +124,11 @@ export class CalendarioAirbnbComponent implements OnInit {
   }
 
   formatarData(dataString: string): string {
-    const data = new Date(dataString);
-    const dia = String(data.getUTCDate()).padStart(2, '0');
-    const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
-    const ano = data.getUTCFullYear();
-    return `${dia}/${mes}/${ano}`;
+    return this.toBrDate(dataString);
   }
 
   formatarDataBanco(dataString: string): string {
-    const data = new Date(dataString);
-    const dia = String(data.getUTCDate()).padStart(2, '0');
-    const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
-    const ano = data.getUTCFullYear();
-    return `${ano}-${mes}-${dia}`;
+    return this.toIsoDate(dataString);
   }
 
   openModal(event: ReservaAirbnb): void {
