@@ -1,6 +1,6 @@
 export const environment = {
     production: false,
-    backendUrl: 'https://www.forest.app.br'
+    backendUrl: 'https://forest-back-e69f4e8bdf10.herokuapp.com'
     //backendUrl: 'http://localhost:21055'
   };
   
