@@ -163,7 +163,20 @@ export class CalendarioPorApartamentoComponent implements OnInit {
     let airbnb = 0;
     let booking = 0;
 
-    // Construção visual do calendário
+    // Preenche dias anteriores ao primeiro dia do mês para alinhar com o cabeçalho (Dom inicia coluna 0)
+    const firstWeekday = inicio.getDay(); // 0=Dom, 6=Sáb
+    if (firstWeekday > 0) {
+      const leadDate = new Date(inicio);
+      leadDate.setDate(1 - firstWeekday);
+      for (let i = 0; i < firstWeekday; i++) {
+        const curr = new Date(leadDate);
+        curr.setHours(0, 0, 0, 0);
+        days.push({ date: curr, isCurrentMonth: false, events: [] });
+        leadDate.setDate(leadDate.getDate() + 1);
+      }
+    }
+
+    // Construção visual do calendário (dias do mês atual)
     for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
       const curr = new Date(d);
       curr.setHours(0, 0, 0, 0);
@@ -192,6 +205,19 @@ export class CalendarioPorApartamentoComponent implements OnInit {
         isCurrentMonth: curr.getMonth() === this.currentDate.getMonth(),
         events
       });
+    }
+
+    // Preenche dias após o último dia do mês para completar a semana
+    const lastWeekday = fim.getDay(); // 0=Dom, 6=Sáb
+    if (lastWeekday < 6) {
+      const trailDate = new Date(fim);
+      trailDate.setDate(fim.getDate() + 1);
+      for (let i = lastWeekday + 1; i <= 6; i++) {
+        const curr = new Date(trailDate);
+        curr.setHours(0, 0, 0, 0);
+        days.push({ date: curr, isCurrentMonth: false, events: [] });
+        trailDate.setDate(trailDate.getDate() + 1);
+      }
     }
 
     // Lógica de contagem (inclui checkout)
