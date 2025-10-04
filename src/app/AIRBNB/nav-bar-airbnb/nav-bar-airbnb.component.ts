@@ -101,6 +101,9 @@ export class NavBarAirbnbComponent {
   relatorioGanhos(): void {
     this.router.navigate(['/relatoriosGanhos']);
   }
+  npsLimpeza(): void {
+    this.router.navigate(['/nps-limpeza']);
+  }
   toggleMobileDropdown(dropdownName: string): void {
     // Fecha todos os outros dropdowns
     Object.keys(this.mobileDropdowns).forEach(key => {

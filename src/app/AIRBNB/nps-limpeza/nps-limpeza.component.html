@@ -1,0 +1,206 @@
+<div class="container">
+  <div class="header-card">
+    <div class="header-title">
+      <i class="bi bi-stars"></i>
+      <h1>NPS das Limpezas</h1>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-container">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Pesquisar NPS..."
+          [(ngModel)]="searchTerm"
+          (input)="filtrarNps()"
+        >
+      </div>
+      <button class="btn-add" (click)="redirectToNovoNps()">
+        <i class="bi bi-plus-lg"></i> Novo NPS
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros adicionais -->
+  <div class="filters-row mb-3">
+    <select class="month-select" [(ngModel)]="filterApartamentoId" (change)="loadNps()">
+      <option [ngValue]="null">Todos os apartamentos</option>
+      <option *ngFor="let a of apartamentos" [ngValue]="a.id">{{ a.nome }}</option>
+    </select>
+    <select class="month-select" [(ngModel)]="filterUserId" (change)="loadNps()">
+      <option [ngValue]="null">Todos os terceirizados</option>
+      <option *ngFor="let u of terceirizados" [ngValue]="u.id">{{ u.first_name }} {{ u.last_name }}</option>
+    </select>
+    <button class="btn-add secondary" (click)="resetFilters()"><i class="bi bi-eraser"></i> Limpar</button>
+  </div>
+
+  <!-- Cards para mobile -->
+  <div class="tickets-grid d-block d-md-none">
+    <div *ngFor="let nps of npsFiltrados" class="ticket-card">
+      <div class="ticket-header">
+        <div class="ticket-apartment">
+          <i class="bi bi-building"></i>{{ nps.apartamento_nome || getApartamentoNome(nps.apartamento_id) }}
+        </div>
+        <div class="ticket-status" [ngClass]="getNotaBadgeClass(nps.nota_geral)">
+          Nota: {{ nps.nota_geral }}
+        </div>
+      </div>
+
+      <div class="ticket-details">
+        <div class="ticket-item">
+          <i class="bi bi-person"></i> {{ getUserNome(nps.user_id, nps.terceirizado_nome) }}
+        </div>
+        <div class="ticket-values">
+          <div class="value-item">
+            <span>Comentário:</span>
+            <strong>{{ nps.comentario || '—' }}</strong>
+          </div>
+          <div class="value-item text-muted" style="font-size:0.85rem;" *ngIf="nps.created_at">
+            <span><i class="bi bi-clock-history"></i> Criado há {{ calcularDiasDesde(nps.created_at) }} dia(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <button class="btn-edit" (click)="edit(nps)" title="Editar">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn-delete" (click)="delete(nps)" title="Excluir">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="npsFiltrados.length === 0" class="no-results">
+      <i class="bi bi-star"></i>
+      <p>Nenhum NPS encontrado</p>
+    </div>
+  </div>
+
+  <!-- Tabela para desktop -->
+  <div class="d-none d-md-block">
+    <div class="table-responsive">
+      <table class="tickets-table">
+        <thead>
+          <tr>
+            <th>Ap</th>
+            <th>Terceirizado</th>
+            <th>Nota</th>
+            <th>Comentário</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let nps of npsFiltrados">
+            <td>{{ nps.apartamento_nome || getApartamentoNome(nps.apartamento_id) }}</td>
+            <td>{{ getUserNome(nps.user_id, nps.terceirizado_nome) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getNotaBadgeClass(nps.nota_geral)">
+                {{ nps.nota_geral }}
+              </span>
+            </td>
+            <td class="truncate">{{ nps.comentario || '—' }}</td>
+            <td>{{ nps.created_at ? (nps.created_at | date:'dd/MM/yyyy') : '—' }}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-edit" (click)="edit(nps)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-delete" (click)="delete(nps)" title="Excluir">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="npsFiltrados.length === 0">
+            <td colspan="6" class="no-results-table">
+              <i class="bi bi-star"></i>
+              Nenhum NPS encontrado
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de criação/edição -->
+  <div class="modal-backdrop" *ngIf="showModal" (click)="cancelEdit()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingId ? 'Editar NPS' : 'Novo NPS' }}</h2>
+        <button class="modal-close" (click)="cancelEdit()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="form">
+          <div class="form-section">
+            <h3><i class="bi bi-info-circle"></i> Dados</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Apartamento *</label>
+                <select formControlName="apartamento_id">
+                  <option value="" disabled>Selecione o apartamento</option>
+                  <option *ngFor="let apt of apartamentos" [value]="apt.id">{{ apt.nome }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Terceirizado</label>
+                <select formControlName="user_id">
+                  <option [ngValue]="null">—</option>
+                  <option *ngFor="let u of terceirizados" [value]="u.id">{{ u.first_name }} {{ u.last_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="bi bi-star"></i> Notas</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nota Geral (média)</label>
+                <input type="number" formControlName="nota_geral" [disabled]="true">
+              </div>
+              <div class="form-group">
+                <label>Quarto</label>
+                <input type="number" formControlName="limpeza_quarto" min="0" max="10">
+              </div>
+              <div class="form-group">
+                <label>Banheiros</label>
+                <input type="number" formControlName="limpeza_banheiros" min="0" max="10">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Cozinha</label>
+                <input type="number" formControlName="limpeza_cozinha" min="0" max="10">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3><i class="bi bi-chat-dots"></i> Comentário</h3>
+            <div class="form-row">
+              <div class="form-group full">
+                <textarea rows="3" formControlName="comentario" placeholder="Feedback do hóspede..."></textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <div class="footer-buttons">
+          <button class="btn btn-cancel" type="button" (click)="cancelEdit()">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+          <button class="btn btn-save" type="button" (click)="submit()" [disabled]="form.invalid">
+            <i class="bi bi-check-lg"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

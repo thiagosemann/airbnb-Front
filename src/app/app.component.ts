@@ -40,7 +40,8 @@ export class AppComponent implements OnInit {
     'uploadRelatorioCSV',
     'relatoriosGanhos',
     'profile',
-    'controleNodeMcuPortas'
+    'controleNodeMcuPortas',
+    'nps-limpeza'
   ];
 
   ngOnInit() {

@@ -1,0 +1,155 @@
+<div class="nps-container">
+  <div class="header-profile">
+    <div class="brand-bar">
+      <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo" class="brand-logo" />
+    </div>
+    
+    <div class="profile-content">
+      <div class="profile-info">
+        <h1 class="welcome-title">Avalie nosso serviço</h1>
+        <p class="welcome-subtitle">Sua opinião é muito importante para nós</p>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="bi bi-building"></i>
+            <div class="info-text">
+              <span class="info-label">Apartamento</span>
+              <span class="info-value">{{ apartamentoNome }}</span>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="avatar-inline">
+              <img *ngIf="terceirizadaNome" [alt]="terceirizadaNome" src="../../../assets/images/logo-placeholder.jpg" class="avatar-inline-img" />
+              <div class="avatar-fallback avatar-inline-fallback" *ngIf="!terceirizadaNome">
+                {{ getInitials(terceirizadaNome) }}
+              </div>
+            </div>
+            <div class="info-text">
+              <span class="info-label">Responsável</span>
+              <span class="info-value">{{ terceirizadaNome }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rating-card">
+    <form [formGroup]="npsForm" (ngSubmit)="submitNps()">
+      <!-- Limpeza dos Quartos -->
+      <div class="rating-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-bed"></i> Limpeza dos Quartos
+        </h3>
+        <div class="stars-container precision-stars"
+             (touchstart)="onStarsTouchStart('limpeza_quarto', $event)"
+             (touchmove)="onStarsTouchMove('limpeza_quarto', $event)"
+             (touchend)="onStarsTouchEnd()"
+             (mousedown)="onStarsMouseDown('limpeza_quarto', $event)"
+             (mousemove)="onStarsMouseMove('limpeza_quarto', $event)"
+             (mouseup)="onStarsMouseUp()"
+             (mouseleave)="onStarsMouseUp()">
+          <div class="star-precision-container">
+            <div *ngFor="let star of precisionStars; let i = index" 
+                 class="star-precision"
+                 [class.active]="star.value <= (getCurrentRating('limpeza_quarto') || 0)"
+                 [class.half-active]="star.value === (getCurrentRating('limpeza_quarto') || 0) + 0.5">
+              <div class="star-half left" (click)="setPrecisionRating('limpeza_quarto', star.value - 0.5)"></div>
+              <div class="star-half right" (click)="setPrecisionRating('limpeza_quarto', star.value)"></div>
+              <i class="bi bi-star-fill full-star base"></i>
+              <i class="bi bi-star-fill full-star fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="rating-display">
+          <span class="rating-value">{{ getCurrentRating('limpeza_quarto') || 0 }}/5</span>
+          <span class="rating-label">{{ getPrecisionRatingLabel(getCurrentRating('limpeza_quarto')) }}</span>
+        </div>
+      </div>
+
+      <!-- Limpeza dos Banheiros -->
+      <div class="rating-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-toilet"></i> Limpeza dos Banheiros
+        </h3>
+        <div class="stars-container precision-stars"
+             (touchstart)="onStarsTouchStart('limpeza_banheiros', $event)"
+             (touchmove)="onStarsTouchMove('limpeza_banheiros', $event)"
+             (touchend)="onStarsTouchEnd()"
+             (mousedown)="onStarsMouseDown('limpeza_banheiros', $event)"
+             (mousemove)="onStarsMouseMove('limpeza_banheiros', $event)"
+             (mouseup)="onStarsMouseUp()"
+             (mouseleave)="onStarsMouseUp()">
+          <div class="star-precision-container">
+            <div *ngFor="let star of precisionStars; let i = index" 
+                 class="star-precision"
+                 [class.active]="star.value <= (getCurrentRating('limpeza_banheiros') || 0)"
+                 [class.half-active]="star.value === (getCurrentRating('limpeza_banheiros') || 0) + 0.5">
+              <div class="star-half left" (click)="setPrecisionRating('limpeza_banheiros', star.value - 0.5)"></div>
+              <div class="star-half right" (click)="setPrecisionRating('limpeza_banheiros', star.value)"></div>
+              <i class="bi bi-star-fill full-star base"></i>
+              <i class="bi bi-star-fill full-star fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="rating-display">
+          <span class="rating-value">{{ getCurrentRating('limpeza_banheiros') || 0 }}/5</span>
+          <span class="rating-label">{{ getPrecisionRatingLabel(getCurrentRating('limpeza_banheiros')) }}</span>
+        </div>
+      </div>
+
+      <!-- Limpeza da Cozinha -->
+      <div class="rating-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-kitchen-set"></i> Limpeza da Cozinha
+        </h3>
+        <div class="stars-container precision-stars"
+             (touchstart)="onStarsTouchStart('limpeza_cozinha', $event)"
+             (touchmove)="onStarsTouchMove('limpeza_cozinha', $event)"
+             (touchend)="onStarsTouchEnd()"
+             (mousedown)="onStarsMouseDown('limpeza_cozinha', $event)"
+             (mousemove)="onStarsMouseMove('limpeza_cozinha', $event)"
+             (mouseup)="onStarsMouseUp()"
+             (mouseleave)="onStarsMouseUp()">
+          <div class="star-precision-container">
+            <div *ngFor="let star of precisionStars; let i = index" 
+                 class="star-precision"
+                 [class.active]="star.value <= (getCurrentRating('limpeza_cozinha') || 0)"
+                 [class.half-active]="star.value === (getCurrentRating('limpeza_cozinha') || 0) + 0.5">
+              <div class="star-half left" (click)="setPrecisionRating('limpeza_cozinha', star.value - 0.5)"></div>
+              <div class="star-half right" (click)="setPrecisionRating('limpeza_cozinha', star.value)"></div>
+              <i class="bi bi-star-fill full-star base"></i>
+              <i class="bi bi-star-fill full-star fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="rating-display">
+          <span class="rating-value">{{ getCurrentRating('limpeza_cozinha') || 0 }}/5</span>
+          <span class="rating-label">{{ getPrecisionRatingLabel(getCurrentRating('limpeza_cozinha')) }}</span>
+        </div>
+      </div>
+
+      <!-- Comentários -->
+      <div class="comments-section">
+        <h3 class="section-title">
+          <i class="bi bi-chat-dots"></i> Comentários Adicionais
+        </h3>
+        <textarea 
+          formControlName="comentario"
+          placeholder="Conte-nos mais sobre sua experiência com a limpeza..."
+          rows="4"
+          class="comments-textarea"></textarea>
+      </div>
+
+      <div class="submit-section">
+        <button 
+          type="submit" 
+          class="btn-submit"
+          [disabled]="!npsForm.valid">
+          <i class="bi bi-send-check"></i> Enviar Avaliação
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
