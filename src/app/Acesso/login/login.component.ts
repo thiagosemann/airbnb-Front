@@ -49,8 +49,12 @@ export class LoginComponent {
       if (result.logado) {
         const user = this.authService.getUser()
         if(user && user.role.toUpperCase() == 'ADMIN'){
-          this.toastr.success("Bem vindo admin!")
-          this.router.navigate(['/calendarioAirbnb']);
+          this.toastr.success("Bem vindo!")
+          if(user.empresa_id !==1){
+            this.router.navigate(['/calendario']);
+          }else{
+            this.router.navigate(['/calendarioAirbnb']);
+          }
           return;
         }else  if(user && user.role.toUpperCase() == 'TERCEIRIZADO'){
           this.toastr.success("Logado com sucesso!")

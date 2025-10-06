@@ -9,6 +9,8 @@ import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { Predio } from 'src/app/shared/utilitarios/predio';
 import { User } from 'src/app/shared/utilitarios/user';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
+import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 
 @Component({
   selector: 'app-cadastro-apartamentos',
@@ -40,6 +42,11 @@ export class CadastroApartamentosComponent implements OnInit {
     ayrton: null
   };
 
+  // Reservas do apartamento em edição
+  reservasDoApartamento: ReservaAirbnb[] = [];
+  reservasLoading: boolean = false;
+  reservasAgrupadasPorMes: Array<{ key: string; label: string; count: number; reservas: ReservaAirbnb[]; open: boolean }>= [];
+
   // Definição das comodidades do prédio
   amenidadesPredio = [
     { key: 'piscina', label: 'Piscina' },
@@ -66,7 +73,8 @@ export class CadastroApartamentosComponent implements OnInit {
     private predioService: PredioService,
     private authService: AuthenticationService,
     private userService: UserService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private reservasAirbnbService: ReservasAirbnbService
   ) {
     // Recupera ID do usuário atual (para auditoria)
     const user: User | null = this.authService.getUser();
@@ -279,6 +287,9 @@ export class CadastroApartamentosComponent implements OnInit {
   abrirModal(): void {
     this.showModal = true;
     this.isEditing = false;
+    this.reservasDoApartamento = [];
+    this.reservasAgrupadasPorMes = [];
+    this.reservasLoading = false;
     this.form.reset({ numero_hospedes: 1, porcentagem_cobrada: 0, valor_enxoval: 0, valor_limpeza: 0, qtd_banheiros: 0, modificado_user_id: this.currentUserId });
   }
 
@@ -287,9 +298,89 @@ export class CadastroApartamentosComponent implements OnInit {
     this.showModal = true;
     this.form.patchValue(apt);
     this.apartamentoSelecionado = apt;
+
+    // Carregar reservas do apartamento
+    this.reservasDoApartamento = [];
+    this.reservasAgrupadasPorMes = [];
+    if (apt && apt.id) {
+      this.reservasLoading = true;
+      this.reservasAirbnbService.getReservasByApartamentoId(apt.id).subscribe({
+        next: (reservas) => {
+          // Ordena por data de início DESC (mais recente primeiro)
+          this.reservasDoApartamento = (reservas || []).sort((a, b) => {
+            const da = this.parseYMDToTime(String(a.start_date));
+            const db = this.parseYMDToTime(String(b.start_date));
+            return db - da;
+          });
+          this.buildReservasAgrupadas();
+          this.reservasLoading = false;
+        },
+        error: (err) => {
+          console.error('Erro ao carregar reservas do apartamento:', err);
+          this.toastr.error('Erro ao carregar reservas do apartamento');
+          this.reservasLoading = false;
+        }
+      });
+    }
+  }
+
+  private buildReservasAgrupadas(): void {
+    const map = new Map<string, ReservaAirbnb[]>(); // key: yyyy-mm
+    for (const r of this.reservasDoApartamento) {
+      const key = this.yearMonthKey(String(r.start_date));
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(r);
+    }
+    // Já está em ordem DESC por start_date, manter ordem dos grupos por key desc
+    const keys = Array.from(map.keys()).sort((a, b) => b.localeCompare(a));
+    this.reservasAgrupadasPorMes = keys.map(key => {
+      const reservas = map.get(key)!;
+      return {
+        key,
+        label: this.formatarMesAnoLabel(key),
+        count: reservas.length,
+        reservas,
+        open: false
+      };
+    });
+  }
+
+  private yearMonthKey(isoLike: string): string {
+    // Espera 'YYYY-MM-DD' ou ISO. Extrai localmente sem timezone.
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoLike);
+    if (m) return `${m[1]}-${m[2]}`;
+    const d = new Date(isoLike);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  private parseYMDToTime(isoLike: string): number {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoLike);
+    if (m) {
+      const y = +m[1], mo = +m[2]-1, da = +m[3];
+      return new Date(y, mo, da).getTime();
+    }
+    const d = new Date(isoLike);
+    return d.getTime();
+  }
+
+  formatarMesAnoLabel(key: string): string {
+    // key = 'YYYY-MM'
+    const [y, m] = key.split('-').map(n => +n);
+    const d = new Date(y, (m||1)-1, 1);
+    const mes = d.toLocaleDateString('pt-BR', { month: 'long' });
+    const mesCap = mes.charAt(0).toUpperCase() + mes.slice(1);
+    return `${mesCap}-${y}`;
+  }
+
+  toggleGrupo(index: number): void {
+    this.reservasAgrupadasPorMes = this.reservasAgrupadasPorMes.map((g, i) => ({
+      ...g,
+      open: i === index ? !g.open : false
+    }));
   }
 
   excluirApartamento(id: number): void {
+    if (!id) return;
     if (!confirm('Tem certeza que deseja excluir este apartamento?')) return;
     this.apartamentoService.deleteApartamento(id).subscribe({
       next: () => {
@@ -372,4 +463,18 @@ export class CadastroApartamentosComponent implements OnInit {
     this.toastr.success('Informações da garagem copiadas com sucesso!');
   }
 }
+
+  formatarData(dataString: string): string {
+    if (!dataString) return '-';
+    const d = new Date(dataString);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('pt-BR');
+    }
+    // Fallback para formato YYYY-MM-DD
+    const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(String(dataString));
+    if (m) {
+      return `${m[3]}/${m[2]}/${m[1]}`;
+    }
+    return String(dataString);
+  }
 }
