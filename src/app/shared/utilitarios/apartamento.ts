@@ -59,4 +59,5 @@ export interface Apartamento {
   link_anuncio_booking?: string;
   categoria?: string;
   qtd_banheiros?: number;
+  tipo_anuncio_repasse?: string;
 }

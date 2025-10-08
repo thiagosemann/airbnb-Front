@@ -88,8 +88,8 @@ export class CadastroApartamentosComponent implements OnInit {
       nome_anuncio: [''],
       link_airbnb_calendario: [''],
       link_booking_calendario: [''],
-  link_stays_calendario: [''],
-  link_ayrton_calendario: [''],
+      link_stays_calendario: [''],
+      link_ayrton_calendario: [''],
       link_fotos: [''],
       endereco: [''],
       bairro: [''],
@@ -136,8 +136,8 @@ export class CadastroApartamentosComponent implements OnInit {
       modificado_user_id: [0],
       data_ultima_modificacao: [''],
       cod_link_proprietario: [''],
-      categoria: ['']
-
+      categoria: [''],
+      tipo_anuncio_repasse: ['']
     });
 
     // Adiciona sub-FormGroup para as amenidades do prédio

@@ -151,6 +151,7 @@
                 <option value="E">E</option>
               </select>
             </div>
+
           </div>
 
           <!-- Seção 2: Localização -->
@@ -167,6 +168,14 @@
             <div class="mb-3">
               <label class="form-label">Andar</label>
               <input type="number" class="form-control" formControlName="andar">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tipo Repasse</label>
+              <select class="form-select" formControlName="tipo_anuncio_repasse">
+                <option value="" disabled selected>Selecione o tipo de repasse</option>
+                <option value="anfitriao">Anfitrião</option>
+                <option value="coanfitriao">Coanfitrião</option>
+              </select>
             </div>
 
           </div>
