@@ -13,8 +13,8 @@
 .section-title {
   border-bottom: 2px solid #198754;
   color: #198754;
-  margin-bottom: 15px;
-  padding-bottom: 5px;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
 }
 
 /* Tabela com scroll e hover */
@@ -99,7 +99,6 @@
   padding: 0;
 }
 
-
 /* Customização da barra de rolagem na modal-body (opcional) */
 .modal-body::-webkit-scrollbar {
   width: 8px;
@@ -163,7 +162,7 @@
 
 /* Corpo da modal com scroll interno, se necessário */
 .modal-body {
-  padding: 20px;
+  padding: 16px;
   max-height: 60vh;
   overflow-y: auto;
 }
@@ -172,10 +171,11 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 10px 15px;
+  padding: 8px 12px;
   background: #f4f4f4;
   gap: 10px;
 }
+
 /* Search bar mobile-first */
 .search-mobile {
   max-width: 100%;
@@ -264,5 +264,20 @@
 }
 .accordion-body {
   background: #fff;
+}
+
+/* Truncate long content inside table cells */
+.truncate-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive columns spacing for Enxoval grid */
+@media (max-width: 767.98px) {
+  .truncate-cell {
+    max-width: 120px;
+  }
 }
 

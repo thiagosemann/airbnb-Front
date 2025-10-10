@@ -65,7 +65,11 @@
             <td>{{ apt.nome }}</td>
             <td>{{ getNomePredio(apt.predio_id) }}</td>
             <td>{{ apt.numero_hospedes }}</td>
-            <td>{{ apt.vaga_garagem }}</td>
+            <td>
+              <div class="truncate-cell" [title]="apt.vaga_garagem">
+                {{ apt.vaga_garagem }}
+              </div>
+            </td>
             <td>
               <span class="badge bg-success-subtle">
                 {{ apt.senha_porta }}
@@ -119,7 +123,7 @@
         <button class="close-btn" (click)="fecharModal()">×</button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="form" class="row g-3">
+        <form [formGroup]="form" class="row g-2">
 
           <!-- Seção 1: Informações Básicas -->
           <div class="col-md-6">
@@ -178,25 +182,7 @@
               </select>
             </div>
           </div>
-          <div class="col-md-12">
-            <h5 class="section-title">Garagem</h5>
-            <div class="row">
-              <div class="col-md-11">
-                <div class="mb-3">
-                  <label class="form-label">Garagem</label>
-                  <input type="text" class="form-control" formControlName="vaga_garagem">
-                </div>
-              </div>
-              <div class="col-md-1 mt-3 d-flex align-items-center">
-                <button 
-                  class="btn btn-outline-secondary" 
-                  (click)="copiarGaragem()"
-                  title="Copiar informações da garagem do prédio">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+
           <!-- Seção 3: Acesso & Check-in -->
           <div class="col-md-6">
             <h5 class="section-title">Acesso & Check-in</h5>
@@ -241,7 +227,20 @@
               <input class="form-check-input" type="checkbox" formControlName="adesivo_aviso" id="adesivo_aviso">
               <label class="form-check-label" for="adesivo_aviso">Adesivo de Aviso</label>
             </div>
-
+            <!-- Garagem movido para cá como input-group -->
+            <div class="mb-3">
+              <label class="form-label">Garagem</label>
+              <div class="input-group">
+                <input type="text" class="form-control" formControlName="vaga_garagem">
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button"
+                  (click)="copiarGaragem()"
+                  title="Copiar informações da garagem do prédio">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Seção 5: Valores -->
@@ -284,6 +283,38 @@
               <label class="form-label">Qtd. Taça de Vinho</label>
               <input type="number" class="form-control" formControlName="qtd_taca_vinho">
             </div>
+          </div>
+
+          <!-- Nova Seção: Enxoval -->
+          <div class="col-md-12">
+            <h5 class="section-title">Enxoval</h5>
+            <div class="row">
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">S. Lençol Casal</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_sobre_lencol_casal">
+              </div>
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">S. Lençol Solt.</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_sobre_lencol_solteiro">
+              </div>
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">Fronhas</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_fronha">
+              </div>
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">Toalhas</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_toalhas">
+              </div>
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">Pisos</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_pisos">
+              </div>
+              <div class="mb-3 col-md-6 col-lg-4 col-6">
+                <label class="form-label">Rostos</label>
+                <input type="number" min="0" class="form-control" formControlName="enxoval_rostos">
+              </div>
+            </div>
+            
           </div>
 
           <!-- Seção 7: Comodidades -->
@@ -352,16 +383,79 @@
               <input type="text" class="form-control" formControlName="senha_wifi">
             </div>
           </div>
-          <div class="col-md-12">
+          <!-- Transformar as próximas duas seções em col-md-6 lado a lado -->
+          <div class="col-md-6">
             <h5 class="section-title">Código Link Proprietário</h5>
             <div class="mb-3">
               <label class="form-label">Código do Link do Proprietário</label>
               <input type="text" class="form-control" formControlName="cod_link_proprietario">
             </div>
           </div>
-          <div class="col-md-12">
+          <div class="col-md-6">
             <h5 class="section-title">Links</h5>
-            
+            <!-- Link Airbnb -->
+            <div class="mb-2">
+              <label class="form-label">Link Calendário Airbnb</label>
+              <div class="input-group">
+                <input type="text" class="form-control" [class.is-valid]="icalValid['airbnb'] === true" [class.is-invalid]="icalValid['airbnb'] === false" formControlName="link_airbnb_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['airbnb']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['airbnb'] && icalValid['airbnb'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['airbnb'] && icalValid['airbnb'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
+            </div>
+            <!-- Link Booking -->
+            <div class="mb-2">
+              <label class="form-label">Link Calendário Booking</label>
+              <div class="input-group">
+                <input type="text" class="form-control" [class.is-valid]="icalValid['booking'] === true" [class.is-invalid]="icalValid['booking'] === false" formControlName="link_booking_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['booking']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['booking'] && icalValid['booking'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['booking'] && icalValid['booking'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
+            </div>
+            <!-- Link Stays -->
+            <div class="mb-2">
+              <label class="form-label">Link Calendário Stays</label>
+              <div class="input-group">
+                <input type="text" class="form-control" [class.is-valid]="icalValid['stays'] === true" [class.is-invalid]="icalValid['stays'] === false" formControlName="link_stays_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['stays']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['stays'] && icalValid['stays'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['stays'] && icalValid['stays'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Link Calendário Ayrton</label>
+              <div class="input-group">
+                <input type="text" class="form-control" [class.is-valid]="icalValid['ayrton'] === true" [class.is-invalid]="icalValid['ayrton'] === false" formControlName="link_ayrton_calendario">
+                <span class="input-group-text">
+                  <i *ngIf="validatingIcal['ayrton']" class="fas fa-spinner fa-spin"></i>
+                  <i *ngIf="!validatingIcal['ayrton'] && icalValid['ayrton'] === true" class="fas fa-check text-success"></i>
+                  <i *ngIf="!validatingIcal['ayrton'] && icalValid['ayrton'] === false" class="fas fa-times text-danger"></i>
+                </span>
+              </div>
+            </div>
+            <div class="mb-0">
+              <label class="form-label">Link Fotos</label>
+              <input type="text" class="form-control" formControlName="link_fotos">
+            </div>
+          </div>
+          
+          <!-- Seções 11 e 12 lado a lado para compactar -->
+          <div class="col-md-6">
+            <h5 class="section-title">Código Link Proprietário</h5>
+            <div class="mb-3">
+              <label class="form-label">Código do Link do Proprietário</label>
+              <input type="text" class="form-control" formControlName="cod_link_proprietario">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5 class="section-title">Links</h5>
             <!-- Link Airbnb -->
             <div class="mb-3">
               <label class="form-label">Link Calendário Airbnb</label>

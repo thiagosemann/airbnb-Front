@@ -60,10 +60,10 @@ export interface Apartamento {
   categoria?: string;
   qtd_banheiros?: number;
   tipo_anuncio_repasse?: string;
-  enxoval_sobre_lencol_casal?: string;
-  enxoval_fronha?: string;
-  enxoval_sobre_lencol_solteiro?: string;
-  enxoval_toalhas?: string;
-  enxoval_pisos?: string;
-  enxoval_rostos?: string;
+  enxoval_sobre_lencol_casal?: number;
+  enxoval_fronha?: number;
+  enxoval_sobre_lencol_solteiro?: number;
+  enxoval_toalhas?: number;
+  enxoval_pisos?: number;
+  enxoval_rostos?: number;
 }

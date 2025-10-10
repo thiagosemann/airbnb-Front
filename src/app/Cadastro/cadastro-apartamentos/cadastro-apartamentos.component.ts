@@ -116,6 +116,14 @@ export class CadastroApartamentosComponent implements OnInit {
       link_app: [''],
       tipo_fogao: [''],
       tipo_chuveiro: [''],
+      // --- Enxoval fields added ---
+      enxoval_sobre_lencol_casal: [0],
+      enxoval_fronha: [0],
+      enxoval_sobre_lencol_solteiro: [0],
+      enxoval_toalhas: [0],
+      enxoval_pisos: [0],
+      enxoval_rostos: [0],
+      // -----------------------------
       secador_cabelo: [false],
       cafeteira: [false],
       ventilador: [false],
@@ -290,7 +298,21 @@ export class CadastroApartamentosComponent implements OnInit {
     this.reservasDoApartamento = [];
     this.reservasAgrupadasPorMes = [];
     this.reservasLoading = false;
-    this.form.reset({ numero_hospedes: 1, porcentagem_cobrada: 0, valor_enxoval: 0, valor_limpeza: 0, qtd_banheiros: 0, modificado_user_id: this.currentUserId });
+    this.form.reset({
+      numero_hospedes: 1,
+      porcentagem_cobrada: 0,
+      valor_enxoval: 0,
+      valor_limpeza: 0,
+      qtd_banheiros: 0,
+      // Ensure enxoval fields reset to 0
+      enxoval_sobre_lencol_casal: 0,
+      enxoval_fronha: 0,
+      enxoval_sobre_lencol_solteiro: 0,
+      enxoval_toalhas: 0,
+      enxoval_pisos: 0,
+      enxoval_rostos: 0,
+      modificado_user_id: this.currentUserId
+    });
   }
 
   editarApartamento(apt: any): void {
