@@ -1,0 +1,291 @@
+
+/* Semicírculo esquerdo (inAir) */
+.half-in {
+  left: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Semicírculo direito (outAir) */
+.half-out {
+  right: 0;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+
+/* Adicione ao seu arquivo CSS */
+.occupancy-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 5px 10px;
+  width: 40%;
+  margin: 0 10px;
+}
+
+.occupancy-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #007000;
+  font-weight: 500;
+  margin-right: 15px;;
+}
+
+.occupancy-header i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.occupancy-stats {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F2937;
+}
+.date-input {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.btn-apply {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #10B981;
+  color: white;
+  cursor: pointer;
+}
+.btn-apply:hover {
+  background-color: #059669;
+}
+/* CSS DETALHADO SEPARADO */
+.detail-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  overflow: hidden;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.detail-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-nav-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+.detail-nav-button:hover {
+  background: #F3F4F6;
+}
+
+.detail-current-month {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.detail-apartment-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.detail-apartment-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.detail-apartment-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+.detail-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.detail-available   { background: #10B981; color: #fff; }
+.detail-occupied    { background: #EF4444; color: #fff; }
+.detail-maintenance { background: #F59E0B; color: #fff; }
+
+.detail-calendar-container {
+  flex: 1;
+  margin: 10px 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-weekdays-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+}
+.detail-weekday {
+  padding: 12px 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #6B7280;
+  border-right: 1px solid #E5E7EB;
+}
+.detail-weekday:last-child {
+  border-right: none;
+}
+
+.detail-days-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+  overflow-y: auto;
+}
+.detail-day-cell {
+  min-height: 80px;
+  padding: 6px;
+  border-right: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  position: relative;
+  background: #fff;
+}
+.detail-day-cell.detail-outside {
+  background: #F3F4F6;
+  color: #9CA3AF;
+}
+.detail-day-cell.detail-today {
+  background: #EFF6FF;
+  outline: 2px solid #3B82F6;
+}
+.detail-day-number {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.detail-event {
+  margin-bottom: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 12px 16px;
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+}
+.detail-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #4B5563;
+}
+.detail-legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+.detail-event.event-airbnb   { background-color: #EF4444; }
+.detail-event.event-booking  { background-color: #3B82F6; }
+
+.detail-legend-dot.booking { background: #3B82F6; }
+.detail-legend-dot.airbnb  { background: #EF4444; }
+/* cor de background suave para toda a linha */
+/* TOOLTIP ESTILOS */
+.day-tooltip {
+  position: fixed;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  pointer-events: none;
+  min-width: 140px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.day-tooltip.show {
+  opacity: 1;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tooltip-label {
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+/* Adicione ao seu CSS */
+.selected-day {
+  background-color: #3B82F6;
+  color: white;
+  cursor: pointer;
+}
+
+.selected-day .week-day,
+.selected-day .month-day {
+  color: white !important;
+  font-weight: bold;
+}

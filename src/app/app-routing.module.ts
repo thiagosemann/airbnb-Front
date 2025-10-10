@@ -32,6 +32,7 @@ import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.com
 import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
+import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
 
 
 const routes: Routes = [
@@ -49,6 +50,8 @@ const routes: Routes = [
   { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+
   { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },

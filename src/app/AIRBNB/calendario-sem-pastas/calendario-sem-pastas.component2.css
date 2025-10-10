@@ -1,0 +1,231 @@
+.today-week {
+  color:white;
+}
+.today-day {
+  color:white;
+  font-size: 20px;
+}
+.building-row {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: 10px 25px;
+  position: sticky;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  width: 180px;
+  transition: background-color 0.2s;
+  font-weight: 600;
+  left: 0;
+  z-index: 40;
+}
+
+.building-row:hover {
+  background-color: #e9ecef;
+}
+
+.building-toggle {
+  margin-right: 10px;
+  font-size: 1.1rem;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.building-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.building-toggle-icon {
+  color: #6c757d;
+  transition: transform 0.3s ease;
+  width: 16px;
+  display: flex;
+  justify-content: center;
+}
+/* Corpo da tabela */
+.table-body {
+  position: relative;
+}
+
+.apartment-row {
+  display: flex;
+  border-bottom: 1px solid #f3f4f6;
+  height: 24px; /* Reduzido de 40px+ */
+
+}
+
+.apartment-cell {
+  width: 180px;
+  padding: 10px 25px;
+
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  background: white;
+  position: sticky;
+  left: 0;
+  z-index: 40;
+  border-right: 2px solid #000000;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0)
+}
+
+.apartment-info {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.apartment-info.selected {
+  background-color: #eff6ff;
+}
+
+.apartment-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.apartment-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.days-row-container {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid #e6e5e5;
+  border-right: 1px solid #e6e5e5;
+}
+
+.days-row {
+  display: flex;
+  min-width: min-content;
+}
+
+
+
+/* ==============================
+   DAY-TYPE STYLES
+   ============================== */
+.day-cell {
+  position: relative;
+  width: 60px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 0 0 1px rgba(229, 231, 235, 0.5); /* simula border com 50% opacidade */
+}
+
+.day-cell-inAir {
+ position: relative;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  left: 50%;
+  top:35%;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  background: #EF4444;
+}
+.day-cell-inBook {
+ position: relative;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  left: 50%;
+  top:35%;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  background: #3B82F6;
+}
+.day-cell-outAir {
+ position: relative;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  left: 0%;
+  top:35%;
+  background: #EF4444;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.day-cell-outBook {
+ position: relative;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  left: 0%;
+  top:35%;
+  background: #3B82F6;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.day-cell-air {
+ position: relative;
+  width: 100%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #EF4444;
+  top:35%;
+}
+.day-cell-book {
+ position: relative;
+  width: 100%;
+  height: 10px;
+  background: transparent;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #3B82F6;
+  top:35%;
+}
+
+/* Container para os semicírculos */
+.in-out-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top:35%;
+}
+
+/* Estilos comuns para ambos os semicírculos */
+.half {
+  position: absolute;
+  width: 45%; /* Diminuir a largura para criar espaço */
+  height: 100%;
+}
+
+/* Semicírculo esquerdo (inAir) */
+.half-in {
+  left: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+

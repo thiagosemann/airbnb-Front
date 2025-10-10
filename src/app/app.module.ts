@@ -43,6 +43,7 @@ import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.com
 import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
+import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-lim
     QrcodescannerComponent,
     ControlePortasComponent,
     NpsLimpezaComponent,
-    NpsLimpezaHospedeComponent
+    NpsLimpezaHospedeComponent,
+    CalendarioSemPastasComponent
     ],
   imports: [
     BrowserModule,
