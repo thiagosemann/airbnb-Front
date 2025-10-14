@@ -105,6 +105,7 @@ export class CadastroApartamentosComponent implements OnInit {
       aceita_pet: [false],
       totem: [false],
       adesivo_aviso: [false],
+      pedir_selfie: [false],
       qtd_cama_solteiro: [0],
       qtd_cama_casal: [0],
       qtd_sofa_cama: [0],
@@ -311,6 +312,7 @@ export class CadastroApartamentosComponent implements OnInit {
       enxoval_toalhas: 0,
       enxoval_pisos: 0,
       enxoval_rostos: 0,
+      pedir_selfie: false,
       modificado_user_id: this.currentUserId
     });
   }

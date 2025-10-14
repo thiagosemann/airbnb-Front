@@ -66,4 +66,5 @@ export interface Apartamento {
   enxoval_toalhas?: number;
   enxoval_pisos?: number;
   enxoval_rostos?: number;
+  pedir_selfie?: boolean;
 }
