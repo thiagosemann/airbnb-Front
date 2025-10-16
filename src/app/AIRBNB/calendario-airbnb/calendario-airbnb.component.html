@@ -348,11 +348,18 @@
                 <div class="document-section">
                   <h6>Documentos</h6>
                   <div class="documents-row">
+                    <!-- Imagem do Hóspede: agora aceita imagem ou PDF -->
                     <div *ngIf="hospede.imagemBase64" class="document-container">
-                      <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
-                           alt="Imagem do Hóspede" class="document-image">
+                      <ng-container *ngIf="isPDF(hospede.imagemBase64); else imagemHospedeTpl">
+                        <iframe [src]="getSafeUrl(hospede.imagemBase64)" class="document-frame"></iframe>
+                      </ng-container>
+                      <ng-template #imagemHospedeTpl>
+                        <img [src]="'data:image/png;base64,' + hospede.imagemBase64" 
+                             alt="Imagem do Hóspede" class="document-image">
+                      </ng-template>
                     </div>
-                    
+
+                    <!-- Documento do Hóspede: mantém imagem ou PDF -->
                     <div *ngIf="hospede.documentBase64" class="document-container">
                       <ng-container *ngIf="isPDF(hospede.documentBase64); else imagemDocumento">
                         <iframe [src]="getSafeUrl(hospede.documentBase64)" class="document-frame"></iframe>

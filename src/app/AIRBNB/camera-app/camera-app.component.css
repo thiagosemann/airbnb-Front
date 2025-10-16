@@ -6,35 +6,36 @@
 .full-screen-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;    /* permite scroll interno */
-  padding: 10px 10px;            /* espaço no topo/embaixo */
+  align-items: stretch; /* usar toda a altura */
+  padding: 10px;
   background: linear-gradient(360deg, #9bd6a9f6, #56a769);
   font-family: 'Poppins', sans-serif;
-  min-height: 100vh;          /* garante ao menos 1 tela */
+  min-height: 100vh;
   box-sizing: border-box;
-  overflow-y: block;           /* rolagem interna se estourar */
 }
-
 
 /* Contêiner centralizado do formulário */
 .container {
   width: 100%;
-  max-width: 400px;           /* não estoura em tablets */
+  max-width: 420px;           /* ajustado para pré-visualizações */
   background: #fff;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(50, 205, 50, 0.25);
-  padding: 15px;
+  padding: 15px 15px 80px; /* espaço extra para footer fixo */
   box-sizing: border-box;
   margin: 0 20px;             /* garante margem lateral em telas muito pequenas */
+  max-height: calc(100vh - 20px);
+  overflow-y: auto; /* rolagem quando necessário */
+  scrollbar-width: thin; /* fino */
+  scrollbar-color: #28a745 #eaf7ee; /* thumb track */
 }
-
 
 .logo-img {
   width: 40%;
   max-width: 180px;
   height: auto;
   display: block;
-  margin: 0 auto 5px;
+  margin: 0 auto 0; /* reduz espaço extra abaixo do logo */
 }
 
 h1, h2, h3 {
@@ -61,7 +62,7 @@ h3 {
 }
 
 .form-group label {
-  font-size: 14px;
+  font-size: 13px; /* ajustado para mobile */
   color: #333;
   margin-bottom: 5px;
   display: block;
@@ -86,7 +87,7 @@ button {
   padding: 14px;
   margin-top: 10px;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 16px; /* ajustado para mobile */
   cursor: pointer;
   transition: background-color 0.3s;
   display: flex;
@@ -123,4 +124,169 @@ button:hover {
 .btn-secondary {
   background-color: #6c757d;
   color: white;
+}
+
+/* Reaproveita o container para pré-visualizações de imagens */
+.camera-container img {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+}
+
+/* Pré-visualização compacta e elegante (mobile-first) */
+.preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #e9f3ec;
+  background: #f7fbf8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.08);
+  margin: 8px 0 14px;
+}
+
+/* Ajustes do preview card (já existente) para integrar com seções */
+.preview-card { margin-left: 36px; }
+
+.preview-thumb {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e1eee6;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-pdf {
+  width: 36px;
+  height: 36px;
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #218838;
+}
+
+.preview-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Callout informativo para instruções claras */
+.info-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+  color: #276749;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 8px 0 14px;
+  font-size: 13px;
+}
+.info-callout i { color: #38a169; margin-top: 2px; }
+.info-callout strong { color: #22543d; }
+
+/* Listas do callout mais legíveis em mobile */
+.callout-list {
+  padding-left: 18px;
+  margin: 6px 0 6px;
+}
+.callout-list li {
+  margin-bottom: 4px;
+}
+.formats-note { font-size: 12px; color: #6c757d; margin-top: 4px; }
+
+/* Seções numeradas de upload */
+.upload-section { margin-bottom: 14px; }
+.upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.upload-title { display: flex; flex-direction: column; line-height: 1.2; }
+.upload-title .helper-text { font-size: 12px; color: #6c757d; }
+
+.num-badge {
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: #28a745; color: #fff; font-weight: 700; font-size: 13px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-badge.ok { background: #e6fffa; color: #0f766e; border: 1px solid #99f6e4; }
+.status-badge.pending { background: #fffbea; color: #92400e; border: 1px solid #fde68a; }
+
+/* Rodapé fixo dentro do card, mantendo CTAs sempre acessíveis */
+.cta-footer {
+  position: static;
+  background: transparent;
+  padding: 8px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+/* Compactar o primeiro passo para reduzir altura total */
+.compact-form .form-group {
+  margin-bottom: 12px; /* menor espaço vertical */
+}
+.compact-form .form-control {
+  padding: 10px; /* inputs mais compactos */
+}
+.compact-form .carousel-container {
+  margin-top: 6px;
+}
+
+/* Container com rolagem sutil e sempre habilitada quando necessário */
+.full-screen-container {
+  align-items: stretch;
+}
+.container {
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
+}
+
+/* Scrollbar personalizado pequeno e nas cores do layout (webkit) */
+.container::-webkit-scrollbar {
+  width: 6px;
+}
+.container::-webkit-scrollbar-track {
+  background: #eaf7ee; /* verde bem claro */
+  border-radius: 6px;
+}
+.container::-webkit-scrollbar-thumb {
+  background: #28a745; /* verde principal */
+  border-radius: 6px;
+}
+.container::-webkit-scrollbar-thumb:hover {
+  background: #218838; /* verde mais escuro no hover */
 }

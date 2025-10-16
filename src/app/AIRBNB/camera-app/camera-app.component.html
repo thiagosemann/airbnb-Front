@@ -3,7 +3,7 @@
     <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo-img">
     
     <!-- Etapa 1: Formulário de informações -->
-    <div *ngIf="step === 1">
+    <div *ngIf="step === 1" class="compact-form">
       <div class="info-box">
         <i class="fas fa-info-circle"></i>
        As informações fornecidas serão usadas única e exclusivamente para o seu cadastro junto ao prédio em que você irá se hospedar, garantindo segurança e agilidade no seu atendimento.
@@ -55,66 +55,113 @@
       </form>
     </div>
 
-    <!-- Etapa 2: Captura de foto -->
+    <!-- Etapa 2: Uploads (Selfie e Documento) -->
     <div *ngIf="step === 2">
-      <h3>Captura de Foto</h3>
-      <p>Posicione seu rosto dentro do quadro.</p>
-      <div class="camera-container">
-        <ng-container *ngIf="!photoDataUrl">
-          <ng-container *ngIf="loadingCamera">
-            <div class="loader-container">
-              <div class="loader"></div>
-            </div>
-          </ng-container>
-          <video #video autoplay playsinline></video>
-        </ng-container>
-        <ng-container *ngIf="photoDataUrl">
-          <img #photo [src]="photoDataUrl" alt="Sua foto aparecerá aqui.">
-        </ng-container>
-      </div>
-      <button (click)="capturePhoto()" class="btn btn-success mt-3" *ngIf="!photoDataUrl"><i class="fas fa-camera"></i> Capturar Foto</button>
-      <button (click)="goForward()" class="btn btn-success mt-3" *ngIf="photoDataUrl">Próximo <i class="fas fa-arrow-right"></i></button>
-      <button (click)="cancelPhoto()" class="btn btn-danger mt-3" *ngIf="photoDataUrl"><i class="fas fa-times"></i> Cancelar</button>
-      <button (click)="goBack()" class="btn btn-secondary mt-3" *ngIf="!photoDataUrl"><i class="fas fa-arrow-left"></i> Voltar</button>
-    </div>
-
-    
-    <!-- Etapa 3: Entrega Documentos -->
-    <div *ngIf="step === 3" class="text-center">
-      <h3>Entrega de documentos</h3>
-      <ng-container *ngIf="fotoOuDocumentoString==''">
-        <button (click)="documentoComoFoto()" class="btn btn-success mt-3"><i class="fas fa-camera"></i> Usar câmera</button>
-        <button (click)="documentoComoArquivo()" class="btn btn-success mt-3"><i class="fas fa-upload"></i>Upload de Arquivo</button>
-        <button (click)="goBack()" class="btn btn-secondary mt-3">Voltar</button>  
-      </ng-container>
-      <ng-container *ngIf="fotoOuDocumentoString=='foto'">
-        <div class="camera-container">
-          <ng-container *ngIf="!documentPhotoUrl">
-            <ng-container *ngIf="loadingCamera">
-            <div class="loader-container">
-              <div class="loader"></div>
-            </div>
-          </ng-container>
-          <video #videoDoc autoplay playsinline></video>
-          </ng-container>
-          <ng-container *ngIf="documentPhotoUrl">
-            <img #photoDoc [src]="documentPhotoUrl" alt="Sua foto do documento aparecerá aqui." >
-          </ng-container>
+      <h3>Envio de arquivos</h3>
+      <ng-container *ngIf="pedir_selfie; else onlyDocumentoCallout">
+        <div class="info-callout">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <p>Para finalizar, envie 2 arquivos obrigatórios:</p>
+            <ul class="callout-list">
+              <li><strong>1) Selfie do hóspede</strong> — Foto semelhante a 3x4, nítida, do peito para cima, sem adornos.</li>
+              <li><strong>2) Documento com foto</strong> — RG, CNH ou Passaporte (frente).</li>
+            </ul>
+            <p class="formats-note">Formatos aceitos: JPG, PNG ou PDF. Tamanho máximo: 5MB por arquivo.</p>
+          </div>
         </div>
-        <button (click)="captureDocumentPhoto()" class="btn btn-success mt-3" *ngIf="!documentPhotoUrl"><i class="fas fa-camera"></i>Capturar Foto do Documento</button>
-        <button (click)="cancelDocumentPhoto()" class="btn btn-danger mt-3" *ngIf="documentPhotoUrl">Cancelar</button> 
-        <button (click)="sendData()" class="btn btn-success mt-3" *ngIf="documentPhotoUrl" >Enviar</button>
-        <button (click)="voltarParaEntregaDocumentos()" class="btn btn-secondary mt-3" *ngIf="!documentPhotoUrl">Voltar</button>
       </ng-container>
-      <ng-container *ngIf="fotoOuDocumentoString=='arquivo'">
-      <!-- Opções de envio de documento -->
-      <div class="form-group">
-        <label for="fileUpload">Envie seu documento</label>
-        <input type="file" class="form-control" id="fileUpload" (change)="onFileSelected($event)">
+      <ng-template #onlyDocumentoCallout>
+        <div class="info-callout">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <p>Para finalizar, envie <strong>apenas o documento com foto</strong> do hóspede.</p>
+            <ul class="callout-list">
+              <li><strong>Documento com foto</strong> — RG, CNH ou Passaporte (frente).</li>
+            </ul>
+            <p class="formats-note">Formatos aceitos: JPG, PNG ou PDF. Tamanho máximo: 5MB.</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Selfie (opcional conforme configuração do apartamento) -->
+      <div class="upload-section" *ngIf="pedir_selfie">
+        <div class="upload-header">
+          <span class="num-badge">1</span>
+          <div class="upload-title">
+            <strong><i class="fas fa-user-circle"></i> Selfie do hóspede</strong>
+            <span class="helper-text">Foto nítida do rosto, bem iluminada.</span>
+          </div>
+          <span class="status-badge" [ngClass]="photoDataUrl ? 'ok' : 'pending'">
+            {{ photoDataUrl ? 'OK' : 'Pendente' }}
+          </span>
+        </div>
+        <div class="form-group">
+          <label for="selfieUpload">Selfie (imagem ou PDF)</label>
+          <input type="file" accept="image/*,application/pdf" class="form-control" id="selfieUpload" (change)="onSelfieSelected($event)">
+        </div>
+        <div class="preview-card" *ngIf="photoDataUrl">
+          <div class="preview-thumb">
+            <img *ngIf="photoDataUrl.startsWith('data:image')" [src]="photoDataUrl" class="preview-img" alt="Selfie">
+            <img *ngIf="photoDataUrl.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" class="preview-pdf" alt="PDF selecionado">
+          </div>
+          <div class="preview-body">
+            <p class="preview-title">Selfie pronta</p>
+            <p class="preview-sub">Arquivo selecionado com sucesso.</p>
+          </div>
+        </div>
       </div>
-      <button (click)="sendData()" class="btn btn-success mt-3" [disabled]="!documentFile">Enviar</button>
-      <button (click)="voltarParaEntregaDocumentos()" class="btn btn-success mt-3">Voltar</button>
-      </ng-container>
+
+      <!-- Documento -->
+      <div class="upload-section">
+        <div class="upload-header">
+          <span class="num-badge">{{ pedir_selfie ? '2' : '1' }}</span>
+          <div class="upload-title">
+            <strong><i class="fas fa-id-card"></i> Documento do hóspede</strong>
+            <span class="helper-text">RG, CNH ou Passaporte (apenas a frente, legível).</span>
+          </div>
+          <span class="status-badge" [ngClass]="documentFile ? 'ok' : 'pending'">
+            {{ documentFile ? 'OK' : 'Pendente' }}
+          </span>
+        </div>
+        <div class="form-group">
+          <label for="fileUpload">Documento (imagem ou PDF)</label>
+          <input type="file" class="form-control" id="fileUpload" accept="image/*,application/pdf" (change)="onFileSelected($event)">
+        </div>
+        <div class="preview-card" *ngIf="documentFile">
+          <div class="preview-thumb">
+            <img *ngIf="documentFile.startsWith('data:image')" [src]="documentFile" class="preview-img" alt="Documento">
+            <img *ngIf="documentFile.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" class="preview-pdf" alt="PDF selecionado">
+          </div>
+          <div class="preview-body">
+            <p class="preview-title">Documento pronto</p>
+            <p class="preview-sub">Arquivo selecionado com sucesso.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Garagem: placa do carro (apenas se tem_garagem = true) -->
+      <div class="upload-section" *ngIf="tem_garagem === true">
+        <div class="upload-header">
+          <span class="num-badge">{{ pedir_selfie ? '3' : '2' }}</span>
+          <div class="upload-title">
+            <strong><i class="fas fa-car"></i> Placa do carro</strong>
+            <span class="helper-text">Informe a placa do veículo para cadastro na garagem.</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="placaCarro">Placa do carro</label>
+          <input type="text" id="placaCarro" class="form-control" [(ngModel)]="placaCarro" name="placaCarro" placeholder="ABC-1234 ou ABC1D23" maxlength="8">
+        </div>
+      </div>
+
+      <div class="cta-footer">
+        <button (click)="sendData()" class="btn btn-success"
+                [disabled]="(pedir_selfie ? !photoDataUrl : false) || !documentFile || (tem_garagem === true && !placaCarro)">
+          {{ pedir_selfie ? (tem_garagem ? 'Enviar selfie, documento e placa' : 'Enviar selfie e documento') : (tem_garagem ? 'Enviar documento e placa' : 'Enviar documento') }}
+        </button>
+        <button (click)="goBack()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar</button>
+      </div>
     </div>
 
     <!-- Etapa 4: Carregando -->

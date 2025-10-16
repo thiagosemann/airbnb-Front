@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'enviroments';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
@@ -53,5 +53,16 @@ export class ApartamentoService {
       { icalData },
       { headers: this.getHeaders() }
     );
+  }
+
+  // Nova rota: retorna vaga_garagem, pedir_selfie e tem_garagem via backend
+  // GET /apartamentos-airbnb/selfie-garagem?cod_reserva=XXX
+  getSelfieGaragem(cod_reserva: string): Observable<any> {
+    const params = new HttpParams().set('cod_reserva', cod_reserva);
+
+    return this.http.get(`${this.url}/apartamentos-airbnb/selfie-garagem`, {
+      headers: this.getHeaders(),
+      params
+    });
   }
 }
