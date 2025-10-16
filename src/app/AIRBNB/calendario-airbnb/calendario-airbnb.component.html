@@ -271,10 +271,13 @@
                  Enviar  
               </button>
             </div>
-            <div class="modal-item">
-              <label>Placa do Carro</label>
-              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.placa_carro" readonly>
-            </div>
+            <ng-container *ngIf="selectedReservation!.placa_carro">
+              <div class="modal-item">
+                <label>Placa do Carro</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedReservation!.placa_carro" readonly>
+              </div>
+            </ng-container>
+   
             
           </div>
         </div>
