@@ -24,6 +24,6 @@ export interface ReservaAirbnb {
   horarioPrevistoChegada:any[];
   contagemFaxinasDiaPorFaxineira?:number;
   telefone_principal?:string;
-
+  placa_carro?:string;
   pagamentos:any[];
 }

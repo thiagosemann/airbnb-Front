@@ -266,10 +266,14 @@
               <input type="text" class="form-control" [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()" mask="(00) 00000-0000">
             </div>
             <div class="modal-item">
-              <label>Telefone Da Reserva</label>
+              <label>Enviar</label>
               <button class="btn btn-primary" (click)="sendMensagemCadastroViaLink()">
                  Enviar  
               </button>
+            </div>
+            <div class="modal-item">
+              <label>Placa do Carro</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.placa_carro" readonly>
             </div>
             
           </div>

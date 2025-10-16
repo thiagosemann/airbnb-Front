@@ -188,7 +188,8 @@ export class CameraAppComponent implements OnInit {
       imagemBase64: this.photoDataUrl ? this.photoDataUrl.split(',')[1] : null,
       tipo: 'guest',
       documentBase64: this.documentFile.split(',')[1],
-      reserva_id: this.id
+      reserva_id: this.id,
+      placa_carro: this.tem_garagem === true ? this.placaCarro : null
     };
 
     this.step = 4; // Mostrar loading

@@ -194,6 +194,7 @@ export class CalendarioAirbnbComponent implements OnInit {
     this.checkinFormService.getCheckinByReservaIdOrCodReserva(reserva_id, cod_reserva)
       .subscribe({
         next: (resposta) => {
+          console.log(resposta)
           this.hospedesReserva = resposta;
           this.carregandoImagem = false;
         },
