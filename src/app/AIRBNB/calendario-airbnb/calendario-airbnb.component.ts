@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
@@ -18,7 +18,7 @@ import { CadastroMensagemViaLinkService } from 'src/app/shared/service/Banco_de_
     './calendario-airbnb3.component.css'
   ]
 })
-export class CalendarioAirbnbComponent implements OnInit {
+export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   todasReservas: ReservaAirbnb[] = [];
   reservasFiltradas: ReservaAirbnb[] = [];
   carregando: boolean = true;
@@ -35,6 +35,8 @@ export class CalendarioAirbnbComponent implements OnInit {
   dataFim: string;
   searchTerm: string = '';
   reservasExibidas: ReservaAirbnb[] = [];
+  // Armazena URLs temporárias criadas para preview de PDFs
+  private pdfObjectUrls: string[] = [];
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
@@ -58,6 +60,10 @@ export class CalendarioAirbnbComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarReservasPorPeriodo();
+  }
+
+  ngOnDestroy(): void {
+    this.revokeObjectUrls();
   }
 
   private formatarDataParaInput(data: Date): string {
@@ -147,6 +153,7 @@ export class CalendarioAirbnbComponent implements OnInit {
   closeModal(): void {
     this.showModal = false;
     this.linkPagamento = "";
+    this.revokeObjectUrls();
   }
 
   updateStatus(reserva: any, field: string, event: Event) {
@@ -205,25 +212,56 @@ export class CalendarioAirbnbComponent implements OnInit {
       });
   }
 
+  // Normaliza base64 removendo prefixos data:*;base64, espaços e quebras de linha
+  private normalizeBase64(b64: string | null | undefined): string {
+    if (!b64) return '';
+    return String(b64).replace(/^data:.*;base64,/, '').replace(/\s/g, '').trim();
+  }
+
   isPDF(base64: string): boolean {
-    return base64.startsWith('JVBERi0');
+    try {
+      const clean = this.normalizeBase64(base64);
+      if (!clean) return false;
+      const header = atob(clean).slice(0, 5);
+      return header === '%PDF-';
+    } catch {
+      return false;
+    }
   }
 
   getSafeUrl(base64: string): SafeResourceUrl {
-    const pdfSrc = `data:application/pdf;base64,${base64}`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(pdfSrc);
+    const clean = this.normalizeBase64(base64);
+    const byteChars = atob(clean);
+    const bytes = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+      bytes[i] = byteChars.charCodeAt(i);
+    }
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    this.pdfObjectUrls.push(url);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   downloadImage(base64: string, fileName: string): void {
+    const clean = this.normalizeBase64(base64);
+    const byteChars = atob(clean);
+    const bytes = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+      bytes[i] = byteChars.charCodeAt(i);
+    }
+    const blob = new Blob([bytes], { type: 'image/png' });
     const link = document.createElement('a');
-    link.href = 'data:image/png;base64,' + base64;
+    const url = URL.createObjectURL(blob);
+    link.href = url;
     link.download = `${fileName}.png`;
     link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   downloadDocument(base64: string, fileName: string): void {
-    const mimeType = this.isPDF(base64) ? 'application/pdf' : 'image/png';
-    const byteCharacters = atob(base64);
+    const clean = this.normalizeBase64(base64);
+    const mimeType = this.isPDF(clean) ? 'application/pdf' : 'image/png';
+    const byteCharacters = atob(clean);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -231,9 +269,20 @@ export class CalendarioAirbnbComponent implements OnInit {
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: mimeType });
     const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
+    const objectUrl = window.URL.createObjectURL(blob);
+    link.href = objectUrl;
     link.download = `${fileName}.${mimeType.split('/')[1]}`;
     link.click();
+    setTimeout(() => window.URL.revokeObjectURL(objectUrl), 0);
+  }
+
+  private revokeObjectUrls(): void {
+    if (this.pdfObjectUrls && this.pdfObjectUrls.length) {
+      this.pdfObjectUrls.forEach(url => {
+        try { URL.revokeObjectURL(url); } catch {}
+      });
+      this.pdfObjectUrls = [];
+    }
   }
 
   exportData(): void {
