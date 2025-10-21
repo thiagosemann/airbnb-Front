@@ -440,7 +440,7 @@ export class CadastroApartamentosComponent implements OnInit {
       return;
     }
     const aptPayload = this.form.value;
-
+    console.log("Entrou")
     // Atualiza comodidades do prédio antes de salvar apartamento
     const predioId = aptPayload.predio_id;
     const predioValues = aptPayload.predioAmenities;
