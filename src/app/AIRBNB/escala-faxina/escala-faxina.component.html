@@ -57,7 +57,7 @@
                     (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasHoje')">
               <span class="checkmark"></span>
             </label>
-            <span>Limpeza Finalizada</span>
+            <span (click)="abrirModalEnxoval(faxina)">Limpeza Finalizada</span>
             <button class="btn-info" (click)="abrirModal(faxina)">Mais</button>
 
           </div>
@@ -133,7 +133,7 @@
                     (change)="updateStatus(faxina, 'limpeza_realizada', $event, 'faxinasFuturas')">
               <span class="checkmark"></span>
             </label>
-            <span>Limpeza Finalizada</span>
+            <span (click)="abrirModalEnxoval(faxina)">Limpeza Finalizada</span>
           </div>
         </div>
       </div>
@@ -187,6 +187,59 @@
     
     <div class="modal-footer">
       <button class="btn-fechar" (click)="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Enxoval -->
+<div class="modal-overlay" *ngIf="modalEnxovalAberto" (click)="fecharModalEnxoval()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="fecharModalEnxoval()">&times;</button>
+    <h2>
+      Enxoval – Apt {{ apartamentoSelecionado?.apartamento_nome || enxovalSelecionado?.nome || '—' }}
+    </h2>
+
+    <div class="modal-body">
+      <div class="modal-row"><strong>Itens para retirar:</strong></div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_sobre_lencol_casal > 0">
+        <span>Sobrelençol (Casal): {{ enxovalSelecionado?.enxoval_sobre_lencol_casal }}</span>
+      </div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_sobre_lencol_solteiro > 0">
+        <span>Sobrelençol (Solteiro): {{ enxovalSelecionado?.enxoval_sobre_lencol_solteiro }}</span>
+      </div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_fronha > 0">
+        <span>Fronhas: {{ enxovalSelecionado?.enxoval_fronha }}</span>
+      </div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_toalhas > 0">
+        <span>Toalhas de banho: {{ enxovalSelecionado?.enxoval_toalhas }}</span>
+      </div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_pisos > 0">
+        <span>Toalhas de piso: {{ enxovalSelecionado?.enxoval_pisos }}</span>
+      </div>
+      <div class="modal-row" *ngIf="enxovalSelecionado?.enxoval_rostos > 0">
+        <span>Toalhas de rosto: {{ enxovalSelecionado?.enxoval_rostos }}</span>
+      </div>
+      <div class="modal-row" *ngIf="!enxovalSelecionado || (
+          !(enxovalSelecionado?.enxoval_sobre_lencol_casal > 0) &&
+          !(enxovalSelecionado?.enxoval_sobre_lencol_solteiro > 0) &&
+          !(enxovalSelecionado?.enxoval_fronha > 0) &&
+          !(enxovalSelecionado?.enxoval_toalhas > 0) &&
+          !(enxovalSelecionado?.enxoval_pisos > 0) &&
+          !(enxovalSelecionado?.enxoval_rostos > 0)
+        )">
+        <em>Nenhum item de enxoval cadastrado para retirada.</em>
+      </div>
+
+      <div class="modal-row" style="margin-top: 12px; border-top: 1px solid #e5e5e5; padding-top: 8px;">
+        <strong>Total de peças:</strong>&nbsp;
+        <span>{{ getTotalPecasEnxoval(enxovalSelecionado) }}</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+  <button class="btn-primary" (click)="fecharModalEnxoval()">Confirmar</button>
+
+      <button class="btn-fechar" (click)="fecharModalEnxoval()">Fechar</button>
     </div>
   </div>
 </div>

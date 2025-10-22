@@ -34,6 +34,9 @@ export class EscalaFaxinaComponent implements OnInit {
   dataFim: string = '';
   modalAberto: boolean = false;
   apartamentoSelecionado: any = null;
+  // Novo modal para enxoval
+  modalEnxovalAberto: boolean = false;
+  enxovalSelecionado: any = null;
 
   constructor(
     private reservasService: ReservasAirbnbService,
@@ -209,6 +212,10 @@ export class EscalaFaxinaComponent implements OnInit {
   updateStatus(reserva: any, field: string, event: Event, type: string) {
     const checked = (event.target as HTMLInputElement).checked;
     reserva[field] = checked;
+    // Abre o modal de enxoval quando marcar como finalizado
+    if (checked) {
+      this.abrirModalEnxoval(reserva);
+    }
     this.updateReserva(reserva);
   }
 
@@ -320,5 +327,40 @@ export class EscalaFaxinaComponent implements OnInit {
   abrirGoogleMaps(endereco: string): void {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(endereco)}`;
     window.open(url, '_blank');
+  }
+
+  // ===== Modal de Enxoval =====
+  abrirModalEnxoval(faxina: any): void {
+    if (!faxina?.apartamento_id) {
+      this.toastr.warning('Apartamento não identificado para enxoval.');
+      return;
+    }
+    this.apartamentosService.getApartamentoById(faxina.apartamento_id).subscribe({
+      next: (apt: any) => {
+        this.enxovalSelecionado = apt;
+        this.modalEnxovalAberto = true;
+      },
+      error: () => {
+        this.toastr.error('Não foi possível carregar o enxoval do apartamento.');
+      }
+    });
+  }
+
+  fecharModalEnxoval(): void {
+    this.modalEnxovalAberto = false;
+    this.enxovalSelecionado = null;
+  }
+
+  getTotalPecasEnxoval(apt: any): number {
+    if (!apt) return 0;
+    const keys = [
+      'enxoval_sobre_lencol_casal',
+      'enxoval_sobre_lencol_solteiro',
+      'enxoval_fronha',
+      'enxoval_toalhas',
+      'enxoval_pisos',
+      'enxoval_rostos'
+    ];
+    return keys.reduce((sum, k) => sum + (Number(apt?.[k]) || 0), 0);
   }
 }
