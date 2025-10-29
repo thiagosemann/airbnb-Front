@@ -282,6 +282,22 @@
         <hr>
         
         <div class="modal-section">
+          <!-- Accordion: Cadastrar hóspede na reserva (gestor) -->
+          <div class="accordion-section">
+            <button class="accordion-toggle btn btn-outline-primary" (click)="showCadastroAccordion = !showCadastroAccordion" [class.open]="showCadastroAccordion">
+              <div class="left">
+                <i class="fas fa-user-plus"></i>
+                <span class="label">Cadastrar hóspede na reserva</span>
+              </div>
+              <div class="right">
+                <i class="fas" [ngClass]="showCadastroAccordion ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </div>
+            </button>
+            <div class="accordion-body" *ngIf="showCadastroAccordion" style="margin-top:12px;">
+              <app-cadastro-usuario-single [cod_reserva]="selectedReservation?.cod_reserva ?? null" (closed)="onCadastroClosed($event)"></app-cadastro-usuario-single>
+            </div>
+          </div>
+
           <div class="section-header" *ngIf="hospedesReserva.length>0">
             <h5>Informações do Hóspede</h5>
             <div class="action-buttons" *ngIf="!carregandoImagem">

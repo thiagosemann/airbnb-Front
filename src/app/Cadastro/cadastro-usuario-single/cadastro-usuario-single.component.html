@@ -1,0 +1,94 @@
+<div class="modal-form">
+	<h3>{{ cod_reserva ? 'Cadastro / Check-in' : 'Cadastro de Usuário' }}</h3>
+
+	<div *ngIf="step === 1">
+		<form (ngSubmit)="goForward()">
+			<div class="form-group" *ngIf="cod_reserva">
+				<label>Código da Reserva</label>
+				<input type="text" class="form-control" [value]="cod_reserva" disabled>
+			</div>
+
+			<div class="form-group">
+				<label>Sou estrangeiro?</label>
+				<input type="checkbox" [(ngModel)]="souEstrangeiro" name="souEstrangeiro">
+			</div>
+
+					<div class="form-group">
+						<label>{{ souEstrangeiro ? 'Passaporte' : 'CPF' }}</label>
+						<ng-container *ngIf="souEstrangeiro">
+							<input type="text" class="form-control" [(ngModel)]="formData.cpf" name="cpf" placeholder="Passaporte">
+						</ng-container>
+						<ng-container *ngIf="!souEstrangeiro">
+							<input type="text" class="form-control" [(ngModel)]="formData.cpf" name="cpf" placeholder="000.000.000-00" mask="000.000.000-00">
+						</ng-container>
+					</div>
+
+			<div class="form-group">
+				<label>Nome completo</label>
+				<input type="text" class="form-control" [(ngModel)]="formData.nome" name="nome" placeholder="Nome do usuário">
+			</div>
+
+					<div class="form-group">
+						<label>Telefone</label>
+						<input type="text" class="form-control" [(ngModel)]="formData.telefone" name="telefone" placeholder="(00) 00000-0000" mask="(00) 00000-0000">
+					</div>
+
+			<div class="form-group">
+				<label>Horário previsto de chegada</label>
+				<div class="hour-list">
+					<div *ngFor="let hour of hourOptions" (click)="selectHour(hour)" [class.selected]="formData.horarioPrevistoChegada === hour" class="hour-item">{{ hour }}</div>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button class="btn btn-success" type="submit">Próximo</button>
+				<button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+			</div>
+		</form>
+	</div>
+
+	<div *ngIf="step === 2">
+			<div class="info-callout">
+				<i class="fas fa-info-circle"></i>
+				<div>
+					<p>Envie opcionalmente a selfie e/ou o documento do usuário (JPG/PNG/PDF). Ambos são opcionais para o gestor.</p>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>Selfie (JPG/PNG/PDF) — opcional</label>
+				<input type="file" accept="image/*,application/pdf" (change)="onSelfieSelected($event)" class="form-control">
+				<div class="preview" *ngIf="photoDataUrl">
+					<img *ngIf="photoDataUrl.startsWith('data:image')" [src]="photoDataUrl" alt="selfie">
+					<img *ngIf="photoDataUrl.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" alt="pdf">
+				</div>
+			</div>
+
+		<div class="form-group">
+			<label>Documento (JPG/PNG/PDF)</label>
+			<input type="file" accept="image/*,application/pdf" (change)="onFileSelected($event)" class="form-control">
+			<div class="preview" *ngIf="documentFile">
+				<img *ngIf="documentFile.startsWith('data:image')" [src]="documentFile" alt="documento">
+				<img *ngIf="documentFile.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" alt="pdf">
+			</div>
+		</div>
+
+			<!-- Placa do carro removida: não é necessária para o gestor -->
+
+		<div class="actions">
+			<button class="btn btn-success" (click)="sendData()" [disabled]="isSubmitting">{{ cod_reserva ? 'Finalizar e Check-in' : 'Cadastrar Usuário' }}</button>
+			<button class="btn btn-secondary" (click)="goBack()">Voltar</button>
+		</div>
+	</div>
+
+	<div *ngIf="step === 4" class="loading">
+		<p>Processando...</p>
+	</div>
+
+	<div *ngIf="step === 5" class="success">
+		<p>{{ cod_reserva ? 'Check-in realizado com sucesso!' : 'Usuário cadastrado com sucesso!' }}</p>
+		<div class="actions">
+			<button class="btn btn-success" (click)="closed.emit(true)">Fechar</button>
+		</div>
+	</div>
+</div>

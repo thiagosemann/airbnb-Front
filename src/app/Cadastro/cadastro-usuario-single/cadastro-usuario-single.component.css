@@ -1,0 +1,44 @@
+:host {
+	display: block;
+	font-family: 'Poppins', sans-serif;
+}
+
+.modal-form {
+	width: 100%;
+	max-width: 560px;
+	background: #fff;
+	padding: 16px;
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+	box-sizing: border-box;
+}
+
+h3 {
+	margin-top: 0;
+	color: #2e8b57;
+}
+
+.form-group { margin-bottom: 12px; }
+.form-group label { display:block; font-size:13px; margin-bottom:6px; color:#333; }
+.form-control { width:100%; padding:10px; border-radius:8px; border:1px solid #e6eef0; }
+
+.hour-list { display:flex; flex-wrap:wrap; gap:8px; }
+.hour-item { padding:6px 10px; border-radius:8px; background:#f3f8f4; cursor:pointer; border:1px solid #e8f3ea; font-size:13px }
+.hour-item.selected { background:#dff5e6; border-color:#b5efc8; color:#14532d; font-weight:600 }
+
+.info-callout { background:#f0fff4; border:1px solid #c8f5d9; padding:8px; border-radius:8px; display:flex; gap:8px; align-items:flex-start; color:#22543d }
+.preview img { max-width:80px; border-radius:8px; margin-top:8px; }
+
+.actions { display:flex; gap:8px; margin-top:12px }
+.actions .btn { flex:1; padding:10px; border-radius:8px; cursor:pointer }
+.btn-success { background:#28a745; color:#fff; border:none }
+.btn-secondary { background:#6c757d; color:#fff; border:none }
+
+.loading { text-align:center; padding:18px }
+.success { text-align:center; padding:12px }
+
+/* responsivo dentro do modal */
+@media (max-width: 480px) {
+	.modal-form { padding:12px; max-width:100%; }
+	.hour-item { font-size:12px; }
+}

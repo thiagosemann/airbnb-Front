@@ -44,6 +44,7 @@ import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-porta
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
 import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
+import { CadastroUsuarioSingleComponent } from './Cadastro/cadastro-usuario-single/cadastro-usuario-single.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/cal
     ControlePortasComponent,
     NpsLimpezaComponent,
     NpsLimpezaHospedeComponent,
-    CalendarioSemPastasComponent
+    CalendarioSemPastasComponent,
+    CadastroUsuarioSingleComponent
     ],
   imports: [
     BrowserModule,

@@ -30,6 +30,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   linkPagamento: string = '';
   credenciaisFetias: number = 0;
   earlyLoading: boolean = false;
+  // controla exibição da sanfona para cadastro rápido pelo gestor
+  showCadastroAccordion: boolean = false;
   // Datas para filtro
   dataInicio: string;
   dataFim: string;
@@ -513,6 +515,17 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
         this.toastr.error("Erro ao enviar mensagem!");
       }
     });
+  }
+
+  /** Handler chamado quando o componente de cadastro emite closed */
+  onCadastroClosed(success: boolean): void {
+    // sempre fechar a sanfona
+    this.showCadastroAccordion = false;
+    if (success && this.selectedReservation && this.selectedReservation.id) {
+      // recarregar hóspedes para a reserva (buscar novamente)
+      this.carregandoImagem = true;
+      this.getRespostasByReservaId(this.selectedReservation.id.toString(), this.selectedReservation.cod_reserva);
+    }
   }
 
 }
