@@ -100,7 +100,6 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
         next: (reservas) => {
-          console.log(reservas);
           this.todasReservas = this.tratarReservas(reservas);
           this.reservasFiltradas = [...this.todasReservas];
           this.credenciaisFetias = this.reservasFiltradas.filter(r => r.credencial_made).length;
@@ -203,7 +202,6 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.checkinFormService.getCheckinByReservaIdOrCodReserva(reserva_id, cod_reserva)
       .subscribe({
         next: (resposta) => {
-          console.log(resposta)
           this.hospedesReserva = resposta;
           this.carregandoImagem = false;
         },
@@ -497,6 +495,33 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
         }
       );
     }
+  }
+
+  /**
+   * Salva (temporariamente apenas loga) as observações da reserva.
+   * Chamado quando o textarea perde o foco.
+   */
+  saveObservacoes(): void {
+    if (!this.selectedReservation) return;
+
+    // Preparar dados: garantir datas no formato do backend
+    try {
+      this.selectedReservation.start_date = this.formatarDataBanco(this.selectedReservation.start_date);
+      this.selectedReservation.end_data = this.formatarDataBanco(this.selectedReservation.end_data);
+    } catch (e) {
+      // se algo der errado na conversão, ainda tentamos enviar
+    }
+
+    // Chamar service para atualizar a reserva com as observações
+    this.reservasAirbnbService.updateReserva(this.selectedReservation)
+      .subscribe({
+        next: () => {
+        },
+        error: (err) => {
+          console.error('Erro ao salvar observações:', err);
+          this.toastr.error('Erro ao salvar observações');
+        }
+      });
   }
 
   sendMensagemCadastroViaLink(): void {

@@ -1,0 +1,56 @@
+
+#host {
+	display: block;
+}
+
+.modal-form {
+	width: 100%;
+	max-width: 640px;
+	background: #fff;
+	padding: 18px;
+	border-radius: 12px;
+	box-shadow: 0 8px 28px rgba(16,24,40,0.08);
+	box-sizing: border-box;
+}
+
+h3 { margin-top: 0; color: #2e8b57; }
+
+.existing-list { margin-bottom: 12px; }
+.grid { display:flex; gap:12px; flex-wrap:wrap; }
+.card { width:140px; background:#fff; padding:10px; border-radius:10px; border:1px solid #eef2f6; display:flex; flex-direction:column; align-items:center; box-shadow:0 6px 14px rgba(16,24,40,0.04) }
+.thumb img { max-width:120px; max-height:90px; border-radius:8px; object-fit:cover }
+.unknown { padding:8px; background:#f7fafc; border-radius:6px }
+.meta { width:100%; margin-top:8px; display:flex; justify-content:space-between; align-items:center }
+.actions-small { display:flex; gap:8px }
+.btn-sm { padding:6px 8px; border-radius:8px; border:none; background:#1565c0; color:#fff; cursor:pointer; font-size:13px }
+.btn-sm.btn-danger { background:#d32f2f }
+
+.card .file-name { font-size:12px; color:#334155; margin-top:6px; text-align:center; }
+
+
+.upload-section .form-control { margin-top:8px; padding:10px; border-radius:10px; border:1px solid #e6eef0 }
+
+.file-input-row { display:flex; align-items:center; gap:12px }
+.file-meta { display:flex; gap:8px; align-items:center; }
+.file-name { font-size:13px; color:#0f172a; }
+.file-type.badge { background:#eef2ff; color:#1e3a8a; padding:4px 8px; border-radius:999px; font-size:12px }
+
+.preview-card { display:flex; gap:12px; align-items:center; margin-top:12px; padding:12px; border-radius:10px; background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); box-shadow: 0 8px 20px rgba(2,6,23,0.04); border:1px solid #e6eef6 }
+.preview-media img { max-width:220px; max-height:140px; border-radius:8px; object-fit:cover }
+.pdf-placeholder { display:flex; align-items:center; gap:8px }
+.pdf-placeholder img { width:72px; height:72px }
+.pdf-label { font-weight:700; color:#0f172a }
+
+.preview-actions { margin-left:auto; display:flex; gap:8px }
+.btn-outline { background:transparent; border:1px solid #cbd5e1; color:#0f172a; padding:8px 10px; border-radius:8px; cursor:pointer }
+.btn-outline:hover { background:#f8fafc }
+.btn-success { background:#16a34a; color:#fff; border:none; padding:8px 12px; border-radius:8px }
+
+@media (max-width: 480px) {
+	.modal-form { padding:12px; max-width:100%; }
+	.preview-media img { max-width:120px }
+}
+
+@media (max-width: 480px) {
+	.modal-form { padding:12px; max-width:100%; }
+}

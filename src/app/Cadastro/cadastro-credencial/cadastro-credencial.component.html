@@ -1,0 +1,49 @@
+<div class="modal-form">
+	<h3>Credenciais da Reserva</h3>
+
+	<div class="existing-list" *ngIf="existing.length > 0">
+		<label>Credenciais existentes</label>
+		<div class="grid">
+			<div class="card" *ngFor="let item of existing; let i = index">
+				<div class="thumb">
+					<img *ngIf="(item.arquivoBase64 || '').startsWith('data:image')" [src]="viewUrl(item)" alt="imagem">
+					<img *ngIf="(item.arquivoBase64 || '').startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" alt="pdf">
+					<div *ngIf="!(item.arquivoBase64 || '').startsWith('data:')" class="unknown">Arquivo</div>
+				</div>
+				<div class="meta">
+					<div class="name">ID: {{ item.id }}</div>
+					<div class="actions-small">
+						<button class="btn btn-sm" (click)="download(item)">Baixar</button>
+						<button class="btn btn-sm btn-danger" (click)="delete(item, i)">Remover</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="upload-section">
+		<label>Adicionar nova credencial</label>
+		<div class="file-input-row">
+			<input id="cred-file" type="file" accept="image/*,application/pdf" (change)="onFileChange($event)" class="form-control">
+			<div class="file-meta" *ngIf="selectedFileName">
+				<div class="file-name">{{ selectedFileName }}</div>
+				<div class="file-type badge">{{ selectedFileType }}</div>
+			</div>
+		</div>
+
+		<div class="preview-card" *ngIf="previewDataUrl">
+			<div class="preview-media">
+				<img *ngIf="previewDataUrl.startsWith('data:image')" [src]="previewDataUrl" alt="preview">
+				<div *ngIf="previewDataUrl.startsWith('data:application/pdf')" class="pdf-placeholder">
+					<img src="../../../assets/images/PDF.png" alt="pdf">
+					<div class="pdf-label">PDF</div>
+				</div>
+			</div>
+			<div class="preview-actions">
+				<button class="btn btn-success" (click)="save()" [disabled]="!previewDataUrl"><i class="fas fa-save"></i> Salvar</button>
+				<button class="btn btn-outline" (click)="clearSelection()"><i class="fas fa-times"></i> Cancelar</button>
+			</div>
+		</div>
+	</div>
+
+</div>

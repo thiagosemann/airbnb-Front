@@ -26,4 +26,6 @@ export interface ReservaAirbnb {
   telefone_principal?:string;
   placa_carro?:string;
   pagamentos:any[];
+  early_checkin?: boolean;
+  late_checkout?:boolean;
 }

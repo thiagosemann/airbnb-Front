@@ -66,7 +66,7 @@
   <div class="cards-container d-block d-lg-none" *ngIf="!carregando">
     <div class="row row-cols-1 g-3">
       <div *ngFor="let event of reservasExibidas" class="col">
-        <div class="card h-100 shadow-sm" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+        <div class="card h-100 shadow-sm" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event) || hasPaymentType('late',event) || event.early_checkin || event.late_checkout">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h6 class="card-title mb-0">{{ event.apartamento_nome }}</h6>
@@ -125,6 +125,24 @@
                          (change)="updateStatus(event, 'documentosEnviados', $event)">
                 </div>
               </div>
+              <div class="status-check-item">
+                <label class="form-check-label">Early</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox"
+                         [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin"
+                         [disabled]="hasPaymentType('early', event)"
+                         (change)="updateStatus(event, 'early_checkin', $event)">
+                </div>
+              </div>
+              <div class="status-check-item">
+                <label class="form-check-label">Late</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox"
+                         [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout"
+                         [disabled]="hasPaymentType('late', event)"
+                         (change)="updateStatus(event, 'late_checkout', $event)">
+                </div>
+              </div>
             </div>
             
             <div class="card-actions mt-3">
@@ -162,7 +180,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event)">
+  <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event) || hasPaymentType('late',event) || event.early_checkin || event.late_checkout">
         <td>{{ typeReserva(event.cod_reserva) }}</td>
         <td>
           <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
@@ -200,16 +218,18 @@
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" 
-                    [checked]="hasPaymentType('early', event)" 
-                    disabled>
+                    [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin" 
+                    [disabled]="hasPaymentType('early', event)"
+                    (change)="updateStatus(event, 'early_checkin', $event)">
             <span class="checkmark"></span>
           </label>
         </td>
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" 
-                    [checked]="hasPaymentType('late', event)" 
-                    disabled>
+                    [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout" 
+                    [disabled]="hasPaymentType('late', event)"
+                    (change)="updateStatus(event, 'late_checkout', $event)">
             <span class="checkmark"></span>
           </label>
         </td>
@@ -279,8 +299,23 @@
             </ng-container>
           </div>
         </div>
-        <hr>
         
+        <!-- Observações da reserva: campo adicionado antes do cadastro de hóspede -->
+        <div class="modal-section">
+          <h5>Observações</h5>
+             <div class="modal-item" style="width:100%">
+                <textarea class="form-control" rows="3" [(ngModel)]="selectedReservation!.Observacoes" (blur)="saveObservacoes()" placeholder="Escreva uma observação..."></textarea>
+            </div>
+        </div>
+
+        <!-- Cadastro de credenciais: mostrado entre Observações e a sanfona de cadastro de hóspedes -->
+        <div class="modal-section" *ngIf="selectedReservation">
+          <h5>Credenciais da Reserva</h5>
+          <app-cadastro-credencial [reserva_id]="selectedReservation.id" [cod_reserva]="selectedReservation.cod_reserva"></app-cadastro-credencial>
+        </div>
+
+        <hr>
+
         <div class="modal-section">
           <!-- Accordion: Cadastrar hóspede na reserva (gestor) -->
           <div class="accordion-section">
