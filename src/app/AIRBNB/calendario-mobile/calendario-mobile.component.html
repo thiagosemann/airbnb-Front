@@ -1,0 +1,105 @@
+<div class="mobile-calendar-wrapper" *ngIf="!loading">
+	<!-- Tooltip Mobile -->
+	<div class="day-tooltip" *ngIf="showDayTooltip" [style.left.px]="tooltipPosition.x" [style.top.px]="tooltipPosition.y">
+		<div class="tooltip-content">
+			<div class="tooltip-row"><span class="tooltip-label">Check-ins:</span><span class="tooltip-value">{{ dayStats.checkins }}</span></div>
+			<div class="tooltip-row"><span class="tooltip-label">Check-outs:</span><span class="tooltip-value">{{ dayStats.checkouts }}</span></div>
+		</div>
+	</div>
+
+	<!-- HEADER / CONTROLES -->
+	<header class="mobile-header">
+		<div class="month-nav">
+			<button class="nav-btn" (click)="changeMonth(-1)">‹</button>
+			<div class="month-title">{{ currentMonth | titlecase }} {{ currentYear }}</div>
+			<button class="nav-btn" (click)="changeMonth(1)">›</button>
+		</div>
+		<div class="filters">
+			<input type="text" class="search-input" placeholder="Buscar apt" [(ngModel)]="searchTerm" (input)="filterApartments()" />
+			<label class="chk-inline">
+				<input type="checkbox" [(ngModel)]="showOnlyAvailable" (change)="filterApartments()" /> Disp.
+			</label>
+			<div class="date-range">
+				<input type="date" [(ngModel)]="dataInicio" (change)="onDateChange()" />
+				<input type="date" [(ngModel)]="dataFim" (change)="onDateChange()" />
+			</div>
+			<div class="view-switch">
+				<button class="switch-btn" [class.active]="viewMode==='global'" (click)="setViewMode('global')">Global</button>
+				<button class="switch-btn" [class.active]="viewMode==='detail'" (click)="setViewMode('detail')" [disabled]="!selectedApartment">Detalhe</button>
+			</div>
+		</div>
+		<div class="occupancy-mini" *ngIf="viewMode==='global'">
+			<div class="occ-item">
+				<span class="occ-label">Reservados</span>
+				<span class="occ-value">{{ totalDiasReservados }}</span>
+			</div>
+			<div class="occ-item">
+				<span class="occ-label">Total</span>
+				<span class="occ-value">{{ totalDiasDisponiveis }}</span>
+			</div>
+			<div class="occ-item">
+				<span class="occ-label">Taxa</span>
+				<span class="occ-value">{{ taxaOcupacao | percent: '1.0-0' }}</span>
+			</div>
+		</div>
+	</header>
+
+	<!-- VISÃO GLOBAL MOBILE -->
+	<section class="global-view-mobile" *ngIf="viewMode==='global'">
+		<div class="apartment-list">
+			<div class="apartment-block" *ngFor="let apt of filteredApartments; trackBy: trackByApartmentId" (click)="selectApartment(apt.id)">
+				<div class="apt-header" [class.selected]="apt.id===selectedApartmentId">
+					<div class="apt-color" [style.background]="apt.color"></div>
+					<div class="apt-name">{{ getCompactName(apt.name) }}</div>
+				</div>
+				<div class="days-row" (mouseleave)="hideDayTooltip()">
+					<div class="day-cell" *ngFor="let day of daysInMonthRange; trackBy: trackByDay" [class.today]="isToday(day)" (mouseenter)="showDayTooltipAt($event, day)">
+						<div class="markers">
+							<ng-container [ngSwitch]="getDayType(apt, day)">
+								<div *ngSwitchCase="'inAir'" class="marker half right airbnb"></div>
+								<div *ngSwitchCase="'inBook'" class="marker half right booking"></div>
+								<div *ngSwitchCase="'outAir'" class="marker half left airbnb"></div>
+								<div *ngSwitchCase="'outBook'" class="marker half left booking"></div>
+								<div *ngSwitchCase="'air'" class="marker full airbnb"></div>
+								<div *ngSwitchCase="'book'" class="marker full booking"></div>
+								<div *ngSwitchCase="'inOutAir'" class="marker duo airbnb"></div>
+								<div *ngSwitchCase="'inOutBook'" class="marker duo booking"></div>
+								<div *ngSwitchCase="'inAirOutBook'" class="marker duo mix-air-book"></div>
+								<div *ngSwitchCase="'inBookOutAir'" class="marker duo mix-book-air"></div>
+							</ng-container>
+						</div>
+						<div class="day-num">{{ day.getDate() }}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- VISÃO DETALHADA MOBILE -->
+	<section class="detail-view-mobile" *ngIf="viewMode==='detail' && selectedApartment">
+		<div class="detail-header-mobile">
+			<button class="back-btn" (click)="setViewMode('global')">←</button>
+			<div class="detail-title">
+				<div class="apt-color" [style.background]="selectedApartment.color"></div>
+				<span>{{ getCompactName(selectedApartment.name) }}</span>
+			</div>
+		</div>
+		<div class="detail-grid">
+			<div class="weekday" *ngFor="let w of weekDays">{{ w }}</div>
+			<div class="detail-day" *ngFor="let d of calendarDays" [class.outside]="!d.isCurrentMonth" [class.today]="isToday(d.date)">
+				<span class="dnum">{{ d.date.getDate() }}</span>
+				<div class="events">
+					<div class="event" *ngFor="let ev of d.events" [class.ev-airbnb]="ev.source==='airbnb'" [class.ev-booking]="ev.source!=='airbnb'">
+						{{ ev.cod_reserva }}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="legend-mobile">
+			<div class="lg-item"><span class="lg-dot booking"></span>Booking</div>
+			<div class="lg-item"><span class="lg-dot airbnb"></span>Airbnb</div>
+		</div>
+	</section>
+</div>
+
+<div class="loading-state" *ngIf="loading">Carregando calendário...</div>

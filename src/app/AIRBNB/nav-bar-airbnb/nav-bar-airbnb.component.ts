@@ -47,6 +47,9 @@ export class NavBarAirbnbComponent {
   calendarioSemPasta(): void {
     this.router.navigate(['/calendarioSemPasta']);
   }
+  calendarioMobile(): void {
+    this.router.navigate(['/calendarioMobile']);
+  }
   cadastroPredio(): void {
     this.router.navigate(['/cadastroPredio']);
   }
@@ -87,6 +90,9 @@ export class NavBarAirbnbComponent {
 
   cadastroPortarias():void{
     this.router.navigate(['/cadastroPortaria']);
+  }
+  migrarIcal():void{
+    this.router.navigate(['/migrarIcal']);
   }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

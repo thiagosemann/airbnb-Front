@@ -46,6 +46,8 @@ import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-lim
 import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
 import { CadastroUsuarioSingleComponent } from './Cadastro/cadastro-usuario-single/cadastro-usuario-single.component';
 import { CadastroCredencialComponent } from './Cadastro/cadastro-credencial/cadastro-credencial.component';
+import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
+import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 
 @NgModule({
   declarations: [
@@ -83,7 +85,9 @@ import { CadastroCredencialComponent } from './Cadastro/cadastro-credencial/cada
     NpsLimpezaHospedeComponent,
     CalendarioSemPastasComponent,
     CadastroUsuarioSingleComponent,
-    CadastroCredencialComponent
+    CadastroCredencialComponent,
+    MigrarICALComponent,
+    CalendarioMobileComponent
     ],
   imports: [
     BrowserModule,

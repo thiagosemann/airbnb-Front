@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
 
   navBarAirbnb: string[] = [
     'calendarioAirbnb',
+    'calendarioMobile',
     'calendario',
     'calendarioSemPasta',
     'cadastroPredio',
@@ -42,7 +43,8 @@ export class AppComponent implements OnInit {
     'relatoriosGanhos',
     'profile',
     'controleNodeMcuPortas',
-    'nps-limpeza'
+    'nps-limpeza',
+    'migrarIcal'
   ];
 
   ngOnInit() {

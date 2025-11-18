@@ -33,6 +33,8 @@ import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-porta
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
 import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
+import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
+import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 
 
 const routes: Routes = [
@@ -51,8 +53,10 @@ const routes: Routes = [
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendarioMobile', component: CalendarioMobileComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
   { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
+  { path: 'calendarioDetalhadoMobile/:cod', component: CalendarioMobileComponent },
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
@@ -64,6 +68,9 @@ const routes: Routes = [
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'terceirizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
+  
+  { path: 'migrarIcal', component: MigrarICALComponent, canActivate: [AuthGuardService],data: { role: 'admin'} },
+
 
   { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },

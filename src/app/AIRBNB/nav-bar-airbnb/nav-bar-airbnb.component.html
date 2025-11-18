@@ -44,6 +44,8 @@
                 <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
                 <li><a class="dropdown-item" (click)="cadastroApartamento()">Apartamentos</a></li>
                 <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+                <li><a class="dropdown-item" (click)="migrarIcal()">Migrar</a></li>
+                
               </ul>
             </div>
             <button class="navbar-perfil-btn" (click)="profile()"><i class="fas fa-user"></i> Perfil</button>
@@ -58,6 +60,8 @@
                 <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
                 <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
                 <li><a class="dropdown-item" (click)="calendarioSemPasta()">Calendário Sem Pasta</a></li>
+                <li><a class="dropdown-item" (click)="calendarioMobile()">Calendário Mobile</a></li>
+
               </ul>
           </div>
            <!-- Faxinas -->
@@ -104,6 +108,7 @@
               <li><a class="dropdown-item" (click)="cadastroProprietarios()">Proprietários</a></li>
               <li><a class="dropdown-item" (click)="cadastroPortarias()">Portarias</a></li>
               <li><a class="dropdown-item" (click)="cadastroUsuario()">Usuários</a></li>
+              <li><a class="dropdown-item" (click)="migrarIcal()">Migrar Ical</a></li>
             </ul>
           </div>
 
@@ -156,6 +161,7 @@
               <button (click)="cadastroPredio(); toggleMenu()">Prédios</button>
               <button (click)="cadastroApartamento(); toggleMenu()">Apartamentos</button>
               <button (click)="cadastroUsuario(); toggleMenu()">Usuários</button>
+              <button (click)="migrarIcal(); toggleMenu()">Migrar Ical</button>
             </div>
           </div>
         </ng-container>
@@ -163,7 +169,8 @@
           <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-calendar-day"></i> Diário</button>
           <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-calendar-alt"></i> Calendário</button>
           <button (click)="calendarioSemPasta(); toggleMenu()"><i class="fas fa-calendar"></i> Calendário Sem Pasta</button>
-          
+          <button (click)="calendarioMobile(); toggleMenu()"><i class="fas fa-calendar"></i> Calendário Mobile</button>
+
           <!-- Dropdown para Faxinas -->
           <div class="mobile-dropdown" [class.active]="mobileDropdowns['faxinas']">
             <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('faxinas')">
@@ -209,6 +216,7 @@
               <button (click)="cadastroProprietarios(); toggleMenu()">Proprietários</button>
               <button (click)="cadastroPortarias(); toggleMenu()">Portarias</button>
               <button (click)="cadastroUsuario(); toggleMenu()">Usuários</button>
+              <button (click)="migrarIcal(); toggleMenu()">Migrar Ical</button>
             </div>
           </div>
           
