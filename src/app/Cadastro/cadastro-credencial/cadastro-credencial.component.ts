@@ -9,6 +9,7 @@ import { CredencialReserva } from '../../shared/utilitarios/credencialReserva';
   templateUrl: './cadastro-credencial.component.html',
   styleUrls: ['./cadastro-credencial.component.css']
 })
+
 export class CadastroCredencialComponent implements OnInit {
   @Input() reserva_id?: number; // obrigatório para cadastrar (recebido via input)
   @Input() cod_reserva?: string; // opcional
@@ -16,10 +17,13 @@ export class CadastroCredencialComponent implements OnInit {
   existing: CredencialReserva[] = [];
   isLoading = false;
 
-  // Preview / upload
-  selectedFileName: string | null = null;
-  previewDataUrl: string | null = null; // data:*;base64,...
-  selectedFileType: string | null = null;
+  // Estado de múltiplos uploads automáticos
+  uploadingCount = 0;
+
+  // Modal de exclusão
+  showDeleteModal = false;
+  deleteTarget: CredencialReserva | null = null;
+  deleteIndex: number | null = null;
 
   constructor(
     private service: CredenciaisReservaService,
@@ -48,66 +52,52 @@ export class CadastroCredencialComponent implements OnInit {
   }
 
   onFileChange(event: any) {
-    const file: File | undefined = event.target.files?.[0];
-    if (!file) return;
-    const maxSize = 8 * 1024 * 1024; // 8MB
-    const isImage = file.type.startsWith('image/');
-    const isPdf = file.type === 'application/pdf';
-    if (!isImage && !isPdf) { this.toastr.warning('Envie uma imagem (JPG/PNG) ou PDF.'); return; }
-    if (file.size > maxSize) { this.toastr.warning('Arquivo maior que 8MB.'); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      // manter como data URI para preview e envio
-      this.previewDataUrl = result;
-      this.selectedFileName = file.name;
-      this.selectedFileType = file.type;
-      this.toastr.success('Arquivo selecionado.');
-    };
-    reader.onerror = () => this.toastr.error('Erro ao ler arquivo.');
-    reader.readAsDataURL(file);
-  }
-
-  save() {
     if (!this.reserva_id) { this.toastr.warning('Reserva não informada.'); return; }
-    if (!this.previewDataUrl) { this.toastr.warning('Selecione um arquivo antes de salvar.'); return; }
-    this.isLoading = true;
-    // armazenar como data URI (mantemos tipo para facilitar preview posterior)
-    const arquivoBase64 = this.previewDataUrl; // já é data:...;base64,...
-    const payload = {
-      reserva_id: this.reserva_id,
-      cod_reserva: this.cod_reserva ?? '',
-      arquivoBase64
+    const files: FileList | undefined = event.target.files;
+    if (!files || files.length === 0) return;
+    const maxSize = 8 * 1024 * 1024; // 8MB
+    this.uploadingCount = 0;
+    let validCount = 0;
+
+    const processFile = (file: File, dataUrl: string) => {
+      const arquivoBase64 = dataUrl; // já data URI
+      const payload = { reserva_id: this.reserva_id!, cod_reserva: this.cod_reserva ?? '', arquivoBase64 };
+      this.uploadingCount++;
+      this.service.createCredencial(payload).subscribe({
+        next: () => {
+          this.uploadingCount--;
+          if (this.uploadingCount === 0) {
+            this.toastr.success(validCount > 1 ? 'Arquivos enviados.' : 'Arquivo enviado.');
+            this.loadExisting();
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.uploadingCount--;
+          this.toastr.error(`Falha ao enviar ${file.name}`);
+        }
+      });
     };
-    this.service.createCredencial(payload).subscribe({
-      next: (resp) => {
-        this.toastr.success('Credencial salva.');
-        this.previewDataUrl = null;
-        this.selectedFileName = null;
-        this.selectedFileType = null;
-        this.loadExisting();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Erro ao salvar credencial:', err);
-        this.toastr.error('Erro ao salvar credencial.');
-        this.isLoading = false;
-      }
+
+    Array.from(files).forEach(file => {
+      const isImage = file.type.startsWith('image/');
+      const isPdf = file.type === 'application/pdf';
+      if (!isImage && !isPdf) { this.toastr.warning(`${file.name}: formato inválido (use JPG/PNG ou PDF).`); return; }
+      if (file.size > maxSize) { this.toastr.warning(`${file.name}: maior que 8MB.`); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        validCount++;
+        processFile(file, result);
+      };
+      reader.onerror = () => this.toastr.error(`Erro ao ler arquivo: ${file.name}`);
+      reader.readAsDataURL(file);
     });
+
+    try { (document.getElementById('cred-file') as HTMLInputElement).value = ''; } catch {}
   }
 
-  clearSelection() {
-    this.previewDataUrl = null;
-    this.selectedFileName = null;
-    this.selectedFileType = null;
-    // also clear the file input element if present
-    try {
-      const input = (document.getElementById('cred-file') as HTMLInputElement | null);
-      if (input) input.value = '';
-    } catch (e) {
-      // noop
-    }
-  }
+  // Métodos de pendentes removidos (upload agora automático)
 
   viewUrl(item: CredencialReserva): SafeResourceUrl | string {
     if (!item.arquivoBase64) return '';
@@ -145,12 +135,29 @@ export class CadastroCredencialComponent implements OnInit {
     URL.revokeObjectURL(link.href);
   }
 
-  delete(item: CredencialReserva, index: number) {
+  openDelete(item: CredencialReserva, index: number) {
     if (!item.id) return;
-    if (!confirm('Confirma a exclusão desta credencial?')) return;
-    this.service.deleteById(item.id).subscribe({
+    this.deleteTarget = item;
+    this.deleteIndex = index;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.deleteTarget = null;
+    this.deleteIndex = null;
+  }
+
+  confirmDelete() {
+    if (!this.deleteTarget || this.deleteIndex === null) return;
+    const toDelete = this.deleteTarget;
+    const idx = this.deleteIndex;
+    this.showDeleteModal = false;
+    this.deleteTarget = null;
+    this.deleteIndex = null;
+    this.service.deleteById(toDelete.id!).subscribe({
       next: () => {
-        this.existing.splice(index, 1);
+        this.existing.splice(idx, 1);
         this.existing = [...this.existing];
         this.toastr.success('Credencial removida.');
       },

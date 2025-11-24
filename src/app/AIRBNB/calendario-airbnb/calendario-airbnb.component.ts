@@ -30,6 +30,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   linkPagamento: string = '';
   credenciaisFetias: number = 0;
   earlyLoading: boolean = false;
+  // estado de envio do link de formulário de check-in
+  sendLinkLoading: boolean = false;
   // controla exibição da sanfona para cadastro rápido pelo gestor
   showCadastroAccordion: boolean = false;
   // Datas para filtro
@@ -528,18 +530,27 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     if (!this.selectedReservation) {
       return;
     }
-    if(!this.selectedReservation.id){
-      return
+    if (!this.selectedReservation.id) {
+      return;
     }
+    this.sendLinkLoading = true;
     this.cadastroMensagemViaLinkService.enviarMensagemCadastro(this.selectedReservation.id).subscribe({
       next: () => {
         this.toastr.success("Mensagem enviada com sucesso!");
+        this.sendLinkLoading = false;
       },
       error: (error) => {
         console.error('Falha ao solicitar envio:', error);
         this.toastr.error("Erro ao enviar mensagem!");
+        this.sendLinkLoading = false;
       }
     });
+  }
+
+  get telefoneValido(): boolean {
+    if (!this.selectedReservation?.telefone_principal) return false;
+    const digits = this.selectedReservation.telefone_principal.replace(/\D/g,'');
+    return digits.length === 11;
   }
 
   /** Handler chamado quando o componente de cadastro emite closed */

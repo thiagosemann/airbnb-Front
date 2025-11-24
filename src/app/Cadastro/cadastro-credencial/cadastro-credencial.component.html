@@ -1,47 +1,54 @@
 <div class="modal-form">
-	<h3>Credenciais da Reserva</h3>
+	<!-- Área de adicionar (primeiro) -->
+		<div class="upload-wrapper minimal">
+				<button type="button" class="btn-add-min" (click)="fileInput.click()" [disabled]="uploadingCount > 0">
+					<i class="fa fa-plus"></i>
+					<span *ngIf="uploadingCount === 0">Adicionar credenciais</span>
+					<span *ngIf="uploadingCount > 0">Enviando ({{ uploadingCount }})...</span>
+				</button>
+			<input #fileInput id="cred-file" type="file" multiple accept="image/*,application/pdf" (change)="onFileChange($event)" hidden>
+		</div>
 
+		<!-- Seção de pendentes removida: uploads automáticos -->
+
+	<!-- Existentes -->
 	<div class="existing-list" *ngIf="existing.length > 0">
-		<label>Credenciais existentes</label>
 		<div class="grid">
 			<div class="card" *ngFor="let item of existing; let i = index">
 				<div class="thumb">
-					<img *ngIf="(item.arquivoBase64 || '').startsWith('data:image')" [src]="viewUrl(item)" alt="imagem">
+					<img *ngIf="(item.arquivoBase64 || '').startsWith('data:image')" [src]="viewUrl(item)" alt="credencial">
 					<img *ngIf="(item.arquivoBase64 || '').startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" alt="pdf">
 					<div *ngIf="!(item.arquivoBase64 || '').startsWith('data:')" class="unknown">Arquivo</div>
 				</div>
-				<div class="meta">
-					<div class="name">ID: {{ item.id }}</div>
+				<div class="meta no-label">
 					<div class="actions-small">
-						<button class="btn btn-sm" (click)="download(item)">Baixar</button>
-						<button class="btn btn-sm btn-danger" (click)="delete(item, i)">Remover</button>
+						<button class="icon-btn primary" (click)="download(item)" title="Baixar">
+							<i class="fa-solid fa-download"></i>
+						</button>
+						<button class="icon-btn danger" (click)="openDelete(item, i)" title="Remover">
+							<i class="fa-solid fa-trash"></i>
+						</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="upload-section">
-		<label>Adicionar nova credencial</label>
-		<div class="file-input-row">
-			<input id="cred-file" type="file" accept="image/*,application/pdf" (change)="onFileChange($event)" class="form-control">
-			<div class="file-meta" *ngIf="selectedFileName">
-				<div class="file-name">{{ selectedFileName }}</div>
-				<div class="file-type badge">{{ selectedFileType }}</div>
+	<!-- Modal de confirmação de exclusão -->
+	<div class="cred-modal-backdrop" *ngIf="showDeleteModal">
+		<div class="cred-modal" role="dialog" aria-modal="true" aria-labelledby="credModalTitle">
+			<div class="cred-modal-header">
+				<h5 id="credModalTitle"><i class="fa-solid fa-triangle-exclamation text-warn"></i> Confirmar exclusão</h5>
+				<button class="close-btn" (click)="cancelDelete()" aria-label="Fechar">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
 			</div>
-		</div>
-
-		<div class="preview-card" *ngIf="previewDataUrl">
-			<div class="preview-media">
-				<img *ngIf="previewDataUrl.startsWith('data:image')" [src]="previewDataUrl" alt="preview">
-				<div *ngIf="previewDataUrl.startsWith('data:application/pdf')" class="pdf-placeholder">
-					<img src="../../../assets/images/PDF.png" alt="pdf">
-					<div class="pdf-label">PDF</div>
-				</div>
+			<div class="cred-modal-body">
+				<p>Tem certeza que deseja remover esta credencial? Esta ação não pode ser desfeita.</p>
 			</div>
-			<div class="preview-actions">
-				<button class="btn btn-success" (click)="save()" [disabled]="!previewDataUrl"><i class="fas fa-save"></i> Salvar</button>
-				<button class="btn btn-outline" (click)="clearSelection()"><i class="fas fa-times"></i> Cancelar</button>
+			<div class="cred-modal-footer">
+				<button class="modal-btn secondary" (click)="cancelDelete()"><i class="fa-solid fa-arrow-left"></i> Cancelar</button>
+				<button class="modal-btn danger" (click)="confirmDelete()"><i class="fa-solid fa-trash"></i> Remover</button>
 			</div>
 		</div>
 	</div>

@@ -1,5 +1,5 @@
-<div class="calendar-container">
-  <header class="calendar-header">
+<div class="calendar-container panel-scope">
+  <header class="calendar-header panel-base header-panel">
     <div class="header-row">
       <div class="header-left">
         <h5>
@@ -63,7 +63,7 @@
   </div>
 
   <!-- Cards para mobile -->
-  <div class="cards-container d-block d-lg-none" *ngIf="!carregando">
+  <div class="cards-container panel-base d-block d-lg-none" *ngIf="!carregando">
     <div class="row row-cols-1 g-3">
       <div *ngFor="let event of reservasExibidas" class="col">
         <div class="card h-100 shadow-sm" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event) || hasPaymentType('late',event) || event.early_checkin || event.late_checkout">
@@ -160,7 +160,7 @@
   </div>
 
   <!-- Tabela para desktop -->
-  <table class="calendar-table d-none d-lg-table" *ngIf="!carregando">
+  <table class="calendar-table panel-base d-none d-lg-table" *ngIf="!carregando">
     <thead>
       <tr>
         <th style="width: 6%;">Site</th>
@@ -168,8 +168,8 @@
         <th style="width: 13%;">Código</th>
         <th style="width: 8%;">Início</th>
         <th style="width: 8%;">Fim</th>
-  <th style="width: 8%;">Check-In</th>
-  <th style="width: 8%;">Previsto</th>
+        <th style="width: 8%;">Check-In</th>
+        <th style="width: 8%;">Previsto</th>
         <th style="width: 8%;">Hóspedes</th>
         <th style="width: 8%;">Credencial</th>
         <th style="width: 8%;">Informado</th>
@@ -254,8 +254,13 @@
       </div>
 
       <div class="modal-body">
-        <div class="modal-section">
-          <h5>Informações da Reserva</h5>
+        <div class="modal-section panel-base" role="group" aria-labelledby="infoReservaTitle">
+          <div class="panel-header compact">
+            <div class="icon-circle small"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="panel-titles">
+              <h5 id="infoReservaTitle">Informações da Reserva</h5>
+            </div>
+          </div>
           <div class="modal-grid">
             <div class="modal-item">
               <label>Data de Início</label>
@@ -281,16 +286,6 @@
               <label>Check-Out</label>
               <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_out" (change)="updateTime()">
             </div>
-            <div class="modal-item">
-              <label>Telefone Da Reserva</label>
-              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()" mask="(00) 00000-0000">
-            </div>
-            <div class="modal-item">
-              <label>Enviar</label>
-              <button class="btn btn-primary" (click)="sendMensagemCadastroViaLink()">
-                 Enviar  
-              </button>
-            </div>
             <ng-container *ngIf="selectedReservation!.placa_carro">
               <div class="modal-item">
                 <label>Placa do Carro</label>
@@ -299,24 +294,67 @@
             </ng-container>
           </div>
         </div>
-        
-        <!-- Observações da reserva: campo adicionado antes do cadastro de hóspede -->
-        <div class="modal-section">
-          <h5>Observações</h5>
-             <div class="modal-item" style="width:100%">
-                <textarea class="form-control" rows="3" [(ngModel)]="selectedReservation!.Observacoes" (blur)="saveObservacoes()" placeholder="Escreva uma observação..."></textarea>
+        <!-- Enviar link para o hóspede responder o formulário de checkin -->
+        <div class="modal-section checkin-link-panel" role="group" aria-labelledby="checkinLinkTitle">
+          <div class="panel-header">
+            <div class="icon-circle"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="panel-titles">
+              <h5 id="checkinLinkTitle">Formulário de Check-in</h5>
+              <p class="subtitle">Envie o link para o hóspede preencher os dados antes da chegada.</p>
             </div>
+          </div>
+          <div class="panel-body">
+            <div class="modal-item phone-field">
+              <label for="telefoneReserva">Telefone da Reserva</label>
+              <div class="input-wrapper" [class.invalid]="!telefoneValido && selectedReservation?.telefone_principal">
+                <i class="fa-solid fa-phone input-icon"></i>
+                <input id="telefoneReserva" type="text" class="form-control" [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()" mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+                <button type="button" class="inline-btn" (click)="updateTelefone()" [disabled]="!telefoneValido">
+                  <i class="fa-regular fa-floppy-disk"></i>
+                </button>
+              </div>
+              <div class="field-hint" *ngIf="!telefoneValido">Informe o telefone completo com DDD e 11 dígitos.</div>
+            </div>
+            <div class="actions-row">
+              <button class="btn-send-link" (click)="sendMensagemCadastroViaLink()" [disabled]="!telefoneValido || sendLinkLoading">
+                <ng-container *ngIf="!sendLinkLoading">
+                  <i class="fa-solid fa-link"></i> Enviar link
+                </ng-container>
+                <ng-container *ngIf="sendLinkLoading">
+                  <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+                </ng-container>
+              </button>
+            </div>
+          </div>
         </div>
+        <!-- Observações da reserva: campo adicionado antes do cadastro de hóspede -->
+        <div class="modal-section panel-base" role="group" aria-labelledby="observacoesTitle">
+          <div class="panel-header compact">
+            <div class="icon-circle small warn"><i class="fa-solid fa-pen-to-square"></i></div>
+            <div class="panel-titles">
+              <h5 id="observacoesTitle">Observações</h5>
+            </div>
+          </div>
+          <div class="modal-item full-width">
+            <textarea class="form-control obs-textarea" rows="3" [(ngModel)]="selectedReservation!.Observacoes" (blur)="saveObservacoes()" placeholder="Escreva uma observação..."></textarea>
+          </div>
+        </div>
+        <hr>
 
         <!-- Cadastro de credenciais: mostrado entre Observações e a sanfona de cadastro de hóspedes -->
-        <div class="modal-section" *ngIf="selectedReservation">
-          <h5>Credenciais da Reserva</h5>
+        <div class="modal-section panel-base" *ngIf="selectedReservation" role="group" aria-labelledby="credenciaisTitle">
+          <div class="panel-header compact">
+            <div class="icon-circle small accent"><i class="fa-solid fa-id-card"></i></div>
+            <div class="panel-titles">
+              <h5 id="credenciaisTitle">Credenciais da Reserva</h5>
+            </div>
+          </div>
           <app-cadastro-credencial [reserva_id]="selectedReservation.id" [cod_reserva]="selectedReservation.cod_reserva"></app-cadastro-credencial>
         </div>
 
         <hr>
 
-        <div class="modal-section">
+        <div class="modal-section panel-base" role="group" aria-labelledby="hospedesTitle">
           <!-- Accordion: Cadastrar hóspede na reserva (gestor) -->
           <div class="accordion-section">
             <button class="accordion-toggle btn btn-outline-primary" (click)="showCadastroAccordion = !showCadastroAccordion" [class.open]="showCadastroAccordion">
@@ -334,7 +372,10 @@
           </div>
 
           <div class="section-header" *ngIf="hospedesReserva.length>0">
-            <h5>Informações do Hóspede</h5>
+            <div class="panel-header compact no-bg">
+              <div class="icon-circle tiny users"><i class="fa-solid fa-users"></i></div>
+              <div class="panel-titles"><h5 id="hospedesTitle">Informações do Hóspede</h5></div>
+            </div>
             <div class="action-buttons" *ngIf="!carregandoImagem">
               <button class="btn btn-primary" (click)="exportData()">
                 <i class="fas fa-file-export"></i> Download Tudo
