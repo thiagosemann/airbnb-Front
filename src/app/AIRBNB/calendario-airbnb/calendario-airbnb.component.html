@@ -246,10 +246,11 @@
   </table>
 </div>
   <!-- Modal -->
-  <div class="modal" *ngIf="showModal">
-    <div class="modal-content">
+  <div class="modal enhanced-modal" *ngIf="showModal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" (click)="closeModal()" aria-hidden="true"></div>
+    <div class="modal-content modal-surface" tabindex="-1">
       <div class="modal-header">
-        <h3>Reserva para o apartamento {{selectedReservation?.apartamento_nome}}</h3>
+        <h3>{{selectedReservation?.apartamento_nome}} - ({{selectedReservation?.cod_reserva}})</h3>
         <button class="close-btn" (click)="closeModal()">×</button>
       </div>
 
