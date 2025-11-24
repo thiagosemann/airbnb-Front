@@ -163,20 +163,20 @@
   <table class="calendar-table panel-base d-none d-lg-table" *ngIf="!carregando">
     <thead>
       <tr>
-        <th style="width: 6%;">Site</th>
-        <th style="width: 6%;">Apt</th>
-        <th style="width: 13%;">Código</th>
-        <th style="width: 8%;">Início</th>
-        <th style="width: 8%;">Fim</th>
-        <th style="width: 8%;">Check-In</th>
-        <th style="width: 8%;">Previsto</th>
-        <th style="width: 8%;">Hóspedes</th>
-        <th style="width: 8%;">Credencial</th>
-        <th style="width: 8%;">Informado</th>
-        <th style="width: 6%;">Docs</th>
-        <th style="width: 6%;">Early</th>
-        <th style="width: 6%;">Late</th>
-        <th style="width: 9%;">Ações</th>
+        <th style="width: 7%;">Site</th>
+        <th style="width: 7%;">Apt</th>
+        <th style="width: 7%;">Código</th>
+        <th style="width: 7%;">Fim</th>
+        <th style="width: 7%;">Check-In</th>
+        <th style="width: 7%;">Previsto</th>
+        <th style="width: 7%;">Hóspedes</th>
+        <th style="width: 5%;">Credencial</th>
+        <th style="width: 5%;">Informado</th>
+        <th style="width: 5%;">Docs</th>
+        <th style="width: 5%;">Early</th>
+        <th style="width: 5%;">Late</th>
+        <th style="width: 21%;">Observações</th>
+        <th style="width: 5%;">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -186,10 +186,13 @@
           <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
         </td>
         <td>{{ event.cod_reserva }}</td>
-        <td>{{ formatarData(event.start_date) }}</td>
         <td>{{ formatarData(event.end_data) }}</td>
-  <td>{{ event.check_in }}</td>
-  <td>{{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}</td>
+        <td>
+          <span class="time-badge" [class.time-green]="event.check_in === '15:00'" [class.time-red]="event.check_in && event.check_in !== '15:00'">{{ event.check_in || '-' }}</span>
+        </td>
+        <td>
+          <span class="time-badge" [class.time-green]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) === '15:00'" [class.time-red]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) !== '15:00'">{{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}</span>
+        </td>
         <td>{{ event.qtd_hospedes }}</td>
         <td>
           <label class="custom-checkbox">
@@ -233,6 +236,7 @@
             <span class="checkmark"></span>
           </label>
         </td>
+        <td class="obs-col" [title]="event.Observacoes || '-'">{{ (event.Observacoes || '-') }}</td>
         <td>
           <button class="btn btn-action" (click)="openModal(event)">
             <i class="fas fa-plus"></i> Mais 

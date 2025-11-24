@@ -294,3 +294,23 @@ input[type="date"]:focus {
   .panel-titles h5 { font-size:14px; }
 }
 
+/* Badges de horário Check-In / Previsto */
+.time-badge {
+  display: inline-block;
+  min-width: 62px;
+  padding: 4px 10px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  letter-spacing: .5px;
+  text-align: center;
+  background: #e2e8f0; /* fallback neutro */
+  color: #334155;
+  user-select: none;
+}
+.time-green { background:#00a699; color:#fff; box-shadow:0 0 0 1px rgba(0,166,153,.25), 0 4px 10px -2px rgba(0,166,153,.4); }
+.time-red { background:#d92d3a; color:#fff; box-shadow:0 0 0 1px rgba(217,45,58,.25), 0 4px 10px -2px rgba(217,45,58,.4); }
+.time-badge.time-green:hover { filter:brightness(1.05); }
+.time-badge.time-red:hover { filter:brightness(1.07); }
+
