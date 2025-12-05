@@ -3,13 +3,14 @@
     <div class="header-row">
       <div class="header-left">
         <h5>
-          <i class="fas fa-calendar-alt"></i> Checkins
+          <i class="fas fa-calendar-alt"></i> Checkouts
         </h5>
       </div>
       
       <div class="header-center">
         <div class="filtro-controles">
           <div class="filter-buttons">
+            <span class="btn filtro-btn" style="cursor: default; opacity: 0.85;">Checkouts</span>
             <button class="btn filtro-btn" (click)="setPeriodoHoje()">
               <i class="fas fa-sun"></i> Hoje
             </button>
@@ -48,10 +49,6 @@
           <div class="status-item total">
             <i class="fas fa-list"></i>
             <span>Total: {{ reservasFiltradas.length }}</span>
-          </div>
-          <div class="status-item credenciais">
-            <i class="fas fa-key"></i>
-            <span>Credenciais: {{ credenciaisFetias }}</span>
           </div>
         </div>
       </div>
@@ -94,8 +91,7 @@
               <div class="info-item">
                 <i class="fas fa-door-open"></i>
                 <span>
-                  Check-in: {{ event.check_in }}
-                  | Previsto: {{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}
+                  Check-out: {{ event.check_out || '-' }}
                 </span>
               </div>
             </div>
@@ -167,20 +163,16 @@
         <th style="width: 7%;">Apt</th>
         <th style="width: 7%;">Código</th>
         <th style="width: 7%;">Fim</th>
-        <th style="width: 7%;">Check-In</th>
-        <th style="width: 7%;">Previsto</th>
-        <th style="width: 7%;">Hóspedes</th>
-        <th style="width: 5%;">Credencial</th>
-        <th style="width: 5%;">Informado</th>
-        <th style="width: 5%;">Docs</th>
-        <th style="width: 5%;">Early</th>
+        <th style="width: 7%;">Check-Out</th>
+        <th style="width: 12%;">Faxina</th>
         <th style="width: 5%;">Late</th>
+        <th style="width: 7%;">Finalizada</th>
         <th style="width: 21%;">Observações</th>
         <th style="width: 5%;">Ações</th>
       </tr>
     </thead>
     <tbody>
-  <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event) || hasPaymentType('late',event) || event.early_checkin || event.late_checkout">
+  <tr *ngFor="let event of reservasExibidas" [class.cancelada]="event.description === 'CANCELADA'" [class.early-payment]="hasPaymentType('early',event) || hasPaymentType('late',event) || event.early_checkin || event.late_checkout" [class.cleaning-done]="event.limpeza_realizada">
         <td>{{ typeReserva(event.cod_reserva) }}</td>
         <td>
           <a [href]="event.link_reserva" target="_blank">{{ event.apartamento_nome }}</a>
@@ -188,44 +180,10 @@
         <td>{{ event.cod_reserva }}</td>
         <td>{{ formatarData(event.end_data) }}</td>
         <td>
-          <span class="time-badge" [class.time-green]="event.check_in === '15:00'" [class.time-red]="event.check_in && event.check_in !== '15:00'">{{ event.check_in || '-' }}</span>
+          <span class="time-badge">{{ event.check_out || '-' }}</span>
         </td>
         <td>
-          <span class="time-badge" [class.time-green]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) === '15:00'" [class.time-red]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) !== '15:00'">{{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}</span>
-        </td>
-        <td>{{ event.qtd_hospedes }}</td>
-        <td>
-          <label class="custom-checkbox">
-            <input type="checkbox" 
-                    [checked]="event.credencial_made" 
-                    (change)="updateStatus(event, 'credencial_made', $event)">
-            <span class="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <label class="custom-checkbox">
-            <input type="checkbox" 
-                    [checked]="event.informed" 
-                    (change)="updateStatus(event, 'informed', $event)">
-            <span class="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <label class="custom-checkbox">
-            <input type="checkbox" 
-                    [checked]="event.documentosEnviados" 
-                    (change)="updateStatus(event, 'documentosEnviados', $event)">
-            <span class="checkmark"></span>
-          </label>
-        </td>
-        <td>
-          <label class="custom-checkbox">
-            <input type="checkbox" 
-                    [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin" 
-                    [disabled]="hasPaymentType('early', event)"
-                    (change)="updateStatus(event, 'early_checkin', $event)">
-            <span class="checkmark"></span>
-          </label>
+          {{ getFaxinaLabel(event) }}
         </td>
         <td>
           <label class="custom-checkbox">
@@ -236,6 +194,15 @@
             <span class="checkmark"></span>
           </label>
         </td>
+        <td>
+          <label class="custom-checkbox">
+            <input type="checkbox"
+                   [checked]="event.limpeza_realizada"
+                   (change)="updateStatus(event, 'limpeza_realizada', $event)">
+            <span class="checkmark"></span>
+          </label>
+        </td>
+
         <td class="obs-col" [title]="event.Observacoes || '-'">{{ (event.Observacoes || '-') }}</td>
         <td>
           <button class="btn btn-action" (click)="openModal(event)">

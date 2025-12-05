@@ -1,0 +1,319 @@
+.calendar-table tr.cleaning-done {
+  background-color: #e9f7ef; /* verde bem claro */
+}
+/* Estilos para o componente de calendário/reservas */
+
+.calendar-container {
+  max-width: 1800px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Header profissional em linha única */
+.calendar-header {
+  padding: 0.8rem 1.5rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  border: 1px solid #f0f0f0;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.header-left, .header-center, .header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-left h5 {
+  font-size: 1.6rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #2d333f;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-left h5 i {
+  color: #00a699;
+  font-size: 1.4rem;
+}
+
+/* Filtros em linha */
+.filtro-controles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.filtro-periodo-inputs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.filtro-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 150px;
+}
+
+.filtro-item label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: #5e6d77;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.filtro-item label i {
+  font-size: 0.9rem;
+}
+
+input[type="date"] {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #444;
+  background-color: #fafafa;
+  transition: all 0.2s;
+}
+
+input[type="date"]:hover,
+input[type="date"]:focus {
+  border-color: #00a699;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 166, 153, 0.2);
+}
+
+/* Botões com estilos alternados */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.filtro-btn {
+  background: #f7f7f7;
+  color: #5e6d77;
+  border: 1px solid #e4e4e4;
+}
+
+.filtro-btn:hover {
+  background: #e0f0ef;
+  border-color: #00a699;
+  color: #007a87;
+}
+
+.btn-primary {
+  background: #00a699;
+  color: white;
+  border: 1px solid #00a699;
+  height: 36px;
+}
+
+.btn-primary:hover {
+  background: #008489;
+  border-color: #008489;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #5e6d77;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+/* Indicadores de status */
+.status-indicators {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.status-item {
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.status-item.total {
+  background: #e6f7f6;
+  color: #007a87;
+  border: 1px solid #d1eeec;
+}
+
+.status-item.credenciais {
+  background: #fff2e6;
+  color: #e67e22;
+  border: 1px solid #ffe8d1;
+}
+
+.status-item i {
+  font-size: 1.1rem;
+}
+
+/* Accordion (sanfona) para cadastro rápido dentro do modal */
+.accordion-section {
+  margin-bottom: 12px;
+}
+.accordion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  width: 100%;
+  justify-content: space-between;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  background: #ffffff;
+  border: 1px solid #e6f7ee;
+  color: #0f766e;
+  font-weight: 600;
+}
+.accordion-body {
+  background: #fbfffb;
+  border: 1px solid #e6f7ee;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.accordion-toggle .left { display:flex; align-items:center; gap:8px; }
+.accordion-toggle .label { font-size:14px; }
+.accordion-toggle .right { color:#007a87; font-size:14px; transition: transform 0.18s ease; }
+.accordion-toggle.open .right { transform: rotate(180deg); }
+
+/* Hover/focus states to match layout */
+.accordion-toggle:hover, .accordion-toggle:focus {
+  background: #f0fffa;
+  border-color: #cfefe0;
+}
+
+/* Painel estilizado para envio de link de check-in */
+.checkin-link-panel { 
+  background: linear-gradient(135deg,#f8fdfc 0%, #f1fbf9 50%, #eefaf7 100%);
+  border:1px solid #d7efe9; 
+  border-radius:16px; 
+  padding:18px 20px; 
+  box-shadow:0 8px 24px rgba(0,0,0,0.05);
+  display:flex; 
+  flex-direction:column; 
+  gap:18px;
+  position:relative;
+  overflow:hidden;
+}
+.checkin-link-panel::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 85% 15%, rgba(0,166,153,0.15), transparent 60%); pointer-events:none; }
+.panel-header { display:flex; align-items:flex-start; gap:14px; }
+.icon-circle { width:52px; height:52px; border-radius:14px; background:#00a699; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 4px 14px rgba(0,166,153,0.35); }
+.panel-titles h5 { margin:0; font-size:16px; font-weight:600; color:#064e46; }
+.panel-titles .subtitle { margin:4px 0 0; font-size:13px; color:#2e5e59; line-height:1.4; }
+.panel-body { display:flex; flex-direction:column; gap:14px; }
+.phone-field label { font-weight:600; font-size:13px; color:#0b6055; }
+.input-wrapper { position:relative; display:flex; align-items:center; background:#fff; border:1px solid #cde5df; border-radius:12px; padding:4px 6px 4px 38px; transition:.25s border-color, .25s box-shadow; }
+.input-wrapper.invalid { border-color:#e0705c; }
+.input-wrapper:focus-within { border-color:#00a699; box-shadow:0 0 0 3px rgba(0,166,153,0.25); }
+.input-wrapper .form-control { border:none; box-shadow:none; background:transparent; padding:8px 6px; font-size:14px; }
+.input-icon { position:absolute; left:12px; font-size:16px; color:#0b6055; }
+.inline-btn { background:#f1f9f8; border:none; color:#0b6055; padding:8px 12px; border-radius:10px; cursor:pointer; font-size:14px; display:inline-flex; align-items:center; gap:6px; margin-left:4px; }
+.inline-btn:hover:not([disabled]) { background:#e2f5f3; }
+.inline-btn:disabled { opacity:.5; cursor:not-allowed; }
+.field-hint { font-size:12px; color:#b45309; margin-top:6px; }
+.actions-row { display:flex; justify-content:flex-end; }
+.btn-send-link { background:#00a699; color:#fff; border:none; padding:12px 18px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(0,166,153,.3); transition:.3s background,.3s box-shadow; }
+.btn-send-link:hover:not([disabled]) { background:#008489; box-shadow:0 8px 22px rgba(0,166,153,.38); }
+.btn-send-link:disabled { opacity:.55; cursor:not-allowed; }
+@media (max-width:760px){
+  .checkin-link-panel { padding:16px 16px; }
+  .icon-circle { width:46px; height:46px; font-size:20px; }
+}
+
+/* Base styling for all modal panels */
+.panel-base { background:linear-gradient(135deg,#fcfefe 0%,#f7fbfa 50%,#f4faf9 100%); border:1px solid #ddeae7; border-radius:16px; padding:18px 20px; margin-bottom:22px; box-shadow:0 6px 20px rgba(0,0,0,.04); position:relative; overflow:hidden; display:flex; flex-direction:column; gap:16px; }
+.panel-base .modal-grid { margin-top:4px; }
+.panel-header.compact { display:flex; align-items:center; gap:14px; }
+.panel-header.compact.no-bg { background:transparent; box-shadow:none; padding:0; }
+.icon-circle.small { width:40px; height:40px; font-size:18px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.12); background:#007a87; color:#fff; display:flex; align-items:center; justify-content:center; }
+.icon-circle.small.warn { background:#d97706; }
+.icon-circle.small.accent { background:#0f766e; }
+.icon-circle.tiny { width:32px; height:32px; font-size:14px; border-radius:10px; background:#0e7490; color:#fff; display:flex; align-items:center; justify-content:center; }
+.icon-circle.tiny.users { background:#2563eb; }
+.panel-titles h5 { margin:0; font-size:15px; font-weight:600; color:#064e46; }
+.panel-base .full-width { width:100%; }
+.obs-textarea { resize:vertical; min-height:110px; border-radius:12px; border:1px solid #cde5df; padding:12px 14px; font-size:14px; box-shadow:inset 0 1px 2px rgba(0,0,0,.06); }
+.obs-textarea:focus { outline:none; border-color:#00a699; box-shadow:0 0 0 3px rgba(0,166,153,.25); }
+
+/* Adjust child component spacing inside panel */
+.panel-base app-cadastro-credencial { margin-top:4px; }
+
+/* Section header adaptation inside panel */
+.section-header { margin-top:8px; }
+.section-header .action-buttons { margin-top:10px; }
+
+@media (max-width:780px) {
+  .panel-base { padding:16px 16px; border-radius:14px; }
+  .panel-header.compact { gap:10px; }
+  .icon-circle.small { width:36px; height:36px; font-size:16px; }
+  .panel-titles h5 { font-size:14px; }
+}
+
+/* Badges de horário Check-In / Previsto */
+.time-badge {
+  display: inline-block;
+  min-width: 62px;
+  padding: 4px 10px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  letter-spacing: .5px;
+  text-align: center;
+  background: #e2e8f0; /* fallback neutro */
+  color: #334155;
+  user-select: none;
+}
+.time-green { background:#00a699; color:#fff; box-shadow:0 0 0 1px rgba(0,166,153,.25), 0 4px 10px -2px rgba(0,166,153,.4); }
+.time-red { background:#d92d3a; color:#fff; box-shadow:0 0 0 1px rgba(217,45,58,.25), 0 4px 10px -2px rgba(217,45,58,.4); }
+.time-badge.time-green:hover { filter:brightness(1.05); }
+.time-badge.time-red:hover { filter:brightness(1.07); }
+

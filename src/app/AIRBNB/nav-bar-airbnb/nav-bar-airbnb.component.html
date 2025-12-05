@@ -58,6 +58,7 @@
               </button>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" (click)="calendarioAirbnb()">Diário</a></li>
+                <li><a class="dropdown-item" (click)="checkouts()">Checkouts</a></li>
                 <li><a class="dropdown-item" (click)="calendarioMisto()">Calendário</a></li>
                 <li><a class="dropdown-item" (click)="calendarioSemPasta()">Calendário Sem Pasta</a></li>
                 <li><a class="dropdown-item" (click)="calendarioMobile()">Calendário Mobile</a></li>
@@ -167,6 +168,8 @@
         </ng-container>
         <ng-container *ngIf="user.empresa_id === 1">
           <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-calendar-day"></i> Diário</button>
+          <button (click)="checkouts(); toggleMenu()"><i class="fas fa-calendar-day"></i> Checkouts</button>
+          
           <button (click)="calendarioMisto(); toggleMenu()"><i class="fas fa-calendar-alt"></i> Calendário</button>
           <button (click)="calendarioSemPasta(); toggleMenu()"><i class="fas fa-calendar"></i> Calendário Sem Pasta</button>
           <button (click)="calendarioMobile(); toggleMenu()"><i class="fas fa-calendar"></i> Calendário Mobile</button>

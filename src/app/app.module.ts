@@ -48,6 +48,7 @@ import { CadastroUsuarioSingleComponent } from './Cadastro/cadastro-usuario-sing
 import { CadastroCredencialComponent } from './Cadastro/cadastro-credencial/cadastro-credencial.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
+import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
 
 @NgModule({
   declarations: [
@@ -87,7 +88,8 @@ import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario
     CadastroUsuarioSingleComponent,
     CadastroCredencialComponent,
     MigrarICALComponent,
-    CalendarioMobileComponent
+    CalendarioMobileComponent,
+    CheckoutsDiariosComponent
     ],
   imports: [
     BrowserModule,

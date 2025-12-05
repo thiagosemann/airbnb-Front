@@ -35,6 +35,7 @@ import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-lim
 import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
+import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
 
 
 const routes: Routes = [
@@ -51,6 +52,8 @@ const routes: Routes = [
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'calendarioMobile', component: CalendarioMobileComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
