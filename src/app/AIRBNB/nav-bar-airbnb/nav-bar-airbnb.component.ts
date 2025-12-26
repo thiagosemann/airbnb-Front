@@ -110,6 +110,10 @@ export class NavBarAirbnbComponent {
   subirCSVRelatorio(): void {
     this.router.navigate(['/uploadRelatorioCSV']);
   }
+  relatorioNF(): void {
+    this.router.navigate(['/relatorioNF']);
+  }
+  
   relatorioGanhos(): void {
     this.router.navigate(['/relatoriosGanhos']);
   }

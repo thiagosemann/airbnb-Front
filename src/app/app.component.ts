@@ -45,7 +45,9 @@ export class AppComponent implements OnInit {
     'profile',
     'controleNodeMcuPortas',
     'nps-limpeza',
-    'migrarIcal'
+    'migrarIcal',
+    'relatorioNF'
+
   ];
 
   ngOnInit() {

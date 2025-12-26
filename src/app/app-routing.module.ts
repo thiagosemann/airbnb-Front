@@ -36,6 +36,7 @@ import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/cal
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
+import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
 
 
 const routes: Routes = [
@@ -81,7 +82,8 @@ const routes: Routes = [
   { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  
+  { path: 'relatorioNF', component: RelatorioNFComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
   { path: '**', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } }, // rota de fallback quando nenhuma outra corresponder
 

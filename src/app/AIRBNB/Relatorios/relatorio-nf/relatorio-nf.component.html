@@ -1,0 +1,390 @@
+<div class="container py-3">
+	<!-- Cabeçalho -->
+	<div class="page-head mb-3">
+		<div>
+			<h2 class="mb-1">Relatório de Nota Fiscal</h2>
+			<div class="page-subtitle">Carregue o CSV, aguarde o enriquecimento e exporte o XLS.</div>
+		</div>
+	</div>
+
+	<!-- Conteúdo principal -->
+	<div class="panel mb-3">
+		<!-- Etapas -->
+		<div class="steps mb-3">
+			<span class="step" [class.active]="!carregando && reservasCSV.length === 0"><span class="step-num">1</span>Upload CSV</span>
+			<span class="step" [class.active]="carregandoDados"><span class="step-num">2</span>Enriquecimento</span>
+			<span class="step" [class.active]="reservasCSV.length > 0 && !carregandoDados"><span class="step-num">3</span>Exportar XLS</span>
+		</div>
+
+		<div class="row g-3 align-items-start">
+		<!-- Upload e Ação -->
+		<div class="col-12 col-lg-5">
+			<div class="mb-2">
+				<label for="csvInput" class="form-label">Upload de CSV de Pagamentos</label>
+				<input
+					type="file"
+					id="csvInput"
+					accept=".csv"
+					(change)="processarCSV($event)"
+					[disabled]="carregando || enviando"
+					class="form-control"
+				/>
+			</div>
+
+			<!-- Status conciso -->
+			<div *ngIf="carregando" class="status-line status-info mb-2">Processando arquivo CSV...</div>
+			<div *ngIf="carregandoDados" class="status-line status-warn mb-2">
+				<span>Buscando reservas e apartamentos...</span>
+				<span>{{ aptosProcessados }}/{{ aptosTotal }} ({{ progressPercent }}%)</span>
+			</div>
+
+			<!-- Barra de progresso (única) -->
+			<div *ngIf="carregandoDados" class="mb-2">
+				<div class="progress" style="height: 8px;">
+					<div class="progress-bar progress-bar-striped progress-bar-animated" [style.width]="progressPercent + '%'" ></div>
+				</div>
+			</div>
+
+			<!-- Ação principal -->
+			<button
+				class="btn btn-primary btn-action"
+				(click)="baixarValoresParaNF()"
+				[disabled]="carregando || carregandoDados || reservasCSV.length === 0"
+			>
+				<i class="fas fa-file-excel me-2"></i>Baixar valores para NF
+			</button>
+
+			<!-- Empty state -->
+			<div *ngIf="!carregando && reservasCSV.length === 0" class="text-muted mt-2">
+				Nenhum registro carregado. Faça upload do CSV para começar.
+			</div>
+		</div>
+
+		<!-- Totais -->
+		<div class="col-12 col-lg-7">
+			<div class="kpi-grid">
+				<div class="kpi kpi-primary">
+					<div class="total-label">Nota Fiscal (total)</div>
+					<div class="total-value">{{ totalNotaFiscal | currency:'BRL' }}</div>
+				</div>
+				<div class="kpi kpi-neutral">
+					<div class="total-label">Proprietário (Reserva)</div>
+					<div class="total-value fw-bold">{{ totalProprietario | currency:'BRL' }}</div>
+				</div>
+				<div class="kpi kpi-neutral">
+					<div class="total-label">Limpeza</div>
+					<div class="total-value">{{ totalLimpeza | currency:'BRL' }}</div>
+				</div>
+				<div class="kpi kpi-neutral">
+					<div class="total-label">Registros</div>
+					<div class="total-value">{{ reservasCSV.length }}</div>
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+
+	<!-- Lista simplificada para mobile, mostrando exatamente as colunas do XLS -->
+	<div class="tabs mb-2">
+		<button type="button" class="tab" [class.active]="activeTab === 'erros'" (click)="setTab('erros')">
+			<i class="fas fa-triangle-exclamation me-2"></i>Erros
+			<span *ngIf="totalErros > 0" class="tab-badge">{{ totalErros }}</span>
+		</button>
+		<button type="button" class="tab" [class.active]="activeTab === 'reservas'" (click)="setTab('reservas')">
+			<i class="fas fa-list-ul me-2"></i>Reservas
+		</button>
+		<button type="button" class="tab" [class.active]="activeTab === 'apartamentos'" (click)="setTab('apartamentos')">
+			<i class="fas fa-building me-2"></i>Apartamentos
+		</button>
+		<button type="button" class="tab" [class.active]="activeTab === 'proprietarios'" (click)="setTab('proprietarios')">
+			<i class="fas fa-user-tie me-2"></i>Proprietários
+		</button>
+	</div>
+
+	<div class="panel p-0 overflow-hidden d-block d-md-none">
+		<div class="table-wrapper">
+			<div class="table-responsive">
+				<table *ngIf="activeTab === 'reservas'" class="table table-hover align-middle mb-0">
+					<thead>
+						<tr>
+							<th>Apartamento</th>
+							<th>Tipo</th>
+							<th>Código</th>
+							<th class="text-end">Valor total</th>
+							<th class="text-end">Limpeza</th>
+							<th class="text-end">Proprietário</th>
+							<th class="text-end">% Cobrada</th>
+							<th class="text-end">Nota Fiscal</th>
+							<th class="text-center">Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let row of nfRows; let i = index">
+							<td>{{ row.apartamento }}</td>
+							<td>
+								<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+								<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+							</td>
+							<td>{{ row.cod_reserva }}</td>
+							<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+							<td class="text-center">
+								<button class="btn btn-sm btn-outline-danger" (click)="excluirReserva(i)">
+									<i class="fas fa-trash"></i>
+								</button>
+							</td>
+						</tr>
+						<tr *ngIf="nfRows.length === 0">
+							<td colspan="9" class="text-center py-4 text-muted">
+								{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<table *ngIf="activeTab === 'erros'" class="table table-hover align-middle mb-0">
+					<thead>
+						<tr>
+							<th>Código</th>
+							<th>Apartamento/Anúncio</th>
+							<th class="text-end">Valor total</th>
+							<th class="text-end">Nota Fiscal</th>
+							<th>Erros</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let row of nfRowsErros">
+							<td>{{ row.cod_reserva }}</td>
+							<td class="truncate" [title]="row.apartamento">{{ row.apartamento }}</td>
+							<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+							<td>
+								<div class="error-list">
+									<span *ngFor="let e of row.erros" class="error-chip">{{ e }}</span>
+								</div>
+							</td>
+						</tr>
+						<tr *ngIf="nfRowsErros.length === 0">
+							<td colspan="5" class="text-center py-4 text-muted">
+								{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum erro encontrado.' }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<table *ngIf="activeTab === 'apartamentos'" class="table table-hover align-middle mb-0">
+					<thead>
+						<tr>
+							<th>Apartamento</th>
+							<th>Tipo</th>
+							<th class="text-end">Valor total</th>
+							<th class="text-end">Limpeza</th>
+							<th class="text-end">Proprietário</th>
+							<th class="text-end">% Cobrada</th>
+							<th class="text-end">Nota Fiscal</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let row of nfRowsPorApartamento">
+							<td>{{ row.apartamento }}</td>
+							<td>
+								<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+								<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+							</td>
+							<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+						</tr>
+						<tr *ngIf="nfRowsPorApartamento.length === 0">
+							<td colspan="7" class="text-center py-4 text-muted">
+								{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<table *ngIf="activeTab === 'proprietarios'" class="table table-hover align-middle mb-0">
+					<thead>
+						<tr>
+							<th>Proprietário</th>
+							<th class="text-end">Aptos</th>
+							<th>Tipo</th>
+							<th class="text-end">Valor total</th>
+							<th class="text-end">Limpeza</th>
+							<th class="text-end">Proprietário</th>
+							<th class="text-end">Nota Fiscal</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let row of nfRowsPorProprietario">
+							<td class="truncate" [title]="row.proprietario">{{ row.proprietario }}</td>
+							<td class="text-end">{{ row.apartamentosQtd }}</td>
+							<td>
+								<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+								<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+							</td>
+							<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+							<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+						</tr>
+						<tr *ngIf="nfRowsPorProprietario.length === 0">
+							<td colspan="7" class="text-center py-4 text-muted">
+								{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- Tabela para desktop: mesmas colunas do XLS -->
+	<div class="panel p-0 overflow-hidden d-none d-md-block">
+		<div class="table-wrapper">
+			<div class="table-responsive">
+				<table *ngIf="activeTab === 'reservas'" class="table table-hover align-middle mb-0">
+				<thead>
+					<tr>
+						<th style="width:18%;">Apartamento</th>
+						<th style="width:10%;">Tipo</th>
+						<th style="width:12%;">Código</th>
+						<th style="width:12%;" class="text-end">Valor total</th>
+						<th style="width:12%;" class="text-end">Limpeza</th>
+						<th style="width:12%;" class="text-end">Proprietário</th>
+						<th style="width:10%;" class="text-end">% Cobrada</th>
+						<th style="width:12%;" class="text-end">Nota Fiscal</th>
+						<th style="width:8%;" class="text-center">Ações</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let row of nfRows; let i = index">
+						<td>{{ row.apartamento }}</td>
+						<td>
+							<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+							<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+						</td>
+						<td>{{ row.cod_reserva }}</td>
+						<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+						<td class="text-center">
+							<button class="btn btn-sm btn-outline-danger" (click)="excluirReserva(i)">
+								<i class="fas fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+					<tr *ngIf="nfRows.length === 0">
+						<td colspan="9" class="text-center py-4 text-muted">
+							{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table *ngIf="activeTab === 'erros'" class="table table-hover align-middle mb-0">
+				<thead>
+					<tr>
+						<th style="width:12%;">Código</th>
+						<th style="width:24%;">Apartamento/Anúncio</th>
+						<th style="width:12%;" class="text-end">Valor total</th>
+						<th style="width:12%;" class="text-end">Nota Fiscal</th>
+						<th style="width:40%;">Erros</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let row of nfRowsErros">
+						<td>{{ row.cod_reserva }}</td>
+						<td class="truncate" [title]="row.apartamento">{{ row.apartamento }}</td>
+						<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+						<td>
+							<div class="error-list">
+								<span *ngFor="let e of row.erros" class="error-chip">{{ e }}</span>
+							</div>
+						</td>
+					</tr>
+					<tr *ngIf="nfRowsErros.length === 0">
+						<td colspan="5" class="text-center py-4 text-muted">
+							{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum erro encontrado.' }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table *ngIf="activeTab === 'apartamentos'" class="table table-hover align-middle mb-0">
+				<thead>
+					<tr>
+						<th style="width:26%;">Apartamento</th>
+						<th style="width:14%;">Tipo</th>
+						<th style="width:12%;" class="text-end">Valor total</th>
+						<th style="width:12%;" class="text-end">Limpeza</th>
+						<th style="width:12%;" class="text-end">Proprietário</th>
+						<th style="width:12%;" class="text-end">% Cobrada</th>
+						<th style="width:12%;" class="text-end">Nota Fiscal</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let row of nfRowsPorApartamento">
+						<td>{{ row.apartamento }}</td>
+						<td>
+							<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+							<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+						</td>
+						<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+					</tr>
+					<tr *ngIf="nfRowsPorApartamento.length === 0">
+						<td colspan="7" class="text-center py-4 text-muted">
+							{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table *ngIf="activeTab === 'proprietarios'" class="table table-hover align-middle mb-0">
+				<thead>
+					<tr>
+						<th style="width:26%;">Proprietário</th>
+						<th style="width:8%;" class="text-end">Aptos</th>
+						<th style="width:14%;">Tipo</th>
+						<th style="width:13%;" class="text-end">Valor total</th>
+						<th style="width:13%;" class="text-end">Limpeza</th>
+						<th style="width:13%;" class="text-end">Proprietário</th>
+						<th style="width:13%;" class="text-end">Nota Fiscal</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let row of nfRowsPorProprietario">
+						<td class="truncate" [title]="row.proprietario">{{ row.proprietario }}</td>
+						<td class="text-end">{{ row.apartamentosQtd }}</td>
+						<td>
+							<span *ngIf="row.isAnfitriao" class="pill pill-host me-1">Anfitrião</span>
+							<span *ngIf="row.isCoanfitriao" class="pill pill-cohost">Coanfitrião</span>
+						</td>
+						<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
+						<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
+					</tr>
+					<tr *ngIf="nfRowsPorProprietario.length === 0">
+						<td colspan="7" class="text-center py-4 text-muted">
+							{{ carregando ? 'Processando arquivo CSV...' : 'Nenhum registro encontrado. Carregue um arquivo CSV.' }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+	</div>
+</div>

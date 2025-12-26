@@ -7,6 +7,7 @@ import { User } from 'src/app/shared/utilitarios/user';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ApartamentosProprietarioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentos_proprietario_service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-cadastro-proprietarios',
@@ -257,6 +258,74 @@ export class CadastroProprietariosComponent implements OnInit {
     } else {
       this.apartamentosSelecionados = [...this.apartamentosSelecionados, aptoId];
     }
+  }
+
+  async exportApartamentosPorProprietario() {
+    try {
+      const usuariosOrdenados = [...this.users].sort((a, b) => {
+        const nomeA = `${a.first_name || ''} ${a.last_name || ''}`.trim().toLowerCase();
+        const nomeB = `${b.first_name || ''} ${b.last_name || ''}`.trim().toLowerCase();
+        if (nomeA && nomeB && nomeA !== nomeB) return nomeA.localeCompare(nomeB);
+        return (a.id || 0) - (b.id || 0);
+      });
+
+      const linhas: string[] = [];
+      const header = ['proprietario_id', 'proprietario_nome', 'apartamento_nome', 'apartamento_id'];
+      linhas.push(header.join(','));
+
+      for (const user of usuariosOrdenados) {
+        const idProp = user.id!;
+        const nomeProp = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+        let aptosDoProp: any[] = [];
+
+        try {
+          const result = await firstValueFrom(this.aptoProprietarioService.getApartamentosByProprietario(idProp));
+          aptosDoProp = Array.isArray(result) ? result : [];
+        } catch (e) {
+          aptosDoProp = [];
+        }
+
+        if (!aptosDoProp || aptosDoProp.length === 0) {
+          // Fallback: tenta mapear por campo proprietario_id se existir
+          aptosDoProp = this.apartamentos.filter(a => (a as any).proprietario_id === idProp).map(a => ({ id: a.id, nome: a.nome }));
+        }
+
+        for (const apto of aptosDoProp) {
+          const aptoId = apto.id;
+          const aptoNome = apto.nome || this.getAptoName(aptoId);
+          const row = [
+            String(idProp),
+            this.csvEscape(nomeProp),
+            this.csvEscape(aptoNome),
+            String(aptoId)
+          ].join(',');
+          linhas.push(row);
+        }
+      }
+
+      const csvContent = linhas.join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'apartamentos_por_proprietario.csv';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      this.toastr.success('Arquivo CSV gerado com sucesso.');
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      this.toastr.error('Erro ao gerar exportação');
+    }
+  }
+
+  private csvEscape(valor: string): string {
+    if (valor == null) return '';
+    const needsQuotes = /[",\n\r]/.test(valor);
+    let v = String(valor).replace(/"/g, '""');
+    return needsQuotes ? `"${v}"` : v;
   }
 }
 
