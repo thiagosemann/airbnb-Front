@@ -45,7 +45,7 @@ export class ControleFaxinaComponent implements OnInit {
       const year = date.getFullYear();
       months.push({
         label: `${date.toLocaleString('default', { month: 'long' })}/${year}`,
-        value: `${year}-${(month + 2).toString().padStart(2, '0')}`
+        value: `${year}-${(month + 1).toString().padStart(2, '0')}`
       });
       date.setMonth(date.getMonth() - 1);
     }
@@ -60,9 +60,11 @@ export class ControleFaxinaComponent implements OnInit {
 
   async loadPayments() {
     if (!this.selectedMonth) return;
+    console.log("this.selectedMonth", this.selectedMonth);
 
     try {
       const [startDate, endDate] = this.getMonthDateRange();
+      console.log('Date Range:', startDate, endDate)
       const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
       const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
       
@@ -74,11 +76,12 @@ export class ControleFaxinaComponent implements OnInit {
         const userId = servico.faxina_userId;
         const data = new Date(servico.end_data);
 
+        const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
         if (
           servico.limpeza_realizada &&
           userId &&
-          data.getMonth() === new Date(this.selectedMonth).getMonth() &&
-          data.getFullYear() === new Date(this.selectedMonth).getFullYear()
+          data.getMonth() === selMonthIndex &&
+          data.getFullYear() === selYear
         ) {
           if (!pagamentosMap.has(userId)) {
             pagamentosMap.set(userId, {
@@ -109,9 +112,9 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   getMonthDateRange(): [string, string] {
-    const date = new Date(this.selectedMonth);
-    const start = new Date(date.getFullYear(), date.getMonth(), 1);
-    const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    const { year, monthIndex } = this.parseSelectedYearMonth();
+    const start = new Date(year, monthIndex, 1);
+    const end = new Date(year, monthIndex + 1, 0);
 
     const formatDate = (d: Date) => {
       const year = d.getFullYear();
@@ -121,6 +124,20 @@ export class ControleFaxinaComponent implements OnInit {
     };
 
     return [formatDate(start), formatDate(end)];
+  }
+
+  private parseSelectedYearMonth(): { year: number; monthIndex: number } {
+    // Expecting format YYYY-MM
+    const parts = this.selectedMonth.split('-');
+    if (parts.length !== 2) {
+      throw new Error(`selectedMonth inválido: ${this.selectedMonth}`);
+    }
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || month < 1 || month > 12) {
+      throw new Error(`selectedMonth fora do padrão YYYY-MM: ${this.selectedMonth}`);
+    }
+    return { year, monthIndex: month - 1 };
   }
 
   calcularTotais() {
@@ -242,11 +259,12 @@ export class ControleFaxinaComponent implements OnInit {
       
       this.faxinasDetalhadas = allServicos.filter(servico => {
         const data = new Date(servico.end_data);
+        const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
         return (
           servico.faxina_userId === pagamento.user.id &&
           servico.limpeza_realizada &&
-          data.getMonth() === new Date(this.selectedMonth).getMonth() &&
-          data.getFullYear() === new Date(this.selectedMonth).getFullYear()
+          data.getMonth() === selMonthIndex &&
+          data.getFullYear() === selYear
         );
       });
       
