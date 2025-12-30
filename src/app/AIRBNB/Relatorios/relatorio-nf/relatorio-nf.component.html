@@ -31,12 +31,26 @@
 				/>
 			</div>
 
+			<div class="mb-2 mt-3">
+				<label for="bookingInput" class="form-label">Upload de XLS do Booking</label>
+				<input
+					type="file"
+					id="bookingInput"
+					accept=".xls,.xlsx"
+					(change)="processarBookingXLS($event)"
+					[disabled]="carregandoBooking"
+					class="form-control"
+				/>
+				<div class="form-text">Colunas lidas: C=nome, D=endereço, E=hóspede, F=entrada, G=saída, H=status, I=valor, J=taxa.</div>
+			</div>
+
 			<!-- Status conciso -->
 			<div *ngIf="carregando" class="status-line status-info mb-2">Processando arquivo CSV...</div>
 			<div *ngIf="carregandoDados" class="status-line status-warn mb-2">
 				<span>Buscando reservas e apartamentos...</span>
 				<span>{{ aptosProcessados }}/{{ aptosTotal }} ({{ progressPercent }}%)</span>
 			</div>
+			<div *ngIf="carregandoBooking" class="status-line status-info mb-2">Lendo XLS do Booking...</div>
 
 			<!-- Barra de progresso (única) -->
 			<div *ngIf="carregandoDados" class="mb-2">
@@ -112,6 +126,7 @@
 							<th>Código</th>
 							<th class="text-end">Valor total</th>
 							<th class="text-end">Limpeza</th>
+							<th class="text-end">Taxa site</th>
 							<th class="text-end">Proprietário</th>
 							<th class="text-end">% Cobrada</th>
 							<th class="text-end">Nota Fiscal</th>
@@ -128,6 +143,7 @@
 							<td>{{ row.cod_reserva }}</td>
 							<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
 							<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+							<td class="text-end">{{ ($any(row).taxa_site || 0) | number:'1.2-2' }}</td>
 							<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
 							<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
 							<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>
@@ -256,7 +272,8 @@
 						<th style="width:12%;">Código</th>
 						<th style="width:12%;" class="text-end">Valor total</th>
 						<th style="width:12%;" class="text-end">Limpeza</th>
-						<th style="width:12%;" class="text-end">Proprietário</th>
+						<th style="width:10%;" class="text-end">Taxa site</th>
+						<th style="width:11%;" class="text-end">Proprietário</th>
 						<th style="width:10%;" class="text-end">% Cobrada</th>
 						<th style="width:12%;" class="text-end">Nota Fiscal</th>
 						<th style="width:8%;" class="text-center">Ações</th>
@@ -272,6 +289,7 @@
 						<td>{{ row.cod_reserva }}</td>
 						<td class="text-end">{{ row.valor_total | number:'1.2-2' }}</td>
 						<td class="text-end">{{ row.valor_limpeza | number:'1.2-2' }}</td>
+						<td class="text-end">{{ ($any(row).taxa_site || 0) | number:'1.2-2' }}</td>
 						<td class="text-end">{{ row.valor_proprietario | number:'1.2-2' }}</td>
 						<td class="text-end">{{ row.porc_cobrada | number:'1.2-2' }}</td>
 						<td class="text-end">{{ row.valor_nota_fiscal | number:'1.2-2' }}</td>

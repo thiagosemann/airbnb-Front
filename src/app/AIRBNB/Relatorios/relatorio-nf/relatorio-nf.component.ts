@@ -7,6 +7,18 @@ import { ApartamentosProprietarioService } from 'src/app/shared/service/Banco_de
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { firstValueFrom } from 'rxjs';
 
+type BookingLinha = {
+  codReserva: string; // preenchido manualmente depois
+  nome: string;
+  endereco: string;
+  hospede: string;
+  dataIni: string;
+  dataFim: string;
+  status: string;
+  valor: number;
+  taxa: number;
+};
+
 @Component({
   selector: 'app-relatorio-nf',
   templateUrl: './relatorio-nf.component.html',
@@ -24,6 +36,9 @@ export class RelatorioNFComponent {
   aptosProcessados = 0;    // quantidade já processada
   progressPercent = 0;     // progresso visual de carregamento de apartamentos
   private apartamentosMap: Map<number, Apartamento> = new Map<number, Apartamento>();
+
+  bookingLinhas: BookingLinha[] = [];
+  carregandoBooking = false;
 
   activeTab: 'erros' | 'reservas' | 'apartamentos' | 'proprietarios' = 'reservas';
   private proprietariosPorApartamentoId: Map<number, any[]> = new Map<number, any[]>();
@@ -64,19 +79,53 @@ export class RelatorioNFComponent {
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const csvData = e.target.result as string;
-      this.parseCSV(csvData);
+      const novas = this.parseCSV(csvData);
+      this.reservasCSV = [...this.reservasCSV, ...novas];
       this.carregando = false;
       this.enriquecerReservasComApartamento();
     };
     reader.readAsText(file);
   }
 
-  private parseCSV(csv: string) {
+  processarBookingXLS(event: any) {
+    this.carregando = true;
+    this.carregandoBooking = true;
+    this.proprietariosPorApartamentoId.clear();
+    const file = event.target.files?.[0];
+    if (!file) {
+      this.carregando = false;
+      this.carregandoBooking = false;
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+        this.bookingLinhas = sheet ? this.parseBookingSheet(sheet) : [];
+        const reservasBooking = this.bookingLinhas.map((b) => this.bookingToReserva(b));
+        this.reservasCSV = [...this.reservasCSV, ...reservasBooking];
+        console.log('Booking XLS lido (convertido para reservas)', this.bookingLinhas);
+        this.enriquecerReservasComApartamento();
+      } catch (err) {
+        this.bookingLinhas = [];
+        alert('Não foi possível ler o XLS do Booking.');
+      } finally {
+        this.carregando = false;
+        this.carregandoBooking = false;
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  private parseCSV(csv: string): PagamentoReserva[] {
     // Divide em linhas e descarta linhas em branco
     const linhas = csv.split('\n').filter(linha => linha.trim() !== '');
     if (linhas.length < 2) {
-      this.reservasCSV = [];
-      return;
+      return [];
     }
 
     // Detecta delimitador (vírgula, ponto-e-vírgula ou tab) a partir do cabeçalho e primeira linha
@@ -105,15 +154,12 @@ export class RelatorioNFComponent {
     const idxPago = findIdx(['PAGO']);
     if (idxCodigo < 0) {
       alert('CSV não reconhecido: coluna de código da reserva ausente.');
-      this.reservasCSV = [];
-      return;
+      return [];
     }
     if (idxValor < 0 && idxPago < 0) {
       alert('CSV não reconhecido: coluna "Valor" ausente.');
-      this.reservasCSV = [];
-      return;
+      return [];
     }
-    this.reservasCSV = [];
     const agregados = new Map<string, any>();
 
     for (let i = 1; i < linhas.length; i++) {
@@ -175,7 +221,7 @@ export class RelatorioNFComponent {
     }
 
     // Converte para estrutura PagamentoReserva, mantendo somas em campos auxiliares
-    this.reservasCSV = Array.from(agregados.values()).map((e: any) => {
+    const parsed: PagamentoReserva[] = Array.from(agregados.values()).map((e: any) => {
       const pr: PagamentoReserva = {
         cod_reserva: e.cod_reserva,
         dataReserva: e.dataReserva,
@@ -188,8 +234,135 @@ export class RelatorioNFComponent {
       (pr as any)._tipo = e._tipo;
       (pr as any)._tipoNorm = e._tipoNorm;
       (pr as any)._anuncio = e._anuncio || '';
+      (pr as any).taxa_site = 0;
       return pr;
     });
+
+    return parsed;
+  }
+
+  private parseBookingSheet(sheet: XLSX.WorkSheet): BookingLinha[] {
+    const linhas: BookingLinha[] = [];
+    const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1');
+
+    for (let r = range.s.r + 1; r <= range.e.r; r++) {
+      const nome = this.sheetValueAsString(sheet, 2, r);
+      const endereco = this.sheetValueAsString(sheet, 3, r);
+      const hospede = this.sheetValueAsString(sheet, 4, r);
+      const dataIniRaw = this.sheetRawValue(sheet, 5, r);
+      const dataFimRaw = this.sheetRawValue(sheet, 6, r);
+      const dataIni = this.normalizeBookingDate(dataIniRaw);
+      const dataFim = this.normalizeBookingDate(dataFimRaw);
+      const status = this.sheetValueAsString(sheet, 7, r);
+      const valor = this.parseMoney(this.sheetValueAsString(sheet, 8, r));
+      const taxa = this.parseMoney(this.sheetValueAsString(sheet, 9, r));
+
+      if (!nome && !hospede && !dataIni && !dataFim && !status && !valor && !taxa) {
+        continue;
+      }
+
+      const aptCode = this.extractAptCode(nome);
+      const codReserva = aptCode && dataIni ? `B-${aptCode}${dataIni}` : '';
+
+      linhas.push({
+        codReserva,
+        nome,
+        endereco,
+        hospede,
+        dataIni,
+        dataFim,
+        status,
+        valor,
+        taxa
+      });
+    }
+
+    return linhas;
+  }
+
+  private sheetRawValue(sheet: XLSX.WorkSheet, c: number, r: number): any {
+    const ref = XLSX.utils.encode_cell({ c, r });
+    return sheet[ref]?.v;
+  }
+
+  private extractAptCode(nome: string): string {
+    if (!nome) return '';
+    const firstPart = nome.split(' ')[0] || '';
+    return firstPart.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  }
+
+  private sheetValueAsString(sheet: XLSX.WorkSheet, c: number, r: number): string {
+    const raw = this.sheetRawValue(sheet, c, r);
+    return raw == null ? '' : String(raw).trim();
+  }
+
+  private bookingToReserva(b: BookingLinha): PagamentoReserva {
+    const pr: PagamentoReserva = {
+      cod_reserva: b.codReserva,
+      dataReserva: b.dataIni,
+      noites: 0,
+      valor_reserva: b.valor || 0,
+      taxas: 0
+    };
+    // Marcamos como Reserva padrão
+    (pr as any)._sumReserva = b.valor || 0;
+    (pr as any)._sumRecebimento = 0;
+    (pr as any)._tipo = 'Reserva';
+    (pr as any)._tipoNorm = 'RESERVA';
+    (pr as any)._anuncio = b.nome || '';
+    (pr as any).taxa_site = b.taxa || 0;
+    return pr;
+  }
+
+  private normalizeBookingDate(value: any): string {
+    if (value == null || value === '') return '';
+
+    // Excel serial date
+    if (typeof value === 'number') {
+      const parsed = XLSX.SSF.parse_date_code(value);
+      if (!parsed) return '';
+      return this.dateToDDMMYYYY(new Date(Date.UTC(parsed.y, parsed.m - 1, parsed.d)));
+    }
+
+    const asStr = String(value).trim();
+
+    // pt-BR textual format ex: "2 de dez. de 2025"
+    const m = asStr.match(/^(\d{1,2})\s+de\s+([A-Za-z\.]+)\s+de\s+(\d{4})/i);
+    if (m) {
+      const dia = Number(m[1]);
+      const mesStr = m[2].toLowerCase().replace('.', '');
+      const ano = Number(m[3]);
+      const meses: Record<string, number> = {
+        jan: 0, janeiro: 0,
+        fev: 1, fevereiro: 1,
+        mar: 2, março: 2, marco: 2,
+        abr: 3, abril: 3,
+        mai: 4, maio: 4,
+        jun: 5, junho: 5,
+        jul: 6, julho: 6,
+        ago: 7, agosto: 7,
+        set: 8, setembro: 8,
+        out: 9, outubro: 9,
+        nov: 10, novembro: 10,
+        dez: 11, dezembro: 11
+      };
+      const mes = meses[mesStr];
+      if (mes != null) {
+        const dt = new Date(Date.UTC(ano, mes, dia));
+        return this.dateToDDMMYYYY(dt);
+      }
+    }
+
+    // ISO-like fallback
+    const dt = new Date(asStr);
+    return isNaN(dt.getTime()) ? '' : this.dateToDDMMYYYY(dt);
+  }
+
+  private dateToDDMMYYYY(dt: Date): string {
+    const dd = String(dt.getUTCDate()).padStart(2, '0');
+    const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = dt.getUTCFullYear();
+    return `${dd}${mm}${yyyy}`;
   }
 
   private normalizeTipo(t: string): string {
@@ -290,6 +463,8 @@ export class RelatorioNFComponent {
         cod_reserva: codigo,
         apartamento: r.apartamento_nome || (r as any)._anuncio || '—',
         valor_total: Number(row?.valor_total ?? r.valor_reserva ?? 0),
+        valor_limpeza: Number(row?.valor_limpeza ?? (r as any)._valor_limpeza_ap ?? 0),
+        taxa_site: Number(row?.taxa_site ?? (r as any).taxa_site ?? 0),
         valor_nota_fiscal: Number(row?.valor_nota_fiscal ?? 0),
         erros: errs
       });
@@ -374,7 +549,7 @@ export class RelatorioNFComponent {
     };
 
     // Aba 1: Reservas (detalhado)
-    const headerReservas = ['apartamento','tipo','cod_reserva','valor_total','valor_limpeza','valor_proprietario','porc_cobrada','valor_nota_fiscal'];
+    const headerReservas = ['apartamento','tipo','cod_reserva','valor_total','valor_limpeza','taxa_site','valor_proprietario','porc_cobrada','valor_nota_fiscal'];
     const aoaReservas: (string | number)[][] = [headerReservas];
     const rowsReservas = this.nfRows;
     for (const row of rowsReservas) {
@@ -384,6 +559,7 @@ export class RelatorioNFComponent {
         row.cod_reserva,
         Number(row.valor_total),
         Number(row.valor_limpeza),
+        Number((row as any).taxa_site || 0),
         Number(row.valor_proprietario),
         Number(row.porc_cobrada),
         Number(row.valor_nota_fiscal)
@@ -392,7 +568,7 @@ export class RelatorioNFComponent {
     const wsReservas = XLSX.utils.aoa_to_sheet(aoaReservas);
 
     // Aba 2: Apartamentos (agregado)
-    const headerAptos = ['apartamento','tipo','valor_total','valor_limpeza','valor_proprietario','porc_cobrada','valor_nota_fiscal'];
+    const headerAptos = ['apartamento','tipo','valor_total','valor_limpeza','taxa_site','valor_proprietario','porc_cobrada','valor_nota_fiscal'];
     const aoaAptos: (string | number)[][] = [headerAptos];
     const rowsAptos = this.nfRowsPorApartamento;
     for (const row of rowsAptos) {
@@ -401,6 +577,7 @@ export class RelatorioNFComponent {
         tipoLabelFrom(row) || '',
         Number(row.valor_total),
         Number(row.valor_limpeza),
+        Number((row as any).taxa_site || 0),
         Number(row.valor_proprietario),
         Number(row.porc_cobrada),
         Number(row.valor_nota_fiscal)
@@ -409,7 +586,7 @@ export class RelatorioNFComponent {
     const wsAptos = XLSX.utils.aoa_to_sheet(aoaAptos);
 
     // Aba 3: Proprietários (agregado)
-    const headerProps = ['proprietario','aptos','tipo','valor_total','valor_limpeza','valor_proprietario','valor_nota_fiscal'];
+    const headerProps = ['proprietario','aptos','tipo','valor_total','valor_limpeza','taxa_site','valor_proprietario','valor_nota_fiscal'];
     const aoaProps: (string | number)[][] = [headerProps];
     const rowsProps = this.nfRowsPorProprietario;
     for (const row of rowsProps) {
@@ -419,6 +596,7 @@ export class RelatorioNFComponent {
         tipoLabelFrom(row) || '',
         Number(row.valor_total),
         Number(row.valor_limpeza),
+        Number((row as any).taxa_site || 0),
         Number(row.valor_proprietario),
         Number(row.valor_nota_fiscal)
       ]);
@@ -426,7 +604,7 @@ export class RelatorioNFComponent {
     const wsProps = XLSX.utils.aoa_to_sheet(aoaProps);
 
     // Aba 4: Erros (linhas que não conseguiram vincular/enriquecer)
-    const headerErros = ['cod_reserva','apartamento','valor_total','valor_nota_fiscal','erros'];
+    const headerErros = ['cod_reserva','apartamento','valor_total','valor_limpeza','taxa_site','valor_nota_fiscal','erros'];
     const aoaErros: (string | number)[][] = [headerErros];
     const rowsErros = this.nfRowsErros;
     for (const row of rowsErros) {
@@ -434,6 +612,8 @@ export class RelatorioNFComponent {
         row.cod_reserva,
         row.apartamento,
         Number(row.valor_total),
+        Number(row.valor_limpeza),
+        Number((row as any).taxa_site || 0),
         Number(row.valor_nota_fiscal),
         Array.isArray(row.erros) ? row.erros.join('; ') : String(row.erros || '')
       ]);
@@ -467,6 +647,7 @@ export class RelatorioNFComponent {
           isCoanfitriao: false,
           valor_total: 0,
           valor_limpeza: 0,
+          taxa_site: 0,
           valor_proprietario: 0,
           valor_nota_fiscal: 0,
           _pctWeightedSum: 0,
@@ -481,16 +662,18 @@ export class RelatorioNFComponent {
 
       const vt = Number(r.valor_total || 0);
       const vl = Number(r.valor_limpeza || 0);
+      const ts = Number((r as any).taxa_site || 0);
       const vp = Number(r.valor_proprietario || 0);
       const vnf = Number(r.valor_nota_fiscal || 0);
       acc.valor_total += vt;
       acc.valor_limpeza += vl;
+      acc.taxa_site += ts;
       acc.valor_proprietario += vp;
       acc.valor_nota_fiscal += vnf;
 
       // % cobranca: média ponderada pela base (total - limpeza) apenas quando houver %
       const pct = Number(r.porc_cobrada || 0);
-      const base = Math.max(0, vt - vl);
+      const base = Math.max(0, vt - vl - ts);
       if (pct > 0 && base > 0) {
         acc._pctWeightedSum += pct * base;
         acc._pctWeight += base;
@@ -567,6 +750,7 @@ export class RelatorioNFComponent {
             isCoanfitriao: false,
             valor_total: 0,
             valor_limpeza: 0,
+            taxa_site: 0,
             valor_proprietario: 0,
             valor_nota_fiscal: 0
           };
@@ -581,6 +765,7 @@ export class RelatorioNFComponent {
 
         acc.valor_total += Number(row.valor_total || 0) * share;
         acc.valor_limpeza += Number(row.valor_limpeza || 0) * share;
+        acc.taxa_site += Number((row as any).taxa_site || 0) * share;
         acc.valor_proprietario += Number(row.valor_proprietario || 0) * share;
         acc.valor_nota_fiscal += Number(row.valor_nota_fiscal || 0) * share;
       }
@@ -605,6 +790,7 @@ export class RelatorioNFComponent {
       const somaRecebimento = Number((r as any)._sumRecebimento || 0);
       const total = somaReserva + somaRecebimento;
       const valorLimpeza = Number((r as any)._valor_limpeza_ap ?? 0);
+      const taxaSite = Number((r as any).taxa_site || 0);
       const pct = Number((r as any)._porcentagem_cobrada_ap ?? 0);
 
       let valorProprietario = 0;
@@ -612,7 +798,7 @@ export class RelatorioNFComponent {
       let porcCobradaOut = 0;
 
       if (somaReserva > 0) {
-        const baseReserva = somaReserva - valorLimpeza;
+        const baseReserva = somaReserva - valorLimpeza - taxaSite;
         valorProprietario = baseReserva * (1 - pct);
         // NF para Reserva passa a ser o valor que antes era 'Forest'
         valorNotaFiscal += baseReserva * pct;
@@ -620,8 +806,8 @@ export class RelatorioNFComponent {
       }
 
       if (somaRecebimento > 0) {
-        // Para tipos diferentes de PAYOUT e de RESERVA, NF = total (recebimento) - limpeza
-        valorNotaFiscal += (somaRecebimento - valorLimpeza);
+        // Para tipos diferentes de PAYOUT e de RESERVA, NF = total (recebimento) - limpeza - taxa do site
+        valorNotaFiscal += (somaRecebimento - valorLimpeza - taxaSite);
       }
 
       const nomeApto = (r as any).apartamento_nome || (r as any)._anuncio || '';
@@ -639,6 +825,7 @@ export class RelatorioNFComponent {
         cod_reserva: (r as any).cod_reserva || '',
         valor_total: Number(total),
         valor_limpeza: Number(valorLimpeza),
+        taxa_site: Number(taxaSite),
         valor_proprietario: Number(valorProprietario),
         porc_cobrada: Number(porcCobradaOut),
         valor_nota_fiscal: Number(valorNotaFiscal)
@@ -650,6 +837,9 @@ export class RelatorioNFComponent {
   // Totais agregados para indicadores
   get totalLimpeza(): number {
     return this.nfRows.reduce((acc, r: any) => acc + (r.valor_limpeza || 0), 0);
+  }
+  get totalTaxaSite(): number {
+    return this.nfRows.reduce((acc, r: any) => acc + ((r as any).taxa_site || 0), 0);
   }
   get totalProprietario(): number {
     return this.nfRows.reduce((acc, r: any) => acc + (r.valor_proprietario || 0), 0);
