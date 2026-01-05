@@ -27,7 +27,7 @@
             <div class="filtro-item">
               <input type="date" id="dataFim" [(ngModel)]="dataFim">
             </div>
-            <button class="btn btn-primary" (click)="carregarReservasPorPeriodo()">
+            <button class="btn btn-primary" (click)="carregarPeriodo()">
               <i class="fas fa-filter"></i> Filtrar
             </button>
             <div class="filtro-item" style="margin-left: 1rem;">
@@ -62,6 +62,60 @@
     <div class="spinner"></div>
   </div>
 
+  <!-- Prédios e faxineiros (lazy, sanfona) -->
+  <div class="panel-base predio-panel">
+    <button class="accordion-toggle" (click)="togglePredios()" [class.open]="showPredios">
+      <div class="left">
+        <i class="fa-solid fa-building"></i>
+        <span>Prédios com Limpeza</span>
+      </div>
+      <div class="right">
+        <i class="fas" [ngClass]="showPredios ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      </div>
+    </button>
+
+    <div class="accordion-body" *ngIf="showPredios">
+      <div class="kit-filter">
+        <input type="text" class="form-control" placeholder="Buscar prédio ou faxineiro..." [(ngModel)]="predioSearchTerm">
+      </div>
+
+      <div *ngIf="carregandoFaxinas" class="kit-loading">Carregando prédios...</div>
+
+      <table class="calendar-table kit-table d-none d-lg-table" *ngIf="!carregandoFaxinas && prediosFiltrados.length > 0">
+        <thead>
+          <tr>
+            <th style="width: 60%;">Prédio</th>
+            <th style="width: 40%;">Faxina</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let predio of prediosFiltrados">
+            <td>{{ predio.predioNome }}</td>
+            <td>{{ predio.faxineirosNomes.length ? predio.faxineirosNomes.join(', ') : (predio.faxineiros.length ? predio.faxineiros.join(', ') : '-') }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="kit-mobile d-block d-lg-none" *ngIf="!carregandoFaxinas">
+        <div *ngFor="let predio of prediosFiltrados" class="kit-card">
+          <div class="kit-card-row">
+            <span class="label">Prédio</span>
+            <span class="value">{{ predio.predioNome }}</span>
+          </div>
+          <div class="kit-card-row">
+            <span class="label">Faxina</span>
+            <span class="value">{{ predio.faxineirosNomes.length ? predio.faxineirosNomes.join(', ') : (predio.faxineiros.length ? predio.faxineiros.join(', ') : '-') }}</span>
+          </div>
+        </div>
+        <div *ngIf="prediosFiltrados.length === 0" class="kit-empty">Nenhum prédio no período selecionado.</div>
+      </div>
+
+      <div *ngIf="!carregandoFaxinas && prediosFiltrados.length === 0" class="kit-empty d-none d-lg-block">
+        Nenhum prédio no período selecionado.
+      </div>
+    </div>
+  </div>
+
   <!-- Cards para mobile -->
   <div class="cards-container panel-base d-block d-lg-none" *ngIf="!carregando">
     <div class="row row-cols-1 g-3">
@@ -86,6 +140,10 @@
               <div class="info-item">
                 <i class="fas fa-calendar-day"></i>
                 <span>{{ formatarData(event.start_date) }} - {{ formatarData(event.end_data) }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-broom"></i>
+                <span>Última faxina: {{ formatarData(event.previous_end_data || '') || '-' }} — {{ event.previous_faxina_first_name || '-' }}</span>
               </div>
               <div class="info-item">
                 <i class="fas fa-users"></i>
@@ -163,19 +221,20 @@
   <table class="calendar-table panel-base d-none d-lg-table" *ngIf="!carregando">
     <thead>
       <tr>
-        <th style="width: 7%;">Site</th>
+        <th style="width: 5%;">Site</th>
         <th style="width: 7%;">Apt</th>
         <th style="width: 7%;">Código</th>
         <th style="width: 7%;">Fim</th>
+        <th style="width: 9%;">Última faxina</th>
         <th style="width: 7%;">Check-In</th>
         <th style="width: 7%;">Previsto</th>
-        <th style="width: 7%;">Hóspedes</th>
+        <th style="width: 6%;">Hóspedes</th>
         <th style="width: 5%;">Credencial</th>
         <th style="width: 5%;">Informado</th>
         <th style="width: 5%;">Docs</th>
         <th style="width: 5%;">Early</th>
         <th style="width: 5%;">Late</th>
-        <th style="width: 21%;">Observações</th>
+        <th style="width: 15%;">Observações</th>
         <th style="width: 5%;">Ações</th>
       </tr>
     </thead>
@@ -187,6 +246,10 @@
         </td>
         <td>{{ event.cod_reserva }}</td>
         <td>{{ formatarData(event.end_data) }}</td>
+        <td class="previous-cleaning">
+          <div>{{ formatarData(event.previous_end_data || '') || '-' }}</div>
+          <div class="cleaner-name">{{ event.previous_faxina_first_name || '-' }}</div>
+        </td>
         <td>
           <span class="time-badge" [class.time-green]="event.check_in === '15:00'" [class.time-red]="event.check_in && event.check_in !== '15:00'">{{ event.check_in || '-' }}</span>
         </td>
@@ -244,7 +307,7 @@
         </td>
       </tr>
       <tr *ngIf="reservasExibidas.length === 0">
-        <td colspan="14">Nenhuma reserva no período selecionado</td>
+        <td colspan="15">Nenhuma reserva no período selecionado</td>
       </tr>
     </tbody>
   </table>

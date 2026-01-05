@@ -55,6 +55,17 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Mobile: destacar texto e remover fundo quando early estiver ativo */
+@media (max-width: 768px) {
+  .card.early-payment .info-item {
+    background: transparent !important;
+    color: #f7fffb;
+  }
+  .card.early-payment .info-item i {
+    color: #f7fffb;
+  }
+}
+
 .status-checks {
   display: flex;
   justify-content: space-between;

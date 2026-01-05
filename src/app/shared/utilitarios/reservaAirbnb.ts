@@ -12,6 +12,8 @@ export interface ReservaAirbnb {
   link_reserva:string;
   limpeza_realizada: boolean;
   valor_limpeza?: number;
+  previous_end_data?: string;
+  previous_faxina_first_name?: string;
   credencial_made: boolean;
   informed : boolean;
   check_in:string;
