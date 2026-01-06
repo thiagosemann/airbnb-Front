@@ -12,6 +12,18 @@
           (input)="filtrarApartamentos($event)">
       </div>
       <button class="btn btn-primary flex-shrink-0" (click)="abrirModal()">Novo</button>
+      <button class="btn btn-success flex-shrink-0 ms-2" (click)="baixarXls()" [disabled]="exportingXls">
+        <i class="fas fa-file-excel me-1"></i>
+        <ng-container *ngIf="!exportingXls; else loadingXls">Baixar XLS</ng-container>
+        <ng-template #loadingXls>
+          Exportando... {{ exportProgress | number:'1.0-0' }}%
+        </ng-template>
+      </button>
+      <div *ngIf="exportingXls" class="ms-2 flex-grow-1">
+        <div class="progress" style="height: 6px;">
+          <div class="progress-bar" role="progressbar" [style.width]="exportProgress + '%'" aria-valuenow="exportProgress" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
     </div>
   </div>
 

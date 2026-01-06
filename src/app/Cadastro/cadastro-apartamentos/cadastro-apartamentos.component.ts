@@ -8,9 +8,12 @@ import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service'
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { Predio } from 'src/app/shared/utilitarios/predio';
 import { User } from 'src/app/shared/utilitarios/user';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
+import * as XLSX from 'xlsx';
+import { ApartamentosProprietarioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentos_proprietario_service';
 
 @Component({
   selector: 'app-cadastro-apartamentos',
@@ -47,6 +50,10 @@ export class CadastroApartamentosComponent implements OnInit {
   reservasLoading: boolean = false;
   reservasAgrupadasPorMes: Array<{ key: string; label: string; count: number; reservas: ReservaAirbnb[]; open: boolean }>= [];
 
+  // Exportação XLS
+  exportingXls = false;
+  exportProgress = 0;
+
   // Definição das comodidades do prédio
   amenidadesPredio = [
     { key: 'piscina', label: 'Piscina' },
@@ -74,7 +81,8 @@ export class CadastroApartamentosComponent implements OnInit {
     private authService: AuthenticationService,
     private userService: UserService,
     private toastr: ToastrService,
-    private reservasAirbnbService: ReservasAirbnbService
+    private reservasAirbnbService: ReservasAirbnbService,
+    private apartamentosProprietarioService: ApartamentosProprietarioService
   ) {
     // Recupera ID do usuário atual (para auditoria)
     const user: User | null = this.authService.getUser();
@@ -396,6 +404,108 @@ export class CadastroApartamentosComponent implements OnInit {
     const mes = d.toLocaleDateString('pt-BR', { month: 'long' });
     const mesCap = mes.charAt(0).toUpperCase() + mes.slice(1);
     return `${mesCap}-${y}`;
+  }
+
+  private formatarProprietarios(lista: any[] | null | undefined): string {
+    if (!lista || lista.length === 0) return '-';
+    const nomes = lista
+      .map(p => {
+        const first = p?.first_name;
+        const last = p?.last_name;
+        if (first && last) return `${first} ${last}`;
+        if (first) return first;
+        return p?.nome || p?.name || p?.full_name || p?.email || p?.id;
+      })
+      .filter(Boolean);
+    return nomes.length ? nomes.join(', ') : '-';
+  }
+
+  baixarXls(): void {
+    if (!this.apartamentos || this.apartamentos.length === 0) {
+      this.toastr.info('Nenhum apartamento para exportar.');
+      return;
+    }
+
+    this.exportingXls = true;
+    this.exportProgress = 10;
+
+    const step = this.apartamentos.length ? 80 / this.apartamentos.length : 0;
+
+    const requests = this.apartamentos.map(apt =>
+      this.apartamentosProprietarioService.getProprietariosByApartamento(apt.id).pipe(
+        finalize(() => {
+          this.exportProgress = Math.min(90, this.exportProgress + step);
+        })
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: proprietariosPorApt => {
+        this.exportProgress = Math.max(this.exportProgress, 92);
+
+        const planilha = this.apartamentos.map((apt, idx) => {
+          const aptAny = apt as any;
+          const proprietarios = this.formatarProprietarios(proprietariosPorApt[idx]);
+          return {
+            'Nome': apt.nome,
+            'Prédio': this.getNomePredio(apt.predio_id),
+            'Proprietários': proprietarios,
+            'Hóspedes': apt.numero_hospedes,
+            'Garagem': typeof apt.vaga_garagem === 'boolean' ? (apt.vaga_garagem ? 'Sim' : 'Não') : apt.vaga_garagem,
+            'Senha Porta': apt.senha_porta,
+            'SSID Wi-Fi': apt.ssid_wifi,
+            'Senha Wi-Fi': apt.senha_wifi,
+            'Nome Anúncio': apt.nome_anuncio,
+            'Categoria': apt.categoria,
+            'Endereço': apt.endereco,
+            'Bairro': apt.bairro,
+            'Andar': apt.andar,
+            'Tipo Repasse': apt.tipo_anuncio_repasse,
+            '% Cobrada': apt.porcentagem_cobrada,
+            'Valor Enxoval': apt.valor_enxoval,
+            'Valor Limpeza': apt.valor_limpeza,
+            'Qtd Camas Casal': apt.qtd_cama_casal,
+            'Qtd Camas Solteiro': apt.qtd_cama_solteiro,
+            'Qtd Sofá-Cama': apt.qtd_sofa_cama,
+            'Qtd Banheiros': apt.qtd_banheiros,
+            'Qtd Taça Vinho': apt.qtd_taca_vinho,
+            'Aceita Pet': apt.aceita_pet ? 'Sim' : 'Não',
+            'Check-in': apt.tipo_checkin,
+            'Acesso Prédio': apt.acesso_predio,
+            'Acesso Porta': apt.acesso_porta,
+            'Link App': apt.link_app,
+            'Link Airbnb iCal': apt.link_airbnb_calendario,
+            'Link Booking iCal': apt.link_booking_calendario,
+            'Link Stays iCal': apt.link_stays_calendario,
+            'Link Ayrton iCal': apt.link_ayrton_calendario,
+            'Link Fotos': aptAny.link_fotos || '',
+            'Link Anúncio Airbnb': apt.link_anuncio_airbnb,
+            'Link Anúncio Booking': apt.link_anuncio_booking,
+            'Código Proprietário': apt.cod_link_proprietario,
+            'Modificado Por': apt.modificado_user_nome,
+            'Última Modificação': apt.data_ultima_modificacao
+          };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(planilha);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Apartamentos');
+        const hoje = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `apartamentos_${hoje}.xlsx`);
+
+        this.exportProgress = 100;
+        setTimeout(() => {
+          this.exportingXls = false;
+          this.exportProgress = 0;
+        }, 400);
+      },
+      error: err => {
+        console.error('Erro ao carregar proprietários para exportação', err);
+        this.toastr.error('Erro ao carregar proprietários para exportar planilha.');
+        this.exportingXls = false;
+        this.exportProgress = 0;
+      }
+    });
   }
 
   toggleGrupo(index: number): void {
