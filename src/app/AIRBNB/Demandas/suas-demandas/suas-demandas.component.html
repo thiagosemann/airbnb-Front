@@ -1,0 +1,177 @@
+<div class="calendar-container">
+	<!-- Abas -->
+	<nav class="tabs-header">
+		<ul>
+			<ng-container *ngFor="let tab of tabs">
+				<li [class.active]="activeTab === tab.id" (click)="selectTab(tab.id)">
+					{{ tab.label }}
+				</li>
+			</ng-container>
+		</ul>
+	</nav>
+
+	<!-- Conteúdos por aba -->
+	<div class="tabs-content">
+		<!-- Demandas Hoje -->
+		<section *ngIf="activeTab === 'hoje'">
+			<div class="faxina-cards mobile-only">
+				<div *ngIf="carregando" class="no-data">Carregando...</div>
+				<div *ngIf="!carregando && demandasHoje.length === 0" class="no-data">Nenhuma demanda para hoje</div>
+
+				<div *ngFor="let d of demandasHoje" class="faxina-card">
+					<div class="card-header">
+						<h3> {{ d.apartamento_nome }}</h3>
+						<span class="status-badge" [class.done]="d.status === 'Concluída'">
+							{{ d.status === 'Concluída' ? '✔ Concluída' : (d.status === 'Em andamento' ? '⏳ Em andamento' : '⌛️ Pendente') }}
+						</span>
+					</div>
+					<div class="card-body">
+						<div class="card-row">
+							<strong>Prazo:</strong>
+							<strong>{{ d.prazo }}</strong>
+						</div>
+						<div class="card-row">
+							<strong>Dia:</strong>
+							  <strong>{{ getDiaDaSemana(d.prazo) }}</strong>
+						</div>
+						<div class="card-row">
+							<strong>Período:</strong>
+							<strong>{{ displayPeriodo(d.periodo) }}</strong>
+						</div>
+						<div class="card-row">
+							<div class="demanda-text">{{ d.demanda }}</div>
+						</div>
+					</div>
+					<div class="card-footer">
+						<label class="custom-checkbox">
+							<input type="checkbox" [checked]="d.status === 'Concluída'" (change)="updateStatus(d, $event)">
+							<span class="checkmark"></span>
+						</label>
+						<span>Marcar como Concluída</span>
+						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Demandas por Período -->
+		<section *ngIf="activeTab === 'futuras'">
+			<div class="periodo-controles">
+				<div class="periodo-input-group">
+					<label for="dataInicio">De</label>
+					<input type="date" id="dataInicio" [(ngModel)]="dataInicio">
+				</div>
+				<div class="periodo-input-group">
+					<label for="dataFim">Até</label>
+					<input type="date" id="dataFim" [(ngModel)]="dataFim">
+				</div>
+				<button (click)="pesquisarPeriodo()" class="btn-pesquisar"><i class="fas fa-search"></i> Pesquisar</button>
+			</div>
+
+			<div class="faxina-cards mobile-only">
+				<div *ngIf="carregandoFuturas" class="no-data">Carregando...</div>
+				<div *ngIf="!carregandoFuturas && demandasFuturas.length === 0" class="no-data">Nenhuma demanda encontrada para o período selecionado.</div>
+
+				<div *ngFor="let d of demandasFuturas" class="faxina-card">
+					<div class="card-header">
+						<h3>{{ d.apartamento_nome }}</h3>
+						<span class="status-badge" [class.done]="d.status === 'Concluída'">
+							{{ d.status === 'Concluída' ? '✔ Concluída' : (d.status === 'Em andamento' ? '⏳ Em andamento' : '⌛️ Pendente') }}
+						</span>
+					</div>
+					<div class="card-body">
+						<div class="card-row">
+							<strong>Prazo:</strong>
+							<strong>{{ d.prazo }}</strong>
+						</div>
+						<div class="card-row">
+							<strong>Dia:</strong>
+							<strong>{{ getDiaDaSemana(d.prazo) }}</strong>
+						</div>
+						<div class="card-row">
+							<strong>Período:</strong>
+							<strong>{{ displayPeriodo(d.periodo) }}</strong>
+						</div>
+						<div class="card-row">
+							<div class="demanda-text">{{ d.demanda }}</div>
+						</div>
+					</div>
+					<div class="card-footer">
+						<label class="custom-checkbox">
+							<input type="checkbox" [checked]="d.status === 'Concluída'" (change)="updateStatus(d, $event)">
+							<span class="checkmark"></span>
+						</label>
+						<span>Marcar como Concluída</span>
+						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+
+<!-- Modal Detalhes da Demanda -->
+<div class="modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+	<div class="modal-content" (click)="$event.stopPropagation()">
+		<button class="modal-close" (click)="fecharModal()">&times;</button>
+		<h2>
+			Demanda – Apt {{ demandaSelecionada?.apartamento_nome || '—' }}
+		</h2>
+
+		<div class="modal-body">
+			<div class="modal-row">
+				<strong>Status:</strong>
+				<span [class]="demandaSelecionada?.status === 'Concluída' ? 'status-finalizado' : 'status-pendente'">
+					{{ demandaSelecionada?.status }}
+				</span>
+			</div>
+			<div class="modal-row">
+				<strong>Prazo:</strong>
+				<span>{{ demandaSelecionada?.prazo }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Dia da semana:</strong>
+				<span>{{ getDiaDaSemana(demandaSelecionada?.prazo) }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Período:</strong>
+				<span>{{ displayPeriodo(demandaSelecionada?.periodo) }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Tipo:</strong>
+				<span>{{ displayTipo(demandaSelecionada?.type) }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Criada em:</strong>
+				<span>{{ demandaSelecionada?.created_at }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Atualizada em:</strong>
+				<span>{{ demandaSelecionada?.updated_at }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Criada por (ID):</strong>
+				<span>{{ demandaSelecionada?.user_id_created }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Descrição:</strong>
+				<span>{{ demandaSelecionada?.demanda }}</span>
+			</div>
+			<div class="modal-row">
+				<strong>Endereço:</strong>
+			</div>
+			<div class="modal-row">
+				<span>{{ demandaSelecionada?.endereco }}</span>
+			</div>
+			<div class="modal-row">
+				<button class="btn-info" *ngIf="demandaSelecionada?.endereco" (click)="abrirGoogleMaps(demandaSelecionada?.endereco || '')">
+					Ver rota no Google Maps
+				</button>
+			</div>
+		</div>
+
+		<div class="modal-footer">
+			<button class="btn-fechar" (click)="fecharModal()">Fechar</button>
+		</div>
+	</div>
+</div>

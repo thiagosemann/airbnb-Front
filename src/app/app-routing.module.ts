@@ -37,6 +37,8 @@ import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component'
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
 import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
+import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
+import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
 
 
 const routes: Routes = [
@@ -83,6 +85,8 @@ const routes: Routes = [
   { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
   { path: 'relatorioNF', component: RelatorioNFComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'controleDemandas', component: ControleDemandasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'suasDemandas', component: SuasDemandasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
 
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
   { path: '**', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } }, // rota de fallback quando nenhuma outra corresponder

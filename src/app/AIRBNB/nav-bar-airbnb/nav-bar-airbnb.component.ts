@@ -18,7 +18,8 @@ export class NavBarAirbnbComponent {
     reembolsos: false,
     vistorias: false,
     gerenciamento: false,
-    relatorios: false
+    relatorios: false,
+    demandas: false
   };
   constructor(private authService: AuthenticationService,
               private router: Router, 
@@ -90,6 +91,14 @@ export class NavBarAirbnbComponent {
   controleTicket(): void {
     this.router.navigate(['/controleTicketReembolso']);
   } 
+
+  // Demandas
+  controleDemandas(): void {
+    this.router.navigate(['/controleDemandas']);
+  }
+  suasDemandas(): void {
+    this.router.navigate(['/suasDemandas']);
+  }
 
   cadastroPortarias():void{
     this.router.navigate(['/cadastroPortaria']);

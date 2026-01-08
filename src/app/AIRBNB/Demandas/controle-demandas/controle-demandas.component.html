@@ -1,0 +1,274 @@
+<div class="container">
+	<div class="header-card">
+		<div class="header-title">
+			<i class="bi bi-list-check"></i>
+			<h1>Demandas</h1>
+		</div>
+
+		<div class="header-actions">
+			<div class="controls-row">
+				<div class="search-container">
+					<i class="bi bi-search"></i>
+					<input type="text" placeholder="Pesquisar demandas..." (input)="filtrar(($any($event.target)?.value || ''))">
+				</div>
+
+				<select class="form-select control-select" (change)="filtrarUsuario($any($event.target)?.value)">
+					<option value="">Todos usuários</option>
+					<option *ngFor="let u of usuarios" [value]="u.id">{{ formatNomeCurto(u.first_name) }}</option>
+				</select>
+
+				<select class="form-select control-select" (change)="filtrarStatus($any($event.target)?.value)">
+					<option value="">Todos status</option>
+					<option value="Pendente">Pendente</option>
+					<option value="Em andamento">Em andamento</option>
+					<option value="Concluída">Concluída</option>
+				</select>
+
+				<button class="btn-add" (click)="abrirModal()">
+					<i class="bi bi-plus-lg"></i> Nova Demanda
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="loading" class="text-muted"><i class="bi bi-arrow-repeat me-2 spin"></i>Carregando...</div>
+
+	<!-- Cards para mobile -->
+	<div class="tickets-grid d-block d-md-none" *ngIf="!loading">
+		<div *ngFor="let d of demandasFiltradas" class="ticket-card">
+			<div class="ticket-header">
+				<div class="ticket-apartment">
+					<i class="bi bi-building"></i>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}
+				</div>
+				<div class="ticket-status" [ngClass]="getStatusClass(d.status)">
+					{{ d.status }}
+				</div>
+			</div>
+
+			<div class="ticket-details">
+				<div class="ticket-item">
+					<i class="bi bi-chat-left-text"></i> {{ d.demanda }}
+				</div>
+				<div class="ticket-values">
+					<div class="value-item"><span>Responsável:</span><strong>{{ getUserName(d.user_id_responsavel) }}</strong></div>
+					<div class="value-item"><span>Prazo:</span><strong>{{ formatDateBr(d.prazo) }}</strong></div>
+					<div class="value-item"><span>Período:</span><strong>{{ displayPeriodo(d.periodo) }}</strong></div>
+					<div class="value-item"><span>Tipo:</span><span class="type-badge" [ngClass]="getTypeClass(d.type)">{{ displayTipo(d.type) }}</span></div>
+					<div class="value-item"><span>Criada em:</span><strong>{{ formatDateBr(d.created_at) }}</strong></div>
+					<div class="value-item"><span>Atualizada em:</span><strong>{{ formatDateBr(d.updated_at) }}</strong></div>
+					<div class="value-item"><span>Criada por:</span><strong>{{ getUserName(d.user_id_created) || d.user_id_created }}</strong></div>
+				</div>
+			</div>
+
+			<div class="ticket-actions">
+				<button class="btn-edit" (click)="editar(d)" title="Editar">
+					<i class="bi bi-pencil"></i>
+				</button>
+				<button class="btn-delete" (click)="excluir(d)" title="Excluir">
+					<i class="bi bi-trash"></i>
+				</button>
+			</div>
+		</div>
+
+		<div *ngIf="!demandasFiltradas.length" class="no-results">
+			<i class="bi bi-list-check"></i>
+			<p>Nenhuma demanda encontrada</p>
+		</div>
+	</div>
+
+	<!-- Tabela para desktop -->
+	<div class="d-none d-md-block" *ngIf="!loading">
+		<div class="table-responsive">
+			<table class="tickets-table">
+				<thead>
+					<tr>
+						<th>Demanda</th>
+						<th>Apartamento</th>
+						<th>Responsável</th>
+						<th>Prazo</th>
+						<th>Período</th>
+						<th>Status</th>
+						<th>Tipo</th>
+						<th>Criada em</th>
+						<th>Atualizada em</th>
+						<th>Criada por</th>
+						<th>Ações</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let d of demandasFiltradas">
+						<td>{{ d.demanda }}</td>
+						<td>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}</td>
+						<td>{{ getUserName(d.user_id_responsavel) }}</td>
+						<td>{{ formatDateBr(d.prazo) }}</td>
+						<td>{{ displayPeriodo(d.periodo) }}</td>
+						<td>
+							<span class="status-badge" [ngClass]="getStatusClass(d.status)">{{ d.status }}</span>
+						</td>
+						<td><span class="type-badge" [ngClass]="getTypeClass(d.type)">{{ displayTipo(d.type) }}</span></td>
+						<td>{{ formatDateBr(d.created_at) }}</td>
+						<td>{{ formatDateBr(d.updated_at) }}</td>
+						<td>{{ getUserName(d.user_id_created) || d.user_id_created }}</td>
+						<td>
+							<div class="actions">
+								<button class="btn-edit" (click)="editar(d)" title="Editar">
+									<i class="bi bi-pencil"></i>
+								</button>
+								<button class="btn-delete" (click)="excluir(d)" title="Excluir">
+									<i class="bi bi-trash"></i>
+								</button>
+							</div>
+						</td>
+					</tr>
+					<tr *ngIf="!demandasFiltradas.length">
+						<td colspan="11" class="no-results-table">
+							<i class="bi bi-list-check"></i>
+							Nenhuma demanda encontrada
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Modal CRUD -->
+	<div class="modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
+		<div class="modal-content" (click)="$event.stopPropagation()">
+			<div class="modal-header">
+				<h2>{{ isEditing ? 'Editar Demanda' : 'Nova Demanda' }}</h2>
+				<button class="modal-close" (click)="fecharModal()">
+					<i class="bi bi-x-lg"></i>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<form [formGroup]="form">
+					<div class="form-section">
+						<h3><i class="bi bi-info-circle"></i> Apartamento e Responsável</h3>
+						<div class="form-row">
+							<div class="form-group">
+								<label>Apartamento *</label>
+								<select formControlName="apartamento_id" class="form-select">
+									<option [ngValue]="null" disabled>Selecione</option>
+									<option *ngFor="let a of apartamentos" [ngValue]="a.id">{{ a.nome }}</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Responsável *</label>
+								<select formControlName="user_id_responsavel" class="form-select">
+									<option [ngValue]="null" disabled>Selecione</option>
+									<option *ngFor="let u of usuarios" [ngValue]="u.id">{{ formatNomeCurto(u.first_name) }}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-chat-left-text"></i> Detalhes</h3>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Demanda *</label>
+								<textarea rows="3" formControlName="demanda" class="form-control" placeholder="Descreva a demanda..."></textarea>
+							</div>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label>Prazo</label>
+								<input type="date" formControlName="prazo" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Período</label>
+								<select formControlName="periodo" class="form-select">
+									<option value="">-</option>
+									<option value="manha">Manhã</option>
+									<option value="tarde">Tarde</option>
+									<option value="noite">Noite</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Status</label>
+								<select formControlName="status" class="form-select">
+									<option value="Pendente">Pendente</option>
+									<option value="Em andamento">Em andamento</option>
+									<option value="Concluída">Concluída</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label>Tipo</label>
+								<select formControlName="type" class="form-select">
+									<option value="">-</option>
+									<option value="rua">Rua</option>
+									<option value="escritorio">Escritório</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-calendar2-check"></i> Reserva (opcional)</h3>
+						<div class="reserva-box">
+							<div class="reserva-actions">
+								<input
+									type="text"
+									class="form-control"
+									placeholder="Código da reserva"
+									[(ngModel)]="reservaCodigo"
+									[ngModelOptions]="{standalone: true}"
+									name="reservaCodigo">
+								<button type="button" class="btn btn-outline-primary" (click)="buscarReservaPorCodigo()" [disabled]="reservaLoading">
+									<i class="bi" [ngClass]="{ 'bi-search': !reservaLoading, 'bi-arrow-repeat spin': reservaLoading }"></i>
+								</button>
+								<button *ngIf="reservaSelecionada" type="button" class="btn btn-outline-secondary" (click)="limparReserva()">Limpar</button>
+							</div>
+
+							<div *ngIf="reservaErro" class="text-danger small mb-2">{{ reservaErro }}</div>
+
+							<div *ngIf="reservaSelecionada" class="alert alert-success py-2">
+								<div><strong>Reserva selecionada:</strong> {{ reservaSelecionada.cod_reserva || reservaCodigo }}</div>
+								<div>Apartamento: <strong>{{ reservaSelecionada.apartamento_nome || getAptoNome(reservaSelecionada.apartamento_id) }}</strong></div>
+								<div>
+									Início: <strong>{{ formatDateBr(reservaSelecionada.start_date) }}</strong>
+									— Fim: <strong>{{ formatDateBr(reservaSelecionada.end_data) }}</strong>
+								</div>
+							</div>
+
+							<div *ngIf="!reservaSelecionada && reservaResultados.length" class="table-responsive mt-2">
+								<table class="tickets-table">
+									<thead>
+										<tr>
+											<th>Código</th>
+											<th>Apartamento</th>
+											<th>Início</th>
+											<th>Fim</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr *ngFor="let r of reservaResultados">
+											<td>{{ r.cod_reserva }}</td>
+											<td>{{ r.apartamento_nome || getAptoNome(r.apartamento_id) }}</td>
+											<td>{{ formatDateBr(r.start_date) }}</td>
+											<td>{{ formatDateBr(r.end_data) }}</td>
+											<td class="text-end">
+												<button type="button" class="btn btn-sm btn-outline-success" (click)="selecionarReserva(r)">Selecionar</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer-actions">
+						<button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+						<button type="button" class="btn btn-success" (click)="salvar()" [disabled]="form.invalid">{{ isEditing ? 'Atualizar' : 'Salvar' }}</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

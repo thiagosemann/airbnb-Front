@@ -35,6 +35,16 @@
                 <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
               </ul>
             </div>
+            <!-- Demandas -->
+            <div class="dropdown">
+              <button class="navbar-perfil-btn dropdown-toggle" type="button">
+                <i class="fas fa-tasks"></i> Demandas
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" (click)="controleDemandas()">Controle Demandas</a></li>
+                <li><a class="dropdown-item" (click)="suasDemandas()">Suas Demandas</a></li>
+              </ul>
+            </div>
             <!-- Gerenciamento -->
             <div class="dropdown">
               <button class="navbar-perfil-btn dropdown-toggle" type="button">
@@ -95,6 +105,17 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" (click)="vistoria()">Vistoria</a></li>
               <li><a class="dropdown-item" (click)="controleVistoria()">Controle Vistoria</a></li>
+            </ul>
+          </div>
+
+          <!-- Demandas -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-tasks"></i> Demandas
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="suasDemandas()">Suas Demandas</a></li>
+              <li><a class="dropdown-item" (click)="controleDemandas()">Controle Demandas</a></li>
             </ul>
           </div>
 
@@ -167,6 +188,16 @@
               <button (click)="migrarIcal(); toggleMenu()">Migrar Ical</button>
             </div>
           </div>
+          <!-- Dropdown para Demandas -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['demandas']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('demandas')">
+              <i class="fas fa-tasks"></i> Demandas <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['demandas'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="suasDemandas(); toggleMenu()">Suas Demandas</button>
+              <button (click)="controleDemandas(); toggleMenu()">Controle Demandas</button>
+            </div>
+          </div>
         </ng-container>
         <ng-container *ngIf="user.empresa_id === 1">
           <button (click)="calendarioAirbnb(); toggleMenu()"><i class="fas fa-calendar-day"></i> Diário</button>
@@ -207,6 +238,17 @@
             <div class="mobile-dropdown-menu">
               <button (click)="vistoria(); toggleMenu()">Vistoria</button>
               <button (click)="controleVistoria(); toggleMenu()">Controle Vistoria</button>
+            </div>
+          </div>
+
+          <!-- Dropdown para Demandas -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['demandas']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('demandas')">
+              <i class="fas fa-tasks"></i> Demandas <i class="dropdown-arrow fas" [ngClass]="mobileDropdowns['demandas'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="controleDemandas(); toggleMenu()">Controle Demandas</button>
+              <button (click)="suasDemandas(); toggleMenu()">Suas Demandas</button>
             </div>
           </div>
           

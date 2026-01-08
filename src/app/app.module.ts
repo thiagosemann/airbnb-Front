@@ -50,6 +50,8 @@ import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component'
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
 import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
+import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
+import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +93,9 @@ import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio
     MigrarICALComponent,
     CalendarioMobileComponent,
     CheckoutsDiariosComponent,
-    RelatorioNFComponent
+    RelatorioNFComponent,
+    ControleDemandasComponent,
+    SuasDemandasComponent
     ],
   imports: [
     BrowserModule,

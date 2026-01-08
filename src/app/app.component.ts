@@ -46,7 +46,9 @@ export class AppComponent implements OnInit {
     'controleNodeMcuPortas',
     'nps-limpeza',
     'migrarIcal',
-    'relatorioNF'
+    'relatorioNF',
+    'controleDemandas',
+    'suasDemandas'
 
   ];
 
