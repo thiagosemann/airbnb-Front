@@ -1,0 +1,162 @@
+.panel-base {
+	background: linear-gradient(135deg,#fcfefe 0%,#f7fbfa 50%,#f4faf9 100%);
+	border: 1px solid #ddeae7;
+	border-radius: 16px;
+	padding: 18px 20px;
+	margin-bottom: 22px;
+	box-shadow: 0 6px 20px rgba(0,0,0,.04);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.calendar-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	margin-bottom: 2rem;
+}
+
+.calendar-table th {
+	position: sticky;
+	top: 0;
+	background: #00a699;
+	color: #fff;
+	padding: 1rem;
+	font-weight: 600;
+	font-size: .85rem;
+	text-transform: uppercase;
+	z-index: 5;
+}
+
+.calendar-table th:nth-child(n+3) {
+	text-align: center;
+}
+
+.calendar-table td {
+	padding: 1rem;
+	border-bottom: 1px solid #e4e4e4;
+	color: #444;
+	font-size: .95rem;
+}
+
+.calendar-table td:nth-child(n+3) {
+	text-align: center;
+}
+
+.calendar-table a {
+	color: #00a699;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.calendar-table a:hover {
+	text-decoration: underline;
+}
+
+ .kit-table th {
+	background: #00a699;
+}
+
+.kit-loading,
+.kit-empty {
+	padding: 0.9rem 0.5rem;
+	color: #5e6d77;
+	font-weight: 500;
+}
+
+.kit-mobile {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.kit-card {
+	border: 1px solid #e4e4e4;
+	border-radius: 10px;
+	padding: 0.85rem 1rem;
+	background: #fff;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.kit-card-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.2rem 0;
+}
+
+.kit-card-row .label { color:#6b7280; font-weight: 600; }
+.kit-card-row .value { color:#111827; font-weight: 600; }
+
+.predio-panel {
+	margin-bottom: 1.5rem;
+}
+
+.predio-panel .accordion-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.8rem;
+	padding: 12px 14px;
+	border: 1px solid #d1eeec;
+	border-radius: 12px;
+	background: #f7fbfa;
+	color: #0f766e;
+	cursor: pointer;
+	transition: background .2s, border-color .2s;
+}
+
+.predio-panel .accordion-toggle:hover {
+	background: #eefaf7;
+	border-color: #c5e6de;
+}
+
+.predio-panel .accordion-toggle .left {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-weight: 600;
+}
+
+.predio-panel .accordion-toggle .right {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	color: #0f766e;
+	font-weight: 600;
+}
+
+.predio-panel .accordion-body {
+	margin-top: 12px;
+}
+
+.kit-filter {
+	margin-bottom: 10px;
+}
+
+.enxoval-totals {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 8px 0 14px;
+}
+
+.total-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #e6f7f6;
+	border: 1px solid #d1eeec;
+	border-radius: 12px;
+	padding: 8px 12px;
+	color: #0f766e;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.total-chip .label {
+	color: #0b4f46;
+}

@@ -147,7 +147,7 @@
 						<h3><i class="bi bi-info-circle"></i> Apartamento e Responsável</h3>
 						<div class="form-row">
 							<div class="form-group">
-								<label>Apartamento *</label>
+								<label>Apartamento (opcional)</label>
 								<select formControlName="apartamento_id" class="form-select">
 									<option [ngValue]="null" disabled>Selecione</option>
 									<option *ngFor="let a of apartamentos" [ngValue]="a.id">{{ a.nome }}</option>

@@ -65,7 +65,7 @@ export class ControleDemandasComponent implements OnInit {
   private initForm(): void {
     this.form = this.fb.group({
       id: [null],
-      apartamento_id: [null, Validators.required],
+      apartamento_id: [null],
       user_id_responsavel: [null, Validators.required],
       reserva_id: [null],
       user_id_created: [null], // setado ao salvar
@@ -93,7 +93,7 @@ export class ControleDemandasComponent implements OnInit {
     this.demandasSrv.getAllDemandas().subscribe({
       next: ds => {
         this.demandas = ds;
-        this.demandasFiltradas = this.ordenarPorStatus([...this.demandas]);
+        this.demandasFiltradas = this.ordenarDemandas([...this.demandas]);
         this.loading = false;
       },
       error: () => {
@@ -136,7 +136,7 @@ export class ControleDemandasComponent implements OnInit {
       const usuarioOk = !this.filtroUsuarioId || d.user_id_responsavel === this.filtroUsuarioId;
       return textoOk && statusOk && usuarioOk;
     });
-    this.demandasFiltradas = this.ordenarPorStatus(filtered);
+    this.demandasFiltradas = this.ordenarDemandas(filtered);
   }
 
   abrirModal(): void {
@@ -282,17 +282,28 @@ export class ControleDemandasComponent implements OnInit {
 
   private getStatusRank(status?: string | null): number {
     const s = this.removerAcentos(String(status || '')).toLowerCase();
-    if (s === 'em andamento' || s === 'andamento') return 0;
-    if (s === 'pendente') return 1;
+    if (s === 'pendente') return 0;
+    if (s === 'em andamento' || s === 'andamento') return 1;
     if (s === 'concluida' || s === 'concluída') return 2;
     return 3;
   }
 
-  private ordenarPorStatus(arr: Demanda[]): Demanda[] {
+  private getPrazoTimestamp(prazo?: string | Date | null): number {
+    if (!prazo) return Number.POSITIVE_INFINITY;
+    const d = new Date(String(prazo));
+    return isNaN(d.getTime()) ? Number.POSITIVE_INFINITY : d.getTime();
+  }
+
+  private ordenarDemandas(arr: Demanda[]): Demanda[] {
     return [...arr].sort((a, b) => {
       const ra = this.getStatusRank(a.status);
       const rb = this.getStatusRank(b.status);
       if (ra !== rb) return ra - rb;
+
+      const pa = this.getPrazoTimestamp(a.prazo);
+      const pb = this.getPrazoTimestamp(b.prazo);
+      if (pa !== pb) return pa - pb;
+
       const ad = (a.created_at || '').toString();
       const bd = (b.created_at || '').toString();
       return bd.localeCompare(ad);

@@ -1,0 +1,115 @@
+<div class="panel-base predio-panel">
+	<button class="accordion-toggle" (click)="togglePredios()" [class.open]="showPredios">
+		<div class="left">
+			<i class="fa-solid fa-building"></i>
+			<span>Prédios com Limpeza</span>
+		</div>
+		<div class="right">
+			<i class="fas" [ngClass]="showPredios ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+		</div>
+	</button>
+
+	<div class="accordion-body" *ngIf="showPredios">
+		<div class="kit-filter">
+			<input type="text" class="form-control" placeholder="Buscar prédio ou terceirizada..." [(ngModel)]="predioSearchTerm">
+		</div>
+
+		<div class="enxoval-totals" *ngIf="!carregandoFaxinas && prediosFiltrados.length">
+			<div class="total-chip">
+				<span class="label">SL Casal</span>
+				<span class="value">{{ totaisEnxoval.enxovalSobreLencolCasal }}</span>
+			</div>
+			<div class="total-chip">
+				<span class="label">Fronha</span>
+				<span class="value">{{ totaisEnxoval.enxovalFronha }}</span>
+			</div>
+			<div class="total-chip">
+				<span class="label">SL Solteiro</span>
+				<span class="value">{{ totaisEnxoval.enxovalSobreLencolSolteiro }}</span>
+			</div>
+			<div class="total-chip">
+				<span class="label">Toalhas</span>
+				<span class="value">{{ totaisEnxoval.enxovalToalhas }}</span>
+			</div>
+			<div class="total-chip">
+				<span class="label">Pisos</span>
+				<span class="value">{{ totaisEnxoval.enxovalPisos }}</span>
+			</div>
+			<div class="total-chip">
+				<span class="label">Rostos</span>
+				<span class="value">{{ totaisEnxoval.enxovalRostos }}</span>
+			</div>
+		</div>
+
+		<div *ngIf="carregandoFaxinas" class="kit-loading">Carregando prédios...</div>
+
+		<table class="calendar-table kit-table d-none d-lg-table" *ngIf="!carregandoFaxinas && prediosFiltrados.length > 0">
+			<thead>
+				<tr>
+					<th>Prédio</th>
+					<th>Terceirizada</th>
+					<th>SL Casal</th>
+					<th>Fronha</th>
+					<th>SL Solteiro</th>
+					<th>Toalhas</th>
+					<th>Pisos</th>
+					<th>Rostos</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let predio of prediosFiltrados">
+					<td>{{ predio.predioNome }}</td>
+					<td>{{ predio.faxineirosNomes.length ? predio.faxineirosNomes.join(', ') : (predio.faxineiros.length ? predio.faxineiros.join(', ') : '-') }}</td>
+					<td>{{ predio.enxovalSobreLencolCasal }}</td>
+					<td>{{ predio.enxovalFronha }}</td>
+					<td>{{ predio.enxovalSobreLencolSolteiro }}</td>
+					<td>{{ predio.enxovalToalhas }}</td>
+					<td>{{ predio.enxovalPisos }}</td>
+					<td>{{ predio.enxovalRostos }}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="kit-mobile d-block d-lg-none" *ngIf="!carregandoFaxinas">
+			<div *ngFor="let predio of prediosFiltrados" class="kit-card">
+				<div class="kit-card-row">
+					<span class="label">Prédio</span>
+					<span class="value">{{ predio.predioNome }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">Faxina</span>
+					<span class="value">{{ predio.faxineirosNomes.length ? predio.faxineirosNomes.join(', ') : (predio.faxineiros.length ? predio.faxineiros.join(', ') : '-') }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">SL Casal</span>
+					<span class="value">{{ predio.enxovalSobreLencolCasal }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">Fronha</span>
+					<span class="value">{{ predio.enxovalFronha }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">SL Solteiro</span>
+					<span class="value">{{ predio.enxovalSobreLencolSolteiro }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">Toalhas</span>
+					<span class="value">{{ predio.enxovalToalhas }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">Pisos</span>
+					<span class="value">{{ predio.enxovalPisos }}</span>
+				</div>
+				<div class="kit-card-row">
+					<span class="label">Rostos</span>
+					<span class="value">{{ predio.enxovalRostos }}</span>
+				</div>
+			</div>
+			<div *ngIf="prediosFiltrados.length === 0" class="kit-empty">Nenhum prédio no período selecionado.</div>
+		</div>
+
+		<div *ngIf="!carregandoFaxinas && prediosFiltrados.length === 0" class="kit-empty d-none d-lg-block">
+			Nenhum prédio no período selecionado.
+		</div>
+	</div>
+</div>

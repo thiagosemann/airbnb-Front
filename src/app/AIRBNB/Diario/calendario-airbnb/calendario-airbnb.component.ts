@@ -1,18 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
-import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { MercadoPagoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mercadoPago_service';
 import { CadastroMensagemViaLinkService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mensagemCadastroViaLink_service';
-import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
-import { Predio } from 'src/app/shared/utilitarios/predio';
-import { forkJoin, of } from 'rxjs';
-import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
-import { User } from 'src/app/shared/utilitarios/user';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -27,7 +20,6 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   todasReservas: ReservaAirbnb[] = [];
   reservasFiltradas: ReservaAirbnb[] = [];
   carregando: boolean = true;
-  carregandoFaxinas: boolean = false;
   showModal: boolean = false;
   selectedReservation: ReservaAirbnb | undefined;
   hospedesReserva: any[] = [];
@@ -45,31 +37,17 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   dataFim: string;
   searchTerm: string = '';
   reservasExibidas: ReservaAirbnb[] = [];
-  faxinasPorPeriodo: ReservaAirbnb[] = [];
-  faxinasPorPredio: { predioId: number; predioNome: string; faxineiros: number[]; faxineirosNomes: string[] }[] = [];
-  apartamentosCache: Apartamento[] = [];
-  prediosCache: Predio[] = [];
-  apartamentosMap: Map<number, Apartamento> = new Map();
-  prediosMap: Map<number, string> = new Map();
-  faxinasCarregadas: boolean = false;
-  showPredios: boolean = false;
-  predioSearchTerm: string = '';
-  users: User[] = [];
   
   // Armazena URLs temporárias criadas para preview de PDFs
   private pdfObjectUrls: string[] = [];
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
-    private apartamentoService: ApartamentoService,
     private checkinFormService: CheckInFormService,
     private sanitizer: DomSanitizer,
     private toastr: ToastrService,
     private mercadoPagoService: MercadoPagoService,
-    private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService,
-    private predioService: PredioService,
-    private userService: UserService
-    
+    private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -84,22 +62,10 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.carregarPeriodo();
-    this.getUsersByRole();
   }
 
   ngOnDestroy(): void {
     this.revokeObjectUrls();
-  }
-
-  getUsersByRole():void{
-    this.userService.getUsersByRole('terceirizado').subscribe(
-      users => {
-        this.users = users;
-      },
-      error => {
-        console.error('Erro ao obter os eventos do calendário', error);
-      }
-    );
   }
 
   private formatarDataParaInput(data: Date): string {
@@ -150,102 +116,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       });
   }
 
-  carregarFaxinasPorPeriodo(): void {
-    this.carregandoFaxinas = true;
-    const apartamentos$ = this.apartamentosCache.length ? of(this.apartamentosCache) : this.apartamentoService.getAllApartamentos();
-    const predios$ = this.prediosCache.length ? of(this.prediosCache) : this.predioService.getAllPredios();
-
-    forkJoin({
-      faxinas: this.reservasAirbnbService.getFaxinasPorPeriodo(this.dataInicio, this.dataFim),
-      apartamentos: apartamentos$,
-      predios: predios$
-    }).subscribe({
-      next: ({ faxinas, apartamentos, predios }) => {
-        console.log('Faxinas carregadas:', faxinas);
-        if (apartamentos && apartamentos.length) {
-          this.apartamentosCache = apartamentos;
-          this.apartamentosMap = new Map(apartamentos.map(a => [a.id, a]));
-        }
-        if (predios && predios.length) {
-          this.prediosCache = predios;
-          this.prediosMap = new Map(predios.map(p => [p.id, p.nome]));
-        }
-
-        const order = faxinas.slice().sort((a, b) => {
-          const aCancel = a.description === 'CANCELADA' ? 1 : 0;
-          const bCancel = b.description === 'CANCELADA' ? 1 : 0;
-          if (aCancel !== bCancel) return aCancel - bCancel;
-          const ad = new Date(a.end_data).getTime();
-          const bd = new Date(b.end_data).getTime();
-          return ad - bd;
-        });
-        this.faxinasPorPeriodo = order;
-        this.agruparFaxinasPorPredio();
-        this.faxinasCarregadas = true;
-        this.carregandoFaxinas = false;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar faxinas:', error);
-        this.toastr.error('Erro ao carregar faxinas');
-        this.faxinasCarregadas = false;
-        this.carregandoFaxinas = false;
-      }
-    });
-  }
-
   carregarPeriodo(): void {
     this.carregarReservasPorPeriodo();
-    this.faxinasPorPeriodo = [];
-    this.faxinasPorPredio = [];
-    this.faxinasCarregadas = false;
-    if (this.showPredios) {
-      this.carregarFaxinasPorPeriodo();
-    }
-  }
-
-  togglePredios(): void {
-    this.showPredios = !this.showPredios;
-    if (this.showPredios && !this.faxinasCarregadas && !this.carregandoFaxinas) {
-      this.carregarFaxinasPorPeriodo();
-    }
-  }
-
-  private agruparFaxinasPorPredio(): void {
-    const grupo = new Map<number, Set<number>>();
-
-    this.faxinasPorPeriodo.forEach(f => {
-      const apt = this.apartamentosMap.get(f.apartamento_id);
-      const predioId = apt?.predio_id ?? -1;
-      if (!grupo.has(predioId)) {
-        grupo.set(predioId, new Set<number>());
-      }
-      if (f.faxina_userId) {
-        grupo.get(predioId)!.add(f.faxina_userId);
-      }
-    });
-
-    const lista = Array.from(grupo.entries()).map(([predioId, users]) => {
-      const ids = Array.from(users).sort((a, b) => a - b);
-      const nomes = ids.map(id => this.users.find(u => u.id === id)?.first_name).filter(Boolean) as string[];
-      return {
-        predioId,
-        predioNome: this.prediosMap.get(predioId) || 'Sem prédio',
-        faxineiros: ids,
-        faxineirosNomes: nomes
-      };
-    });
-
-    this.faxinasPorPredio = lista.sort((a, b) => a.predioNome.localeCompare(b.predioNome));
-  }
-
-  get prediosFiltrados(): { predioId: number; predioNome: string; faxineiros: number[]; faxineirosNomes: string[] }[] {
-    const term = this.predioSearchTerm.trim().toLowerCase();
-    if (!term) return this.faxinasPorPredio;
-    return this.faxinasPorPredio.filter(p =>
-      p.predioNome.toLowerCase().includes(term)
-      || p.faxineirosNomes.some(n => n.toLowerCase().includes(term))
-      || p.faxineiros.some(id => id.toString().includes(term))
-    );
   }
   aplicarSearch(): void {
     const term = this.searchTerm.trim().toLowerCase();

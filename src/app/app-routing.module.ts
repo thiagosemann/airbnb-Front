@@ -5,7 +5,7 @@ import { AuthGuardService } from './shared/service/authGuard';
 
 import { LandingComponent } from './Acesso/landing/landing.component';
 import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
-import { CalendarioAirbnbComponent } from './AIRBNB/calendario-airbnb/calendario-airbnb.component';
+import { CalendarioAirbnbComponent } from './AIRBNB/Diario/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
 import { ContentComponent } from './Acesso/content/content.component';
 import { LoginComponent } from './Acesso/login/login.component';

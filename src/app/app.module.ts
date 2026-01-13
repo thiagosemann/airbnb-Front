@@ -12,7 +12,7 @@ import { AppComponent } from './app.component';
 import { LandingComponent } from './Acesso/landing/landing.component';
 import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
 
-import { CalendarioAirbnbComponent } from './AIRBNB/calendario-airbnb/calendario-airbnb.component';
+import { CalendarioAirbnbComponent } from './AIRBNB/Diario/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
 import { ContentComponent } from './Acesso/content/content.component';
 import { LoginComponent } from './Acesso/login/login.component';
@@ -52,6 +52,7 @@ import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-
 import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
 import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
 import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
+import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/predios-com-limpeza.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-dema
     CheckoutsDiariosComponent,
     RelatorioNFComponent,
     ControleDemandasComponent,
-    SuasDemandasComponent
+    SuasDemandasComponent,
+    PrediosComLimpezaComponent
     ],
   imports: [
     BrowserModule,
