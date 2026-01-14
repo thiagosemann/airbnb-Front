@@ -24,6 +24,10 @@ export class ControleDemandasComponent implements OnInit {
 
   // Dados auxiliares
   apartamentos: Apartamento[] = [];
+  filteredApartamentos: Apartamento[] = [];
+  showAptoList = false;
+  aptoInputValue = '';
+  private aptoListCloseTimer: any;
   usuarios: User[] = [];
   currentUser: User | null = null;
 
@@ -42,8 +46,9 @@ export class ControleDemandasComponent implements OnInit {
 
   // Filtro rápido
   filtroTexto = '';
-  filtroStatus = '';
+  filtroStatus = 'pendente';
   filtroUsuarioId: number | null = null;
+	activeStatusTab: string = 'pendente';
 
   constructor(
     private fb: FormBuilder,
@@ -79,7 +84,10 @@ export class ControleDemandasComponent implements OnInit {
 
   private carregarAuxiliares(): void {
     this.aptoSrv.getAllApartamentos().subscribe({
-      next: a => (this.apartamentos = a),
+    next: a => {
+    this.apartamentos = this.sortApartamentos(a);
+    this.filteredApartamentos = [...this.apartamentos];
+    },
       error: () => this.toastr.error('Erro ao carregar apartamentos')
     });
     this.userSrv.getUsersByRole('admin').subscribe({
@@ -93,7 +101,7 @@ export class ControleDemandasComponent implements OnInit {
     this.demandasSrv.getAllDemandas().subscribe({
       next: ds => {
         this.demandas = ds;
-        this.demandasFiltradas = this.ordenarDemandas([...this.demandas]);
+        this.applyFilters();
         this.loading = false;
       },
       error: () => {
@@ -109,6 +117,13 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   filtrarStatus(status: string): void {
+  this.filtroStatus = this.normalizeStatusValue(status);
+  this.activeStatusTab = this.filtroStatus;
+    this.applyFilters();
+  }
+
+  setStatusTab(status: string): void {
+    this.activeStatusTab = status;
     this.filtroStatus = status;
     this.applyFilters();
   }
@@ -120,11 +135,11 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   getStatusClass(status?: string | null): string {
-    const s = String(status || '').toLowerCase();
-    if (s === 'pendente') return 'status-pendente';
-    if (s === 'em andamento' || s === 'andamento') return 'status-andamento';
-    if (s === 'concluída' || s === 'concluida') return 'status-concluida';
-    return '';
+  const s = this.normalizeStatusValue(status);
+  if (s === 'pendente') return 'status-pendente';
+  if (s === 'finalizada') return 'status-finalizada';
+  if (s === 'cancelada') return 'status-cancelada';
+  return '';
   }
 
   private applyFilters(): void {
@@ -132,7 +147,7 @@ export class ControleDemandasComponent implements OnInit {
       const textoOk = !this.filtroTexto
         || (d.demanda || '').toLowerCase().includes(this.filtroTexto)
         || (d.apartamento_nome || '').toLowerCase().includes(this.filtroTexto);
-      const statusOk = !this.filtroStatus || d.status === this.filtroStatus;
+    const statusOk = !this.filtroStatus || this.normalizeStatusValue(d.status) === this.filtroStatus;
       const usuarioOk = !this.filtroUsuarioId || d.user_id_responsavel === this.filtroUsuarioId;
       return textoOk && statusOk && usuarioOk;
     });
@@ -151,13 +166,20 @@ export class ControleDemandasComponent implements OnInit {
     this.reservaResultados = [];
     this.reservaSelecionada = null;
     this.reservaErro = null;
+  this.aptoInputValue = '';
+  this.filteredApartamentos = [...this.apartamentos];
   }
 
   editar(d: Demanda): void {
+    console.log('Editando demanda:', d);
     this.isEditing = true;
     this.showModal = true;
     this.demandaSelecionada = d;
-    this.form.patchValue(d);
+    const prazoInput = this.toDateInputValue(d.prazo);
+    this.form.patchValue({
+      ...d,
+      prazo: prazoInput
+    });
     // Se a demanda já tiver reserva vinculada, preenche estado visual
     if (d.reserva_id) {
       this.reservaSelecionada = {
@@ -179,18 +201,20 @@ export class ControleDemandasComponent implements OnInit {
         horarioPrevistoChegada: []
       } as ReservaAirbnb;
     }
+    this.aptoInputValue = this.getAptoNome(d.apartamento_id);
+    this.filteredApartamentos = [...this.apartamentos];
   }
 
   excluir(d: Demanda): void {
     if (!d?.id) return;
     if (!confirm('Tem certeza que deseja excluir esta demanda?')) return;
-    this.demandasSrv.deleteDemanda(d.id).subscribe({
-      next: () => {
-        this.toastr.success('Demanda excluída com sucesso');
-        this.carregarDemandas();
-      },
-      error: () => this.toastr.error('Erro ao excluir demanda')
-    });
+  this.demandasSrv.updateDemanda(d.id, { status: 'Cancelada' }).subscribe({
+    next: () => {
+    this.toastr.success('Demanda cancelada');
+    this.carregarDemandas();
+    },
+    error: () => this.toastr.error('Erro ao cancelar demanda')
+  });
   }
 
   salvar(): void {
@@ -280,12 +304,16 @@ export class ControleDemandasComponent implements OnInit {
     return v.charAt(0).toUpperCase() + v.slice(1);
   }
 
+  isDemandaTruncada(text?: string | null, maxChars = 70): boolean {
+    return String(text || '').trim().length > maxChars;
+  }
+
   private getStatusRank(status?: string | null): number {
-    const s = this.removerAcentos(String(status || '')).toLowerCase();
-    if (s === 'pendente') return 0;
-    if (s === 'em andamento' || s === 'andamento') return 1;
-    if (s === 'concluida' || s === 'concluída') return 2;
-    return 3;
+  const s = this.normalizeStatusValue(status);
+  if (s === 'pendente') return 0;
+  if (s === 'finalizada') return 1;
+  if (s === 'cancelada') return 2;
+  return 3;
   }
 
   private getPrazoTimestamp(prazo?: string | Date | null): number {
@@ -317,6 +345,23 @@ export class ControleDemandasComponent implements OnInit {
     return 'type-default';
   }
 
+  private sortApartamentos(list: Apartamento[]): Apartamento[] {
+    return [...(list || [])].sort((a, b) => {
+      const na = String(a?.nome || '').toLocaleLowerCase();
+      const nb = String(b?.nome || '').toLocaleLowerCase();
+      return na.localeCompare(nb, 'pt-BR');
+    });
+  }
+
+  private normalizeStatusValue(status?: string | null): string {
+  const s = this.removerAcentos(String(status || '')).toLowerCase();
+  if (s === 'pendente') return 'pendente';
+  if (s === 'finalizada' || s === 'concluida' || s === 'concluída') return 'finalizada';
+  if (s === 'cancelada' || s === 'cancelado') return 'cancelada';
+  if (s === 'em andamento' || s === 'andamento') return 'pendente';
+  return s;
+  }
+
   // Datas
   formatDateBr(value?: string | Date | null): string {
     if (!value) return '-';
@@ -336,6 +381,24 @@ export class ControleDemandasComponent implements OnInit {
       return `${dd}/${mm}/${yyyy}`;
     }
     return '-';
+  }
+
+  private toDateInputValue(value?: string | Date | null): string {
+    if (!value) return '';
+    const s = String(value);
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      const [, y, mm, dd] = m;
+      return `${y}-${mm}-${dd}`;
+    }
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      const yyyy = String(d.getFullYear());
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    return '';
   }
 
   // Reserva (opcional)
@@ -379,6 +442,35 @@ export class ControleDemandasComponent implements OnInit {
     this.reservaResultados = [];
     this.reservaCodigo = '';
     this.form.get('reserva_id')?.setValue(null);
+  }
+
+  // Aptos dropdown / typeahead
+  openAptoList(): void {
+    this.showAptoList = true;
+    this.filteredApartamentos = [...this.apartamentos];
+  }
+
+  closeAptoListLater(): void {
+    clearTimeout(this.aptoListCloseTimer);
+    this.aptoListCloseTimer = setTimeout(() => (this.showAptoList = false), 120);
+  }
+
+  onAptoTypeahead(value: string): void {
+    clearTimeout(this.aptoListCloseTimer);
+    this.aptoInputValue = String(value || '');
+    const term = this.aptoInputValue.trim().toLowerCase();
+    this.filteredApartamentos = term
+      ? this.apartamentos.filter(a => String(a.nome || '').toLowerCase().includes(term))
+      : [...this.apartamentos];
+    this.showAptoList = true;
+    const exact = this.apartamentos.find(a => String(a.nome || '').toLowerCase() === term);
+    this.form.get('apartamento_id')?.setValue(exact ? exact.id : null);
+  }
+
+  selectApto(apto: Apartamento): void {
+    this.aptoInputValue = apto.nome || '';
+    this.form.get('apartamento_id')?.setValue(apto.id || null);
+    this.showAptoList = false;
   }
 
 }

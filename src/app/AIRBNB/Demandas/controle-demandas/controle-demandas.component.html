@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-Demandas">
 	<div class="header-card">
 		<div class="header-title">
 			<i class="bi bi-list-check"></i>
@@ -17,11 +17,11 @@
 					<option *ngFor="let u of usuarios" [value]="u.id">{{ formatNomeCurto(u.first_name) }}</option>
 				</select>
 
-				<select class="form-select control-select" (change)="filtrarStatus($any($event.target)?.value)">
+				<select *ngIf="activeStatusTab === ''" class="form-select control-select" (change)="filtrarStatus($any($event.target)?.value)">
 					<option value="">Todos status</option>
 					<option value="Pendente">Pendente</option>
-					<option value="Em andamento">Em andamento</option>
-					<option value="Concluída">Concluída</option>
+					<option value="Finalizada">Finalizada</option>
+					<option value="Cancelada">Cancelada</option>
 				</select>
 
 				<button class="btn-add" (click)="abrirModal()">
@@ -45,9 +45,35 @@
 				</div>
 			</div>
 
+			<div class="form-section" *ngIf="isEditing && demandaSelecionada">
+				<h3><i class="bi bi-clock-history"></i> Auditoria</h3>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Criado em</label>
+						<input class="form-control" [value]="formatDateBr(demandaSelecionada.created_at)" readonly>
+					</div>
+					<div class="form-group">
+						<label>Atualizado em</label>
+						<input class="form-control" [value]="formatDateBr(demandaSelecionada.updated_at)" readonly>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Criado por</label>
+						<input class="form-control" [value]="getUserName(demandaSelecionada.user_id_created) || demandaSelecionada.user_id_created" readonly>
+					</div>
+				</div>
+			</div>
+
 			<div class="ticket-details">
-				<div class="ticket-item">
-					<i class="bi bi-chat-left-text"></i> {{ d.demanda }}
+				<div class="ticket-item demanda-row">
+					<div class="demanda-text one-line" [attr.title]="isDemandaTruncada(d.demanda) ? d.demanda : null">
+						<i class="bi bi-chat-left-text"></i> {{ d.demanda }}
+					</div>
+					<button *ngIf="isDemandaTruncada(d.demanda)" type="button" class="info-btn" [attr.title]="d.demanda">
+						<i class="fa fa-info-circle"></i>
+						<span class="tooltip-demand">{{ d.demanda }}</span>
+					</button>
 				</div>
 				<div class="ticket-values">
 					<div class="value-item"><span>Responsável:</span><strong>{{ getUserName(d.user_id_responsavel) }}</strong></div>
@@ -78,37 +104,48 @@
 
 	<!-- Tabela para desktop -->
 	<div class="d-none d-md-block" *ngIf="!loading">
+		<div class="status-tabs" style="margin-left: 5px;">
+			<button type="button" [class.active]="activeStatusTab === 'pendente'" (click)="setStatusTab('pendente')">Pendentes</button>
+			<button type="button" [class.active]="activeStatusTab === 'finalizada'" (click)="setStatusTab('finalizada')">Finalizadas</button>
+			<button type="button" [class.active]="activeStatusTab === 'cancelada'" (click)="setStatusTab('cancelada')">Canceladas</button>
+			<button type="button" [class.active]="activeStatusTab === ''" (click)="setStatusTab('')">Todas</button>
+
+		</div>
 		<div class="table-responsive">
 			<table class="tickets-table">
 				<thead>
 					<tr>
-						<th>Demanda</th>
-						<th>Apartamento</th>
-						<th>Responsável</th>
-						<th>Prazo</th>
-						<th>Período</th>
-						<th>Status</th>
-						<th>Tipo</th>
-						<th>Criada em</th>
-						<th>Atualizada em</th>
-						<th>Criada por</th>
-						<th>Ações</th>
+						<th style="width: 10%;">Prazo</th>
+						<th style="width: 8%;">Período</th>
+						<th style="width: 10%;">Status</th>
+						<th style="width: 10%;">Tipo</th>
+						<th style="width: 8%;">Apt</th>
+						<th style="width: 8%;">Responsável</th>
+						<th style="width: 38%;">Demanda</th>
+						<th style="width: 8%;">Ações</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr *ngFor="let d of demandasFiltradas">
-						<td>{{ d.demanda }}</td>
-						<td>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}</td>
-						<td>{{ getUserName(d.user_id_responsavel) }}</td>
 						<td>{{ formatDateBr(d.prazo) }}</td>
 						<td>{{ displayPeriodo(d.periodo) }}</td>
 						<td>
 							<span class="status-badge" [ngClass]="getStatusClass(d.status)">{{ d.status }}</span>
 						</td>
-						<td><span class="type-badge" [ngClass]="getTypeClass(d.type)">{{ displayTipo(d.type) }}</span></td>
-						<td>{{ formatDateBr(d.created_at) }}</td>
-						<td>{{ formatDateBr(d.updated_at) }}</td>
-						<td>{{ getUserName(d.user_id_created) || d.user_id_created }}</td>
+						<td>
+							<span class="type-badge" [ngClass]="getTypeClass(d.type)">{{ displayTipo(d.type) }}</span>
+						</td>
+						<td>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}</td>
+						<td>{{ getUserName(d.user_id_responsavel) }}</td>
+						<td class="demanda-text one-line">
+							<div class="demanda-row">
+								<span class="demanda-text one-line" [attr.title]="isDemandaTruncada(d.demanda) ? d.demanda : null">{{ d.demanda }}</span>
+								<button *ngIf="isDemandaTruncada(d.demanda)" type="button" class="info-btn" [attr.title]="d.demanda">
+									<i class="fa fa-info-circle"></i>
+									<span class="tooltip-demand">{{ d.demanda }}</span>
+								</button>
+							</div>
+						</td>
 						<td>
 							<div class="actions">
 								<button class="btn-edit" (click)="editar(d)" title="Editar">
@@ -121,7 +158,7 @@
 						</td>
 					</tr>
 					<tr *ngIf="!demandasFiltradas.length">
-						<td colspan="11" class="no-results-table">
+						<td colspan="8" class="no-results-table">
 							<i class="bi bi-list-check"></i>
 							Nenhuma demanda encontrada
 						</td>
@@ -132,7 +169,7 @@
 	</div>
 
 	<!-- Modal CRUD -->
-	<div class="modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
+	<div class="modal-backdrop" *ngIf="showModal">
 		<div class="modal-content" (click)="$event.stopPropagation()">
 			<div class="modal-header">
 				<h2>{{ isEditing ? 'Editar Demanda' : 'Nova Demanda' }}</h2>
@@ -148,10 +185,22 @@
 						<div class="form-row">
 							<div class="form-group">
 								<label>Apartamento (opcional)</label>
-								<select formControlName="apartamento_id" class="form-select">
-									<option [ngValue]="null" disabled>Selecione</option>
-									<option *ngFor="let a of apartamentos" [ngValue]="a.id">{{ a.nome }}</option>
-								</select>
+								<div class="apto-combo">
+									<input
+										type="text"
+										class="form-control"
+										[placeholder]="'Digite ou selecione'"
+										[(ngModel)]="aptoInputValue"
+										[ngModelOptions]="{standalone: true}"
+										(input)="onAptoTypeahead($any($event.target)?.value)"
+										(focus)="openAptoList()"
+										(blur)="closeAptoListLater()">
+									<span class="combo-caret" aria-hidden="true">▼</span>
+									<div class="apto-dropdown" *ngIf="showAptoList" (mousedown)="$event.preventDefault()">
+										<button type="button" class="apto-option" *ngFor="let a of filteredApartamentos" (click)="selectApto(a)">{{ a.nome }}</button>
+										<div *ngIf="!filteredApartamentos.length" class="apto-empty">Nenhum encontrado</div>
+									</div>
+								</div>
 							</div>
 							<div class="form-group">
 								<label>Responsável *</label>
@@ -190,8 +239,8 @@
 								<label>Status</label>
 								<select formControlName="status" class="form-select">
 									<option value="Pendente">Pendente</option>
-									<option value="Em andamento">Em andamento</option>
-									<option value="Concluída">Concluída</option>
+									<option value="Finalizada">Finalizada</option>
+									<option value="Cancelada">Cancelada</option>
 								</select>
 							</div>
 						</div>

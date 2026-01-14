@@ -21,8 +21,9 @@
 
 .card-header { background: #f0fdf9; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e4e4e4; }
 .card-header h3 { margin: 0; font-size: 1.15rem; color: #006400; }
-.status-badge { font-size: 1rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 12px; background: #ffe8e9; color: #006400; }
-.status-badge.done { background: #e0f8f5; color: #00a699; }
+.status-badge { font-size: 1rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 12px; background: #fff3e0; color: #c47c00; }
+.status-badge.done { background: #e8f5e9; color: #2e7d32; }
+.status-badge.cancelada { background: #fdecea; color: #c62828; }
 
 .card-body { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .card-row { display: flex; justify-content: space-between; font-size: 1.15rem; color: #444; }

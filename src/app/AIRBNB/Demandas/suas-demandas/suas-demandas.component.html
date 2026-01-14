@@ -21,8 +21,8 @@
 				<div *ngFor="let d of demandasHoje" class="faxina-card">
 					<div class="card-header">
 						<h3> {{ d.apartamento_nome }}</h3>
-						<span class="status-badge" [class.done]="d.status === 'Concluída'">
-							{{ d.status === 'Concluída' ? '✔ Concluída' : (d.status === 'Em andamento' ? '⏳ Em andamento' : '⌛️ Pendente') }}
+						<span class="status-badge" [class.done]="isFinalizada(d.status)" [class.cancelada]="isCancelada(d.status)">
+							{{ statusLabel(d.status) }}
 						</span>
 					</div>
 					<div class="card-body">
@@ -44,10 +44,10 @@
 					</div>
 					<div class="card-footer">
 						<label class="custom-checkbox">
-							<input type="checkbox" [checked]="d.status === 'Concluída'" (change)="updateStatus(d, $event)">
+							<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
 							<span class="checkmark"></span>
 						</label>
-						<span>Marcar como Concluída</span>
+						<span>Marcar como Finalizada</span>
 						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
 					</div>
 				</div>
@@ -75,8 +75,8 @@
 				<div *ngFor="let d of demandasFuturas" class="faxina-card">
 					<div class="card-header">
 						<h3>{{ d.apartamento_nome }}</h3>
-						<span class="status-badge" [class.done]="d.status === 'Concluída'">
-							{{ d.status === 'Concluída' ? '✔ Concluída' : (d.status === 'Em andamento' ? '⏳ Em andamento' : '⌛️ Pendente') }}
+						<span class="status-badge" [class.done]="isFinalizada(d.status)" [class.cancelada]="isCancelada(d.status)">
+							{{ statusLabel(d.status) }}
 						</span>
 					</div>
 					<div class="card-body">
@@ -98,10 +98,10 @@
 					</div>
 					<div class="card-footer">
 						<label class="custom-checkbox">
-							<input type="checkbox" [checked]="d.status === 'Concluída'" (change)="updateStatus(d, $event)">
+							<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
 							<span class="checkmark"></span>
 						</label>
-						<span>Marcar como Concluída</span>
+						<span>Marcar como Finalizada</span>
 						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
 					</div>
 				</div>
@@ -121,8 +121,8 @@
 		<div class="modal-body">
 			<div class="modal-row">
 				<strong>Status:</strong>
-				<span [class]="demandaSelecionada?.status === 'Concluída' ? 'status-finalizado' : 'status-pendente'">
-					{{ demandaSelecionada?.status }}
+				<span [class]="isFinalizada(demandaSelecionada?.status) ? 'status-finalizado' : (isCancelada(demandaSelecionada?.status) ? 'status-cancelado' : 'status-pendente')">
+					{{ statusLabel(demandaSelecionada?.status) }}
 				</span>
 			</div>
 			<div class="modal-row">

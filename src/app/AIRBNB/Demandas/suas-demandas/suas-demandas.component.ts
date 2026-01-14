@@ -60,10 +60,10 @@ export class SuasDemandasComponent implements OnInit {
     const hojeStr = this.formatarDataParaInput(new Date());
     this.demandasSrv.getDemandasByResponsavel(this.user.id).subscribe({
       next: (ds) => {
-        const todas = this.formatDates(ds);
-        this.demandasHoje = this.ordenarPorStatus(
-          todas.filter(d => this.isSameDateISO(d.prazo, hojeStr))
-        );
+		const todasPendentes = this.formatDates(ds).filter(d => this.isPendente(d.status));
+		this.demandasHoje = this.ordenarPorStatus(
+		  todasPendentes.filter(d => this.isSameDateISO(d.prazo, hojeStr))
+		);
         this.carregando = false;
       },
       error: () => {
@@ -82,10 +82,10 @@ export class SuasDemandasComponent implements OnInit {
     this.carregandoFuturas = true;
     this.demandasSrv.getDemandasByResponsavel(this.user.id).subscribe({
       next: (ds) => {
-        const todas = this.formatDates(ds);
-        this.demandasFuturas = this.ordenarPorStatus(
-          todas.filter(d => this.isBetweenISO(d.prazo, this.dataInicio, this.dataFim) && !this.isSameDateISO(d.prazo, this.formatarDataParaInput(new Date())))
-        );
+    const pendentes = this.formatDates(ds).filter(d => this.isPendente(d.status));
+    this.demandasFuturas = this.ordenarPorStatus(
+      pendentes.filter(d => this.isBetweenISO(d.prazo, this.dataInicio, this.dataFim) && !this.isSameDateISO(d.prazo, this.formatarDataParaInput(new Date())))
+    );
         this.carregandoFuturas = false;
       },
       error: () => {
@@ -97,12 +97,12 @@ export class SuasDemandasComponent implements OnInit {
 
   updateStatus(d: Demanda, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    const novoStatus = checked ? 'Concluída' : 'Pendente';
+	const novoStatus = checked ? 'Finalizada' : 'Pendente';
     if (!d.id) return;
     this.demandasSrv.updateDemanda(d.id, { status: novoStatus }).subscribe({
       next: () => {
         d.status = novoStatus;
-        this.toastr.success(checked ? 'Demanda concluída!' : 'Demanda marcada como pendente.');
+		this.toastr.success(checked ? 'Demanda finalizada!' : 'Demanda marcada como pendente.');
       },
       error: () => {
         this.toastr.error('Erro ao atualizar status da demanda');
@@ -215,11 +215,11 @@ export class SuasDemandasComponent implements OnInit {
   }
 
   private getStatusRank(status?: string | null): number {
-    const s = this.removerAcentos(String(status || '')).toLowerCase();
-    if (s === 'em andamento' || s === 'andamento') return 0;
-    if (s === 'pendente') return 1;
-    if (s === 'concluida' || s === 'concluída') return 2;
-    return 3;
+  const s = this.normalizeStatus(status);
+  if (s === 'pendente') return 0;
+  if (s === 'finalizada') return 1;
+  if (s === 'cancelada') return 2;
+  return 3;
   }
 
   private ordenarPorStatus(arr: Demanda[]): Demanda[] {
@@ -248,5 +248,33 @@ export class SuasDemandasComponent implements OnInit {
     if (v === 'escritorio') return 'Escritório';
     if (v === 'rua') return 'Rua';
     return v.charAt(0).toUpperCase() + v.slice(1);
+  }
+
+  // ===== Status helpers =====
+  private normalizeStatus(status?: string | null): string {
+    const s = this.removerAcentos(String(status || '')).toLowerCase();
+    if (s === 'finalizada' || s === 'concluida' || s === 'concluída') return 'finalizada';
+    if (s === 'cancelada' || s === 'cancelado') return 'cancelada';
+    if (s === 'em andamento' || s === 'andamento') return 'pendente';
+    return 'pendente';
+  }
+
+  isFinalizada(status?: string | null): boolean {
+    return this.normalizeStatus(status) === 'finalizada';
+  }
+
+  isCancelada(status?: string | null): boolean {
+    return this.normalizeStatus(status) === 'cancelada';
+  }
+
+  statusLabel(status?: string | null): string {
+    const s = this.normalizeStatus(status);
+    if (s === 'finalizada') return '✔ Finalizada';
+    if (s === 'cancelada') return '✖ Cancelada';
+    return '⌛️ Pendente';
+  }
+
+  isPendente(status?: string | null): boolean {
+    return this.normalizeStatus(status) === 'pendente';
   }
 }

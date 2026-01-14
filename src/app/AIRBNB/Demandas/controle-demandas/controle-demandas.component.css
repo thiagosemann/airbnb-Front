@@ -1,17 +1,17 @@
 /* Baseado no layout do controle-ticket-reembolso */
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-.container {
-	padding: 16px;
+.container-Demandas {
+	padding: 10px 20px 20px 20px;
 	background-color: #f8f9fa;
-	min-height: 100vh;
 }
 
 /* Header */
 .header-card {
 	background: white;
 	border-radius: 12px;
-	padding: 16px;
+	padding: 10px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	margin-bottom: 16px;
 	display: flex;
@@ -156,14 +156,14 @@
 	color: #f57f17;
 }
 
-.status-andamento {
-	background-color: #e3f2fd;
-	color: #1976d2;
-}
-
-.status-concluida {
+.status-finalizada {
 	background-color: #e8f5e9;
 	color: #2e7d32;
+}
+
+.status-cancelada {
+	background-color: #fdecea;
+	color: #c62828;
 }
 
 .ticket-details {
@@ -174,10 +174,41 @@
 
 .ticket-item {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 8px;
 	font-size: 0.95rem;
 	color: #555;
+}
+
+.demanda-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	position: relative;
+	overflow: visible;
+}
+
+.demanda-text {
+	word-break: break-word;
+	hyphens: auto;
+	line-height: 1.35;
+	color: #2f3336;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	line-clamp: 3;
+	-webkit-line-clamp: 3; /* default clamp */
+}
+
+.demanda-text.one-line {
+	line-clamp: 1;
+	-webkit-line-clamp: 1;
+	white-space: normal;
 }
 
 .ticket-values {
@@ -263,15 +294,50 @@
 .table-responsive {
 	background: white;
 	border-radius: 12px;
-	padding: 16px;
+	padding: 0 16px 16px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	max-height: 55vh;
 	overflow-x: auto;
+	overflow-y: auto;
+	position: relative;
+}
+
+.table-responsive::-webkit-scrollbar {
+	height: 10px;
+	width: 12px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+	background: #e7f3ec;
+	border-radius: 12px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+	background: #198754;
+	border-radius: 12px;
+	border: 2px solid #e7f3ec;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+	background: #157347;
+}
+
+.table-responsive {
+	scrollbar-width: thin;
+	scrollbar-color: #198754 #e7f3ec;
+}
+
+.tickets-table thead {
+	position: sticky;
+	top: 0;
+	z-index: 2;
 }
 
 .tickets-table {
 	width: 100%;
 	border-collapse: separate;
 	border-spacing: 0;
+	table-layout: fixed;
 }
 
 .tickets-table th {
@@ -280,12 +346,89 @@
 	font-weight: 500;
 	padding: 12px 16px;
 	text-align: left;
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .tickets-table td {
 	padding: 12px 16px;
 	border-bottom: 1px solid #eee;
-	vertical-align: middle;
+	vertical-align: top;
+	word-break: break-word;
+}
+
+.tickets-table td.demanda-text {
+	display: table-cell;
+	max-width: 520px;
+	font-size: 0.93rem;
+	line-height: 1.35;
+	position: relative;
+	overflow: visible;
+}
+
+.info-btn {
+	position: relative;
+	border: 1px solid #d7dbde;
+	background: #fff;
+	color: #555;
+	border-radius: 50%;
+	width: 28px;
+	height: 28px;
+	min-width: 28px;
+	min-height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.info-btn:hover,
+.info-btn:focus {
+	background: #f0f4f7;
+	border-color: #c5cacf;
+	color: #198754;
+}
+
+.info-btn .tooltip-demand {
+	display: none;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: calc(100% + 10px);
+	min-width: 260px;
+	max-width: 520px;
+	background: #0f172a;
+	color: #fff;
+	padding: 14px 16px;
+	border-radius: 12px;
+	box-shadow: 0 14px 32px rgba(0,0,0,0.22);
+	font-size: 0.95rem;
+	line-height: 1.5;
+	white-space: normal;
+	word-break: break-word;
+	text-align: left;
+	z-index: 20;
+}
+
+.info-btn .tooltip-demand::after {
+	content: '';
+	position: absolute;
+	bottom: -6px;
+	left: 50%;
+	transform: translateX(-50%);
+	border-width: 6px;
+	border-style: solid;
+	border-color: #0f172a transparent transparent transparent;
+}
+
+.info-btn:hover .tooltip-demand,
+.info-btn:focus .tooltip-demand,
+.info-btn:focus-within .tooltip-demand {
+	display: block;
 }
 
 .status-badge {
@@ -438,6 +581,90 @@
 	margin-bottom: 6px;
 }
 
+.apto-combo {
+	position: relative;
+}
+
+.apto-combo input.form-control {
+	background: #f8f9fa;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding-right: 38px;
+	height: 42px;
+}
+
+.apto-combo input.form-control:focus {
+	border-color: #198754;
+	box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+	outline: none;
+}
+
+.combo-caret {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #6c757d;
+	pointer-events: none;
+	font-size: 0.8rem;
+}
+
+.apto-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	margin-top: 4px;
+	max-height: 240px;
+	overflow-y: auto;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+	z-index: 25;
+	padding: 4px;
+}
+
+.apto-dropdown::-webkit-scrollbar {
+	width: 10px;
+}
+
+.apto-dropdown::-webkit-scrollbar-track {
+	background: #f3f4f6;
+	border-radius: 8px;
+}
+
+.apto-dropdown::-webkit-scrollbar-thumb {
+	background: #198754;
+	border-radius: 8px;
+	border: 2px solid #f3f4f6;
+}
+
+.apto-option {
+	width: 100%;
+	text-align: left;
+	border: none;
+	background: transparent;
+	padding: 8px 10px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 0.95rem;
+	color: #333;
+}
+
+.apto-option:hover,
+.apto-option:focus {
+	background: #e8f5e9;
+	outline: none;
+}
+
+.apto-empty {
+	padding: 10px;
+	text-align: center;
+	color: #6c757d;
+	font-size: 0.9rem;
+}
+
 .modal-footer-actions {
 	display: flex;
 	justify-content: flex-end;
@@ -458,6 +685,37 @@
 	align-items: center;
 }
 
+.status-tabs {
+	display: flex;
+	gap: 8px;
+	margin: 0 0 12px;
+	padding: 0;
+}
+
+.status-tabs button {
+	border: 1px solid #d9e2e8;
+	background: #f8f9fa;
+	color: #344054;
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.status-tabs button:hover {
+	border-color: #198754;
+	color: #198754;
+}
+
+.status-tabs button.active {
+	background: #198754;
+	color: #fff;
+	border-color: #198754;
+	box-shadow: 0 6px 16px rgba(25, 135, 84, 0.2);
+}
+
 .spin {
 	animation: spin 1s linear infinite;
 }
@@ -469,5 +727,4 @@
 @media (min-width: 768px) {
 	.header-actions { flex-direction: row; align-items: center; justify-content: space-between; }
 	.search-container { flex: 1; }
-	.filters-row { justify-content: flex-end; }
 }
