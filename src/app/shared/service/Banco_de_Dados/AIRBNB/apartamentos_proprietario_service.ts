@@ -37,6 +37,12 @@ export class ApartamentosProprietarioService {
     return this.http.get<any[]>(`${this.url}/apartamentos-proprietario/apartamentos/${user_id}`, { headers: this.getHeaders(token) });
   }
 
+  // Busca apartamentos sem vínculo
+  getApartamentosSemVinculo(): Observable<any[]> {
+    const token = this.getToken();
+    return this.http.get<any[]>(`${this.url}/apartamentos-proprietario/sem-vinculo`, { headers: this.getHeaders(token) });
+  }
+
   // Remove todos os vínculos de um apartamento
   removeAllProprietariosFromApartamento(apartamento_id: number): Observable<any> {
     const token = this.getToken();

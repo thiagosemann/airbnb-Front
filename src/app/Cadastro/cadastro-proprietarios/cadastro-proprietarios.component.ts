@@ -28,6 +28,11 @@ export class CadastroProprietariosComponent implements OnInit {
   apartamentosSelecionados: number[] = [];
   searchAptoTerm: string = '';
   apartamentosFiltrados: Apartamento[] = [];
+  sortKey: 'nome' | 'qtd' = 'nome';
+  sortDir: 'asc' | 'desc' = 'asc';
+  apartamentosSemProprietario: Apartamento[] = [];
+  selectedProprietarioPorApto: { [aptoId: number]: number | null } = {};
+  showUnlinked = false;
 
   constructor(
     private fb: FormBuilder,
@@ -53,16 +58,32 @@ export class CadastroProprietariosComponent implements OnInit {
     this.carregarApartamentos();
   }
 
-  carregarApartamentos() {
-    this.apartamentoService.getAllApartamentos().subscribe(
-      (apartamentos: Apartamento[]) => {
-        this.apartamentos = apartamentos;
-        this.apartamentosFiltrados = [...apartamentos]; // Inicializa com todos os apartamentos
-      },
-      (error) => {
-        console.error('Erro ao carregar apartamentos:', error);
-      }
-    );
+  async carregarApartamentos() {
+    try {
+      const apartamentos = await firstValueFrom(this.apartamentoService.getAllApartamentos());
+      this.apartamentos = apartamentos;
+      this.apartamentosFiltrados = [...apartamentos];
+      await this.atualizarApartamentosSemProprietario();
+    } catch (error) {
+      console.error('Erro ao carregar apartamentos:', error as any);
+    }
+  }
+
+  private async atualizarApartamentosSemProprietario() {
+    try {
+      const semVinculo = await firstValueFrom(this.aptoProprietarioService.getApartamentosSemVinculo());
+      // Backend já retorna { id, nome }
+      this.apartamentosSemProprietario = Array.isArray(semVinculo) ? semVinculo as any[] : [];
+    } catch (error) {
+      console.error('Erro ao buscar apartamentos sem vínculo:', error);
+      this.apartamentosSemProprietario = [];
+    }
+
+    const mapa: { [id: number]: number | null } = {};
+    this.apartamentosSemProprietario.forEach(a => {
+      mapa[a.id] = this.selectedProprietarioPorApto[a.id] ?? null;
+    });
+    this.selectedProprietarioPorApto = mapa;
   }
 
   filtrarApartamentos() {
@@ -83,9 +104,10 @@ export class CadastroProprietariosComponent implements OnInit {
 
   async carregarUsuarios() {
     try {
-      this.usersService.getUsers().subscribe(
+      this.usersService.getProprietarios().subscribe(
         (users: User[]) => {
-          this.users = users.filter(u => u.role === 'proprietario');
+          console.log('Usuários proprietários carregados:', users);
+          this.users = this.applySort(users);
           this.filteredUsers = [...this.users];
         },
         (error) => {
@@ -125,10 +147,7 @@ export class CadastroProprietariosComponent implements OnInit {
       (fetchedUser: User) => {
         this.userForm.patchValue({
           ...fetchedUser,
-          cpf: fetchedUser.cpf.replace(
-            /(\d{3})(\d{3})(\d{3})(\d{2})/,
-            '$1.$2.$3-$4'
-          )
+          cpf: this.formatCPF(fetchedUser.cpf)
         });
         // Buscar apartamentos já vinculados
         this.aptoProprietarioService.getApartamentosByProprietario(user.id).subscribe(
@@ -223,22 +242,50 @@ export class CadastroProprietariosComponent implements OnInit {
     const termo = this.searchTerm.toLowerCase().trim();
     
     if (!termo) {
-      this.filteredUsers = [...this.users];
+      this.filteredUsers = this.applySort(this.users);
       return;
     }
   
-    this.filteredUsers = this.users.filter(user => 
-      (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
-      user.cpf.replace(/\D/g, '').includes(termo) ||
-      (user.Telefone?.replace(/\D/g, '') || '').includes(termo) ||
-      user.role.toLowerCase().includes(termo)
+    this.filteredUsers = this.applySort(
+      this.users.filter(user => 
+        (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
+        user.cpf.replace(/\D/g, '').includes(termo) ||
+        (user.Telefone?.replace(/\D/g, '') || '').includes(termo) ||
+        user.role.toLowerCase().includes(termo)
+      )
     );
+  }
+
+  async vincularApartamentoSemProprietario(aptoId: number) {
+    const proprietarioId = this.selectedProprietarioPorApto[aptoId];
+    if (!proprietarioId) {
+      this.toastr.warning('Selecione um proprietário para vincular.');
+      return;
+    }
+
+    try {
+      await this.aptoProprietarioService.addProprietarioToApartamento(aptoId, proprietarioId).toPromise();
+      this.toastr.success('Apartamento vinculado com sucesso.');
+      await Promise.all([this.carregarApartamentos(), this.carregarUsuarios()]);
+    } catch (error) {
+      console.error('Erro ao vincular apartamento:', error);
+      this.toastr.error('Erro ao vincular apartamento.');
+    }
   }
 
   formatCPF(cpf: string): string {
     if (!cpf) return '';
-    const formatedCpf = cpf.replace(/\D/g, '');
-    return formatedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    const digits = cpf.replace(/\D/g, '');
+
+    if (digits.length === 11) {
+      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    if (digits.length === 14) {
+      return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    return cpf;
   }
 
   formtarTelefone(telefone: string | undefined): string {
@@ -327,22 +374,96 @@ export class CadastroProprietariosComponent implements OnInit {
     let v = String(valor).replace(/"/g, '""');
     return needsQuotes ? `"${v}"` : v;
   }
+
+  changeSort(key: 'nome' | 'qtd') {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+    this.filteredUsers = this.applySort(this.filteredUsers);
+  }
+
+  private applySort(list: User[]): User[] {
+    const sorted = [...list].sort((a, b) => {
+      if (this.sortKey === 'nome') {
+        const nomeA = `${a.first_name || ''} ${a.last_name || ''}`.trim().toLowerCase();
+        const nomeB = `${b.first_name || ''} ${b.last_name || ''}`.trim().toLowerCase();
+        const comp = nomeA.localeCompare(nomeB);
+        if (comp !== 0) return comp;
+        return (a.id || 0) - (b.id || 0);
+      }
+
+      const qtdA = Number(a.qtd_apartamentos || 0);
+      const qtdB = Number(b.qtd_apartamentos || 0);
+      if (qtdA !== qtdB) return qtdA - qtdB;
+      const nomeA = `${a.first_name || ''} ${a.last_name || ''}`.trim().toLowerCase();
+      const nomeB = `${b.first_name || ''} ${b.last_name || ''}`.trim().toLowerCase();
+      return nomeA.localeCompare(nomeB);
+    });
+
+    return this.sortDir === 'asc' ? sorted : sorted.reverse();
+  }
 }
 
 // Validador customizado para CPF
 export function cpfValidator(control: AbstractControl): ValidationErrors | null {
-  const cpf = (control.value || '').replace(/\D/g, '');
-  if (!cpf || cpf.length !== 11) return { cpfInvalido: true };
-  if (/^(\d)\1+$/.test(cpf)) return { cpfInvalido: true };
+  const documento = (control.value || '').replace(/\D/g, '');
+
+  if (!documento) return { cpfCnpjInvalido: true };
+
+  if (documento.length === 11) {
+    return isValidCPF(documento) ? null : { cpfCnpjInvalido: true };
+  }
+
+  if (documento.length === 14) {
+    return isValidCNPJ(documento) ? null : { cpfCnpjInvalido: true };
+  }
+
+  return { cpfCnpjInvalido: true };
+}
+
+function isValidCPF(cpf: string): boolean {
+  if (!cpf || cpf.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cpf)) return false;
+
   let soma = 0;
   for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
   let resto = (soma * 10) % 11;
   if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(cpf.charAt(9))) return { cpfInvalido: true };
+  if (resto !== parseInt(cpf.charAt(9))) return false;
+
   soma = 0;
   for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
   resto = (soma * 10) % 11;
   if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(cpf.charAt(10))) return { cpfInvalido: true };
-  return null;
+  if (resto !== parseInt(cpf.charAt(10))) return false;
+
+  return true;
+}
+
+function isValidCNPJ(cnpj: string): boolean {
+  if (!cnpj || cnpj.length !== 14) return false;
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+
+  const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+  const calcDigit = (weights: number[], length: number) => {
+    let total = 0;
+    for (let i = 0; i < length; i++) {
+      total += parseInt(cnpj.charAt(i)) * weights[i];
+    }
+    const remainder = total % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  };
+
+  const digit1 = calcDigit(weights1, 12);
+  if (digit1 !== parseInt(cnpj.charAt(12))) return false;
+
+  const digit2 = calcDigit(weights2, 13);
+  if (digit2 !== parseInt(cnpj.charAt(13))) return false;
+
+  return true;
 }

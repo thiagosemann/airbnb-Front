@@ -20,6 +20,15 @@ export class UserService {
     return this.http.get<User[]>(`${this.url}/users-airbnb`, { headers });
   }
 
+  // Método para obter apenas proprietários
+  getProprietarios(): Observable<User[]> {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: 'Bearer ' + token,
+    });
+    return this.http.get<User[]>(`${this.url}/users-airbnb/proprietarios`, { headers });
+  }
+
   // Método para adicionar um novo usuário
   addUser(user: User): Observable<{ insertId: number }> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
