@@ -68,6 +68,69 @@
   background: #fff5f5;
 }
 
+.enxoval-summary {
+  margin: 0 0 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f4fbf8 0%, #e9f7f3 100%);
+  border: 1px solid #d5efe6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.summary-title {
+  font-weight: 700;
+  color: #006400;
+  margin-bottom: 0.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.65rem;
+}
+
+.summary-chip {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #dce9e3;
+  padding: 0.75rem;
+  color: #004d40;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.summary-chip span {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #006400;
+  margin-bottom: 0.15rem;
+}
+
+.summary-chip strong {
+  font-size: 1.3rem;
+  color: #003020;
+}
+
+.summary-chip.total-chip {
+  background: linear-gradient(135deg, #00a699 0%, #008577 100%);
+  color: #fff;
+  border-color: #009382;
+  box-shadow: 0 4px 12px rgba(0,118,101,0.25);
+}
+
+.summary-chip.total-chip span,
+.summary-chip.total-chip strong {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .summary-chip.total-chip {
+    grid-column: 1 / -1;
+  }
+}
+
 .card-header {
   background: #f0fdf9;
   padding: 0.75rem 1rem;

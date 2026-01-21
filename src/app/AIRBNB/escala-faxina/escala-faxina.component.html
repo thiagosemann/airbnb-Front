@@ -16,6 +16,18 @@
 
    <!-- Faxinas para Hoje -->
     <section *ngIf="activeTab === 'hoje'">
+      <div class="enxoval-summary" *ngIf="!carregando && faxinasHoje.length">
+        <div class="summary-title">Enxoval necessário hoje</div>
+        <div class="summary-grid">
+          <div class="summary-chip"><span>SL Casal</span><strong>{{ enxovalTotaisHoje.enxovalSobreLencolCasal }}</strong></div>
+          <div class="summary-chip"><span>SL Solteiro</span><strong>{{ enxovalTotaisHoje.enxovalSobreLencolSolteiro }}</strong></div>
+          <div class="summary-chip"><span>Fronha</span><strong>{{ enxovalTotaisHoje.enxovalFronha }}</strong></div>
+          <div class="summary-chip"><span>Toalhas</span><strong>{{ enxovalTotaisHoje.enxovalToalhas }}</strong></div>
+          <div class="summary-chip"><span>Pisos</span><strong>{{ enxovalTotaisHoje.enxovalPisos }}</strong></div>
+          <div class="summary-chip"><span>Rostos</span><strong>{{ enxovalTotaisHoje.enxovalRostos }}</strong></div>
+          <div class="summary-chip total-chip"><span>Total de peças</span><strong>{{ totalDePecasEnxoval(enxovalTotaisHoje) }}</strong></div>
+        </div>
+      </div>
       <div class="faxina-cards mobile-only">
         <div *ngIf="faxinasHoje.length === 0" class="no-data">
           Nenhuma faxina para hoje
@@ -82,6 +94,19 @@
         <button (click)="pesquisarPeriodo()" class="btn-pesquisar">
           <i class="fas fa-search"></i> Pesquisar
         </button>
+      </div>
+
+      <div class="enxoval-summary" *ngIf="!carregandoFuturas && faxinasFuturas.length">
+        <div class="summary-title">Enxoval necessário para o período</div>
+        <div class="summary-grid">
+          <div class="summary-chip"><span>SL Casal</span><strong>{{ enxovalTotaisFuturas.enxovalSobreLencolCasal }}</strong></div>
+          <div class="summary-chip"><span>SL Solteiro</span><strong>{{ enxovalTotaisFuturas.enxovalSobreLencolSolteiro }}</strong></div>
+          <div class="summary-chip"><span>Fronha</span><strong>{{ enxovalTotaisFuturas.enxovalFronha }}</strong></div>
+          <div class="summary-chip"><span>Toalhas</span><strong>{{ enxovalTotaisFuturas.enxovalToalhas }}</strong></div>
+          <div class="summary-chip"><span>Pisos</span><strong>{{ enxovalTotaisFuturas.enxovalPisos }}</strong></div>
+          <div class="summary-chip"><span>Rostos</span><strong>{{ enxovalTotaisFuturas.enxovalRostos }}</strong></div>
+          <div class="summary-chip total-chip"><span>Total de peças</span><strong>{{ totalDePecasEnxoval(enxovalTotaisFuturas) }}</strong></div>
+        </div>
       </div>
 
       <div class="faxina-cards mobile-only">

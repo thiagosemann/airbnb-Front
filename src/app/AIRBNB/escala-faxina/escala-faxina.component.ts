@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { User } from 'src/app/shared/utilitarios/user';
-import { forkJoin } from 'rxjs';
 import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
+import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
@@ -17,6 +18,22 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./escala-faxina.component.css','./escala-faxinaCssExtra.component.css']
 })
 export class EscalaFaxinaComponent implements OnInit {
+  private readonly enxovalKeys = [
+    'enxovalSobreLencolCasal',
+    'enxovalSobreLencolSolteiro',
+    'enxovalFronha',
+    'enxovalToalhas',
+    'enxovalPisos',
+    'enxovalRostos',
+  ] as const;
+  private readonly aptEnxovalKeys = [
+    'enxoval_sobre_lencol_casal',
+    'enxoval_sobre_lencol_solteiro',
+    'enxoval_fronha',
+    'enxoval_toalhas',
+    'enxoval_pisos',
+    'enxoval_rostos',
+  ] as const;
   faxinasHoje: ReservaAirbnb[] = [];
   faxinasFuturas: ReservaAirbnb[] = [];
   tabs = [
@@ -28,6 +45,10 @@ export class EscalaFaxinaComponent implements OnInit {
   carregando: boolean = true;
   carregandoFuturas: boolean = false; // Novo estado para carregamento da pesquisa
   user: User | null = null;
+  enxovalTotaisHoje: EnxovalTotal = this.novoTotalEnxoval();
+  enxovalTotaisFuturas: EnxovalTotal = this.novoTotalEnxoval();
+  apartamentosCache: Apartamento[] = [];
+  apartamentosMap: Map<number, Apartamento> = new Map();
   
   // Variáveis para controle de período
   dataInicio: string = '';
@@ -74,8 +95,10 @@ export class EscalaFaxinaComponent implements OnInit {
     forkJoin({
       hoje: this.reservasService.getFaxinasPorPeriodo(hojeStr, hojeStr),
       hojeExtra: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(hojeStr, hojeStr),
+      apartamentos: this.getApartamentos$()
     }).subscribe({
-      next: ({ hoje, hojeExtra }) => {
+      next: ({ hoje, hojeExtra, apartamentos }) => {
+        this.hidratarApartamentos(apartamentos);
         const normExtra = (extras: LimpezaExtra[]) =>
           extras.map(e => ({
             id:             e.id,
@@ -90,9 +113,9 @@ export class EscalaFaxinaComponent implements OnInit {
             Observacoes:e.Observacoes
           }));
           
-        this.faxinasHoje = this.ordenarCanceladasPorUltimo([ ...hoje, ...normExtra(hojeExtra) ]);
-        this.faxinasHoje = this.faxinasHoje.filter(r => r.faxina_userId === this.user!.id);
-        this.faxinasHoje = this.formatDates(this.faxinasHoje);
+        const todasHoje = this.ordenarCanceladasPorUltimo([ ...hoje, ...normExtra(hojeExtra) ]);
+        this.enxovalTotaisHoje = this.calcularTotaisEnxoval(todasHoje);
+        this.faxinasHoje = this.formatDates(todasHoje.filter(r => r.faxina_userId === this.user!.id));
         this.carregando = false;
       },
       error: err => {
@@ -113,8 +136,10 @@ export class EscalaFaxinaComponent implements OnInit {
     forkJoin({
       reservas: this.reservasService.getFaxinasPorPeriodo(this.dataInicio, this.dataFim),
       extras: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim),
+      apartamentos: this.getApartamentos$(),
     }).subscribe({
-      next: ({ reservas, extras }) => {
+      next: ({ reservas, extras, apartamentos }) => {
+        this.hidratarApartamentos(apartamentos);
         const normExtra = (extras: LimpezaExtra[]) =>
           extras.map(e => ({
             id: e.id,
@@ -129,9 +154,9 @@ export class EscalaFaxinaComponent implements OnInit {
             Observacoes: e.Observacoes
           }));
 
-        this.faxinasFuturas = this.ordenarCanceladasPorUltimo([...reservas, ...normExtra(extras)]);
-        this.faxinasFuturas = this.faxinasFuturas.filter(r => r.faxina_userId === this.user!.id);
-        this.faxinasFuturas = this.formatDates(this.faxinasFuturas);
+        const todasFuturas = this.ordenarCanceladasPorUltimo([...reservas, ...normExtra(extras)]);
+        this.enxovalTotaisFuturas = this.calcularTotaisEnxoval(todasFuturas);
+        this.faxinasFuturas = this.formatDates(todasFuturas.filter(r => r.faxina_userId === this.user!.id));
         this.carregandoFuturas = false;
       },
       error: err => {
@@ -363,4 +388,54 @@ export class EscalaFaxinaComponent implements OnInit {
     ];
     return keys.reduce((sum, k) => sum + (Number(apt?.[k]) || 0), 0);
   }
+
+  totalDePecasEnxoval(total: EnxovalTotal): number {
+    return this.enxovalKeys.reduce((sum, key) => sum + (total[key] || 0), 0);
+  }
+
+  private getApartamentos$() {
+    return this.apartamentosCache.length ? of(this.apartamentosCache) : this.apartamentosService.getAllApartamentos();
+  }
+
+  private hidratarApartamentos(apartamentos: Apartamento[]): void {
+    if (apartamentos && apartamentos.length) {
+      this.apartamentosCache = apartamentos;
+      this.apartamentosMap = new Map(apartamentos.map(a => [a.id, a]));
+    }
+  }
+
+  private calcularTotaisEnxoval(lista: ReservaAirbnb[]) {
+    const total = this.novoTotalEnxoval();
+    lista.forEach(faxina => {
+      const apt = this.apartamentosMap.get(faxina.apartamento_id);
+      if (!apt) return;
+      total.enxovalSobreLencolCasal     += apt.enxoval_sobre_lencol_casal     || 0;
+      total.enxovalSobreLencolSolteiro  += apt.enxoval_sobre_lencol_solteiro  || 0;
+      total.enxovalFronha               += apt.enxoval_fronha                || 0;
+      total.enxovalToalhas              += apt.enxoval_toalhas               || 0;
+      total.enxovalPisos                += apt.enxoval_pisos                 || 0;
+      total.enxovalRostos               += apt.enxoval_rostos                || 0;
+    });
+    return total;
+  }
+
+  private novoTotalEnxoval(): EnxovalTotal {
+    return {
+      enxovalSobreLencolCasal: 0,
+      enxovalFronha: 0,
+      enxovalSobreLencolSolteiro: 0,
+      enxovalToalhas: 0,
+      enxovalPisos: 0,
+      enxovalRostos: 0
+    };
+  }
 }
+
+type EnxovalTotal = {
+  enxovalSobreLencolCasal: number;
+  enxovalSobreLencolSolteiro: number;
+  enxovalFronha: number;
+  enxovalToalhas: number;
+  enxovalPisos: number;
+  enxovalRostos: number;
+};
