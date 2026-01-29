@@ -1,194 +1,318 @@
-<div class="full-screen-container">
-  <div class="container">
-    <img src="../../../assets/images/logo-com-frase-V2.png" alt="Logo Lamp" class="logo-img">
-    
-    <!-- Etapa 1: Formulário de informações -->
-    <div *ngIf="step === 1" class="compact-form">
-      <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-       As informações fornecidas serão usadas única e exclusivamente para o seu cadastro junto ao prédio em que você irá se hospedar, garantindo segurança e agilidade no seu atendimento.
-      </div>
-      
-      <form (ngSubmit)="goForward()">
-        <div class="form-group">
-          <label for="id">Código da Reserva:</label>
-          <input type="text" class="form-control" id="id" [(ngModel)]="id" name="id" disabled required>
-        </div>
-        <div class="form-group">
-          <label for="cpf">Sou estrangeiro?</label>
-          <input type="checkbox" id ="souEstrangeiro" [(ngModel)]="souEstrangeiro" name="souEstrangeiro">
-          <ng-container *ngIf="souEstrangeiro">
-            <label for="passaport">Passaporte:</label>
-            <input type="text" class="form-control" id="cpf" placeholder="Digite o Passaporte" [(ngModel)]="formData.cpf" name="cpf" required >
-          </ng-container>
-          <ng-container *ngIf="!souEstrangeiro">
-            <label for="cpf">CPF:</label>
-            <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" [(ngModel)]="formData.cpf" name="cpf" required mask="000.000.000-00">
-          </ng-container>
+<div class="main-wrapper">
 
+
+  <!-- Step 1: Identificação -->
+  <div class="app-card" *ngIf="step === 1">
+    <header>
+      <div class="logo-container">
+        <div class="logo-row">
+          <span class="material-icons-round logo-icon">eco</span>
+          <span class="logo-text">forest</span>
         </div>
-        <div class="form-group">
-          <label for="name">Nome:</label>
-          <input type="text" class="form-control" id="name" placeholder="Seu nome completo" [(ngModel)]="formData.nome" name="nome" required>
+        <p class="logo-tagline">{{ t.tagline }}</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="info-card">
+        <div>
+          <p class="info-label">{{ t.codeLabel }}</p>
+          <p class="info-value">{{ id }}</p>
         </div>
-        <div class="form-group">
-          <label for="phone">Telefone:</label>
-          <input type="tel" class="form-control" id="phone" placeholder="(00) 00000-0000" [(ngModel)]="formData.telefone" name="telefone" mask="(00) 00000-0000" required>
+        <span class="material-icons-round" style="color: rgba(100,163,95,0.4);">confirmation_number</span>
+      </div>
+
+      <div class="mb-8" style="margin-bottom: 2rem;">
+        <h1 class="step-title">{{ t.step1Title }}</h1>
+        <div class="step-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
         </div>
+      </div>
+
+      <form (ngSubmit)="goForward()">
+        <div class="toggle-row">
+          <label class="info-label" style="font-size: 0.875rem; color: var(--text-main);">{{ t.foreignerLabel }}</label>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="souEstrangeiro" name="souEstrangeiro">
+            <span class="slider"></span>
+          </label>
+        </div>
+
         <div class="form-group">
-          <label for="expectedTime">Horário previsto de entrada no apartamento:</label>
-          <div class="carousel-container">
-            <div
-              class="hour-card"
-              *ngFor="let hour of hourOptions"
-              [class.selected]="formData.horarioPrevistoChegada === hour"
-              (click)="selectHour(hour)"
-            >
-              {{ hour }}
-              <small *ngIf="isNextDay(hour)" class="next-day-label">
-                (Dia Seguinte)
-              </small>
+          <label class="input-label">{{ t.nameLabel }}</label>
+          <input type="text" class="input-field" [placeholder]="t.namePlaceholder" [(ngModel)]="formData.nome"
+            name="nome" required>
+        </div>
+
+        <div class="form-group" *ngIf="!souEstrangeiro">
+          <label class="input-label">{{ t.cpfLabel }}</label>
+          <input type="text" class="input-field" [placeholder]="t.cpfPlaceholder" mask="000.000.000-00"
+            [(ngModel)]="formData.cpf" name="cpf" required>
+        </div>
+
+        <div class="form-group" *ngIf="souEstrangeiro">
+          <label class="input-label">{{ t.passportLabel }}</label>
+          <input type="text" class="input-field" [placeholder]="t.passportPlaceholder" [(ngModel)]="formData.cpf"
+            name="passport" required>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label">{{ t.phoneLabel }}</label>
+          <input type="tel" class="input-field" [placeholder]="t.phonePlaceholder" mask="(00) 00000-0000"
+            [(ngModel)]="formData.telefone" name="telefone" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+          <label class="input-label">{{ t.arrivalLabel }}</label>
+
+          <div style="margin-top: 1rem;">
+            <!-- Tarde -->
+            <div *ngIf="afternoonHours.length > 0">
+              <p class="time-group-label" style="margin-top: 1rem;">{{ t.afternoonLabel }}</p>
+              <div class="chips-scroll">
+                <button type="button" class="time-chip" *ngFor="let hour of afternoonHours"
+                  [class.selected]="formData.horarioPrevistoChegada === hour" (click)="selectHour(hour)">
+                  {{ hour }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Noite -->
+            <div *ngIf="nightHours.length > 0">
+              <p class="time-group-label" style="margin-top: 1rem;">{{ t.nightLabel }}</p>
+              <div class="chips-scroll">
+                <button type="button" class="time-chip" *ngFor="let hour of nightHours"
+                  [class.selected]="formData.horarioPrevistoChegada === hour" (click)="selectHour(hour)">
+                  {{ hour }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Madrugada -->
+            <div *ngIf="earlyMorningHours.length > 0">
+              <p class="time-group-label" style="margin-top: 1rem;">{{ t.earlyMorningLabel }}</p>
+              <div class="chips-scroll">
+                <button type="button" class="time-chip" *ngFor="let hour of earlyMorningHours"
+                  [class.selected]="formData.horarioPrevistoChegada === hour" (click)="selectHour(hour)">
+                  {{ hour }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-success">Próximo <i class="fas fa-arrow-right"></i></button>
       </form>
-    </div>
+    </main>
 
-    <!-- Etapa 2: Uploads (Selfie e Documento) -->
-    <div *ngIf="step === 2">
-      <h3>Envio de arquivos</h3>
-      <ng-container *ngIf="pedir_selfie; else onlyDocumentoCallout">
-        <div class="info-callout">
-          <i class="fas fa-info-circle"></i>
-          <div>
-            <p>Para finalizar, envie 2 arquivos obrigatórios:</p>
-            <ul class="callout-list">
-              <li><strong>1) Selfie do hóspede</strong> — Foto semelhante a 3x4, nítida, do peito para cima, sem adornos.</li>
-              <li><strong>2) Documento com foto</strong> — RG, CNH ou Passaporte (frente).</li>
-            </ul>
-            <p class="formats-note">Formatos aceitos: JPG, PNG ou PDF. Tamanho máximo: 5MB por arquivo.</p>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #onlyDocumentoCallout>
-        <div class="info-callout">
-          <i class="fas fa-info-circle"></i>
-          <div>
-            <p>Para finalizar, envie <strong>apenas o documento com foto</strong> do hóspede.</p>
-            <ul class="callout-list">
-              <li><strong>Documento com foto</strong> — RG, CNH ou Passaporte (frente).</li>
-            </ul>
-            <p class="formats-note">Formatos aceitos: JPG, PNG ou PDF. Tamanho máximo: 5MB.</p>
-          </div>
-        </div>
-      </ng-template>
+    <footer>
+      <div class="legal-box">
+        <span class="material-icons-round" style="color: var(--primary); font-size: 1.25rem;">info</span>
+        <p class="legal-text">
+          {{ t.legalText1 }}
+        </p>
+      </div>
 
-      <!-- Selfie (opcional conforme configuração do apartamento) -->
-      <div class="upload-section" *ngIf="pedir_selfie">
-        <div class="upload-header">
-          <span class="num-badge">1</span>
-          <div class="upload-title">
-            <strong><i class="fas fa-user-circle"></i> Selfie do hóspede</strong>
-            <span class="helper-text">Foto nítida do rosto, bem iluminada.</span>
-          </div>
-          <span class="status-badge" [ngClass]="photoDataUrl ? 'ok' : 'pending'">
-            {{ photoDataUrl ? 'OK' : 'Pendente' }}
-          </span>
+      <button class="btn-primary" (click)="goForward()">
+        <span>{{ t.nextStep }}</span>
+        <span class="material-icons-round">arrow_forward</span>
+      </button>
+    </footer>
+  </div>
+
+
+  <!-- Step 2: Uploads -->
+  <div class="app-card" *ngIf="step === 2">
+    <header style="padding-bottom: 0.5rem;">
+      <div class="logo-row">
+        <span class="material-icons-round logo-icon" style="font-size: 1.5rem;">eco</span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="logo-text" style="font-size: 1.25rem;">forest</span>
+          <span class="logo-tagline" style="font-size: 0.5rem;">{{ t.tagline }}</span>
         </div>
-        <div class="form-group">
-          <label for="selfieUpload">Selfie (imagem ou PDF)</label>
-          <input type="file" accept="image/*,application/pdf" class="form-control" id="selfieUpload" (change)="onSelfieSelected($event)">
-        </div>
-        <div class="preview-card" *ngIf="photoDataUrl">
-          <div class="preview-thumb">
-            <img *ngIf="photoDataUrl.startsWith('data:image')" [src]="photoDataUrl" class="preview-img" alt="Selfie">
-            <img *ngIf="photoDataUrl.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" class="preview-pdf" alt="PDF selecionado">
-          </div>
-          <div class="preview-body">
-            <p class="preview-title">Selfie pronta</p>
-            <p class="preview-sub">Arquivo selecionado com sucesso.</p>
-          </div>
+      </div>
+    </header>
+
+    <main>
+      <h1 class="step-title" style="color: var(--primary); font-size: 1.25rem; margin-top: 1rem;">{{ t.step2Title }}
+      </h1>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">{{ t.step2Subtitle }}</p>
+
+      <div class="legal-box" style="margin-bottom: 1.5rem;">
+        <span class="material-icons-round" style="color: var(--primary);">info</span>
+        <div class="legal-text">
+          {{ t.uploadInstruction }}<br>
+          <span *ngIf="pedir_selfie">• <strong>{{ t.selfieItem }}</strong> {{ t.selfieDesc }}<br></span>
+          • <strong>{{ t.docItem }}</strong> {{ t.docDesc }}
         </div>
       </div>
 
-      <!-- Documento -->
-      <div class="upload-section">
-        <div class="upload-header">
-          <span class="num-badge">{{ pedir_selfie ? '2' : '1' }}</span>
-          <div class="upload-title">
-            <strong><i class="fas fa-id-card"></i> Documento do hóspede</strong>
-            <span class="helper-text">RG, CNH ou Passaporte (apenas a frente, legível).</span>
-          </div>
-          <span class="status-badge" [ngClass]="documentFile ? 'ok' : 'pending'">
-            {{ documentFile ? 'OK' : 'Pendente' }}
-          </span>
-        </div>
-        <div class="form-group">
-          <label for="fileUpload">Documento (imagem ou PDF)</label>
-          <input type="file" class="form-control" id="fileUpload" accept="image/*,application/pdf" (change)="onFileSelected($event)">
-        </div>
-        <div class="preview-card" *ngIf="documentFile">
-          <div class="preview-thumb">
-            <img *ngIf="documentFile.startsWith('data:image')" [src]="documentFile" class="preview-img" alt="Documento">
-            <img *ngIf="documentFile.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png" class="preview-pdf" alt="PDF selecionado">
-          </div>
-          <div class="preview-body">
-            <p class="preview-title">Documento pronto</p>
-            <p class="preview-sub">Arquivo selecionado com sucesso.</p>
-          </div>
-        </div>
-      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-      <!-- Garagem: placa do carro (apenas se tem_garagem = true) -->
-      <div class="upload-section" *ngIf="tem_garagem === true">
-        <div class="upload-header">
-          <span class="num-badge">{{ pedir_selfie ? '3' : '2' }}</span>
-          <div class="upload-title">
-            <strong><i class="fas fa-car"></i> Placa do carro</strong>
-            <span class="helper-text">Informe a placa do veículo para cadastro na garagem.</span>
+        <!-- Selfie Upload -->
+        <div *ngIf="pedir_selfie">
+          <div class="upload-header">
+            <div class="step-label">
+              <div class="step-badge">1</div>
+              <span>{{ t.selfieLabel }}</span>
+            </div>
+            <span class="status-badge" [class.ok]="photoDataUrl">{{ photoDataUrl ? t.sent : t.pending }}</span>
+          </div>
+
+          <div class="upload-box" *ngIf="!photoDataUrl">
+            <span class="material-icons-round"
+              style="font-size: 2rem; color: #9ca3af; margin-bottom: 0.5rem;">add_a_photo</span>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">{{ t.takePhoto }}</p>
+            <input type="file" accept="image/*,application/pdf" (change)="onSelfieSelected($event)">
+          </div>
+
+          <div class="file-preview-row" *ngIf="photoDataUrl">
+            <div class="thumb-preview">
+              <img *ngIf="photoDataUrl.startsWith('data:image')" [src]="photoDataUrl" alt="Selfie">
+              <img *ngIf="photoDataUrl.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png"
+                alt="PDF">
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">{{ t.selfieSent }}</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">{{ t.readyToSend }}</p>
+            </div>
+            <button (click)="photoDataUrl=null" style="background:none; border:none; color: #ef4444; cursor: pointer;">
+              <span class="material-icons-round">delete_outline</span>
+            </button>
           </div>
         </div>
-        <div class="form-group">
-          <label for="placaCarro">Placa do carro</label>
-          <input type="text" id="placaCarro" class="form-control" [(ngModel)]="placaCarro" name="placaCarro" placeholder="ABC-1234 ou ABC1D23" maxlength="8">
+
+        <!-- Document Upload -->
+        <div>
+          <div class="upload-header">
+            <div class="step-label">
+              <div class="step-badge">{{ pedir_selfie ? '2' : '1' }}</div>
+              <span>{{ t.docLabel }}</span>
+            </div>
+            <span class="status-badge" [class.ok]="documentFile">{{ documentFile ? t.sent : t.pending }}</span>
+          </div>
+
+          <div class="upload-box" *ngIf="!documentFile">
+            <span class="material-icons-round"
+              style="font-size: 2rem; color: #9ca3af; margin-bottom: 0.5rem;">badge</span>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">{{ t.selectDoc }}</p>
+            <input type="file" accept="image/*,application/pdf" (change)="onFileSelected($event)">
+          </div>
+
+          <div class="file-preview-row" *ngIf="documentFile">
+            <div class="thumb-preview">
+              <img *ngIf="documentFile.startsWith('data:image')" [src]="documentFile" alt="Doc">
+              <img *ngIf="documentFile.startsWith('data:application/pdf')" src="../../../assets/images/PDF.png"
+                alt="PDF">
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">{{ t.docLoaded }}</p>
+            </div>
+            <button (click)="documentFile=null" style="background:none; border:none; color: #ef4444; cursor: pointer;">
+              <span class="material-icons-round">delete_outline</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Placa (Mandatory if tem_garagem) -->
+        <div *ngIf="tem_garagem">
+          <div class="form-group">
+            <label class="input-label">{{ t.plateLabel }}</label>
+            <div style="position: relative;">
+              <span class="material-icons-round"
+                style="position: absolute; left: 1rem; top: 1rem; color: #9ca3af;">directions_car</span>
+              <input type="text" class="input-field" style="padding-left: 3rem;" [placeholder]="t.platePlaceholder"
+                [(ngModel)]="placaCarro">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="input-label">{{ t.marcaLabel }}</label>
+            <input type="text" class="input-field" [placeholder]="t.marcaPlaceholder" [(ngModel)]="marcaCarro">
+          </div>
+          <div class="form-group">
+            <label class="input-label">{{ t.modeloLabel }}</label>
+            <input type="text" class="input-field" [placeholder]="t.modeloPlaceholder" [(ngModel)]="modeloCarro">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="input-label">{{ t.corLabel }}</label>
+            <input type="text" class="input-field" [placeholder]="t.corPlaceholder" [(ngModel)]="corCarro">
+            <p style="font-size: 0.625rem; color: #9ca3af; margin-top: 0.25rem;">{{ t.plateHint }}</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer style="margin-top: 2rem;">
+      <button class="btn-primary" (click)="sendData()" [disabled]="(pedir_selfie && !photoDataUrl) || !documentFile">
+        <span>{{ t.sendDocs }}</span>
+        <span class="material-icons-round">arrow_forward</span>
+      </button>
+      <button class="btn-secondary" (click)="goBack()">
+        <span class="material-icons-round">arrow_back</span>
+        {{ t.back }}
+      </button>
+
+      <div style="display: flex; justify-content: center; margin-top: 1rem;">
+        <div class="step-dots">
+          <div class="dot active" style="width: 8rem; opacity: 0.5;"></div>
         </div>
       </div>
+    </footer>
+  </div>
 
-      <div class="cta-footer">
-        <button (click)="sendData()" class="btn btn-success"
-                [disabled]="(pedir_selfie ? !photoDataUrl : false) || !documentFile || (tem_garagem === true && !placaCarro)">
-          {{ pedir_selfie ? (tem_garagem ? 'Enviar selfie, documento e placa' : 'Enviar selfie e documento') : (tem_garagem ? 'Enviar documento e placa' : 'Enviar documento') }}
-        </button>
-        <button (click)="goBack()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar</button>
-      </div>
-    </div>
-
-    <!-- Etapa 4: Carregando -->
-    <div *ngIf="step === 4" class="text-center">
-      <div class="loader-container-processando ">
-        <div class="loader"></div>
-      </div>
-      <h2>Processando...</h2>
-    </div>
-
-    <!-- Etapa 5: Concluído -->
-    <div *ngIf="step === 5" class="text-center">
-      <i class="fas fa-check-circle success-icon"></i>
-      <h2>Cadastro concluído com sucesso.</h2>
-      <button (click)="resetFlow()" class="btn btn-success mt-3"><i class="fas fa-user-plus"></i> Cadastrar outro Hóspede</button>
-      <button (click)="concluirCadastro()" class="btn btn-danger mt-3"><i class="fas fa-times"></i> Encerrar</button>
-    </div>
-
-    <!-- Etapa 6: Concluído -->
-    <div *ngIf="step === 6" class="text-center">
-      <h2>Obrigado por se hospedar com a Forest!!</h2>
+  <!-- Step 4: Loading -->
+  <div class="app-card" *ngIf="step === 4" style="justify-content: center;">
+    <div class="loader-wrapper">
+      <div class="loader-spinner"></div>
+      <h2 class="step-title" style="text-align: center;">{{ t.processing }}</h2>
     </div>
   </div>
+
+  <!-- Step 5/6: Success -->
+  <div class="app-card" *ngIf="step === 5 || step === 6">
+    <header style="padding-bottom: 1rem;">
+      <div class="logo-row">
+        <span class="material-icons-round logo-icon">eco</span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="logo-text">forest</span>
+          <span class="logo-tagline">{{ t.tagline }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="success-container">
+      <div class="success-checkmark">
+        <div class="check-icon">
+          <span class="icon-line line-tip"></span>
+          <span class="icon-line line-long"></span>
+        </div>
+      </div>
+
+      <h1 class="success-title">{{ t.successTitle }}</h1>
+      <p class="success-text" style="max-width: 80%;" [innerHTML]="t.successText">
+      </p>
+
+      <div class="legal-box" style="margin-top: 2rem; width: 80%;">
+        <span class="material-icons-round" style="color: var(--primary);">info</span>
+        <p class="legal-text">
+          {{ t.legalText2 }}
+        </p>
+      </div>
+    </div>
+
+    <footer style="margin-bottom: 2rem;">
+      <button class="btn-outline" (click)="resetFlow()">
+        {{ t.registerAnother }}
+      </button>
+      <button class="btn-primary" (click)="concluirCadastro()">
+        {{ t.finish }}
+      </button>
+    </footer>
+  </div>
+
+  <!-- Botão flutuante do WhatsApp -->
+  <a href="https://wa.me/5541999283936" class="whatsapp-float" target="_blank" aria-label="Fale conosco no WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
 </div>
-<!-- Botão flutuante do WhatsApp -->
-<a href="https://wa.me/5541999283936" class="whatsapp-float" target="_blank" aria-label="Fale conosco no WhatsApp">
-  <i class="fab fa-whatsapp"></i>
-</a>
-
-

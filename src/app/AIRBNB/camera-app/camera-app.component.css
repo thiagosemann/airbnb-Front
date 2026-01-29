@@ -1,292 +1,608 @@
-/* Importando a fonte do Google Fonts e ícones do FontAwesome */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+/* Global Reset & Base */
+:host {
+  font-family: 'Inter', sans-serif;
+  --primary: #64a35f;
+  /* Forest Green */
+  --primary-hover: #538b4f;
+  --bg-light: #f8faf9;
+  --bg-dark: #121212;
+  --card-light: #ffffff;
+  --card-dark: #1e1e1e;
+  --text-main: #27272a;
+  /* Zinc 800 */
+  --text-muted: #71717a;
+  /* Zinc 500 */
+  --border-light: #e4e4e7;
+  /* Zinc 200 */
+  --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
 
-/* Contêiner que ocupa toda a tela */
-.full-screen-container {
+.main-wrapper {
+  background-color: var(--bg-light);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: stretch; /* usar toda a altura */
-  padding: 10px;
-  background: linear-gradient(360deg, #9bd6a9f6, #56a769);
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
+  align-items: flex-start;
+  padding: 1rem;
   box-sizing: border-box;
 }
 
-/* Contêiner centralizado do formulário */
-.container {
+.app-card {
   width: 100%;
-  max-width: 420px;           /* ajustado para pré-visualizações */
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(50, 205, 50, 0.25);
-  padding: 15px 15px 80px; /* espaço extra para footer fixo */
-  box-sizing: border-box;
-  margin: 0 20px;             /* garante margem lateral em telas muito pequenas */
-  max-height: calc(100vh - 20px);
-  overflow-y: auto; /* rolagem quando necessário */
-  scrollbar-width: thin; /* fino */
-  scrollbar-color: #28a745 #eaf7ee; /* thumb track */
+  max-width: 430px;
+  background-color: var(--card-light);
+  min-height: 90vh;
+  border-radius: 40px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 8px solid #ffffff;
+  /* Removed top/bottom margins for better mobile fit, relies on padding of main-wrapper */
+  margin: 0;
 }
 
-.logo-img {
-  width: 40%;
-  max-width: 180px;
-  height: auto;
-  display: block;
-  margin: 0 auto 0; /* reduz espaço extra abaixo do logo */
+/* Header */
+header {
+  padding: 2.5rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-h1, h2, h3 {
-  color: #28a745; /* Verde principal */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  font-size: 2.25rem;
+  color: var(--primary);
+}
+
+.logo-text {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.logo-tagline {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* Content Area */
+main {
+  flex: 1;
+  padding: 0 2rem 2.5rem;
+  overflow-y: auto;
+}
+
+.info-card {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fafafa;
+  /* Zinc 50 */
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #f4f4f5;
+}
+
+.info-label {
+  font-size: 0.6875rem;
   font-weight: 600;
-  margin-bottom: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-h1 {
-  font-size: 36px;
+.info-value {
+  font-size: 1.125rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-h2 {
-  font-size: 24px;
+.step-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
 }
 
-h3 {
-  font-size: 20px;
+.step-dots {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
+.dot {
+  height: 0.25rem;
+  width: 3rem;
+  border-radius: 9999px;
+  background-color: #e4e4e7;
+}
+
+.dot.active {
+  background-color: var(--primary);
+}
+
+/* Form Elements */
 .form-group {
-  margin-bottom: 20px;
-  text-align: left;
+  margin-bottom: 1.25rem;
 }
 
-.form-group label {
-  font-size: 13px; /* ajustado para mobile */
-  color: #333;
-  margin-bottom: 5px;
+.input-label {
   display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-left: 0.25rem;
+  margin-bottom: 0.375rem;
 }
 
-.form-control {
+.input-field {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+  background-color: #fafafa;
+  border: 1px solid #f4f4f5;
+  border-radius: 1rem;
+  padding: 1rem;
+  font-size: 1rem;
+  color: var(--text-main);
   outline: none;
-  transition: border 0.3s;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
-.form-control:focus {
-  border: 2px solid #3aac55; /* Verde mais intenso no foco */
+.input-field:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(100, 163, 95, 0.2);
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border-radius: 8px;
-  font-size: 16px; /* ajustado para mobile */
+/* Toggle Switch */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 2.75rem;
+  height: 1.5rem;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
   cursor: pointer;
-  transition: background-color 0.3s;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e4e4e7;
+  transition: .4s;
+  border-radius: 1.5rem;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.25rem;
+  width: 1.25rem;
+  left: 0.125rem;
+  bottom: 0.125rem;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+input:checked+.slider {
+  background-color: var(--primary);
+}
+
+input:checked+.slider:before {
+  transform: translateX(1.25rem);
+}
+
+/* Time Selection */
+.time-group-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  margin-left: 0.25rem;
+}
+
+.chips-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.chips-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.time-chip {
+  white-space: nowrap;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-color: #f4f4f5;
+  color: #52525b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-chip:hover {
+  background-color: #e4e4e7;
+}
+
+.time-chip.selected {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.next-day-sub {
+  font-size: 0.65rem;
+  display: block;
+  opacity: 0.8;
+}
+
+/* Footer & Buttons */
+footer {
+  padding: 0 2rem 2rem;
+  margin-top: auto;
+}
+
+.legal-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #f0fdf4;
+  /* Green 50 */
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #dcfce7;
+  margin-bottom: 1.5rem;
+}
+
+.legal-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #166534;
+  /* Green 800 */
+  line-height: 1.25;
+}
+
+.btn-primary {
+  width: 100%;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 700;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(100, 163, 95, 0.2);
+  transition: transform 0.1s, background-color 0.2s;
 }
 
-button i {
-  margin-right: 10px;
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
-button:hover {
-  background-color: #3498db;
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
 }
 
-.btn-success {
-  background-color: #28a745; /* Verde sucesso */
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #218838;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-/* Reaproveita o container para pré-visualizações de imagens */
-.camera-container img {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid #e5e5e5;
-}
-
-/* Pré-visualização compacta e elegante (mobile-first) */
-.preview-card {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border: 1px solid #e9f3ec;
-  background: #f7fbf8;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.08);
-  margin: 8px 0 14px;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: color 0.2s;
 }
 
-/* Ajustes do preview card (já existente) para integrar com seções */
-.preview-card { margin-left: 36px; }
+.btn-secondary:hover {
+  color: var(--text-main);
+}
 
-.preview-thumb {
-  flex: 0 0 64px;
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
+/* Upload Steps */
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.step-badge {
+  background-color: var(--primary);
+  color: white;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.step-label {
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background-color: #fffbeb;
+  color: #b45309;
+  /* Amber 700 */
+}
+
+.status-badge.ok {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.upload-box {
+  width: 100%;
+  height: 8rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 1rem;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.upload-box:hover {
+  border-color: var(--primary);
+}
+
+.upload-box input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 2px solid var(--primary);
+  background-color: #f0fdf4;
+  border-radius: 1rem;
+}
+
+.thumb-preview {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
   overflow: hidden;
-  border: 1px solid #e1eee6;
-  background: #fff;
-  display: grid;
-  place-items: center;
+  background-color: #e5e7eb;
 }
 
-.preview-img {
+.thumb-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.preview-pdf {
-  width: 36px;
-  height: 36px;
-}
-
-.preview-body {
+/* Success Step */
+.success-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  height: 100%;
+  padding-top: 2rem;
 }
 
-.preview-title {
-  margin: 0;
-  font-size: 14px;
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  position: relative;
+}
+
+.check-icon {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  border-radius: 50%;
+  box-sizing: content-box;
+  border: 4px solid var(--primary);
+}
+
+.check-icon::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: -2px;
+  width: 30px;
+  height: 100%;
+  /* Fix transform origin logic */
+  transform-origin: 100% 50%;
+  border-radius: 100px 0 0 100px;
+  background: transparent;
+  /* Animation trick usually uses white bg to hide, but we have variable bg. Better use simple SVG or CSS lines. reusing provided logic */
+}
+
+/* Re-implementing the user's specific success animation styles adjusted */
+.icon-line {
+  height: 5px;
+  background-color: var(--primary);
+  display: block;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 10;
+}
+
+.line-tip {
+  top: 46px;
+  left: 14px;
+  width: 25px;
+  transform: rotate(45deg);
+}
+
+.line-long {
+  top: 38px;
+  right: 8px;
+  width: 47px;
+  transform: rotate(-45deg);
+}
+
+.success-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.success-text {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.btn-outline {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
   font-weight: 600;
-  color: #218838;
+  border-radius: 1rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  transition: background 0.2s;
 }
 
-.preview-sub {
-  margin: 0;
-  font-size: 12px;
-  color: #6c757d;
+.btn-outline:hover {
+  background-color: #f0fdf4;
 }
 
-/* Callout informativo para instruções claras */
-.info-callout {
+/* Loading */
+.loader-wrapper {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: #f0fff4;
-  border: 1px solid #c6f6d5;
-  color: #276749;
-  padding: 10px 12px;
-  border-radius: 10px;
-  margin: 8px 0 14px;
-  font-size: 13px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
-.info-callout i { color: #38a169; margin-top: 2px; }
-.info-callout strong { color: #22543d; }
 
-/* Listas do callout mais legíveis em mobile */
-.callout-list {
-  padding-left: 18px;
-  margin: 6px 0 6px;
+.loader-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
 }
-.callout-list li {
-  margin-bottom: 4px;
-}
-.formats-note { font-size: 12px; color: #6c757d; margin-top: 4px; }
 
-/* Seções numeradas de upload */
-.upload-section { margin-bottom: 14px; }
-.upload-header {
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Botão flutuante do WhatsApp */
+.whatsapp-float {
+  position: fixed;
+  width: 3.75rem;
+  height: 3.75rem;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  background-color: #25d366;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1.875rem;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-.upload-title { display: flex; flex-direction: column; line-height: 1.2; }
-.upload-title .helper-text { font-size: 12px; color: #6c757d; }
-
-.num-badge {
-  flex: 0 0 auto;
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  background: #28a745; color: #fff; font-weight: 700; font-size: 13px;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.3s, background-color 0.3s;
 }
 
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.status-badge.ok { background: #e6fffa; color: #0f766e; border: 1px solid #99f6e4; }
-.status-badge.pending { background: #fffbea; color: #92400e; border: 1px solid #fde68a; }
-
-/* Rodapé fixo dentro do card, mantendo CTAs sempre acessíveis */
-.cta-footer {
-  position: static;
-  background: transparent;
-  padding: 8px 0 0;
-  display: grid;
-  gap: 8px;
-}
-
-/* Compactar o primeiro passo para reduzir altura total */
-.compact-form .form-group {
-  margin-bottom: 12px; /* menor espaço vertical */
-}
-.compact-form .form-control {
-  padding: 10px; /* inputs mais compactos */
-}
-.compact-form .carousel-container {
-  margin-top: 6px;
-}
-
-/* Container com rolagem sutil e sempre habilitada quando necessário */
-.full-screen-container {
-  align-items: stretch;
-}
-.container {
-  max-height: calc(100vh - 20px);
-  overflow-y: auto;
-}
-
-/* Scrollbar personalizado pequeno e nas cores do layout (webkit) */
-.container::-webkit-scrollbar {
-  width: 6px;
-}
-.container::-webkit-scrollbar-track {
-  background: #eaf7ee; /* verde bem claro */
-  border-radius: 6px;
-}
-.container::-webkit-scrollbar-thumb {
-  background: #28a745; /* verde principal */
-  border-radius: 6px;
-}
-.container::-webkit-scrollbar-thumb:hover {
-  background: #218838; /* verde mais escuro no hover */
+.whatsapp-float:hover {
+  background-color: #1ebd5a;
+  transform: scale(1.1);
 }

@@ -1,4 +1,3 @@
-
 .btn-secondary:hover {
   background-color: #5a6268;
 }
@@ -13,31 +12,22 @@
   border-radius: 8px;
 }
 
-video, img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Loader container para centralizar */
-.loader-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
+video,
+img {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: rgba(255, 255, 255, 0.8); /* Leve fundo branco translúcido */
-  z-index: 10; /* Para garantir que fica acima do vídeo */
+  background-color: rgba(255, 255, 255, 0.8);
+  /* Leve fundo branco translúcido */
+  z-index: 10;
+  /* Para garantir que fica acima do vídeo */
 }
 
 /* Loader */
 .loader {
-  border: 8px solid #f3f3f3; 
-  border-top: 8px solid #28a745; /* Verde principal */
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #28a745;
+  /* Verde principal */
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -45,8 +35,13 @@ video, img {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Ícone de sucesso */
@@ -55,6 +50,7 @@ video, img {
   color: #28a745;
   margin-bottom: 20px;
 }
+
 /* Botão flutuante do WhatsApp */
 .whatsapp-float {
   position: fixed;
@@ -68,7 +64,7 @@ video, img {
   text-align: center;
   font-size: 30px;
   z-index: 1000;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,9 +76,12 @@ video, img {
 .whatsapp-float:hover {
   background-color: #1ebd5a;
 }
+
 .info-box {
-  background-color: #e9f7ef; /* verde claro */
-  border-left: 5px solid #28a745; /* verde destaque */
+  background-color: #e9f7ef;
+  /* verde claro */
+  border-left: 5px solid #28a745;
+  /* verde destaque */
   padding: 5px 10px;
   border-radius: 10px;
   font-size: 14px;
@@ -131,6 +130,7 @@ video, img {
   background-color: #28a745;
   color: white;
 }
+
 .next-day-label {
   display: block;
   margin-top: 4px;

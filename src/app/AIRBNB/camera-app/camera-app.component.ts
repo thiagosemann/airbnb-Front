@@ -7,7 +7,7 @@ import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 @Component({
   selector: 'app-camera-app',
   templateUrl: './camera-app.component.html',
-  styleUrls: ['./camera-app.component.css','./camera-app2.component.css']
+  styleUrls: ['./camera-app.component.css']
 })
 export class CameraAppComponent implements OnInit {
   step = 1; // Etapas do fluxo
@@ -25,7 +25,7 @@ export class CameraAppComponent implements OnInit {
   documentFile: string | null = null; // Documento (PDF ou imagem) enviado via arquivo
 
   hourOptions: string[] = [];
-  souEstrangeiro:boolean=false;
+  souEstrangeiro: boolean = false;
 
   // Flags do apartamento
   vaga_garagem: string | null = null;
@@ -33,13 +33,130 @@ export class CameraAppComponent implements OnInit {
   tem_garagem: boolean | null = null;
   // Placa do carro (quando tem_garagem = true)
   placaCarro: string = '';
+  marcaCarro: string = '';
+  modeloCarro: string = '';
+  corCarro: string = '';
+
+  get t() {
+    return this.souEstrangeiro ? this.enText : this.ptText;
+  }
+
+  ptText = {
+    tagline: 'Gestão e Inovação Patrimonial',
+    codeLabel: 'Código da Reserva',
+    step1Title: 'Identificação',
+    foreignerLabel: 'Sou estrangeiro(a)',
+    nameLabel: 'Nome Completo',
+    namePlaceholder: 'Ex: João Silva',
+    cpfLabel: 'CPF',
+    cpfPlaceholder: '000.000.000-00',
+    passportLabel: 'Passaporte',
+    passportPlaceholder: 'Número do documento',
+    phoneLabel: 'Telefone',
+    phonePlaceholder: '(00) 00000-0000',
+    arrivalLabel: 'Horário previsto de chegada',
+    afternoonLabel: 'Tarde',
+    nightLabel: 'Noite',
+    earlyMorningLabel: 'Madrugada (Dia seguinte)',
+    nextDay: '(Dia seguinte)',
+    legalText1: 'Seus dados são usados exclusivamente para garantir a segurança e agilidade no seu atendimento no prédio.',
+    nextStep: 'Próximo Passo',
+    step2Title: 'Envio de arquivos',
+    step2Subtitle: 'Passo 2 de 3: Identificação do hóspede',
+    uploadInstruction: 'Envie os arquivos obrigatórios:',
+    selfieItem: 'Selfie',
+    selfieDesc: '(Foto 3x4)',
+    docItem: 'Documento',
+    docDesc: '(RG/CNH/Passaporte)',
+    selfieLabel: 'Selfie do hóspede',
+    sent: 'Enviado',
+    pending: 'Pendente',
+    takePhoto: 'Tirar foto ou selecionar arquivo',
+    selfieSent: 'Selfie enviada',
+    readyToSend: 'Pronto para envio',
+    docLabel: 'Documento com foto',
+    selectDoc: 'Selecionar RG, CNH ou Passaporte',
+    docLoaded: 'Documento carregado',
+    plateLabel: 'Placa do Veículo',
+    platePlaceholder: 'ABC-1234',
+    marcaLabel: 'Marca do Veículo',
+    marcaPlaceholder: 'Ex: Chevrolet',
+    modeloLabel: 'Modelo do Veículo',
+    modeloPlaceholder: 'Ex: Onix',
+    corLabel: 'Cor do Veículo',
+    corPlaceholder: 'Ex: Preto',
+    plateHint: 'Necessário para liberação de vaga na garagem.',
+    sendDocs: 'Enviar Documentos',
+    back: 'Voltar',
+    processing: 'Processando...',
+    successTitle: 'Cadastro Concluído!',
+    successText: 'Tudo pronto para sua estadia.<br>Aguardamos sua chegada.',
+    legalText2: 'Suas instruções de acesso serão enviadas 1 hora antes da sua entrada no apartamento.',
+    registerAnother: 'Cadastrar Outro Hóspede',
+    finish: 'Concluir'
+  };
+
+  enText = {
+    tagline: 'Property Management and Innovation',
+    codeLabel: 'Reservation Code',
+    step1Title: 'Identification',
+    foreignerLabel: 'I am a foreigner',
+    nameLabel: 'Full Name',
+    namePlaceholder: 'Ex: John Doe',
+    cpfLabel: 'CPF',
+    cpfPlaceholder: '000.000.000-00',
+    passportLabel: 'Passport',
+    passportPlaceholder: 'Document Number',
+    phoneLabel: 'Phone',
+    phonePlaceholder: '+1 (555) 000-0000',
+    arrivalLabel: 'Estimated Arrival Time',
+    afternoonLabel: 'Afternoon',
+    nightLabel: 'Night',
+    earlyMorningLabel: 'Early Morning (Next Day)',
+    nextDay: '(Next Day)',
+    legalText1: 'Your data is used exclusively to ensure security and agility in your service at the building.',
+    nextStep: 'Next Step',
+    step2Title: 'File Upload',
+    step2Subtitle: 'Step 2 of 3: Guest Identification',
+    uploadInstruction: 'Upload the required files:',
+    selfieItem: 'Selfie',
+    selfieDesc: '(Headshot)',
+    docItem: 'Document',
+    docDesc: '(ID/License/Passport)',
+    selfieLabel: 'Guest Selfie',
+    sent: 'Sent',
+    pending: 'Pending',
+    takePhoto: 'Take photo or select file',
+    selfieSent: 'Selfie uploaded',
+    readyToSend: 'Ready to send',
+    docLabel: 'Photo Document',
+    selectDoc: 'Select ID, License or Passport',
+    docLoaded: 'Document uploaded',
+    plateLabel: 'Vehicle Plate',
+    platePlaceholder: 'ABC-1234',
+    marcaLabel: 'Vehicle Brand',
+    marcaPlaceholder: 'Ex: Chevrolet',
+    modeloLabel: 'Vehicle Model',
+    modeloPlaceholder: 'Ex: Onix',
+    corLabel: 'Vehicle Color',
+    corPlaceholder: 'Ex: Black',
+    plateHint: 'Required for garage access release.',
+    sendDocs: 'Submit Documents',
+    back: 'Back',
+    processing: 'Processing...',
+    successTitle: 'Registration Complete!',
+    successText: 'Everything is ready for your stay.<br>We look forward to your arrival.',
+    legalText2: 'The instructions to access your apartment will be sent to you 1 hour before your arrival.',
+    registerAnother: 'Register Another Guest',
+    finish: 'Finish'
+  };
 
   constructor(
     private checkinFormService: CheckInFormService,
     private route: ActivatedRoute,
     private toastr: ToastrService,
     private apartamentoService: ApartamentoService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -57,6 +174,28 @@ export class CameraAppComponent implements OnInit {
       const hora = i < 24 ? `${i.toString().padStart(2, '0')}:00` : '00:00';
       this.hourOptions.push(hora);
     }
+    this.splitHours();
+  }
+
+  afternoonHours: string[] = [];
+  nightHours: string[] = [];
+  earlyMorningHours: string[] = [];
+
+  private splitHours() {
+    this.afternoonHours = this.hourOptions.filter(h => {
+      const hour = parseInt(h.split(':')[0], 10);
+      return hour >= 12 && hour < 18;
+    });
+    this.nightHours = this.hourOptions.filter(h => {
+      const hour = parseInt(h.split(':')[0], 10);
+      // Noite: 18:00 até 23:00
+      return hour >= 18 && hour <= 23;
+    });
+    this.earlyMorningHours = this.hourOptions.filter(h => {
+      const hour = parseInt(h.split(':')[0], 10);
+      // Madrugada: 00:00 até 06:00
+      return hour >= 0 && hour <= 6;
+    });
   }
 
   private carregarFlagsApartamento(cod_reserva: string) {
@@ -160,19 +299,34 @@ export class CameraAppComponent implements OnInit {
       this.toastr.warning('Envie o documento antes de continuar!');
       return;
     }
-    // Se o apartamento tem garagem, solicitar placa do carro
+    // Se o apartamento tem garagem, solicitar placa e dados do carro
     if (this.tem_garagem === true) {
       const placa = (this.placaCarro || '').toUpperCase().trim();
       const regexAntigo = /^[A-Z]{3}-?\d{4}$/;
       const regexMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+
       if (!placa) {
-        this.toastr.warning('Informe a placa do carro para uso da garagem.');
+        this.toastr.warning('Informe a placa do carro.');
         return;
       }
       if (!(regexAntigo.test(placa) || regexMercosul.test(placa))) {
         this.toastr.warning('Placa inválida. Use formato ABC-1234 ou ABC1D23.');
         return;
       }
+
+      if (!this.marcaCarro) {
+        this.toastr.warning('Informe a marca do carro.');
+        return;
+      }
+      if (!this.modeloCarro) {
+        this.toastr.warning('Informe o modelo do carro.');
+        return;
+      }
+      if (!this.corCarro) {
+        this.toastr.warning('Informe a cor do carro.');
+        return;
+      }
+
       this.placaCarro = placa;
     }
 
@@ -189,7 +343,13 @@ export class CameraAppComponent implements OnInit {
       tipo: 'guest',
       documentBase64: this.documentFile.split(',')[1],
       reserva_id: this.id,
-      placa_carro: this.tem_garagem === true ? this.placaCarro : null
+      // Se tiver garagem, envia os dados.
+      // Assumindo que o backend aceite esses novos campos. Se não, idealmente concatenariamos ou avisariamos o dev.
+      // Vou enviar como campos individuais, pois é o mais semântico.
+      placa_carro: this.tem_garagem === true ? this.placaCarro : null,
+      marca_carro: this.tem_garagem === true ? this.marcaCarro : null,
+      modelo_carro: this.tem_garagem === true ? this.modeloCarro : null,
+      cor_carro: this.tem_garagem === true ? this.corCarro : null
     };
 
     this.step = 4; // Mostrar loading
@@ -212,11 +372,14 @@ export class CameraAppComponent implements OnInit {
   // Reseta o fluxo para o início
   resetFlow() {
     this.step = 1;
-    this.formData = { cpf: '', nome: '', telefone: '',horarioPrevistoChegada:'15:00' };
+    this.formData = { cpf: '', nome: '', telefone: '', horarioPrevistoChegada: '15:00' };
     this.photoDataUrl = null;
     this.documentFile = null;
     this.isSubmitting = false;
     this.placaCarro = '';
+    this.marcaCarro = '';
+    this.modeloCarro = '';
+    this.corCarro = '';
   }
 
   // Valida o CPF do usuário
@@ -283,8 +446,8 @@ export class CameraAppComponent implements OnInit {
     }
   }
 
-  concluirCadastro(){
-    this.step=6;
+  concluirCadastro() {
+    this.step = 6;
   }
 
   /** Retorna true se o horário for entre 01:00 e 06:00 */
