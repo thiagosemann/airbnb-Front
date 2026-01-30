@@ -1,0 +1,460 @@
+/* ==============================
+   CALENDÁRIO - ESTILOS GERAIS
+   ============================== */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Cabeçalho fixo */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eaeaea;
+  background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Navegação de mês e botões */
+.navigation,
+.view-options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-button,
+.view-option {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover,
+.view-option:hover {
+  background-color: #f3f4f6;
+}
+
+.current-month {
+  margin: 0 15px;
+  font-size: 1.5rem;
+  color: #1f2937;
+  font-weight: 600;
+  min-width: 220px;
+  text-align: center;
+}
+
+.view-option {
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.view-option.active {
+  background-color: #007000;
+  color: white;
+  border-color: #007000;
+}
+
+/* ==============================
+   VISÃO GLOBAL - TABELA
+   ============================== */
+.global-view {
+  flex: 1;
+  padding: 0 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.table-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+}
+
+.table-container {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+}
+
+/* Cabeçalho da tabela */
+.table-header {
+  display: flex;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.apartments-header {
+  width: 180px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  position: sticky;
+  left: 0;
+  z-index: 60;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Busca de apartamentos */
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+/* Dias do cabeçalho */
+.days-header {
+  display: flex;
+  min-width: min-content;
+  position: relative;
+  /* pra popover absoluto dentro dele */
+
+}
+
+/* Popover */
+.day-stats-popover {
+  position: absolute;
+  top: 100%;
+  /* logo abaixo do header */
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  z-index: 200;
+  font-size: 0.875rem;
+}
+
+.day-header {
+  min-width: 60px;
+  width: 60px;
+  text-align: center;
+  padding: 15px 5px;
+  font-size: 0.95rem;
+  color: #4b5563;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.week-day {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #6b7280;
+}
+
+.month-day {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.today-cell {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translateZ(8px) rotateX(10deg);
+  background-color: #007000;
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 5;
+}
+
+/* 3) Pseudo‑elemento para criar a “face superior” da célula */
+.today-cell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+  transform-origin: top center;
+  transform: rotateX(90deg) translateZ(8px);
+  /* um degradê suave para sugerir luz: */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+  pointer-events: none;
+}
+
+/* ==============================
+   SELEÇÃO (Drag and Selection)
+   ============================== */
+.day-cell {
+  cursor: pointer;
+  user-select: none;
+  /* Evita selecionar o texto enquanto arrasta */
+}
+
+/* Cor de fundo quando selecionado (enquanto arrasta ou intervalo final) */
+.selected-cell {
+  background-color: rgba(59, 130, 246, 0.4) !important;
+  /* Azul com transparência */
+  box-shadow: inset 0 0 0 2px #3b82f6;
+}
+
+
+/* ==============================
+   MODAL DE NOVA RESERVA
+   ============================== */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  /* Blur effect for modern look */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  /* Ensure it is above everything */
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 500px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 15px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #4b5563;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+input,
+select,
+textarea {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  /* Important for padding */
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+}
+
+small {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 20px;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-cancel:hover {
+  background-color: #f9fafb;
+}
+
+.btn-save {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-save:hover {
+  background-color: #2563eb;
+}
+
+/* Warning message in modal */
+.modal-warning {
+  background-color: #FEF3C7;
+  border: 1px solid #F59E0B;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #92400E;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.modal-warning i {
+  color: #F59E0B;
+  font-size: 1.1rem;
+}
+
+/* New Reservation Button */
+.btn-new-reservation {
+  background-color: #10B981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.btn-new-reservation:hover {
+  background-color: #059669;
+}
+
+.btn-new-reservation i {
+  font-size: 0.9rem;
+}

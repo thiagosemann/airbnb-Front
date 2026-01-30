@@ -43,7 +43,7 @@ import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.com
 import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
-import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
+import { CalendarioSemPastasComponent } from './AIRBNB/Calendario-Forest/calendario-sem-pastas/calendario-sem-pastas.component';
 import { CadastroUsuarioSingleComponent } from './Cadastro/cadastro-usuario-single/cadastro-usuario-single.component';
 import { CadastroCredencialComponent } from './Cadastro/cadastro-credencial/cadastro-credencial.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
@@ -53,6 +53,8 @@ import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio
 import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
 import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
 import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/predios-com-limpeza.component';
+import { CriadorReservaCalendarioComponent } from './AIRBNB/Calendario-Forest/criador-reserva-calendario/criador-reserva-calendario.component';
+import { ForestLandingComponent } from './landing/landing.component';
 
 @NgModule({
   declarations: [
@@ -97,8 +99,10 @@ import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/
     RelatorioNFComponent,
     ControleDemandasComponent,
     SuasDemandasComponent,
-    PrediosComLimpezaComponent
-    ],
+    PrediosComLimpezaComponent,
+    CriadorReservaCalendarioComponent,
+    ForestLandingComponent
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -114,4 +118,4 @@ import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/
   providers: [],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

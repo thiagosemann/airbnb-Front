@@ -32,64 +32,66 @@ import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.com
 import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
-import { CalendarioSemPastasComponent } from './AIRBNB/calendario-sem-pastas/calendario-sem-pastas.component';
+import { CalendarioSemPastasComponent } from './AIRBNB/Calendario-Forest/calendario-sem-pastas/calendario-sem-pastas.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
 import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
 import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
 import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
+import { ForestLandingComponent } from './landing/landing.component';
 
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'cameraApp/:id', component: CameraAppComponent },
   { path: 'reserva/:id', component: CameraAppComponent },
-  { path: 'forgotPassword', component: ForgotPasswordComponent},
-  { path: 'landing', component: LandingComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'forgotPassword', component: ForgotPasswordComponent },
+  { path: 'landing', component: ForestLandingComponent },
+  { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'register', component: RegisterComponent },
   { path: 'profile', component: ProfileComponent },
-  { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
-  { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioMobile', component: CalendarioMobileComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
   { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
   { path: 'calendarioDetalhadoMobile/:cod', component: CalendarioMobileComponent },
-  { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'nps-limpeza', component: NpsLimpezaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'nps/:apartamentoId/:userId', component: NpsLimpezaHospedeComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
-  { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent},
-  { path: 'acessoPredio/:auth', component: QrcodescannerComponent},
+  { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent },
+  { path: 'acessoPredio/:auth', component: QrcodescannerComponent },
 
-  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'terceirizado' } },
-  { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService],data: { role: 'admin'} },
-  
-  { path: 'migrarIcal', component: MigrarICALComponent, canActivate: [AuthGuardService],data: { role: 'admin'} },
+  { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService], data: { role: 'terceirizado' } },
+  { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService], data: { role: 'admin' } },
+
+  { path: 'migrarIcal', component: MigrarICALComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
 
-  { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'relatorioNF', component: RelatorioNFComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'controleDemandas', component: ControleDemandasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
-  { path: 'suasDemandas', component: SuasDemandasComponent, canActivate: [AuthGuardService],data: { role: 'admin' } },
+  { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'vistoria', component: VistoriaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'controle-vistoria', component: ControleVistoriaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'cadastroPortaria', component: CadastroPortariasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'uploadRelatorioCSV', component: UpladoCSVRelatorioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'relatoriosGanhos', component: RelatorioGanhosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'relatorioNF', component: RelatorioNFComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'controleDemandas', component: ControleDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'suasDemandas', component: SuasDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'forest-landing', component: ForestLandingComponent },
 
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio
-  { path: '**', component: ContentComponent, canActivate: [AuthGuardService],data: { role: 'admin' } }, // rota de fallback quando nenhuma outra corresponder
+  { path: '**', component: ContentComponent, canActivate: [AuthGuardService], data: { role: 'admin' } }, // rota de fallback quando nenhuma outra corresponder
 
   // Outras rotas do seu aplicativo
 ];

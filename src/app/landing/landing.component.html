@@ -1,0 +1,664 @@
+<!-- Sticky Navigation -->
+<nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="navbar-container">
+        <!-- Logo -->
+        <a href="#" class="logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+            </svg>
+            <span class="logo-text">Forest</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="nav-menu">
+            <a (click)="scrollToSection('servicos')" class="nav-link">Para Proprietários</a>
+            <a (click)="scrollToSection('bairros')" class="nav-link">Bairros</a>
+            <a (click)="scrollToSection('booking')" class="nav-link">Para Hóspedes</a>
+            <button class="btn-cta">Falar com Especialista</button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+            <svg *ngIf="!isMobileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg *ngIf="isMobileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+        <a (click)="scrollToSection('servicos')" class="nav-link">Para Proprietários</a>
+        <a (click)="scrollToSection('bairros')" class="nav-link">Bairros</a>
+        <a (click)="scrollToSection('booking')" class="nav-link">Para Hóspedes</a>
+        <button class="btn-cta">Falar com Especialista</button>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <!-- Background Image with Overlay -->
+    <div class="hero-bg">
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80"
+            alt="Luxury apartment interior">
+        <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+        <!-- Left Side: Text -->
+        <div class="hero-text">
+            <span class="hero-badge">🏆 Gestão Profissional em Curitiba</span>
+            <h1 class="hero-title">
+                Seu imóvel pode render o
+                <span>dobro da poupança.</span>
+            </h1>
+            <p class="hero-subtitle">
+                Transformamos apartamentos vazios em experiências de hospedagem premium para turistas, executivos e
+                pacientes. Gestão completa de Airbnb e Booking.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn-primary">Falar com Especialista</button>
+                <button class="btn-secondary">Como Funciona</button>
+            </div>
+        </div>
+
+        <!-- Right Side: Shows Widget -->
+        <div class="shows-card">
+            <div class="shows-header">
+                <div class="shows-title-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 19V6l12-3v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="15" r="3" />
+                    </svg>
+                    <h3 class="shows-title">Shows em Curitiba</h3>
+                </div>
+                <p class="shows-subtitle">Eventos que atraem hóspedes para seu imóvel</p>
+            </div>
+
+            <div class="shows-list">
+                <!-- Show 1 -->
+                <div class="show-item highlight">
+                    <div class="show-date">
+                        <span class="show-day">07</span>
+                        <span class="show-month">FEV</span>
+                    </div>
+                    <div class="show-info">
+                        <span class="show-name">Vintage Culture</span>
+                        <span class="show-venue">Pedreira Paulo Leminski</span>
+                    </div>
+                </div>
+
+                <!-- Show 2 -->
+                <div class="show-item">
+                    <div class="show-date">
+                        <span class="show-day">25</span>
+                        <span class="show-month">FEV</span>
+                    </div>
+                    <div class="show-info">
+                        <span class="show-name">RÜFÜS DU SOL</span>
+                        <span class="show-venue">Pedreira Paulo Leminski</span>
+                    </div>
+                </div>
+
+                <!-- Show 3 -->
+                <div class="show-item">
+                    <div class="show-date">
+                        <span class="show-day">09</span>
+                        <span class="show-month">MAR</span>
+                    </div>
+                    <div class="show-info">
+                        <span class="show-name">Bryan Adams</span>
+                        <span class="show-venue">Live Curitiba</span>
+                    </div>
+                </div>
+
+                <!-- Show 4 -->
+                <div class="show-item">
+                    <div class="show-date">
+                        <span class="show-day">13</span>
+                        <span class="show-month">JUN</span>
+                    </div>
+                    <div class="show-info">
+                        <span class="show-name">Djavan</span>
+                        <span class="show-venue">Pedreira Paulo Leminski</span>
+                    </div>
+                </div>
+
+                <!-- Show 5 -->
+                <div class="show-item">
+                    <div class="show-date">
+                        <span class="show-day">26</span>
+                        <span class="show-month">SET</span>
+                    </div>
+                    <div class="show-info">
+                        <span class="show-name">Henrique & Juliano</span>
+                        <span class="show-venue">Pedreira Paulo Leminski</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="https://curitibacult.com.br/agenda-de-shows/" target="_blank" class="shows-link">
+                <span>Ver agenda completa</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="stat-number">1%</div>
+            <div class="stat-label">ao mês</div>
+            <p class="stat-description">Rendimento sobre o valor do imóvel, enquanto aluguel tradicional rende apenas
+                0,4%</p>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+            </div>
+            <div class="stat-number">+30%</div>
+            <div class="stat-label">na alta temporada</div>
+            <p class="stat-description">Diária média em Curitiba durante Natal Luz, Julho e grandes eventos</p>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+            </div>
+            <div class="stat-number">80%</div>
+            <div class="stat-label">taxa de ocupação</div>
+            <p class="stat-description">Ocupação média de administradoras profissionais em Curitiba</p>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section - Bento Grid -->
+<section id="servicos" class="services">
+    <div class="section-container">
+        <!-- Section Header -->
+        <div class="section-header">
+            <span class="section-tag">Para Proprietários</span>
+            <h2 class="section-title">Adeus, dor de cabeça com inquilino.</h2>
+            <p class="section-subtitle">
+                Nós cuidamos da limpeza, manutenção, check-in e da precificação dinâmica que aproveita cada show na
+                Pedreira e cada congresso na cidade para maximizar seu lucro.
+            </p>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="bento-grid">
+            <!-- Card 1: Large - Precificação Dinâmica -->
+            <div class="bento-card large">
+                <div class="card-icon gold-bg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Precificação Dinâmica</h3>
+                <p class="card-description">
+                    Algoritmos inteligentes que aproveitam cada evento: Smart City Expo, Oficina de Música, Natal de
+                    Curitiba.
+                    Ajustamos preços em tempo real para maximizar sua receita.
+                </p>
+                <div class="card-stat">
+                    <span>+40% de receita vs preço fixo</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Card 2: Limpeza 5 Estrelas -->
+            <div class="bento-card">
+                <div class="card-icon forest-bg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #0f392b;">
+                        <path
+                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Limpeza 5 Estrelas</h3>
+                <p class="card-description">Enxoval de hotelaria e equipe treinada. Avaliação média de 4.9 em limpeza.
+                </p>
+            </div>
+
+            <!-- Card 3: Check-in/out Presencial -->
+            <div class="bento-card">
+                <div class="card-icon forest-bg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #0f392b;">
+                        <path
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Check-in Autônomo 24h</h3>
+                <p class="card-description">Flexibilidade para executivos e nômades digitais que chegam tarde.</p>
+            </div>
+
+            <!-- Card 4: Manutenção Preventiva -->
+            <div class="bento-card accent">
+                <div class="card-icon white-bg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #0f392b;">
+                        <path
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Seu Patrimônio Blindado</h3>
+                <p class="card-description">100% dentro das normas do condomínio e da prefeitura. Segurança jurídica
+                    total.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Health Tourism Section -->
+<section class="health-tourism">
+    <div class="section-container">
+        <div class="health-content">
+            <div class="health-text">
+                <span class="section-tag">Diferencial Forest</span>
+                <h2 class="health-title">Curitiba: Hub de Turismo de Saúde</h2>
+                <p class="health-description">
+                    Curitiba é referência nacional em tratamentos de saúde. Hospitais como
+                    <strong>Pequeno Príncipe</strong>, <strong>Erasto Gaertner</strong> e <strong>INC</strong>
+                    atraem milhares de famílias que precisam de mais que um hotel: precisam de um lar temporário.
+                </p>
+                <p class="health-description">
+                    A Forest prepara seu imóvel para acolher esse público premium e recorrente, com estadias de
+                    <strong>15 a 40 dias</strong> que garantem receita estável.
+                </p>
+                <div class="health-features">
+                    <div class="health-feature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Estadias longas (Mid-Stay)</span>
+                    </div>
+                    <div class="health-feature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Público recorrente</span>
+                    </div>
+                    <div class="health-feature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Alta rentabilidade</span>
+                    </div>
+                </div>
+            </div>
+            <div class="health-image">
+                <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Comfortable apartment for medical tourism">
+                <div class="health-badge">
+                    <span class="badge-number">15-40</span>
+                    <span class="badge-text">dias de estadia média</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Strategic Neighborhoods Section -->
+<section id="bairros" class="neighborhoods">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-tag">Guia de Investimento</span>
+            <h2 class="section-title">Bairros Estratégicos de Curitiba</h2>
+            <p class="section-subtitle">Descubra onde investir e qual perfil de hóspede esperar em cada região.</p>
+        </div>
+
+        <div class="neighborhoods-grid">
+            <!-- Batel & Bigorrilho -->
+            <div class="neighborhood-card premium">
+                <div class="neighborhood-header">
+                    <div class="neighborhood-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                    </div>
+                    <span class="neighborhood-tag">Premium</span>
+                </div>
+                <h3 class="neighborhood-name">Batel & Bigorrilho</h3>
+                <p class="neighborhood-tagline">O coração do luxo e gastronomia</p>
+                <p class="neighborhood-description">
+                    Alta procura por executivos e casais em escapadas românticas. Maior ticket médio da cidade.
+                </p>
+                <div class="neighborhood-stats">
+                    <div class="stat">
+                        <span class="stat-value">R$ 350+</span>
+                        <span class="stat-label">diária média</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">85%</span>
+                        <span class="stat-label">ocupação</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centro & Rebouças -->
+            <div class="neighborhood-card business">
+                <div class="neighborhood-header">
+                    <div class="neighborhood-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <span class="neighborhood-tag">Negócios</span>
+                </div>
+                <h3 class="neighborhood-name">Centro & Rebouças</h3>
+                <p class="neighborhood-tagline">O polo da conveniência e eventos</p>
+                <p class="neighborhood-description">
+                    Ideal para nômades digitais e participantes de congressos. Próximo à Estação Embratel e teatros.
+                </p>
+                <div class="neighborhood-stats">
+                    <div class="stat">
+                        <span class="stat-value">R$ 180+</span>
+                        <span class="stat-label">diária média</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">80%</span>
+                        <span class="stat-label">ocupação</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Água Verde & Vila Izabel -->
+            <div class="neighborhood-card family">
+                <div class="neighborhood-header">
+                    <div class="neighborhood-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </div>
+                    <span class="neighborhood-tag">Saúde</span>
+                </div>
+                <h3 class="neighborhood-name">Água Verde & Vila Izabel</h3>
+                <p class="neighborhood-tagline">Residencial e estratégico</p>
+                <p class="neighborhood-description">
+                    O favorito de famílias e hóspedes em tratamentos de saúde pela proximidade com hospitais de ponta.
+                </p>
+                <div class="neighborhood-stats">
+                    <div class="stat">
+                        <span class="stat-value">R$ 220+</span>
+                        <span class="stat-label">diária média</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">78%</span>
+                        <span class="stat-label">ocupação</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Events Calendar Section -->
+<section class="events-section">
+    <div class="section-container">
+        <div class="events-content">
+            <div class="events-text">
+                <span class="section-tag light">Calendário de Demanda</span>
+                <h2 class="events-title">Curitiba não para o ano todo</h2>
+                <p class="events-description">
+                    A cidade mais inteligente do mundo atrai executivos e nômades digitais que exigem Wi-Fi rápido e
+                    check-in autônomo.
+                    O calendário corporativo lota a cidade de terça a quinta-feira.
+                </p>
+            </div>
+            <div class="events-grid">
+                <div class="event-card">
+                    <span class="event-month">Jan</span>
+                    <span class="event-name">Oficina de Música</span>
+                </div>
+                <div class="event-card">
+                    <span class="event-month">Mar/Abr</span>
+                    <span class="event-name">Smart City Expo</span>
+                </div>
+                <div class="event-card">
+                    <span class="event-month">Jul</span>
+                    <span class="event-name">Férias de Inverno</span>
+                </div>
+                <div class="event-card highlight">
+                    <span class="event-month">Nov/Dez</span>
+                    <span class="event-name">Natal de Curitiba</span>
+                    <span class="event-detail">Milhões de turistas</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Integration Section -->
+<section class="integrations">
+    <div class="section-container">
+        <h2 class="integrations-title">Anunciamos nas maiores plataformas</h2>
+        <p class="integrations-subtitle">Máxima visibilidade para o seu imóvel</p>
+
+        <div class="platforms">
+            <div class="platform-item">
+                <div class="platform-logo">Airbnb</div>
+                <span class="platform-name">Airbnb</span>
+            </div>
+            <div class="platform-item">
+                <div class="platform-logo">Booking.com</div>
+                <span class="platform-name">Booking.com</span>
+            </div>
+            <div class="platform-item">
+                <div class="platform-logo">VRBO</div>
+                <span class="platform-name">VRBO</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Legal Security Section -->
+<section class="legal-section">
+    <div class="section-container">
+        <div class="legal-content">
+            <div class="legal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+            <h2 class="legal-title">Seu patrimônio 100% protegido</h2>
+            <p class="legal-description">
+                O mercado está mudando e a regulação está chegando. Não corra riscos com gestão amadora.
+                A Forest blinda seu patrimônio garantindo que seu aluguel de temporada esteja
+                <strong>100% dentro das normas do condomínio e da prefeitura</strong>.
+            </p>
+            <button class="btn-cta-dark">Falar com Especialista</button>
+        </div>
+    </div>
+</section>
+
+<!-- Direct Booking Teaser (Guest Focus) -->
+<section id="booking" class="booking-teaser">
+    <div class="booking-content">
+        <!-- Image -->
+        <div class="booking-image">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+                alt="Luxury apartment for guests">
+            <div class="superhost-badge">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span>4.9</span>
+                <span style="font-weight: 400; opacity: 0.8;">Superhost</span>
+            </div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="booking-text">
+            <span class="booking-tag">Para Hóspedes</span>
+            <h2 class="booking-title">Sinta-se em casa na cidade mais inteligente do Brasil</h2>
+            <p class="booking-description">
+                De studios modernos no Centro a apartamentos familiares no Água Verde:
+                Wi-Fi de alta velocidade, enxoval de hotelaria e o calor de um lar.
+            </p>
+            <div class="booking-features">
+                <span class="feature-tag">🌐 Wi-Fi 300Mbps</span>
+                <span class="feature-tag">🛏️ Enxoval Premium</span>
+                <span class="feature-tag">🔐 Check-in 24h</span>
+            </div>
+            <div class="booking-buttons">
+                <button class="btn-dark">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Reservar Agora
+                </button>
+                <button class="btn-outline">Ver Apartamentos</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <!-- Brand + Contact -->
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                    <span>Forest Gestão</span>
+                </div>
+                <p class="footer-description">
+                    Transformando imóveis em investimentos rentáveis em Curitiba com gestão profissional e tecnologia de
+                    ponta.
+                </p>
+
+                <!-- Contact Info -->
+                <div class="footer-contact">
+                    <h4>Fale com a Forest</h4>
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+                        </svg>
+                        <div>
+                            <a href="tel:+5541999283936">(41) 99928-3936</a>
+                            <a href="tel:+5541999723936">(41) 99972-3936</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        <a href="mailto:contato@forestgip.com.br">contato&#64;forestgip.com.br</a>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                    </a>
+                    <a href="https://wa.me/5541999283936" class="social-link" aria-label="WhatsApp" target="_blank">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Links - Proprietários -->
+            <div class="footer-links">
+                <h4>Proprietários</h4>
+                <ul>
+                    <li><a href="#">Como funciona</a></li>
+                    <li><a href="#">Precificação</a></li>
+                    <li><a href="#">Bairros estratégicos</a></li>
+                    <li><a href="#">Suporte</a></li>
+                </ul>
+            </div>
+
+            <!-- Links - Hóspedes -->
+            <div class="footer-links">
+                <h4>Hóspedes</h4>
+                <ul>
+                    <li><a href="#">Ver apartamentos</a></li>
+                    <li><a href="#">Fazer reserva</a></li>
+                    <li><a href="#">Turismo de saúde</a></li>
+                    <li><a href="#">Contato</a></li>
+                </ul>
+            </div>
+
+            <!-- Location & Map -->
+            <div class="footer-location">
+                <h4>Nossa Localização</h4>
+                <div class="address-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <div>
+                        <p>Rua Maúa, 838</p>
+                        <p>Centro Cívico - Curitiba/PR</p>
+                    </div>
+                </div>
+                <a href="https://www.google.com/maps/dir//Rua+Mau%C3%A1,+838+-+Centro+C%C3%ADvico,+Curitiba+-+PR"
+                    target="_blank" class="btn-map">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                    </svg>
+                    Ver Rotas no Google Maps
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <p class="footer-copyright">© 2026 Forest Gestão Patrimonial. Todos os direitos reservados.</p>
+            <div class="footer-legal">
+                <a href="#">Termos de Uso</a>
+                <a href="#">Política de Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>

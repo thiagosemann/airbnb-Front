@@ -30,13 +30,14 @@ interface CalendarEvent {
   start: string;
   end: string;
   cod_reserva: string;
-  source: 'airbnb' | 'booking';
+  source: 'airbnb' | 'booking' | 'forest';
 }
 
 type DayType =
-  | 'none' | 'air' | 'book'
-  | 'inAir' | 'inBook' | 'outAir' | 'outBook'
-  | 'inOutAir' | 'inOutBook' | 'inAirOutBook' | 'inBookOutAir';
+  | 'none' | 'air' | 'book' | 'forest'
+  | 'inAir' | 'inBook' | 'inForest' | 'outAir' | 'outBook' | 'outForest'
+  | 'inOutAir' | 'inOutBook' | 'inOutForest' 
+  | 'inAirOutBook' | 'inBookOutAir' | 'inAirOutForest' | 'inBookOutForest' | 'inForestOutAir' | 'inForestOutBook';
 
   export {
     Apartment,

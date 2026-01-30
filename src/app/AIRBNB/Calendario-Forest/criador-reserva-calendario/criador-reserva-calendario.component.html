@@ -1,0 +1,103 @@
+<!-- MODAL DE RESERVA -->
+<div class="modal-backdrop" *ngIf="showModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>{{ editMode ? 'Reserva Forest' : 'Nova Reserva' }}</h2>
+            <button class="close-btn" (click)="closeModal()">&times;</button>
+        </div>
+
+        <!-- Warning Message -->
+        <div class="modal-warning" *ngIf="warningMessage">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ warningMessage }}
+        </div>
+
+        <!-- CREATE MODE -->
+        <ng-container *ngIf="!editMode">
+            <div class="modal-body">
+                <!-- Apartment Select -->
+                <div class="form-group">
+                    <label>Apartamento: <span style="color: red;">*</span></label>
+                    <select [(ngModel)]="newReservation.apartamento_id">
+                        <option *ngFor="let apt of apartments" [value]="apt.id">{{ apt.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Check-in: <span style="color: red;">*</span></label>
+                        <input type="date" [(ngModel)]="newReservation.start_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Check-out: <span style="color: red;">*</span></label>
+                        <input type="date" [(ngModel)]="newReservation.end_data">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Precisa de limpeza?</label>
+                    <select [(ngModel)]="newReservation.precisa_limpeza">
+                        <option [ngValue]="true">Sim</option>
+                        <option [ngValue]="false">Não</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Observações:</label>
+                    <textarea [(ngModel)]="newReservation.Observacoes" rows="3"
+                        placeholder="Observações adicionais..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+                <button class="btn-save" (click)="saveReservation()" [disabled]="loading">
+                    {{ loading ? 'Salvando...' : 'Salvar' }}
+                </button>
+            </div>
+        </ng-container>
+
+        <!-- EDIT MODE (View Only + Delete) -->
+        <ng-container *ngIf="editMode">
+            <div class="modal-body">
+                <!-- Apartment Select -->
+                <div class="form-group">
+                    <label>Apartamento:</label>
+                    <select [(ngModel)]="newReservation.apartamento_id" disabled>
+                        <option *ngFor="let apt of apartments" [value]="apt.id">{{ apt.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Check-in:</label>
+                        <input type="date" [(ngModel)]="newReservation.start_date" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Check-out:</label>
+                        <input type="date" [(ngModel)]="newReservation.end_data" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Precisa de limpeza?</label>
+                    <select [(ngModel)]="newReservation.precisa_limpeza" disabled>
+                        <option [ngValue]="false">Sim</option>
+                        <option [ngValue]="true">Não</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Observações:</label>
+                    <textarea [(ngModel)]="newReservation.Observacoes" rows="3" disabled
+                        placeholder="Observações adicionais..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+                <button class="btn-delete" (click)="deleteReservation()" [disabled]="loading">
+                    <i class="fas fa-trash"></i> {{ loading ? 'Deletando...' : 'Deletar Reserva' }}
+                </button>
+            </div>
+        </ng-container>
+    </div>
+</div>

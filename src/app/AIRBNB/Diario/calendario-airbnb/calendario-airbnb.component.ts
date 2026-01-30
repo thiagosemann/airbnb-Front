@@ -37,9 +37,14 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   dataFim: string;
   searchTerm: string = '';
   reservasExibidas: ReservaAirbnb[] = [];
-  
+
   // Armazena URLs temporárias criadas para preview de PDFs
   private pdfObjectUrls: string[] = [];
+
+  // Popover de observações expandidas
+  showObsPopover: boolean = false;
+  selectedObsText: string = '';
+  obsPopoverPosition: { top: number; left: number } = { top: 0, left: 0 };
 
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
@@ -95,7 +100,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
 
   carregarReservasPorPeriodo(): void {
     this.carregando = true;
-    
+
     // Chamar o serviço com as datas atuais
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
@@ -125,8 +130,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       this.reservasExibidas = [...this.reservasFiltradas];
     } else {
       this.reservasExibidas = this.reservasFiltradas.filter(r =>
-        (r.apartamento_nome  ?? '').toLowerCase().includes(term)
-        || (r.cod_reserva     ?? '').toLowerCase().includes(term)
+        (r.apartamento_nome ?? '').toLowerCase().includes(term)
+        || (r.cod_reserva ?? '').toLowerCase().includes(term)
       );
     }
   }
@@ -284,7 +289,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   private revokeObjectUrls(): void {
     if (this.pdfObjectUrls && this.pdfObjectUrls.length) {
       this.pdfObjectUrls.forEach(url => {
-        try { URL.revokeObjectURL(url); } catch {}
+        try { URL.revokeObjectURL(url); } catch { }
       });
       this.pdfObjectUrls = [];
     }
@@ -408,7 +413,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       this.toastr.warning('Selecione uma reserva antes de enviar o pagamento.');
       return;
     }
-    
+
     this.earlyLoading = true;
     const payload: any = {
       user_id: hospede?.user_id,
@@ -425,15 +430,15 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.mercadoPagoService.createPayment(payload)
       .subscribe({
         next: (resp: any) => {
-           this.linkPagamento = resp.redirectUrl;
-           this.earlyLoading = false;
+          this.linkPagamento = resp.redirectUrl;
+          this.earlyLoading = false;
         },
         error: (err) => {
           console.error('Erro ao criar pagamento early:', err);
           this.toastr.error('Não foi possível gerar o link de pagamento.');
         }
       });
-      
+
   }
   /** Retorna true se existir algum pagamento do tipo especificado */
   hasPaymentType(type: string, reserva: ReservaAirbnb | undefined): boolean {
@@ -471,20 +476,20 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }
     if (cod_reserva.toLowerCase().includes('b-')) {
       return 'BOOKING';
-    } else  if (cod_reserva.toLowerCase().includes('stays')) {
+    } else if (cod_reserva.toLowerCase().includes('stays')) {
       return 'STAYS';
     } else {
       return 'AIRBNB';
     }
   }
   updateTelefone(): void {
-    if(!this.selectedReservation){
+    if (!this.selectedReservation) {
       return
     }
-    if(!this.selectedReservation.telefone_principal){
+    if (!this.selectedReservation.telefone_principal) {
       return
     }
-    if(this.selectedReservation.telefone_principal.length !== 11) {
+    if (this.selectedReservation.telefone_principal.length !== 11) {
       return;
     }
     this.selectedReservation.start_date = this.formatarDataBanco(this.selectedReservation.start_date);
@@ -552,7 +557,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
 
   get telefoneValido(): boolean {
     if (!this.selectedReservation?.telefone_principal) return false;
-    const digits = this.selectedReservation.telefone_principal.replace(/\D/g,'');
+    const digits = this.selectedReservation.telefone_principal.replace(/\D/g, '');
     return digits.length === 11;
   }
 
@@ -565,6 +570,30 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       this.carregandoImagem = true;
       this.getRespostasByReservaId(this.selectedReservation.id.toString(), this.selectedReservation.cod_reserva);
     }
+  }
+
+  /** Abre o popover para exibir observação completa */
+  openObsPopover(event: any, mouseEvent: MouseEvent): void {
+    mouseEvent.stopPropagation();
+    this.selectedObsText = event.Observacoes || '';
+
+    // Posicionar o popover centralizado na tela
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popoverWidth = Math.min(400, viewportWidth - 40);
+
+    this.obsPopoverPosition = {
+      top: viewportHeight / 2 - 100,
+      left: (viewportWidth - popoverWidth) / 2
+    };
+
+    this.showObsPopover = true;
+  }
+
+  /** Fecha o popover de observação */
+  closeObsPopover(): void {
+    this.showObsPopover = false;
+    this.selectedObsText = '';
   }
 
 }

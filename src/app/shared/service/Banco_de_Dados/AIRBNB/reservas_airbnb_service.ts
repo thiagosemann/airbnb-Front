@@ -78,6 +78,14 @@ export class ReservasAirbnbService {
     );
   }
 
+  createReservaManual(reserva: ReservaAirbnb): Observable<ReservaAirbnb> {
+    return this.http.post<ReservaAirbnb>(
+      `${this.apiUrl}/manual`,
+      reserva,
+      { headers: this.getHeaders() }
+    );
+  }
+
   updateReserva(reserva: ReservaAirbnb): Observable<ReservaAirbnb> {
     return this.http.put<ReservaAirbnb>(
       `${this.apiUrl}/${reserva.id}`,
@@ -94,33 +102,33 @@ export class ReservasAirbnbService {
   }
 
   getPagamentosPorCodReserva(codigos: number[]): Observable<{ cod_reserva: number, valor_pagamento: number }[]> {
-  return this.http.post<{ cod_reserva: number, valor_pagamento: number }[]>(
+    return this.http.post<{ cod_reserva: number, valor_pagamento: number }[]>(
       `${this.apiUrl}/pagamentos`,
       { codigos },
       { headers: this.getHeaders() }
     );
   }
 
-getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
-  const params = new HttpParams()
-    .set('start', startDate)
-    .set('end', endDate);
+  getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
+    const params = new HttpParams()
+      .set('start', startDate)
+      .set('end', endDate);
 
-  return this.http.get<ReservaAirbnb[]>(
-    `${this.apiUrl}/reservas/por-periodo-calendario`,
-    {
-      headers: this.getHeaders(),
-      params
-    }
-  );
-}
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/reservas/por-periodo-calendario`,
+      {
+        headers: this.getHeaders(),
+        params
+      }
+    );
+  }
   getReservasCanceladasHoje(): Observable<ReservaAirbnb[]> {
     return this.http.get<ReservaAirbnb[]>(
       `${this.apiUrl}/cancelados/hoje`,
       { headers: this.getHeaders() }
     );
   }
-  
+
   // Novo endpoint: /reservas-airbnb/cancelados/por-periodo
   getReservasCanceladasPorPeriodo(startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
     const params = new HttpParams()
@@ -135,7 +143,7 @@ getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<
       }
     );
   }
-  
+
   // Novo endpoint: /reservas-airbnb/reservas/cod/:cod_reserva
   getReservaByCodReserva(codReserva: number | string): Observable<ReservaAirbnb[]> {
     const cod = encodeURIComponent(String(codReserva));
@@ -144,20 +152,24 @@ getReservasPorPeriodoCalendario(startDate: string, endDate: string): Observable<
       { headers: this.getHeaders() }
     );
   }
-getReservasPorPeriodoCalendarioPorApartamento(apartamentoId: number, startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
-  const params = new HttpParams()
-    .set('start', startDate)
-    .set('end', endDate);
+  getReservasPorPeriodoCalendarioPorApartamento(apartamentoId: number, startDate: string, endDate: string): Observable<ReservaAirbnb[]> {
+    const params = new HttpParams()
+      .set('start', startDate)
+      .set('end', endDate);
 
-  return this.http.get<ReservaAirbnb[]>(
-    `${this.apiUrl}/reservas/por-periodo-calendario/${apartamentoId}`,
-    {
-      headers: this.getHeaders(),
-      params
-    }
-  );
-}
+    return this.http.get<ReservaAirbnb[]>(
+      `${this.apiUrl}/reservas/por-periodo-calendario/${apartamentoId}`,
+      {
+        headers: this.getHeaders(),
+        params
+      }
+    );
+  }
 
-
-
+  deleteReservasByOrigem(origem: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/origem/${encodeURIComponent(origem)}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }
