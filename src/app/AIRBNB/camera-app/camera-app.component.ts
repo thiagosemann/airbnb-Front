@@ -36,6 +36,7 @@ export class CameraAppComponent implements OnInit {
   marcaCarro: string = '';
   modeloCarro: string = '';
   corCarro: string = '';
+  usarGaragem: boolean = true;
 
   get t() {
     return this.souEstrangeiro ? this.enText : this.ptText;
@@ -93,7 +94,9 @@ export class CameraAppComponent implements OnInit {
     successText: 'Tudo pronto para sua estadia.<br>Aguardamos sua chegada.',
     legalText2: 'Suas instruções de acesso serão enviadas 1 hora antes da sua entrada no apartamento.',
     registerAnother: 'Cadastrar Outro Hóspede',
-    finish: 'Concluir'
+    finish: 'Concluir',
+    useGarageLabel: 'Utilizar vaga de garagem',
+    useGarageHint: 'Desmarque caso não vá utilizar a vaga ou se o veículo já foi preenchido por outro hóspede.'
   };
 
   enText = {
@@ -148,7 +151,9 @@ export class CameraAppComponent implements OnInit {
     successText: 'Everything is ready for your stay.<br>We look forward to your arrival.',
     legalText2: 'The instructions to access your apartment will be sent to you 1 hour before your arrival.',
     registerAnother: 'Register Another Guest',
-    finish: 'Finish'
+    finish: 'Finish',
+    useGarageLabel: 'Use parking space',
+    useGarageHint: 'Uncheck if you will not use the space or if the vehicle has already been registered by another guest.'
   };
 
   constructor(
@@ -207,6 +212,11 @@ export class CameraAppComponent implements OnInit {
         const ps = dados?.pedir_selfie;
         this.pedir_selfie = ps === true || ps === 1 || ps === '1' ? true : false;
         this.tem_garagem = (dados?.tem_garagem === true || dados?.tem_garagem === 1 || dados?.tem_garagem === '1') ? true : false;
+
+        // Padrão: se tem garagem, supõe que vai usar
+        if (this.tem_garagem) {
+          this.usarGaragem = true;
+        }
       },
       error: (err) => {
         console.error('Falha ao carregar informações do apartamento:', err);
@@ -300,7 +310,7 @@ export class CameraAppComponent implements OnInit {
       return;
     }
     // Se o apartamento tem garagem, solicitar placa e dados do carro
-    if (this.tem_garagem === true) {
+    if (this.tem_garagem === true && this.usarGaragem) {
       const placa = (this.placaCarro || '').toUpperCase().trim();
       const regexAntigo = /^[A-Z]{3}-?\d{4}$/;
       const regexMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;

@@ -216,27 +216,43 @@
 
         <!-- Placa (Mandatory if tem_garagem) -->
         <div *ngIf="tem_garagem">
-          <div class="form-group">
-            <label class="input-label">{{ t.plateLabel }}</label>
-            <div style="position: relative;">
-              <span class="material-icons-round"
-                style="position: absolute; left: 1rem; top: 1rem; color: #9ca3af;">directions_car</span>
-              <input type="text" class="input-field" style="padding-left: 3rem;" [placeholder]="t.platePlaceholder"
-                [(ngModel)]="placaCarro">
+          <!-- Toggle para utilizar a vaga -->
+          <div style="margin-bottom: 1.5rem;">
+            <div class="toggle-row">
+              <label class="info-label" style="font-size: 0.875rem; color: var(--text-main);">{{ t.useGarageLabel
+                }}</label>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="usarGaragem" name="usarGaragem">
+                <span class="slider"></span>
+              </label>
             </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">{{
+              t.useGarageHint }}</p>
           </div>
-          <div class="form-group">
-            <label class="input-label">{{ t.marcaLabel }}</label>
-            <input type="text" class="input-field" [placeholder]="t.marcaPlaceholder" [(ngModel)]="marcaCarro">
-          </div>
-          <div class="form-group">
-            <label class="input-label">{{ t.modeloLabel }}</label>
-            <input type="text" class="input-field" [placeholder]="t.modeloPlaceholder" [(ngModel)]="modeloCarro">
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="input-label">{{ t.corLabel }}</label>
-            <input type="text" class="input-field" [placeholder]="t.corPlaceholder" [(ngModel)]="corCarro">
-            <p style="font-size: 0.625rem; color: #9ca3af; margin-top: 0.25rem;">{{ t.plateHint }}</p>
+
+          <div *ngIf="usarGaragem">
+            <div class="form-group">
+              <label class="input-label">{{ t.plateLabel }}</label>
+              <div style="position: relative;">
+                <span class="material-icons-round"
+                  style="position: absolute; left: 1rem; top: 1rem; color: #9ca3af;">directions_car</span>
+                <input type="text" class="input-field" style="padding-left: 3rem;" [placeholder]="t.platePlaceholder"
+                  [(ngModel)]="placaCarro">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="input-label">{{ t.marcaLabel }}</label>
+              <input type="text" class="input-field" [placeholder]="t.marcaPlaceholder" [(ngModel)]="marcaCarro">
+            </div>
+            <div class="form-group">
+              <label class="input-label">{{ t.modeloLabel }}</label>
+              <input type="text" class="input-field" [placeholder]="t.modeloPlaceholder" [(ngModel)]="modeloCarro">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="input-label">{{ t.corLabel }}</label>
+              <input type="text" class="input-field" [placeholder]="t.corPlaceholder" [(ngModel)]="corCarro">
+              <p style="font-size: 0.625rem; color: #9ca3af; margin-top: 0.25rem;">{{ t.plateHint }}</p>
+            </div>
           </div>
         </div>
 
