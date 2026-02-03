@@ -1,0 +1,75 @@
+<div class="booking-page">
+    <!-- Hero Section with Search -->
+    <app-reservas-header [busca]="busca" [bairrosDisponiveis]="bairrosDisponiveis" (buscar)="onBuscar($event)">
+    </app-reservas-header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar" *ngIf="buscaRealizada">
+            <app-reservas-filters [filtros]="filtros" [bairrosDisponiveis]="bairrosDisponiveis"
+                (filtrosChange)="onFiltrosChange($event)">
+            </app-reservas-filters>
+        </aside>
+
+        <!-- Results Area -->
+        <section class="results-area">
+            <!-- Loading State -->
+            <div class="loading-state" *ngIf="isLoading">
+                <div class="spinner"></div>
+                <p>Buscando apartamentos disponíveis...</p>
+            </div>
+
+            <!-- Initial State (before search) -->
+            <div class="initial-state" *ngIf="!buscaRealizada && !isLoading">
+                <div class="initial-content">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <h2>Encontre seu próximo destino</h2>
+                    <p>Selecione as datas e quantidade de hóspedes para ver os apartamentos disponíveis.</p>
+                </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div class="results-container" *ngIf="buscaRealizada && !isLoading">
+                <!-- Results Header -->
+                <div class="results-header">
+                    <h2 class="results-title">
+                        <span *ngIf="apartamentosDisponiveis.length > 0">
+                            {{ apartamentosDisponiveis.length }}
+                            apartamento{{ apartamentosDisponiveis.length !== 1 ? 's' : '' }}
+                            disponíve{{ apartamentosDisponiveis.length !== 1 ? 'is' : 'l' }}
+                        </span>
+                        <span *ngIf="apartamentosDisponiveis.length === 0">
+                            Nenhum apartamento disponível
+                        </span>
+                    </h2>
+                    <p class="results-subtitle" *ngIf="nightsCount > 0">
+                        {{ nightsCount }} noite{{ nightsCount !== 1 ? 's' : '' }} · {{ busca.hospedes }} hóspede{{
+                        busca.hospedes !== 1 ? 's' : '' }}
+                    </p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" *ngIf="apartamentosDisponiveis.length === 0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3>Não encontramos apartamentos disponíveis</h3>
+                    <p>Tente ajustar as datas ou os filtros da sua busca.</p>
+                </div>
+
+                <!-- Apartments Grid -->
+                <app-reservas-list *ngIf="apartamentosDisponiveis.length > 0" [apartamentos]="apartamentosDisponiveis"
+                    (apartamentoClick)="onApartamentoClick($event)">
+                </app-reservas-list>
+            </div>
+        </section>
+    </main>
+
+    <!-- Reservation Modal -->
+    <app-reserva-modal *ngIf="showModal && apartamentoSelecionado" [apartamento]="apartamentoSelecionado"
+        [busca]="busca" (close)="onModalClose()" (confirmar)="onReservaConfirmada($event)">
+    </app-reserva-modal>
+</div>

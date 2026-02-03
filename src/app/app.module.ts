@@ -26,6 +26,7 @@ import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.comp
 import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
 import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
@@ -55,6 +56,14 @@ import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-dema
 import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/predios-com-limpeza.component';
 import { CriadorReservaCalendarioComponent } from './AIRBNB/Calendario-Forest/criador-reserva-calendario/criador-reserva-calendario.component';
 import { ForestLandingComponent } from './landing/landing.component';
+
+// Reservar Components
+import { ReservarComponent } from './Reservar/reservar.component';
+import { ReservasHeaderComponent } from './Reservar/reservas-header/reservas-header.component';
+import { ReservasFiltersComponent } from './Reservar/reservas-filters/reservas-filters.component';
+import { ReservasListComponent } from './Reservar/reservas-list/reservas-list.component';
+import { ReservaCardComponent } from './Reservar/reserva-card/reserva-card.component';
+import { ReservaModalComponent } from './Reservar/reserva-modal/reserva-modal.component';
 
 @NgModule({
   declarations: [
@@ -101,10 +110,18 @@ import { ForestLandingComponent } from './landing/landing.component';
     SuasDemandasComponent,
     PrediosComLimpezaComponent,
     CriadorReservaCalendarioComponent,
-    ForestLandingComponent
+    ForestLandingComponent,
+    // Reservar Components
+    ReservarComponent,
+    ReservasHeaderComponent,
+    ReservasFiltersComponent,
+    ReservasListComponent,
+    ReservaCardComponent,
+    ReservaModalComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,

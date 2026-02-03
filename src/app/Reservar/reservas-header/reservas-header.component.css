@@ -1,0 +1,367 @@
+/* ============================================
+   Hero Search Section - Forest Branded
+   ============================================ */
+
+:host {
+    display: block;
+}
+
+.hero-section {
+    position: relative;
+    background: linear-gradient(135deg, #0F392B 0%, #1a5c47 50%, #0F392B 100%);
+    padding: 40px 24px 80px;
+    overflow: hidden;
+}
+
+/* Background Decorations */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.shape-1 {
+    width: 400px;
+    height: 400px;
+    top: -150px;
+    right: -100px;
+}
+
+.shape-2 {
+    width: 300px;
+    height: 300px;
+    bottom: -100px;
+    left: -80px;
+}
+
+.shape-3 {
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Hero Content */
+.hero-content {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    z-index: 1;
+}
+
+/* Brand Header */
+.brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    color: #d4af37;
+}
+
+.logo-text {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.brand-divider {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.brand-tagline {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+}
+
+/* Hero Text */
+.hero-text {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+}
+
+.title-accent {
+    display: block;
+    color: #d4af37;
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Search Box */
+.search-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.search-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.search-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.guests-field {
+    flex: 0.8;
+}
+
+.field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #424242;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.field-label svg {
+    width: 16px;
+    height: 16px;
+    color: #757575;
+}
+
+.field-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #212121;
+    background: #fafafa;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: #0F392B;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(15, 57, 43, 0.1);
+}
+
+select.field-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+/* Search Button */
+.search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #0F392B, #1e4c40);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.search-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 57, 43, 0.4);
+}
+
+.search-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.search-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Nights Preview */
+.nights-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 16px;
+    background: rgba(212, 175, 55, 0.12);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #b8902a;
+}
+
+.nights-preview svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Trust Badges */
+.trust-badges {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+.trust-badges .badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.trust-badges .badge svg {
+    width: 20px;
+    height: 20px;
+    color: #d4af37;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .hero-section {
+        padding: 32px 16px 60px;
+    }
+
+    .brand-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .logo-text {
+        font-size: 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .search-row {
+        flex-wrap: wrap;
+    }
+
+    .search-field {
+        flex: 1 1 calc(50% - 8px);
+        min-width: calc(50% - 8px);
+    }
+
+    .guests-field {
+        flex: 1 1 100%;
+    }
+
+    .search-btn {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .trust-badges {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 24px 16px 48px;
+    }
+
+    .brand-header {
+        margin-bottom: 24px;
+    }
+
+    .brand-divider,
+    .brand-tagline {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .search-box {
+        padding: 16px;
+    }
+
+    .search-field {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+
+    .field-input {
+        padding: 12px 14px;
+    }
+
+    .trust-badges {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+}

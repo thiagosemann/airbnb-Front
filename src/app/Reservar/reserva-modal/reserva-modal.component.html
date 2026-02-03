@@ -1,0 +1,237 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-container">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="header-content">
+                <h2 class="modal-title">{{ apartamento.nome_anuncio || apartamento.nome }}</h2>
+                <p class="modal-subtitle" *ngIf="apartamento.bairro">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {{ apartamento.bairro }}
+                </p>
+            </div>
+            <button class="close-btn" (click)="onClose()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="modal-tabs">
+            <button class="tab-btn" [class.active]="activeTab === 'detalhes'" (click)="activeTab = 'detalhes'">
+                Detalhes
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'reservar'" (click)="activeTab = 'reservar'">
+                Reservar
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Details Tab -->
+            <div class="tab-content" *ngIf="activeTab === 'detalhes'">
+                <!-- Image Placeholder -->
+                <div class="detail-image">
+                    <div class="image-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span>Fotos em breve</span>
+                    </div>
+                </div>
+
+                <!-- Quick Info -->
+                <div class="quick-info">
+                    <div class="info-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                        </svg>
+                        <span>{{ apartamento.numero_hospedes }} hóspedes</span>
+                    </div>
+                    <div class="info-item" *ngIf="apartamento.qtd_banheiros">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M22 12H2M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z" />
+                        </svg>
+                        <span>{{ apartamento.qtd_banheiros }} banheiro{{ apartamento.qtd_banheiros > 1 ? 's' : ''
+                            }}</span>
+                    </div>
+                    <div class="info-item" *ngIf="apartamento.andar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14" />
+                        </svg>
+                        <span>{{ apartamento.andar }}º andar</span>
+                    </div>
+                </div>
+
+                <!-- Beds Section -->
+                <div class="detail-section" *ngIf="bedsDescription">
+                    <h4 class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 4v16M22 4v16M6 16V8h12v8M2 12h4M18 12h4" />
+                        </svg>
+                        Acomodações
+                    </h4>
+                    <p class="section-content">{{ bedsDescription }}</p>
+                </div>
+
+                <!-- Amenities Section -->
+                <div class="detail-section" *ngIf="amenitiesList.length > 0">
+                    <h4 class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        O que esse lugar oferece
+                    </h4>
+                    <div class="amenities-grid">
+                        <div class="amenity-item" *ngFor="let amenity of amenitiesList">
+                            <!-- AC -->
+                            <svg *ngIf="amenity.icon === 'ac'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2v20M2 12h20" />
+                            </svg>
+                            <!-- WiFi -->
+                            <svg *ngIf="amenity.icon === 'wifi'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M5 12.55a11 11 0 0114.08 0" />
+                                <path d="M8.53 16.11a6 6 0 016.95 0" />
+                                <line x1="12" y1="20" x2="12.01" y2="20" />
+                            </svg>
+                            <!-- TV -->
+                            <svg *ngIf="amenity.icon === 'tv'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                                <polyline points="17 2 12 7 7 2" />
+                            </svg>
+                            <!-- Parking -->
+                            <svg *ngIf="amenity.icon === 'parking'" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="6" width="22" height="12" rx="2" />
+                                <circle cx="7" cy="18" r="2" />
+                                <circle cx="17" cy="18" r="2" />
+                            </svg>
+                            <!-- Pet -->
+                            <svg *ngIf="amenity.icon === 'pet'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z" />
+                            </svg>
+                            <!-- Coffee -->
+                            <svg *ngIf="amenity.icon === 'coffee'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" />
+                            </svg>
+                            <!-- Hairdryer -->
+                            <svg *ngIf="amenity.icon === 'hairdryer'" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                            </svg>
+                            <!-- Desk -->
+                            <svg *ngIf="amenity.icon === 'desk'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                            </svg>
+                            <!-- Fan -->
+                            <svg *ngIf="amenity.icon === 'fan'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 12L9 3M12 12l8 2M12 12l-5 7M12 12l5-9M12 12l-8 2M12 12l3 8" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            <!-- Iron -->
+                            <svg *ngIf="amenity.icon === 'iron'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M2 17h20l-4-8H6l-4 8z" />
+                            </svg>
+                            <span>{{ amenity.label }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="detail-section" *ngIf="apartamento.endereco">
+                    <h4 class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        Localização
+                    </h4>
+                    <p class="section-content">{{ apartamento.endereco }}</p>
+                </div>
+            </div>
+
+            <!-- Booking Tab -->
+            <div class="tab-content" *ngIf="activeTab === 'reservar'">
+                <!-- Booking Summary -->
+                <div class="booking-summary">
+                    <h4>Resumo da reserva</h4>
+                    <div class="summary-row">
+                        <span class="label">Check-in</span>
+                        <span class="value">{{ formatDate(busca.checkIn) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Check-out</span>
+                        <span class="value">{{ formatDate(busca.checkOut) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Duração</span>
+                        <span class="value">{{ nightsCount }} noite{{ nightsCount !== 1 ? 's' : '' }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Hóspedes</span>
+                        <span class="value">{{ busca.hospedes }} hóspede{{ busca.hospedes !== 1 ? 's' : '' }}</span>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="booking-form">
+                    <h4>Seus dados</h4>
+
+                    <div class="form-group">
+                        <label class="form-label">Nome completo *</label>
+                        <input type="text" class="form-input" [(ngModel)]="formData.nomeHospede"
+                            placeholder="Digite seu nome completo">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Telefone *</label>
+                        <input type="tel" class="form-input" [(ngModel)]="formData.telefone"
+                            placeholder="(00) 00000-0000">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        <textarea class="form-textarea" [(ngModel)]="formData.observacoes"
+                            placeholder="Alguma informação adicional?" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="onClose()">Cancelar</button>
+
+            <button class="btn-primary" *ngIf="activeTab === 'detalhes'" (click)="activeTab = 'reservar'">
+                Continuar para reserva
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            <button class="btn-primary" *ngIf="activeTab === 'reservar'" [disabled]="!isFormValid() || isSaving"
+                (click)="onConfirmar()">
+                <span *ngIf="!isSaving">Confirmar reserva</span>
+                <span *ngIf="isSaving">Processando...</span>
+            </button>
+        </div>
+    </div>
+</div>

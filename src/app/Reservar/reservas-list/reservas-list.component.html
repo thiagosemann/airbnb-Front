@@ -1,0 +1,5 @@
+<div class="apartments-grid">
+    <app-reserva-card *ngFor="let apartamento of apartamentos; trackBy: trackByApartamentoId"
+        [apartamento]="apartamento" (click)="onCardClick(apartamento)">
+    </app-reserva-card>
+</div>

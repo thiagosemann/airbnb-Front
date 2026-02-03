@@ -1,0 +1,136 @@
+<div class="filters-container">
+    <div class="filters-header">
+        <h3 class="filters-title">Filtros</h3>
+        <button class="clear-btn" *ngIf="hasActiveFilters" (click)="limparFiltros()">
+            Limpar
+        </button>
+    </div>
+
+    <!-- Bairro/Região Filter -->
+    <div class="filter-section" *ngIf="bairrosDisponiveis.length > 0">
+        <h4 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                <circle cx="12" cy="10" r="3" />
+            </svg>
+            Região
+        </h4>
+        <select class="bairro-select" [(ngModel)]="localFiltros.bairro" (change)="onBairroChange()">
+            <option value="">Todas as regiões</option>
+            <option *ngFor="let bairro of bairrosDisponiveis" [value]="bairro">
+                {{ bairro }}
+            </option>
+        </select>
+    </div>
+
+    <!-- Amenities Filters -->
+    <div class="filter-section">
+        <h4 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            Comodidades
+        </h4>
+
+        <div class="amenities-list">
+            <!-- Aceita Pet -->
+            <button class="amenity-chip" [class.active]="localFiltros.aceitaPet === true"
+                (click)="toggleFiltro('aceitaPet')">
+                <div class="chip-icon pet-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4.5 11.5C4.5 10.1 5.6 9 7 9s2.5 1.1 2.5 2.5S8.4 14 7 14s-2.5-1.1-2.5-2.5z" />
+                        <path d="M14.5 11.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5-2.5-1.1-2.5-2.5z" />
+                        <path d="M5.5 6C5.5 4.6 6.6 3.5 8 3.5S10.5 4.6 10.5 6 9.4 8.5 8 8.5 5.5 7.4 5.5 6z" />
+                        <path d="M13.5 6c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5-2.5-1.1-2.5-2.5z" />
+                        <path d="M12 17c-2.5 0-4.5 2-4.5 4.5h9c0-2.5-2-4.5-4.5-4.5z" />
+                        <path d="M12 17v-3" />
+                    </svg>
+                </div>
+                <div class="chip-content">
+                    <span class="chip-label">Aceita Pet</span>
+                    <span class="chip-desc">Traga seu animal de estimação</span>
+                </div>
+                <div class="chip-check" *ngIf="localFiltros.aceitaPet === true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+            </button>
+
+            <!-- Vaga de Garagem -->
+            <button class="amenity-chip" [class.active]="localFiltros.vagaGaragem === true"
+                (click)="toggleFiltro('vagaGaragem')">
+                <div class="chip-icon parking-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                        <circle cx="7.5" cy="17" r="1.5" />
+                        <circle cx="16.5" cy="17" r="1.5" />
+                        <path d="M5 10h2l1-3h8l1 3h2" />
+                    </svg>
+                </div>
+                <div class="chip-content">
+                    <span class="chip-label">Vaga de Garagem</span>
+                    <span class="chip-desc">Estacionamento disponível</span>
+                </div>
+                <div class="chip-check" *ngIf="localFiltros.vagaGaragem === true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+            </button>
+
+            <!-- Ar Condicionado -->
+            <button class="amenity-chip" [class.active]="localFiltros.arCondicionado === true"
+                (click)="toggleFiltro('arCondicionado')">
+                <div class="chip-icon ac-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                </div>
+                <div class="chip-content">
+                    <span class="chip-label">Ar Condicionado</span>
+                    <span class="chip-desc">Ambiente climatizado</span>
+                </div>
+                <div class="chip-check" *ngIf="localFiltros.arCondicionado === true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+            </button>
+
+            <!-- WiFi -->
+            <button class="amenity-chip" [class.active]="localFiltros.wifi === true" (click)="toggleFiltro('wifi')">
+                <div class="chip-icon wifi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12.55a11 11 0 0114.08 0" />
+                        <path d="M1.42 9a16 16 0 0121.16 0" />
+                        <path d="M8.53 16.11a6 6 0 016.95 0" />
+                        <circle cx="12" cy="20" r="1" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="chip-content">
+                    <span class="chip-label">WiFi</span>
+                    <span class="chip-desc">Internet de alta velocidade</span>
+                </div>
+                <div class="chip-check" *ngIf="localFiltros.wifi === true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="filter-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <p>Clique para ativar um filtro. Clique novamente para desativar.</p>
+    </div>
+</div>
