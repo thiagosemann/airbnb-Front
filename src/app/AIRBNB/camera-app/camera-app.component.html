@@ -1,5 +1,54 @@
 <div class="main-wrapper">
 
+  <!-- Step 0: Seleção de Datas (booking route) -->
+  <div class="app-card" *ngIf="step === 0">
+    <header>
+      <div class="logo-container">
+        <div class="logo-row">
+          <span class="material-icons-round logo-icon">eco</span>
+          <span class="logo-text">forest</span>
+        </div>
+        <p class="logo-tagline">{{ t.tagline }}</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="mb-8" style="margin-bottom: 2rem;">
+        <h1 class="step-title">{{ t.dateStepTitle }}</h1>
+        <div class="step-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ t.startDateLabel }}</label>
+        <input type="date" class="input-field" [(ngModel)]="dataInicio">
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ t.endDateLabel }}</label>
+        <input type="date" class="input-field" [(ngModel)]="dataFim">
+      </div>
+    </main>
+
+    <footer>
+      <div class="legal-box">
+        <span class="material-icons-round" style="color: var(--primary); font-size: 1.25rem;">info</span>
+        <p class="legal-text">
+          {{ t.legalText1 }}
+        </p>
+      </div>
+
+      <button class="btn-primary" (click)="searchReserva()" [disabled]="isSearchingReserva || !dataInicio || !dataFim">
+        <span>{{ isSearchingReserva ? t.searchingReserva : t.searchReserva }}</span>
+        <span class="material-icons-round">{{ isSearchingReserva ? 'hourglass_empty' : 'search' }}</span>
+      </button>
+    </footer>
+  </div>
+
 
   <!-- Step 1: Identificação -->
   <div class="app-card" *ngIf="step === 1">
@@ -116,6 +165,10 @@
       <button class="btn-primary" (click)="goForward()">
         <span>{{ t.nextStep }}</span>
         <span class="material-icons-round">arrow_forward</span>
+      </button>
+      <button class="btn-secondary" *ngIf="isBookingRoute" (click)="goBack()">
+        <span class="material-icons-round">arrow_back</span>
+        {{ t.back }}
       </button>
     </footer>
   </div>

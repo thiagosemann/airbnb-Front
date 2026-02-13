@@ -166,6 +166,20 @@ export class ReservasAirbnbService {
     );
   }
 
+  getCodReservaByApartamentoAndDates(apartamentoNome: string, startDate: string, endDate: string): Observable<{ cod_reserva: string }> {
+    const params = new HttpParams()
+      .set('start', startDate)
+      .set('end', endDate);
+
+    return this.http.get<{ cod_reserva: string }>(
+      `${this.apiUrl}/reservas/cod-por-apartamento/${encodeURIComponent(apartamentoNome)}`,
+      {
+        headers: this.getHeaders(),
+        params
+      }
+    );
+  }
+
   deleteReservasByOrigem(origem: string): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/origem/${encodeURIComponent(origem)}`,

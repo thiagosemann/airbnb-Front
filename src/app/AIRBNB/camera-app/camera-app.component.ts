@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
+import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 
 @Component({
   selector: 'app-camera-app',
@@ -37,6 +38,13 @@ export class CameraAppComponent implements OnInit {
   modeloCarro: string = '';
   corCarro: string = '';
   usarGaragem: boolean = true;
+
+  // Booking route (por apartamentoId)
+  isBookingRoute: boolean = false;
+  apartamentoNome: string = '';
+  dataInicio: string = '';
+  dataFim: string = '';
+  isSearchingReserva: boolean = false;
 
   get t() {
     return this.souEstrangeiro ? this.enText : this.ptText;
@@ -96,7 +104,13 @@ export class CameraAppComponent implements OnInit {
     registerAnother: 'Cadastrar Outro Hóspede',
     finish: 'Concluir',
     useGarageLabel: 'Utilizar vaga de garagem',
-    useGarageHint: 'Desmarque caso não vá utilizar a vaga ou se o veículo já foi preenchido por outro hóspede.'
+    useGarageHint: 'Desmarque caso não vá utilizar a vaga ou se o veículo já foi preenchido por outro hóspede.',
+    dateStepTitle: 'Datas da Reserva',
+    startDateLabel: 'Data de Início',
+    endDateLabel: 'Data de Fim',
+    searchReserva: 'Buscar Reserva',
+    searchingReserva: 'Buscando...',
+    reservaNotFound: 'Nenhuma reserva encontrada para o período informado.'
   };
 
   enText = {
@@ -153,21 +167,37 @@ export class CameraAppComponent implements OnInit {
     registerAnother: 'Register Another Guest',
     finish: 'Finish',
     useGarageLabel: 'Use parking space',
-    useGarageHint: 'Uncheck if you will not use the space or if the vehicle has already been registered by another guest.'
+    useGarageHint: 'Uncheck if you will not use the space or if the vehicle has already been registered by another guest.',
+    dateStepTitle: 'Reservation Dates',
+    startDateLabel: 'Start Date',
+    endDateLabel: 'End Date',
+    searchReserva: 'Search Reservation',
+    searchingReserva: 'Searching...',
+    reservaNotFound: 'No reservation found for the given period.'
   };
 
   constructor(
     private checkinFormService: CheckInFormService,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    private apartamentoService: ApartamentoService
+    private apartamentoService: ApartamentoService,
+    private reservasAirbnbService: ReservasAirbnbService
   ) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.id = params.get('id') ?? ''; // Atribui o valor do 'id' à variável
-      if (this.id) {
-        this.carregarFlagsApartamento(this.id);
+      const apartamentoNome = params.get('apartamentoNome');
+      if (apartamentoNome) {
+        // Rota booking/:apartamentoNome
+        this.isBookingRoute = true;
+        this.apartamentoNome = apartamentoNome;
+        this.step = 0; // Step de seleção de datas
+      } else {
+        // Rota tradicional: reserva/:id ou cameraApp/:id
+        this.id = params.get('id') ?? '';
+        if (this.id) {
+          this.carregarFlagsApartamento(this.id);
+        }
       }
     });
     // Gera horários de 15h até 24h
@@ -222,6 +252,42 @@ export class CameraAppComponent implements OnInit {
         console.error('Falha ao carregar informações do apartamento:', err);
         this.toastr.warning('Não foi possível obter as informações do apartamento.');
         this.pedir_selfie = false; // fallback: não pedir selfie
+      }
+    });
+  }
+
+
+  searchReserva() {
+    if (!this.dataInicio || !this.dataFim) {
+      this.toastr.warning(this.souEstrangeiro ? 'Please fill in both dates.' : 'Preencha ambas as datas.');
+      return;
+    }
+    this.isSearchingReserva = true;
+    this.reservasAirbnbService.getCodReservaByApartamentoAndDates(
+      this.apartamentoNome,
+      this.dataInicio,
+      this.dataFim
+    ).subscribe({
+      next: (result) => {
+        console.log('Reserva encontrada:', result);
+        this.isSearchingReserva = false;
+        if (result && result.cod_reserva) {
+          this.id = result.cod_reserva;
+          this.carregarFlagsApartamento(this.id);
+          this.step = 1;
+          this.toastr.success(
+            this.souEstrangeiro
+              ? `Reservation found: ${result.cod_reserva}`
+              : `Reserva encontrada: ${result.cod_reserva}`
+          );
+        } else {
+          this.toastr.error(this.t.reservaNotFound);
+        }
+      },
+      error: (err) => {
+        this.isSearchingReserva = false;
+        console.error('Erro ao buscar reserva:', err);
+        this.toastr.error(this.t.reservaNotFound);
       }
     });
   }
@@ -381,7 +447,7 @@ export class CameraAppComponent implements OnInit {
 
   // Reseta o fluxo para o início
   resetFlow() {
-    this.step = 1;
+    this.step = this.isBookingRoute ? 0 : 1;
     this.formData = { cpf: '', nome: '', telefone: '', horarioPrevistoChegada: '15:00' };
     this.photoDataUrl = null;
     this.documentFile = null;
@@ -390,6 +456,11 @@ export class CameraAppComponent implements OnInit {
     this.marcaCarro = '';
     this.modeloCarro = '';
     this.corCarro = '';
+    if (this.isBookingRoute) {
+      this.id = '';
+      this.dataInicio = '';
+      this.dataFim = '';
+    }
   }
 
   // Valida o CPF do usuário
@@ -425,7 +496,9 @@ export class CameraAppComponent implements OnInit {
 
   // Volta para a etapa anterior
   goBack() {
-    if (this.step > 1) {
+    if (this.isBookingRoute && this.step === 1) {
+      this.step = 0;
+    } else if (this.step > 1) {
       this.step--;
     }
   }

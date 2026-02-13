@@ -45,6 +45,7 @@ import { ReservarComponent } from './Reservar/reservar.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'booking/:apartamentoNome', component: CameraAppComponent },
   { path: 'cameraApp/:id', component: CameraAppComponent },
   { path: 'reserva/:id', component: CameraAppComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent },
