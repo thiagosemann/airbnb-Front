@@ -22,15 +22,15 @@ export class NavBarAirbnbComponent {
     demandas: false
   };
   constructor(private authService: AuthenticationService,
-              private router: Router, 
-              private toastr: ToastrService,
- 
-            ) {
+    private router: Router,
+    private toastr: ToastrService,
+
+  ) {
     // Adicionamos o evento de redimensionamento (resize) para atualizar a exibição do menu quando a janela for redimensionada
     window.addEventListener('resize', () => this.checkViewport());
   }
-  
- ngOnInit(): void {
+
+  ngOnInit(): void {
     this.user = this.authService.getUser();
   }
 
@@ -83,14 +83,14 @@ export class NavBarAirbnbComponent {
   }
   controleVistoria(): void {
     this.router.navigate(['/controle-vistoria']);
-  } 
+  }
 
   ticket(): void {
     this.router.navigate(['/ticketReembolso']);
   }
   controleTicket(): void {
     this.router.navigate(['/controleTicketReembolso']);
-  } 
+  }
 
   // Demandas
   controleDemandas(): void {
@@ -99,16 +99,18 @@ export class NavBarAirbnbComponent {
   suasDemandas(): void {
     this.router.navigate(['/suasDemandas']);
   }
-
-  cadastroPortarias():void{
+  performance(): void {
+    this.router.navigate(['/performance']);
+  }
+  cadastroPortarias(): void {
     this.router.navigate(['/cadastroPortaria']);
   }
-  migrarIcal():void{
+  migrarIcal(): void {
     this.router.navigate(['/migrarIcal']);
   }
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
-    
+
     // Se estiver fechando o menu, fecha todos os dropdowns também
     if (!this.isMenuOpen) {
       Object.keys(this.mobileDropdowns).forEach(key => {
@@ -122,7 +124,7 @@ export class NavBarAirbnbComponent {
   relatorioNF(): void {
     this.router.navigate(['/relatorioNF']);
   }
-  
+
   relatorioGanhos(): void {
     this.router.navigate(['/relatoriosGanhos']);
   }
@@ -136,7 +138,7 @@ export class NavBarAirbnbComponent {
         this.mobileDropdowns[key] = false;
       }
     });
-    
+
     // Alterna o dropdown atual
     this.mobileDropdowns[dropdownName] = !this.mobileDropdowns[dropdownName];
   }

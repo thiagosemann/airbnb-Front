@@ -6,6 +6,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { MercadoPagoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mercadoPago_service';
 import { CadastroMensagemViaLinkService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/mensagemCadastroViaLink_service';
+import { DemandasService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/demandas_service';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
+import { Demanda } from 'src/app/shared/utilitarios/demanda';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -52,7 +55,9 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private toastr: ToastrService,
     private mercadoPagoService: MercadoPagoService,
-    private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService
+    private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService,
+    private demandasService: DemandasService,
+    private authService: AuthenticationService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -174,6 +179,33 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     if (field === 'credencial_made') {
       if (checked) {
         this.credenciaisFetias++;
+        // Criar demanda de credencial concluída
+        const user = this.authService.getUser();
+        if (user && user.id) {
+          const horaAtual = new Date().getHours();
+          let periodoStr = 'tarde';
+          if (horaAtual >= 18 || horaAtual < 6) {
+            periodoStr = 'noite';
+          } else if (horaAtual >= 6 && horaAtual < 12) {
+            periodoStr = 'manha';
+          }
+
+          const novaDemanda: Partial<Demanda> = {
+            apartamento_id: reserva.apartamento_id,
+            user_id_responsavel: user.id, // Atribui ao próprio usuário atual para não ficar sem responsável
+            user_id_created: user.id,
+            reserva_id: reserva.id,
+            demanda: `Credencial para a reserva ${reserva.cod_reserva}`,
+            prazo: reserva.start_date,
+            periodo: periodoStr,
+            type: 'escritorio',
+            status: 'Finalizada'
+          };
+          this.demandasService.createDemanda(novaDemanda).subscribe({
+            next: () => this.toastr.success('Demanda de credencial criada com sucesso!'),
+            error: (err) => console.error('Erro ao criar demanda de credencial', err)
+          });
+        }
       } else {
         this.credenciaisFetias--;
       }

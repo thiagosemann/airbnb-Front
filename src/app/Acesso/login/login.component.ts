@@ -12,7 +12,7 @@ export class LoginComponent {
   // Variáveis para armazenar os valores dos campos de entrada
   username: string;
   password: string;
-  rememberMe:boolean;
+  rememberMe: boolean;
 
   constructor(private authService: AuthenticationService, private router: Router, private toastr: ToastrService) {
     this.username = '';
@@ -24,7 +24,7 @@ export class LoginComponent {
     if (token) {
       // Se não existe um token, redirecione para a página de login
       this.router.navigate(['/login']);
-    } 
+    }
   }
 
   login(): void {
@@ -33,30 +33,27 @@ export class LoginComponent {
       this.toastr.error("Digite o login e a senha!");
       return;
     }
-  
+
     if (!this.username) {
       this.toastr.error("Digite o login!");
       return;
     }
-  
+
     if (!this.password) {
       this.toastr.error("Digite a senha!");
       return;
     }
 
-    this.authService.login(this.username,  this.password, this.rememberMe).then(result => {
+    this.authService.login(this.username, this.password, this.rememberMe).then(result => {
 
       if (result.logado) {
         const user = this.authService.getUser()
-        if(user && user.role.toUpperCase() == 'ADMIN'){
+        if (user && user.role.toUpperCase() == 'ADMIN') {
           this.toastr.success("Bem vindo!")
-          if(user.empresa_id !==1){
-            this.router.navigate(['/calendario']);
-          }else{
-            this.router.navigate(['/calendarioAirbnb']);
-          }
+          this.router.navigate(['/calendarioAirbnb']);
+
           return;
-        }else  if(user && user.role.toUpperCase() == 'TERCEIRIZADO'){
+        } else if (user && user.role.toUpperCase() == 'TERCEIRIZADO') {
           this.toastr.success("Logado com sucesso!")
           this.router.navigate(['/escalaFaxina']);
         }

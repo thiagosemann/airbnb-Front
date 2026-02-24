@@ -1,0 +1,275 @@
+<div class="container-stats">
+    <!-- Header -->
+    <div class="header-card">
+        <div class="header-title">
+            <i class="bi bi-graph-up-arrow"></i>
+            <h1>Dashboard de Produtividade</h1>
+        </div>
+        <div class="filtros-row">
+            <div class="filtro-group">
+                <label>De</label>
+                <input type="date" [(ngModel)]="dataInicio" (change)="filtrar()">
+            </div>
+            <div class="filtro-group">
+                <label>Até</label>
+                <input type="date" [(ngModel)]="dataFim" (change)="filtrar()">
+            </div>
+            <div class="filtro-group">
+                <label>Funcionário</label>
+                <select [(ngModel)]="filtroUsuarioId" (change)="filtrar()">
+                    <option [ngValue]="null">Todos</option>
+                    <option *ngFor="let u of usuarios" [ngValue]="u.id">{{ getUserName(u.id) }}</option>
+                </select>
+            </div>
+            <button class="btn-limpar" (click)="limparFiltros()">
+                <i class="bi bi-arrow-counterclockwise"></i> Limpar
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <i class="bi bi-arrow-repeat spin"></i>
+        <p>Carregando estatísticas...</p>
+    </div>
+
+    <ng-container *ngIf="!loading">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-total">
+                <div class="kpi-icon"><i class="bi bi-clipboard-data"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value">{{ totalDemandas }}</span>
+                    <span class="kpi-label">Total de Demandas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-pendentes">
+                <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value">{{ totalPendentes }}</span>
+                    <span class="kpi-label">Pendentes</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-finalizadas">
+                <div class="kpi-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value">{{ totalFinalizadas }}</span>
+                    <span class="kpi-label">Finalizadas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-canceladas">
+                <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value">{{ totalCanceladas }}</span>
+                    <span class="kpi-label">Canceladas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-taxa">
+                <div class="kpi-icon"><i class="bi bi-speedometer2"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value" [style.color]="getTaxaColor(taxaConclusaoGeral)">{{ taxaConclusaoGeral
+                        }}%</span>
+                    <span class="kpi-label">Taxa de Conclusão</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-atrasadas" (click)="toggleAtrasadas()">
+                <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-value">{{ totalAtrasadas }}</span>
+                    <span class="kpi-label">Atrasadas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribuição por tipo e período -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="bi bi-pie-chart"></i> Distribuição por Tipo</h3>
+                <div class="chart-bars">
+                    <div class="bar-item" *ngFor="let item of porTipo">
+                        <div class="bar-label">
+                            <span class="bar-name">{{ item.label }}</span>
+                            <span class="bar-count">{{ item.count }} <small>({{ item.percent }}%)</small></span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" [style.width]="item.percent + '%'" [style.background]="item.color">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3><i class="bi bi-clock"></i> Distribuição por Período</h3>
+                <div class="chart-bars">
+                    <div class="bar-item" *ngFor="let item of porPeriodo">
+                        <div class="bar-label">
+                            <span class="bar-name">{{ item.label }}</span>
+                            <span class="bar-count">{{ item.count }} <small>({{ item.percent }}%)</small></span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" [style.width]="item.percent + '%'" [style.background]="item.color">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carga de trabalho por funcionário -->
+        <div class="section-card">
+            <h3><i class="bi bi-people"></i> Carga de Trabalho por Funcionário</h3>
+            <div class="workload-chart" *ngIf="userStats.length">
+                <div class="workload-row" *ngFor="let s of userStats">
+                    <div class="workload-name">{{ s.nome }}</div>
+                    <div class="workload-bar-container">
+                        <div class="workload-bar-track">
+                            <div class="workload-bar-segment bar-finalizada"
+                                [style.width]="getBarWidth(s.finalizadas, maxDemandasUser)"></div>
+                            <div class="workload-bar-segment bar-pendente"
+                                [style.width]="getBarWidth(s.pendentes, maxDemandasUser)"></div>
+                            <div class="workload-bar-segment bar-cancelada"
+                                [style.width]="getBarWidth(s.canceladas, maxDemandasUser)"></div>
+                        </div>
+                        <span class="workload-total">{{ s.total }}</span>
+                    </div>
+                </div>
+                <div class="workload-legend">
+                    <span class="legend-item"><span class="legend-dot dot-finalizada"></span> Finalizada</span>
+                    <span class="legend-item"><span class="legend-dot dot-pendente"></span> Pendente</span>
+                    <span class="legend-item"><span class="legend-dot dot-cancelada"></span> Cancelada</span>
+                </div>
+            </div>
+            <div *ngIf="!userStats.length" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>Sem dados para o período selecionado</p>
+            </div>
+        </div>
+
+        <!-- Tabela de Performance Individual -->
+        <div class="section-card">
+            <h3><i class="bi bi-person-badge"></i> Gestão de Performance Individual</h3>
+            <div class="table-responsive-stats" *ngIf="userStats.length">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Funcionário</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Pendentes</th>
+                            <th class="text-center">Finalizadas</th>
+                            <th class="text-center">Canceladas</th>
+                            <th class="text-center">Atrasadas</th>
+                            <th class="text-center">% Conclusão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let s of userStats; let i = index" class="row-clickable"
+                            [class.row-selected]="drawerUsuario?.userId === s.userId" (click)="abrirDrawer(s)"
+                            title="Ver demandas de {{ s.nome }}">
+                            <td class="rank-cell">
+                                <span class="rank-badge" [class.rank-gold]="i === 0" [class.rank-silver]="i === 1"
+                                    [class.rank-bronze]="i === 2">
+                                    {{ i + 1 }}
+                                </span>
+                            </td>
+                            <td class="name-cell">{{ s.nome }}</td>
+                            <td class="text-center"><strong>{{ s.total }}</strong></td>
+                            <td class="text-center"><span class="badge-pendente">{{ s.pendentes }}</span></td>
+                            <td class="text-center"><span class="badge-finalizada">{{ s.finalizadas }}</span></td>
+                            <td class="text-center"><span class="badge-cancelada">{{ s.canceladas }}</span></td>
+                            <td class="text-center">
+                                <span class="badge-atrasada" *ngIf="s.atrasadas > 0">{{ s.atrasadas }}</span>
+                                <span *ngIf="s.atrasadas === 0">0</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="taxa-cell">
+                                    <div class="mini-progress">
+                                        <div class="mini-fill" [style.width]="s.taxaConclusao + '%'"
+                                            [style.background]="getTaxaColor(s.taxaConclusao)"></div>
+                                    </div>
+                                    <span class="taxa-value" [style.color]="getTaxaColor(s.taxaConclusao)">{{
+                                        s.taxaConclusao }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="!userStats.length" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>Sem dados para o período selecionado</p>
+            </div>
+        </div>
+
+        <!-- Drawer: Demandas do Funcionário -->
+        <div class="drawer-overlay" *ngIf="drawerAberto" (click)="fecharDrawer()"></div>
+        <div class="drawer-panel" [class.drawer-open]="drawerAberto">
+            <div class="drawer-header">
+                <div class="drawer-title">
+                    <i class="bi bi-person-lines-fill"></i>
+                    <span>Demandas de <strong>{{ drawerUsuario?.nome }}</strong></span>
+                </div>
+                <button class="drawer-close" (click)="fecharDrawer()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <!-- Status tabs -->
+            <div class="drawer-tabs">
+                <button [class.active]="drawerFiltroStatus === 'todas'" (click)="drawerFiltroStatus = 'todas'">Todas ({{
+                    drawerDemandas.length }})</button>
+                <button [class.active]="drawerFiltroStatus === 'pendente'"
+                    (click)="drawerFiltroStatus = 'pendente'">Pendentes ({{ drawerUsuario?.pendentes }})</button>
+                <button [class.active]="drawerFiltroStatus === 'finalizada'"
+                    (click)="drawerFiltroStatus = 'finalizada'">Finalizadas ({{ drawerUsuario?.finalizadas }})</button>
+                <button [class.active]="drawerFiltroStatus === 'cancelada'"
+                    (click)="drawerFiltroStatus = 'cancelada'">Canceladas ({{ drawerUsuario?.canceladas }})</button>
+            </div>
+            <!-- Lista de demandas -->
+            <div class="drawer-body">
+                <div *ngIf="drawerDemandasFiltradas.length === 0" class="drawer-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>Nenhuma demanda encontrada</p>
+                </div>
+                <div class="demanda-item" *ngFor="let d of drawerDemandasFiltradas"
+                    [class.atrasada]="isDemandasAtrasada(d)">
+                    <div class="demanda-item-header">
+                        <span class="demanda-item-badge" [ngClass]="getStatusClass(d.status)">{{
+                            getStatusLabel(d.status) }}</span>
+                        <span *ngIf="isDemandasAtrasada(d)" class="demanda-atrasada-tag"><i class="bi bi-alarm"></i> {{
+                            diasAtraso(d.prazo) }}d atraso</span>
+                        <span class="demanda-item-date" *ngIf="d.prazo">📅 {{ formatDateBr(d.prazo) }}</span>
+                    </div>
+                    <p class="demanda-item-text">{{ d.demanda }}</p>
+                    <div class="demanda-item-meta">
+                        <span *ngIf="d.apartamento_nome"><i class="bi bi-building"></i> {{ d.apartamento_nome }}</span>
+                        <span *ngIf="d.type"><i class="bi bi-tag"></i> {{ d.type }}</span>
+                        <span *ngIf="d.periodo"><i class="bi bi-clock"></i> {{ d.periodo }}</span>
+                        <span><i class="bi bi-calendar-plus"></i> Criada: {{ formatDateBr(d.created_at) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demandas Atrasadas -->
+        <div class="section-card atrasadas-section" *ngIf="totalAtrasadas > 0">
+            <h3 class="clickable" (click)="toggleAtrasadas()">
+                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                Demandas Atrasadas ({{ totalAtrasadas }})
+                <i class="bi" [ngClass]="showAtrasadas ? 'bi-chevron-up' : 'bi-chevron-down'"
+                    style="margin-left: auto; font-size: 0.9rem;"></i>
+            </h3>
+            <div *ngIf="showAtrasadas" class="atrasadas-list">
+                <div class="atrasada-card" *ngFor="let d of demandasAtrasadas">
+                    <div class="atrasada-header">
+                        <span class="atrasada-demanda">{{ d.demanda }}</span>
+                        <span class="atrasada-dias">{{ diasAtraso(d.prazo) }} dias de atraso</span>
+                    </div>
+                    <div class="atrasada-details">
+                        <span><i class="bi bi-person"></i> {{ getUserName(d.user_id_responsavel) }}</span>
+                        <span><i class="bi bi-calendar"></i> Prazo: {{ formatDateBr(d.prazo) }}</span>
+                        <span *ngIf="d.apartamento_nome"><i class="bi bi-building"></i> {{ d.apartamento_nome }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>

@@ -11,7 +11,7 @@ export class AppComponent implements OnInit {
   showNavBar: boolean = true;
   showNavBarAirbnb: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   semNavBar: string[] = [
     'login',
@@ -48,7 +48,8 @@ export class AppComponent implements OnInit {
     'migrarIcal',
     'relatorioNF',
     'controleDemandas',
-    'suasDemandas'
+    'suasDemandas',
+    'performance'
 
   ];
 
@@ -61,12 +62,12 @@ export class AppComponent implements OnInit {
         if (this.semNavBar.includes(currentRoute)) {
           this.showNavBar = false;
           this.showNavBarAirbnb = false;
-        } 
+        }
         // Verifica se a rota atual está na lista de rotas com navbar Airbnb
         else if (this.navBarAirbnb.includes(currentRoute)) {
           this.showNavBar = false;
           this.showNavBarAirbnb = true;
-        } 
+        }
         // Caso a rota não esteja em nenhuma das listas, decide o que fazer (opcional)
         else {
           this.showNavBar = true; // ou false, dependendo do comportamento desejado

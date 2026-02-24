@@ -41,6 +41,7 @@ import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/c
 import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
 import { ForestLandingComponent } from './landing/landing.component';
 import { ReservarComponent } from './Reservar/reservar.component';
+import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-demandas/estatisticas-demandas.component';
 
 
 const routes: Routes = [
@@ -90,6 +91,7 @@ const routes: Routes = [
   { path: 'relatorioNF', component: RelatorioNFComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'controleDemandas', component: ControleDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'suasDemandas', component: SuasDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'performance', component: EstatisticasDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'reservar', component: ReservarComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'forest-landing', component: ForestLandingComponent },
 
