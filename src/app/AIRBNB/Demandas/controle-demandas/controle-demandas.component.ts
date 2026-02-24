@@ -48,7 +48,7 @@ export class ControleDemandasComponent implements OnInit {
   filtroTexto = '';
   filtroStatus = 'pendente';
   filtroUsuarioId: number | null = null;
-	activeStatusTab: string = 'pendente';
+  activeStatusTab: string = 'pendente';
 
   constructor(
     private fb: FormBuilder,
@@ -58,7 +58,7 @@ export class ControleDemandasComponent implements OnInit {
     private authSrv: AuthenticationService,
     private toastr: ToastrService,
     private reservasSrv: ReservasAirbnbService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUser = this.authSrv.getUser();
@@ -84,10 +84,10 @@ export class ControleDemandasComponent implements OnInit {
 
   private carregarAuxiliares(): void {
     this.aptoSrv.getAllApartamentos().subscribe({
-    next: a => {
-    this.apartamentos = this.sortApartamentos(a);
-    this.filteredApartamentos = [...this.apartamentos];
-    },
+      next: a => {
+        this.apartamentos = this.sortApartamentos(a);
+        this.filteredApartamentos = [...this.apartamentos];
+      },
       error: () => this.toastr.error('Erro ao carregar apartamentos')
     });
     this.userSrv.getUsersByRole('admin').subscribe({
@@ -117,8 +117,8 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   filtrarStatus(status: string): void {
-  this.filtroStatus = this.normalizeStatusValue(status);
-  this.activeStatusTab = this.filtroStatus;
+    this.filtroStatus = this.normalizeStatusValue(status);
+    this.activeStatusTab = this.filtroStatus;
     this.applyFilters();
   }
 
@@ -135,11 +135,11 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   getStatusClass(status?: string | null): string {
-  const s = this.normalizeStatusValue(status);
-  if (s === 'pendente') return 'status-pendente';
-  if (s === 'finalizada') return 'status-finalizada';
-  if (s === 'cancelada') return 'status-cancelada';
-  return '';
+    const s = this.normalizeStatusValue(status);
+    if (s === 'pendente') return 'status-pendente';
+    if (s === 'finalizada') return 'status-finalizada';
+    if (s === 'cancelada') return 'status-cancelada';
+    return '';
   }
 
   private applyFilters(): void {
@@ -147,7 +147,7 @@ export class ControleDemandasComponent implements OnInit {
       const textoOk = !this.filtroTexto
         || (d.demanda || '').toLowerCase().includes(this.filtroTexto)
         || (d.apartamento_nome || '').toLowerCase().includes(this.filtroTexto);
-    const statusOk = !this.filtroStatus || this.normalizeStatusValue(d.status) === this.filtroStatus;
+      const statusOk = !this.filtroStatus || this.normalizeStatusValue(d.status) === this.filtroStatus;
       const usuarioOk = !this.filtroUsuarioId || d.user_id_responsavel === this.filtroUsuarioId;
       return textoOk && statusOk && usuarioOk;
     });
@@ -166,8 +166,8 @@ export class ControleDemandasComponent implements OnInit {
     this.reservaResultados = [];
     this.reservaSelecionada = null;
     this.reservaErro = null;
-  this.aptoInputValue = '';
-  this.filteredApartamentos = [...this.apartamentos];
+    this.aptoInputValue = '';
+    this.filteredApartamentos = [...this.apartamentos];
   }
 
   editar(d: Demanda): void {
@@ -180,26 +180,36 @@ export class ControleDemandasComponent implements OnInit {
       ...d,
       prazo: prazoInput
     });
-    // Se a demanda já tiver reserva vinculada, preenche estado visual
+    // Se a demanda já tiver reserva vinculada, busca e preenche estado visual
     if (d.reserva_id) {
-      this.reservaSelecionada = {
-        id: d.reserva_id,
-        apartamento_id: d.apartamento_id,
-        apartamento_nome: this.getAptoNome(d.apartamento_id),
-        description: '',
-        end_data: '',
-        start_date: '',
-        Observacoes: '',
-        cod_reserva: '',
-        link_reserva: '',
-        limpeza_realizada: false,
-        credencial_made: false,
-        informed: false,
-        check_in: '',
-        check_out: '',
-        pagamentos: [],
-        horarioPrevistoChegada: []
-      } as ReservaAirbnb;
+      this.reservaLoading = true;
+      this.reservasSrv.getReservaById(d.reserva_id).subscribe({
+        next: (res) => {
+          this.reservaSelecionada = res;
+          this.reservaLoading = false;
+        },
+        error: () => {
+          this.reservaLoading = false;
+          this.reservaSelecionada = {
+            id: d.reserva_id,
+            apartamento_id: d.apartamento_id,
+            apartamento_nome: this.getAptoNome(d.apartamento_id),
+            description: '',
+            end_data: '',
+            start_date: '',
+            Observacoes: '',
+            cod_reserva: '',
+            link_reserva: '',
+            limpeza_realizada: false,
+            credencial_made: false,
+            informed: false,
+            check_in: '',
+            check_out: '',
+            pagamentos: [],
+            horarioPrevistoChegada: []
+          } as ReservaAirbnb;
+        }
+      });
     }
     this.aptoInputValue = this.getAptoNome(d.apartamento_id);
     this.filteredApartamentos = [...this.apartamentos];
@@ -208,13 +218,13 @@ export class ControleDemandasComponent implements OnInit {
   excluir(d: Demanda): void {
     if (!d?.id) return;
     if (!confirm('Tem certeza que deseja excluir esta demanda?')) return;
-  this.demandasSrv.updateDemanda(d.id, { status: 'Cancelada' }).subscribe({
-    next: () => {
-    this.toastr.success('Demanda cancelada');
-    this.carregarDemandas();
-    },
-    error: () => this.toastr.error('Erro ao cancelar demanda')
-  });
+    this.demandasSrv.updateDemanda(d.id, { status: 'Cancelada' }).subscribe({
+      next: () => {
+        this.toastr.success('Demanda cancelada');
+        this.carregarDemandas();
+      },
+      error: () => this.toastr.error('Erro ao cancelar demanda')
+    });
   }
 
   salvar(): void {
@@ -309,11 +319,11 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   private getStatusRank(status?: string | null): number {
-  const s = this.normalizeStatusValue(status);
-  if (s === 'pendente') return 0;
-  if (s === 'finalizada') return 1;
-  if (s === 'cancelada') return 2;
-  return 3;
+    const s = this.normalizeStatusValue(status);
+    if (s === 'pendente') return 0;
+    if (s === 'finalizada') return 1;
+    if (s === 'cancelada') return 2;
+    return 3;
   }
 
   private getPrazoTimestamp(prazo?: string | Date | null): number {
@@ -354,12 +364,12 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   private normalizeStatusValue(status?: string | null): string {
-  const s = this.removerAcentos(String(status || '')).toLowerCase();
-  if (s === 'pendente') return 'pendente';
-  if (s === 'finalizada' || s === 'concluida' || s === 'concluída') return 'finalizada';
-  if (s === 'cancelada' || s === 'cancelado') return 'cancelada';
-  if (s === 'em andamento' || s === 'andamento') return 'pendente';
-  return s;
+    const s = this.removerAcentos(String(status || '')).toLowerCase();
+    if (s === 'pendente') return 'pendente';
+    if (s === 'finalizada' || s === 'concluida' || s === 'concluída') return 'finalizada';
+    if (s === 'cancelada' || s === 'cancelado') return 'cancelada';
+    if (s === 'em andamento' || s === 'andamento') return 'pendente';
+    return s;
   }
 
   // Datas
