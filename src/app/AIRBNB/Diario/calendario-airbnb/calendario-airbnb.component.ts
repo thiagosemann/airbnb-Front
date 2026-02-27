@@ -29,6 +29,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   carregandoImagem: boolean = false;
   whatsLoading: boolean = false;
   linkPagamento: string = '';
+  textoEarlyGerado: string = '';
+  valorEarly: number = 30; // default value
   credenciaisFetias: number = 0;
   earlyLoading: boolean = false;
   // estado de envio do link de formulário de check-in
@@ -437,25 +439,25 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     return [...naoCancelAlfa, ...cancelAlfa];
   }
 
-  sendEarlyPayment(hospede: any): void {
-    if (!window.confirm('Tem certeza que deseja enviar o pagamento antecipado para este hóspede?')) {
-      return;
-    }
+  sendEarlyPayment(): void {
     if (!this.selectedReservation) {
-      this.toastr.warning('Selecione uma reserva antes de enviar o pagamento.');
+      this.toastr.warning('Selecione uma reserva antes de gerar o pagamento.');
       return;
     }
 
+    // Pega o primeiro hóspede como referência, se houver
+    const hospedeRef = this.hospedesReserva && this.hospedesReserva.length > 0 ? this.hospedesReserva[0] : null;
+
     this.earlyLoading = true;
     const payload: any = {
-      user_id: hospede?.user_id,
+      user_id: hospedeRef?.user_id || null,
       apartamento_id: this.selectedReservation.apartamento_id,
       cod_reserva: this.selectedReservation.cod_reserva,
-      valorReais: 30,
+      valorReais: this.valorEarly,
       tipo: 'early',
       metadata: {
-        hospede_id: hospede?.id,
-        hospede_nome: hospede?.first_name
+        hospede_id: hospedeRef?.id || null,
+        hospede_nome: hospedeRef?.first_name || 'Desconhecido'
       }
     };
 
@@ -463,14 +465,39 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (resp: any) => {
           this.linkPagamento = resp.redirectUrl;
+          this.gerarTextoEarly();
           this.earlyLoading = false;
         },
         error: (err) => {
           console.error('Erro ao criar pagamento early:', err);
           this.toastr.error('Não foi possível gerar o link de pagamento.');
+          this.earlyLoading = false;
         }
       });
+  }
 
+  gerarTextoEarly(): void {
+    const valor = this.valorEarly;
+    const hospedeRef = this.hospedesReserva && this.hospedesReserva.length > 0 ? this.hospedesReserva[0] : null;
+    const nome = hospedeRef?.first_name || 'Hóspede';
+    const apartamento = this.selectedReservation?.apartamento_nome || '';
+    const cod_reserva = this.selectedReservation?.cod_reserva || '';
+
+    this.textoEarlyGerado = `*TAXA OPCIONAL*\n\n🔔 *Você gostaria de entrar antes no apartamento?* 🔔\n\nOlá ${nome}\nEste apartamento já está limpo e pronto para recebe-los.\nSe desejar antecipar sua entrada no apartamento *${apartamento}* (reserva: *${cod_reserva}*),\nbasta clicar no link abaixo e efetuar o pagamento de *R$ ${valor.toFixed(2)}*:\n\n\n${this.linkPagamento}\n\nApós a confirmação, enviaremos instruções de acesso.\n\nQualquer dúvida, estamos à disposição!`;
+  }
+
+  copiarTextoEarly(): void {
+    if (!this.textoEarlyGerado) {
+      this.toastr.warning('Texto não gerado.');
+      return;
+    }
+
+    navigator.clipboard.writeText(this.textoEarlyGerado).then(() => {
+      this.toastr.success('Texto copiado com sucesso!');
+    }).catch(err => {
+      console.error('Erro ao copiar texto early: ', err);
+      this.toastr.error('Erro ao copiar o texto.');
+    });
   }
   /** Retorna true se existir algum pagamento do tipo especificado */
   hasPaymentType(type: string, reserva: ReservaAirbnb | undefined): boolean {
@@ -584,6 +611,54 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
         this.toastr.error("Erro ao enviar mensagem!");
         this.sendLinkLoading = false;
       }
+    });
+  }
+
+  copiarTextoCheckin(): void {
+    if (!this.selectedReservation) {
+      this.toastr.warning('Selecione uma reserva primeiro.');
+      return;
+    }
+
+    const obj = {
+      tipoSite: this.typeReserva(this.selectedReservation.cod_reserva),
+      dataEntrada: this.selectedReservation.start_date,
+      dataSaida: this.selectedReservation.end_data
+    };
+
+    let text = `Forest:\nObrigado por escolher nossa acomodação!\nPara acessar o condomínio, é necessário que todos os hóspedes realizem o cadastro no link abaixo.\nEssas informações serão utilizadas exclusivamente para controle de acesso ao condomínio.\n`;
+    text += `${obj.tipoSite}:\n`;
+    text += `Início:  ${this.formatarData(obj.dataEntrada)}\n`;
+    text += `Término:  ${this.formatarData(obj.dataSaida)}\n`;
+    text += `https://www.apartamentosforest.com.br/reserva/${this.selectedReservation.cod_reserva}\n`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastr.success('Texto copiado com sucesso!');
+    }).catch(err => {
+      console.error('Erro ao copiar texto: ', err);
+      this.toastr.error('Erro ao copiar o texto.');
+    });
+  }
+
+  copiarInstrucoesEntrada(): void {
+    if (!this.hospedesReserva || this.hospedesReserva.length === 0) {
+      this.toastr.warning('Nenhum hóspede cadastrado nesta reserva.');
+      return;
+    }
+
+    let text = '';
+    this.hospedesReserva.forEach(hospede => {
+      text += `Nome: ${hospede.first_name || ''}\n`;
+      text += `CPF: ${this.formatarCPF(hospede.CPF || '')}\n`;
+      text += `Telefone: ${this.formatarTelefone(hospede.Telefone || '')}\n`;
+      text += `Horário previsto de chegada: ${hospede.horarioPrevistoChegada || 'Não informado'}\n\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastr.success('Instruções em texto copiadas com sucesso!');
+    }).catch(err => {
+      console.error('Erro ao copiar instruções: ', err);
+      this.toastr.error('Erro ao copiar as instruções.');
     });
   }
 

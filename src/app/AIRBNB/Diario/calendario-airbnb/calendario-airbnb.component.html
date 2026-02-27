@@ -324,29 +324,51 @@
           </div>
         </div>
         <div class="panel-body">
-          <div class="modal-item phone-field">
-            <label for="telefoneReserva">Telefone da Reserva</label>
-            <div class="input-wrapper" [class.invalid]="!telefoneValido && selectedReservation?.telefone_principal">
-              <i class="fa-solid fa-phone input-icon"></i>
-              <input id="telefoneReserva" type="text" class="form-control"
-                [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()" mask="(00) 00000-0000"
-                placeholder="(00) 00000-0000">
-              <button type="button" class="inline-btn" (click)="updateTelefone()" [disabled]="!telefoneValido">
-                <i class="fa-regular fa-floppy-disk"></i>
-              </button>
+          <div class="checkin-parts-container">
+            <!-- Parte 1: Telefone e Envio -->
+            <div class="checkin-part mb-3">
+              <h6 class="part-title" style="font-size: 0.95rem; font-weight: 600; margin-bottom: 8px;">1. Atualizar
+                Telefone da Reserva</h6>
+              <div class="modal-item phone-field" style="margin-bottom: 0;">
+                <div class="input-wrapper" [class.invalid]="!telefoneValido && selectedReservation?.telefone_principal">
+                  <i class="fa-solid fa-phone input-icon"></i>
+                  <input id="telefoneReserva" type="text" class="form-control"
+                    [(ngModel)]="selectedReservation!.telefone_principal" (change)="updateTelefone()"
+                    mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+                  <button type="button" class="inline-btn" (click)="updateTelefone()" [disabled]="!telefoneValido">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                  </button>
+                </div>
+                <div class="field-hint" *ngIf="!telefoneValido">Informe o telefone completo com DDD e 11 dígitos.</div>
+              </div>
+              <div class="actions-row mt-2">
+                <button class="btn-send-link w-100" (click)="sendMensagemCadastroViaLink()"
+                  [disabled]="!telefoneValido || sendLinkLoading">
+                  <ng-container *ngIf="!sendLinkLoading">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar texto via sistema
+                  </ng-container>
+                  <ng-container *ngIf="sendLinkLoading">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+                  </ng-container>
+                </button>
+              </div>
             </div>
-            <div class="field-hint" *ngIf="!telefoneValido">Informe o telefone completo com DDD e 11 dígitos.</div>
-          </div>
-          <div class="actions-row">
-            <button class="btn-send-link" (click)="sendMensagemCadastroViaLink()"
-              [disabled]="!telefoneValido || sendLinkLoading">
-              <ng-container *ngIf="!sendLinkLoading">
-                <i class="fa-solid fa-link"></i> Enviar link
-              </ng-container>
-              <ng-container *ngIf="sendLinkLoading">
-                <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
-              </ng-container>
-            </button>
+
+            <hr class="part-divider" style="margin: 15px 0; border-top: 1px dashed #ccc;">
+
+            <!-- Parte 2: Copiar Texto -->
+            <div class="checkin-part">
+              <h6 class="part-title" style="font-size: 0.95rem; font-weight: 600; margin-bottom: 8px;">2. Copiar e
+                Enviar Manualmente</h6>
+              <p class="text-hint mb-2" style="font-size: 0.85rem; color: #666;">Copie a mensagem padrão com o link de
+                check-in para enviar via WhatsApp Web/App.</p>
+              <div class="actions-row">
+                <button class="btn btn-outline-primary w-100 btn-copy-text" (click)="copiarTextoCheckin()"
+                  style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px;">
+                  <i class="fa-regular fa-copy"></i> Copiar Texto
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -375,6 +397,73 @@
         </div>
         <app-cadastro-credencial [reserva_id]="selectedReservation.id"
           [cod_reserva]="selectedReservation.cod_reserva"></app-cadastro-credencial>
+      </div>
+
+      <hr>
+
+      <!-- Early Check-in -->
+      <div class="modal-section panel-base" role="group" aria-labelledby="earlyCheckinTitle"
+        *ngIf="selectedReservation">
+        <div class="panel-header compact no-bg">
+          <div class="icon-circle small warn"><i class="fa-solid fa-clock"></i></div>
+          <div class="panel-titles">
+            <h5 id="earlyCheckinTitle">Early Check-in</h5>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p class="text-hint mb-2" style="font-size: 0.85rem; color: #666;">
+            Gere o link de pagamento antecipado (R$ 30,00) para esta reserva.
+          </p>
+          <div class="actions-row d-flex flex-row gap-2 mb-3 align-items-center">
+            <div class="input-group" style="flex: 1 1 30%;">
+              <span class="input-group-text">R$</span>
+              <input type="number" class="form-control" [(ngModel)]="valorEarly" placeholder="30"
+                [disabled]="earlyLoading || hasPaymentType('early', selectedReservation)">
+            </div>
+            <button class="btn btn-primary"
+              style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px; flex: 1 1 70%;"
+              (click)="sendEarlyPayment()" [disabled]="earlyLoading || hasPaymentType('early', selectedReservation)">
+              <ng-container *ngIf="!earlyLoading">
+                <i class="fas fa-file-invoice-dollar"></i> Gerar Link de Pagamento Early
+              </ng-container>
+              <ng-container *ngIf="earlyLoading">
+                <i class="fas fa-spinner fa-spin"></i> Gerando...
+              </ng-container>
+            </button>
+          </div>
+          <div class="payment-link mt-3" *ngIf="textoEarlyGerado"
+            style="display: flex; flex-direction: column; gap: 8px;">
+            <textarea class="form-control" rows="8" [(ngModel)]="textoEarlyGerado" readonly
+              style="resize: none;"></textarea>
+            <button class="btn btn-outline-primary w-100" (click)="copiarTextoEarly()" title="Copiar texto de pagamento"
+              style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px;">
+              <i class="fa-regular fa-copy"></i> Copiar Texto Early
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Instruções para Entrada -->
+      <div class="modal-section panel-base" role="group" aria-labelledby="instrucoesEntradaTitle">
+        <div class="panel-header compact no-bg">
+          <div class="icon-circle small"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div class="panel-titles">
+            <h5 id="instrucoesEntradaTitle">Instruções para entrada</h5>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p class="text-hint mb-2" style="font-size: 0.85rem; color: #666;">
+            Compila os dados de todos os hóspedes (Nome, CPF, Telefone, Horário de chegada).
+            Baixe as fotos e documentos individualmente ou no botão 'Download Tudo' abaixo.
+          </p>
+          <button class="btn btn-outline-primary"
+            style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px; width: 100%;"
+            (click)="copiarInstrucoesEntrada()">
+            <i class="fa-regular fa-copy"></i> Copiar Instruções (Texto)
+          </button>
+        </div>
       </div>
 
       <hr>
@@ -452,22 +541,6 @@
               <ng-container *ngIf="hasPaymentType('early',selectedReservation)">
                 <div class="info-item">
                   <strong>Early: Efetuado</strong>
-                </div>
-              </ng-container>
-              <ng-container *ngIf="!hasPaymentType('early',selectedReservation)">
-                <div class="hospede-actions">
-                  <button class="btn btn-primary" (click)="sendEarlyPayment(hospede)">
-                    <ng-container *ngIf="!earlyLoading">
-                      <i class="fas fa-file-export"></i> Enviar Early
-                    </ng-container>
-                    <ng-container *ngIf="earlyLoading">
-                      <i class="fas fa-spinner fa-spin"></i> Enviando...
-                    </ng-container>
-                  </button>
-                  <div class="payment-link" *ngIf="linkPagamento!=''">
-                    <input type="text" class="form-control" [(ngModel)]="linkPagamento" placeholder="Link de pagamento"
-                      style="width: 250px;" readonly>
-                  </div>
                 </div>
               </ng-container>
             </div>
