@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
@@ -37,7 +37,7 @@ export class CadastroApartamentosComponent implements OnInit {
     stays: false,
     ayrton: false
   };
-  
+
   icalValid: { [key: string]: boolean | null } = {
     airbnb: null,
     booking: null,
@@ -48,7 +48,7 @@ export class CadastroApartamentosComponent implements OnInit {
   // Reservas do apartamento em edição
   reservasDoApartamento: ReservaAirbnb[] = [];
   reservasLoading: boolean = false;
-  reservasAgrupadasPorMes: Array<{ key: string; label: string; count: number; reservas: ReservaAirbnb[]; open: boolean }>= [];
+  reservasAgrupadasPorMes: Array<{ key: string; label: string; count: number; reservas: ReservaAirbnb[]; open: boolean }> = [];
 
   // Exportação XLS
   exportingXls = false;
@@ -73,6 +73,21 @@ export class CadastroApartamentosComponent implements OnInit {
   ];
 
   selectedPredio: Predio | null = null;
+
+  // Tags disponíveis para instruções de entrada
+  tagsDisponiveis = [
+    { tag: 'nome', label: 'Nome', icon: '🏠' },
+    { tag: 'senha_porta', label: 'Senha Porta', icon: '🔑' },
+    { tag: 'ssid_wifi', label: 'Wi-Fi', icon: '📶' },
+    { tag: 'senha_wifi', label: 'Senha Wi-Fi', icon: '🔐' },
+    { tag: 'acesso_predio', label: 'Acesso Prédio', icon: '🏢' },
+    { tag: 'acesso_porta', label: 'Acesso Porta', icon: '🚪' },
+    { tag: 'andar', label: 'Andar', icon: '🔢' },
+    { tag: 'vaga_garagem', label: 'Garagem', icon: '🅿️' },
+    { tag: 'endereco', label: 'Endereço', icon: '📍' },
+  ];
+
+  @ViewChild('instrucoesTextarea') instrucoesTextarea!: ElementRef<HTMLTextAreaElement>;
 
   constructor(
     private fb: FormBuilder,
@@ -155,7 +170,8 @@ export class CadastroApartamentosComponent implements OnInit {
       data_ultima_modificacao: [''],
       cod_link_proprietario: [''],
       categoria: [''],
-      tipo_anuncio_repasse: ['']
+      tipo_anuncio_repasse: [''],
+      instrucoes_entrada: ['']
     });
 
     // Adiciona sub-FormGroup para as amenidades do prédio
@@ -219,29 +235,29 @@ export class CadastroApartamentosComponent implements OnInit {
 
   }
   private setupIcalValidation(): void {
-      const icalFields = {
-        'link_airbnb_calendario': 'airbnb',
-        'link_booking_calendario': 'booking',
-        'link_stays_calendario': 'stays',
-        'link_ayrton_calendario': 'ayrton'
-      };
+    const icalFields = {
+      'link_airbnb_calendario': 'airbnb',
+      'link_booking_calendario': 'booking',
+      'link_stays_calendario': 'stays',
+      'link_ayrton_calendario': 'ayrton'
+    };
 
-      Object.entries(icalFields).forEach(([fieldName, icalKey]) => {
-        this.form.get(fieldName)?.valueChanges
-          .pipe(
-            debounceTime(1000),
-            distinctUntilChanged()
-          )
-          .subscribe((value: string) => {
-            if (value && value.trim() !== '') {
-              this.validateIcal(value, icalKey);
-            } else {
-              this.icalValid[icalKey] = null;
-            }
-          });
-      });
-    }
-    validateIcal(icalUrl: string, icalKey: string): void {
+    Object.entries(icalFields).forEach(([fieldName, icalKey]) => {
+      this.form.get(fieldName)?.valueChanges
+        .pipe(
+          debounceTime(1000),
+          distinctUntilChanged()
+        )
+        .subscribe((value: string) => {
+          if (value && value.trim() !== '') {
+            this.validateIcal(value, icalKey);
+          } else {
+            this.icalValid[icalKey] = null;
+          }
+        });
+    });
+  }
+  validateIcal(icalUrl: string, icalKey: string): void {
     this.validatingIcal[icalKey] = true;
     this.icalValid[icalKey] = null;
 
@@ -323,6 +339,7 @@ export class CadastroApartamentosComponent implements OnInit {
       enxoval_rostos: 0,
       pedir_selfie: false,
       tem_garagem: false,
+      instrucoes_entrada: '',
       modificado_user_id: this.currentUserId
     });
   }
@@ -384,13 +401,13 @@ export class CadastroApartamentosComponent implements OnInit {
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoLike);
     if (m) return `${m[1]}-${m[2]}`;
     const d = new Date(isoLike);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }
 
   private parseYMDToTime(isoLike: string): number {
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoLike);
     if (m) {
-      const y = +m[1], mo = +m[2]-1, da = +m[3];
+      const y = +m[1], mo = +m[2] - 1, da = +m[3];
       return new Date(y, mo, da).getTime();
     }
     const d = new Date(isoLike);
@@ -400,7 +417,7 @@ export class CadastroApartamentosComponent implements OnInit {
   formatarMesAnoLabel(key: string): string {
     // key = 'YYYY-MM'
     const [y, m] = key.split('-').map(n => +n);
-    const d = new Date(y, (m||1)-1, 1);
+    const d = new Date(y, (m || 1) - 1, 1);
     const mes = d.toLocaleDateString('pt-BR', { month: 'long' });
     const mesCap = mes.charAt(0).toUpperCase() + mes.slice(1);
     return `${mesCap}-${y}`;
@@ -558,8 +575,8 @@ export class CadastroApartamentosComponent implements OnInit {
     this.amenidadesPredio.forEach(a => {
       predioUpdate[a.key] = predioValues[a.key] ? 1 : 0;
     });
-    const predioSelecionado = this.predios.find(predio => predio.id == predioId )
-    if(!predioSelecionado){
+    const predioSelecionado = this.predios.find(predio => predio.id == predioId)
+    if (!predioSelecionado) {
       return
     }
     predioUpdate.nome = predioSelecionado.nome;
@@ -594,11 +611,11 @@ export class CadastroApartamentosComponent implements OnInit {
   }
 
   copiarGaragem() {
-  if (this.apartamentoSelecionado &&  this.apartamentoSelecionado.vaga_garagem) {
-    this.form.get('vaga_garagem')?.setValue(this.apartamentoSelecionado.vaga_garagem);
-    this.toastr.success('Informações da garagem copiadas com sucesso!');
+    if (this.apartamentoSelecionado && this.apartamentoSelecionado.vaga_garagem) {
+      this.form.get('vaga_garagem')?.setValue(this.apartamentoSelecionado.vaga_garagem);
+      this.toastr.success('Informações da garagem copiadas com sucesso!');
+    }
   }
-}
 
   formatarData(dataString: string): string {
     if (!dataString) return '-';
@@ -612,5 +629,42 @@ export class CadastroApartamentosComponent implements OnInit {
       return `${m[3]}/${m[2]}/${m[1]}`;
     }
     return String(dataString);
+  }
+
+  /** Insere uma tag na posição do cursor no textarea de instruções */
+  inserirTag(tag: string): void {
+    const tagStr = `{${tag}}`;
+    const control = this.form.get('instrucoes_entrada');
+    if (!control) return;
+
+    const textarea = this.instrucoesTextarea?.nativeElement;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentVal = control.value || '';
+      const newVal = currentVal.substring(0, start) + tagStr + currentVal.substring(end);
+      control.setValue(newVal);
+      // Reposiciona o cursor após a tag inserida
+      setTimeout(() => {
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = start + tagStr.length;
+      });
+    } else {
+      // Fallback: append no final
+      control.setValue((control.value || '') + tagStr);
+    }
+  }
+
+  /** Preview: substitui tags pelos valores reais do formulário */
+  get previewInstrucoes(): string {
+    const texto = this.form.get('instrucoes_entrada')?.value || '';
+    if (!texto) return '';
+    return texto.replace(/\{(\w+)\}/g, (_: string, key: string) => {
+      const val = this.form.get(key)?.value;
+      if (val !== null && val !== undefined && val !== '') {
+        return String(val);
+      }
+      return `{${key}}`;
+    });
   }
 }

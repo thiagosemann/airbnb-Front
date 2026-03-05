@@ -43,9 +43,9 @@ export interface Apartamento {
   respostas_programadas: string;
   ssid_wifi: string;
   senha_wifi: string;
-  user_prioridade1?:number;
-  user_prioridade2?:number;
-  user_prioridade3?:number;
+  user_prioridade1?: number;
+  user_prioridade2?: number;
+  user_prioridade3?: number;
   vaga_garagem: boolean;
   cod_link_proprietario: string;
   predio_name?: string;
@@ -67,4 +67,5 @@ export interface Apartamento {
   enxoval_pisos?: number;
   enxoval_rostos?: number;
   pedir_selfie?: boolean;
+  instrucoes_entrada?: string;
 }

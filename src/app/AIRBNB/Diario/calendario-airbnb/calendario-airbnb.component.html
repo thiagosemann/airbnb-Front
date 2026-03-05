@@ -468,6 +468,29 @@
 
       <hr>
 
+      <!-- Instruções de Entrada do Apartamento (com tags resolvidas) -->
+      <div class="modal-section panel-base" role="group" aria-labelledby="instrucoesAptTitle"
+        *ngIf="instrucoesResolvidas">
+        <div class="panel-header compact no-bg">
+          <div class="icon-circle small"><i class="fa-solid fa-door-open"></i></div>
+          <div class="panel-titles">
+            <h5 id="instrucoesAptTitle">Instruções de Entrada</h5>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div
+            style="background: #f8fdf9; border: 1px solid #c3e6cb; border-radius: 8px; padding: 12px; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9rem; color: #333; margin-bottom: 10px;">
+            {{ instrucoesResolvidas }}</div>
+          <button class="btn btn-outline-primary"
+            style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px; width: 100%;"
+            (click)="copiarInstrucoesApartamento()">
+            <i class="fa-regular fa-copy"></i> Copiar Instruções de Entrada
+          </button>
+        </div>
+      </div>
+
+      <hr>
+
       <div class="modal-section panel-base" role="group" aria-labelledby="hospedesTitle">
         <!-- Accordion: Cadastrar hóspede na reserva (gestor) -->
         <div class="accordion-section">

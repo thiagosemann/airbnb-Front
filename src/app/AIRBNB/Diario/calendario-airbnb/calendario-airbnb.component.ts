@@ -9,6 +9,8 @@ import { CadastroMensagemViaLinkService } from 'src/app/shared/service/Banco_de_
 import { DemandasService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/demandas_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { Demanda } from 'src/app/shared/utilitarios/demanda';
+import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
+import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -51,6 +53,10 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   selectedObsText: string = '';
   obsPopoverPosition: { top: number; left: number } = { top: 0, left: 0 };
 
+  // Apartamento selecionado e instruções resolvidas
+  selectedApartamento: Apartamento | null = null;
+  instrucoesResolvidas: string = '';
+
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
     private checkinFormService: CheckInFormService,
@@ -59,7 +65,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     private mercadoPagoService: MercadoPagoService,
     private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService,
     private demandasService: DemandasService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private apartamentoService: ApartamentoService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -159,12 +166,25 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.selectedReservation = event;
     this.carregandoImagem = true;
     this.hospedesReserva = [];
+    this.selectedApartamento = null;
+    this.instrucoesResolvidas = '';
     this.showModal = true;
     if (this.selectedReservation.id) {
       this.getRespostasByReservaId(
         this.selectedReservation.id.toString(),
         this.selectedReservation.cod_reserva
       );
+    }
+    // Busca dados do apartamento para instruções de entrada
+    if (this.selectedReservation.apartamento_id) {
+      this.apartamentoService.getApartamentoById(this.selectedReservation.apartamento_id)
+        .subscribe({
+          next: (apt) => {
+            this.selectedApartamento = apt;
+            this.resolverInstrucoes();
+          },
+          error: (err) => console.error('Erro ao buscar apartamento:', err)
+        });
     }
   }
 
@@ -497,6 +517,37 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }).catch(err => {
       console.error('Erro ao copiar texto early: ', err);
       this.toastr.error('Erro ao copiar o texto.');
+    });
+  }
+
+  /** Resolve as tags {propriedade} no texto de instruções com os valores reais do apartamento */
+  resolverInstrucoes(): void {
+    if (!this.selectedApartamento || !this.selectedApartamento.instrucoes_entrada) {
+      this.instrucoesResolvidas = '';
+      return;
+    }
+    const apt = this.selectedApartamento as any;
+    this.instrucoesResolvidas = this.selectedApartamento.instrucoes_entrada
+      .replace(/\{(\w+)\}/g, (_: string, key: string) => {
+        const val = apt[key];
+        if (val !== null && val !== undefined && val !== '') {
+          return String(val);
+        }
+        return `{${key}}`;
+      });
+  }
+
+  /** Copia o texto de instruções resolvido para a área de transferência */
+  copiarInstrucoesApartamento(): void {
+    if (!this.instrucoesResolvidas) {
+      this.toastr.warning('Sem instruções de entrada para copiar.');
+      return;
+    }
+    navigator.clipboard.writeText(this.instrucoesResolvidas).then(() => {
+      this.toastr.success('Instruções copiadas com sucesso!');
+    }).catch(err => {
+      console.error('Erro ao copiar instruções:', err);
+      this.toastr.error('Erro ao copiar instruções.');
     });
   }
   /** Retorna true se existir algum pagamento do tipo especificado */

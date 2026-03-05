@@ -38,7 +38,7 @@ export class CameraAppComponent implements OnInit {
   modeloCarro: string = '';
   corCarro: string = '';
   usarGaragem: boolean = true;
-
+  foneWhatsApp: string = '';
   // Booking route (por apartamentoId)
   isBookingRoute: boolean = false;
   apartamentoNome: string = '';
@@ -236,8 +236,8 @@ export class CameraAppComponent implements OnInit {
   private carregarFlagsApartamento(cod_reserva: string) {
     this.apartamentoService.getSelfieGaragem(cod_reserva).subscribe({
       next: (dados: any) => {
-        console.log('Dados do apartamento recebidos:', dados);
         this.vaga_garagem = dados?.vaga_garagem ?? null;
+        this.foneWhatsApp = `https://wa.me/${dados?.telefone ?? null}`
         // Converte 1/0, '1'/'0' ou boolean para booleano. Se null/undefined => false
         const ps = dados?.pedir_selfie;
         this.pedir_selfie = ps === true || ps === 1 || ps === '1' ? true : false;
@@ -269,7 +269,6 @@ export class CameraAppComponent implements OnInit {
       this.dataFim
     ).subscribe({
       next: (result) => {
-        console.log('Reserva encontrada:', result);
         this.isSearchingReserva = false;
         if (result && result.cod_reserva) {
           this.id = result.cod_reserva;

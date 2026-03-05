@@ -27,14 +27,17 @@
 .table-wrapper::-webkit-scrollbar {
   width: 7px;
 }
+
 .table-wrapper::-webkit-scrollbar-track {
-  background: #e0e0e0; 
+  background: #e0e0e0;
   border-radius: 10px;
 }
+
 .table-wrapper::-webkit-scrollbar-thumb {
-  background: #006400; 
+  background: #006400;
   border-radius: 10px;
 }
+
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #0056b3;
 }
@@ -52,6 +55,7 @@
   position: relative;
   width: 250px;
 }
+
 .search-icon {
   position: absolute;
   left: 12px;
@@ -60,6 +64,7 @@
   color: #fff;
   opacity: 0.8;
 }
+
 .search-input {
   padding-left: 36px;
   border-radius: 25px;
@@ -72,12 +77,14 @@
 .table-hover tbody tr:hover {
   background-color: rgba(25, 135, 84, 0.05);
 }
+
 .table th {
   background-color: #198754;
   color: #fff;
   font-weight: 500;
   vertical-align: middle;
 }
+
 .align-middle th,
 .align-middle td {
   vertical-align: middle !important;
@@ -180,10 +187,12 @@
 .search-mobile {
   max-width: 100%;
 }
+
 .search-mobile .input-group-text {
   border-right: 0;
   background: #fff;
 }
+
 .search-mobile .form-control {
   border-left: 0;
   border-radius: 0 1.5rem 1.5rem 0;
@@ -194,11 +203,13 @@
   .card h-5.card-title {
     font-size: 1rem;
   }
+
   .card .list-unstyled li {
     display: flex;
     align-items: center;
     margin-bottom: .25rem;
   }
+
   .card .list-unstyled li i {
     width: 1.25rem;
   }
@@ -208,10 +219,12 @@
 .card.shadow-sm {
   transition: transform .2s, box-shadow .2s;
 }
+
 .card.shadow-sm:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
+
 /* Estilos para validação de links iCal */
 .input-group-text {
   min-width: 45px;
@@ -253,15 +266,18 @@
 .accordion-button {
   background-color: #f8f9fa;
 }
+
 .accordion-button:not(.collapsed) {
   color: #198754;
   background-color: #eaf5ef;
 }
+
 .accordion-item {
-  border: 1px solid rgba(0,0,0,.05);
+  border: 1px solid rgba(0, 0, 0, .05);
   border-radius: .5rem;
   overflow: hidden;
 }
+
 .accordion-body {
   background: #fff;
 }
@@ -281,3 +297,65 @@
   }
 }
 
+/* Tags de instruções de entrada */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border: 1px solid #198754;
+  border-radius: 20px;
+  background: #eaf5ef;
+  color: #0f5132;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-pill:hover {
+  background: #198754;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
+}
+
+.tag-pill:active {
+  transform: scale(0.95);
+}
+
+.tag-icon {
+  font-size: 1rem;
+}
+
+/* Preview de instruções */
+.instrucoes-preview {
+  margin-top: 10px;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.preview-header {
+  background: #d1e7dd;
+  color: #0f5132;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+.preview-body {
+  background: #f8fdf9;
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  min-height: 40px;
+}
