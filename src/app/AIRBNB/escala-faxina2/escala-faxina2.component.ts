@@ -62,7 +62,7 @@ canceladasHoje: any[] = [];
     this.pesquisarPorPeriodo();
     this.getUsersByRole();
     this.apartamentosService.getAllApartamentos().subscribe(list => {
-     this.apartamentos = list;
+     this.apartamentos = list.sort((a, b) => a.nome.localeCompare(b.nome)).map(a => ({ id: a.id, nome: a.nome }));
     });
   }
 
