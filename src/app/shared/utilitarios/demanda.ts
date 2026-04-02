@@ -12,4 +12,6 @@ export interface Demanda {
   created_at?: string;
   updated_at?: string;
   apartamento_nome?: string; // retornado pelo JOIN do backend
+  apartamento_endereco?: string;
+  apartamento_senha_porta?: string;
 }

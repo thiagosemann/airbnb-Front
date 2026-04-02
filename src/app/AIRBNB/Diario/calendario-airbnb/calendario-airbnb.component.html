@@ -306,12 +306,35 @@
             <input type="time" class="form-control" [(ngModel)]="selectedReservation!.check_out"
               (change)="updateTime()">
           </div>
-          <ng-container *ngIf="selectedReservation!.placa_carro">
-            <div class="modal-item">
+          <ng-container *ngIf="selectedReservation!.placa_carro || selectedReservation!.marca_carro || selectedReservation!.modelo_carro || selectedReservation!.cor_carro">
+            <div class="modal-item" *ngIf="selectedReservation!.placa_carro">
               <label>Placa do Carro</label>
               <input type="text" class="form-control" [(ngModel)]="selectedReservation!.placa_carro" readonly>
             </div>
+            <div class="modal-item" *ngIf="selectedReservation!.marca_carro">
+              <label>Marca</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.marca_carro" readonly>
+            </div>
+            <div class="modal-item" *ngIf="selectedReservation!.modelo_carro">
+              <label>Modelo</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.modelo_carro" readonly>
+            </div>
+            <div class="modal-item" *ngIf="selectedReservation!.cor_carro">
+              <label>Cor</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedReservation!.cor_carro" readonly>
+            </div>
           </ng-container>
+          <div class="modal-item full-width mt-3">
+            <button class="btn btn-outline-primary w-100" (click)="downloadDossieCompleto()" [disabled]="carregandoImagem"
+              style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px;">
+              <ng-container *ngIf="!carregandoImagem">
+                <i class="fas fa-file-pdf"></i> Download Relatório Reserva
+              </ng-container>
+              <ng-container *ngIf="carregandoImagem">
+                <i class="fas fa-spinner fa-spin"></i> Carregando imagens dos hóspedes...
+              </ng-container>
+            </button>
+          </div>
         </div>
       </div>
       <!-- Enviar link para o hóspede responder o formulário de checkin -->
@@ -517,14 +540,13 @@
               <h5 id="hospedesTitle">Informações do Hóspede</h5>
             </div>
           </div>
-          <div class="action-buttons" *ngIf="!carregandoImagem">
-            <button class="btn btn-primary" (click)="exportData()">
+            <button class="btn btn-primary" (click)="exportData()" [disabled]="carregandoImagem">
               <i class="fas fa-file-export"></i> Download Tudo
             </button>
             <button class="btn btn-primary" (click)="enviarCredenciaisPorCheckins()" [disabled]="whatsLoading"
               style="margin-left: 10px;">
               <ng-container *ngIf="!whatsLoading">
-                <i class="fab fa-whatsapp whatsapp-icon"></i> Enviar via Whats
+                <i class="fab fa-whatsapp whatsapp-icon"></i> Enviar via e-mail
               </ng-container>
               <ng-container *ngIf="whatsLoading">
                 <i class="fas fa-spinner fa-spin"></i> Enviando...
@@ -594,9 +616,14 @@
                   </div>
                 </div>
               </div>
+              <div class="mt-3" style="border-top: 1px solid #eee; padding-top: 10px;">
+                <button class="btn btn-outline-primary btn-sm w-100" (click)="downloadDossieHospede(hospede)"
+                  style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px; border-radius: 8px;">
+                  <i class="fas fa-file-pdf"></i> Download Informações Hóspede
+                </button>
+              </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   </div>

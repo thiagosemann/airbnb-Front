@@ -1,0 +1,191 @@
+<div class="scrapper-wrapper">
+
+  <!-- ===== Busca ===== -->
+  <div class="busca-card">
+    <h2 class="busca-titulo">
+      <i class="bi bi-search"></i>
+      Analisar Anúncio Airbnb
+    </h2>
+
+    <div class="modo-toggle">
+      <button class="modo-btn" [class.modo-btn--ativo]="modo === 'apartamento'" (click)="trocarModo('apartamento')">
+        <i class="bi bi-building"></i> Apartamento cadastrado
+      </button>
+      <button class="modo-btn" [class.modo-btn--ativo]="modo === 'link'" (click)="trocarModo('link')">
+        <i class="bi bi-link-45deg"></i> Link manual
+      </button>
+    </div>
+
+    <!-- Seleção por apartamento -->
+    <div class="busca-row" *ngIf="modo === 'apartamento'">
+      <select class="busca-select" [(ngModel)]="apartamentoSelecionadoId" [disabled]="loadingApartamentos">
+        <option [ngValue]="null" disabled>
+          {{ loadingApartamentos ? 'Carregando apartamentos...' : 'Selecione um apartamento' }}
+        </option>
+        <option *ngFor="let a of apartamentos" [ngValue]="a.id">
+          {{ a.nome_anuncio || a.nome }}
+        </option>
+      </select>
+      <button class="busca-btn" (click)="buscar()" [disabled]="!podeBuscar">
+        <i class="bi bi-arrow-repeat" *ngIf="loading" style="animation: spin 0.7s linear infinite;"></i>
+        <i class="bi bi-search" *ngIf="!loading"></i>
+        {{ loading ? 'Buscando...' : 'Buscar' }}
+      </button>
+    </div>
+
+    <!-- Busca por link -->
+    <div class="busca-row" *ngIf="modo === 'link'">
+      <input
+        class="busca-input"
+        type="text"
+        placeholder="Cole o link do anúncio Airbnb..."
+        [(ngModel)]="linkInput"
+        (keydown.enter)="buscar()"
+      />
+      <button class="busca-btn" (click)="buscar()" [disabled]="!podeBuscar">
+        <i class="bi bi-arrow-repeat" *ngIf="loading" style="animation: spin 0.7s linear infinite;"></i>
+        <i class="bi bi-search" *ngIf="!loading"></i>
+        {{ loading ? 'Buscando...' : 'Buscar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Loading ===== -->
+  <div class="loading-state" *ngIf="loading">
+    <i class="bi bi-arrow-repeat spin"></i>
+    <p>Carregando anúncio — isso pode levar até 30 segundos...</p>
+  </div>
+
+  <!-- ===== Erro ===== -->
+  <div class="erro-card" *ngIf="erro && !loading">
+    <span class="erro-icon">!</span>
+    <span>{{ erro }}</span>
+  </div>
+
+  <!-- ===== Resultado ===== -->
+  <div class="anuncio" *ngIf="anuncio && !loading">
+
+    <!-- Galeria -->
+    <section class="secao galeria-secao" *ngIf="anuncio.imagens.length">
+      <h3 class="secao-titulo"><i class="bi bi-images"></i> Fotos</h3>
+      <div class="galeria-carousel">
+        <button class="galeria-nav galeria-nav--prev" (click)="imagemAnterior()">&#8249;</button>
+        <div class="galeria-frame">
+          <img class="galeria-img" [src]="anuncio.imagens[imagemAtiva]" [alt]="anuncio.titulo" />
+          <span class="galeria-counter">{{ imagemAtiva + 1 }} / {{ anuncio.imagens.length }}</span>
+        </div>
+        <button class="galeria-nav galeria-nav--next" (click)="proximaImagem()">&#8250;</button>
+      </div>
+      <div class="galeria-thumbs">
+        <img
+          *ngFor="let img of anuncio.imagens; let i = index"
+          [src]="img"
+          [alt]="'Foto ' + (i + 1)"
+          class="galeria-thumb"
+          [class.galeria-thumb--ativa]="i === imagemAtiva"
+          (click)="irParaImagem(i)"
+        />
+      </div>
+    </section>
+
+    <!-- Visão Geral -->
+    <section class="secao">
+      <h3 class="secao-titulo"><i class="bi bi-info-circle"></i> Visão Geral</h3>
+      <div class="vg-nota">
+        <span class="vg-estrela">&#9733;</span>
+        <span class="vg-nota-valor">{{ anuncio.nota_geral }}</span>
+        <span class="vg-avaliacoes">({{ anuncio.total_avaliacoes }} avaliações)</span>
+      </div>
+      <div class="vg-detalhes">
+        <span class="vg-detalhe-item" *ngFor="let d of anuncio.detalhes_propriedade">
+          {{ detalheLabel(d) }}
+        </span>
+      </div>
+      <p class="vg-tipo" *ngIf="anuncio.tipo_imovel">
+        <i class="bi bi-house-door"></i> {{ anuncio.tipo_imovel }}
+      </p>
+    </section>
+
+    <!-- Avaliações por Categoria -->
+    <section class="secao" *ngIf="anuncio.avaliacoes_categorias.length">
+      <h3 class="secao-titulo"><i class="bi bi-star-half"></i> Avaliações por Categoria</h3>
+      <div class="avaliacoes-grid">
+        <div class="avaliacao-item" *ngFor="let av of anuncio.avaliacoes_categorias">
+          <div class="avaliacao-header">
+            <span class="avaliacao-cat">{{ av.categoria }}</span>
+            <span class="avaliacao-nota">{{ av.nota }}</span>
+          </div>
+          <div class="avaliacao-barra-bg">
+            <div class="avaliacao-barra-fill" [style.width.%]="notaNumero(av.nota) * 20"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Descrição -->
+    <section class="secao" *ngIf="paragrafosDescricao.length">
+      <h3 class="secao-titulo"><i class="bi bi-text-paragraph"></i> Descrição</h3>
+      <p class="descricao-paragrafo" *ngFor="let p of paragrafosDescricao">{{ p }}</p>
+    </section>
+
+    <!-- Comodidades -->
+    <section class="secao" *ngIf="anuncio.comodidades.length">
+      <h3 class="secao-titulo"><i class="bi bi-check2-square"></i> Comodidades</h3>
+      <div class="comodidades-categorias">
+        <div class="comodidade-grupo" *ngFor="let cat of categoriaComodidades">
+          <h4 class="comodidade-cat-titulo">
+            <i class="bi bi-tag-fill"></i> {{ cat }}
+          </h4>
+          <ul class="comodidade-lista">
+            <li class="comodidade-item" *ngFor="let c of comodidadesPorCategoria(cat)">
+              <span class="comodidade-nome">{{ c.nome }}</span>
+              <span class="comodidade-sub" *ngIf="c.subtitulo">{{ c.subtitulo }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comodidades-nao-incluso" *ngIf="comodidadesNaoIncluso.length">
+        <h4 class="comodidade-cat-titulo comodidade-cat-titulo--cinza">
+          <i class="bi bi-x-circle"></i> Não incluso
+        </h4>
+        <ul class="nao-incluso-lista">
+          <li class="nao-incluso-tag" *ngFor="let c of comodidadesNaoIncluso">
+            <i class="bi bi-x" style="font-size:0.75rem;"></i>
+            {{ c.nome }}
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Localização -->
+    <section class="secao">
+      <h3 class="secao-titulo"><i class="bi bi-geo-alt"></i> Localização</h3>
+      <p class="localizacao-label">
+        <i class="bi bi-pin-map-fill"></i>
+        <span *ngIf="anuncio.cidade">{{ anuncio.cidade }}</span>
+        <span *ngIf="anuncio.estado">, {{ anuncio.estado }}</span>
+        <span *ngIf="anuncio.pais"> — {{ anuncio.pais }}</span>
+      </p>
+      <div class="mapa-wrapper">
+        <iframe
+          class="mapa-iframe"
+          [src]="mapaEmbedUrl"
+          frameborder="0"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Link Airbnb -->
+    <section class="secao link-secao">
+      <a class="link-airbnb-btn" [href]="anuncio.url_anuncio" target="_blank" rel="noopener noreferrer">
+        <i class="bi bi-box-arrow-up-right"></i>
+        Ver no Airbnb
+      </a>
+    </section>
+
+  </div>
+</div>

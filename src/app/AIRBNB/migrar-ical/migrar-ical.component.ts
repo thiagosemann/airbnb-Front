@@ -218,12 +218,10 @@ export class MigrarICALComponent implements OnInit {
   onSelectSource(reserva: ReservaAirbnb): void {
     this.selectedSourceId = reserva.id ?? null;
     // Se já houver destino selecionado que não casa com a data, mantemos por enquanto; validação no migrate
-    console.log('[layout] origem selecionada:', this.selectedSourceId, reserva);
   }
 
   onSelectTarget(reserva: ReservaAirbnb): void {
     this.selectedTargetId = reserva.id ?? null;
-    console.log('[layout] destino selecionado (AYRTON):', this.selectedTargetId, reserva);
   }
 
   onMigrateSelected(): void {
@@ -231,23 +229,12 @@ export class MigrarICALComponent implements OnInit {
     const dst = this.reservasAyrton.find(r => r.id === this.selectedTargetId);
     const same = src && dst ? this.isSameDateRange(src, dst) : false;
     const checkins = src?.id ? this.checkinsPorReserva[src.id]?.checkinIds || [] : [];
-    console.log('[layout] migrar selecionados ->', {
-      sourceId: this.selectedSourceId,
-      targetId: this.selectedTargetId,
-      sameDateRange: same,
-      sourceCheckinIds: checkins,
-    });
+
   }
 
   onMigratePair(source: ReservaAirbnb, target: ReservaAirbnb): void {
     const same = this.isSameDateRange(source, target);
     const checkins = source.id ? this.checkinsPorReserva[source.id]?.checkinIds || [] : [];
-    console.log('[layout] migrar par ->', {
-      sourceId: source.id,
-      targetId: target.id,
-      sameDateRange: same,
-      sourceCheckinIds: checkins,
-    });
   }
 
   // Getters auxiliares para o template

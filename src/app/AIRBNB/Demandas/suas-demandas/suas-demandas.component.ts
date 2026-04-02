@@ -60,6 +60,8 @@ export class SuasDemandasComponent implements OnInit {
     const hojeStr = this.formatarDataParaInput(new Date());
     this.demandasSrv.getDemandasByResponsavel(this.user.id).subscribe({
       next: (ds) => {
+    console.log('Demandas recebidas:', ds);
+
 		const todasPendentes = this.formatDates(ds).filter(d => this.isPendente(d.status));
 		this.demandasHoje = this.ordenarPorStatus(
 		  todasPendentes.filter(d => this.isSameDateISO(d.prazo, hojeStr))
@@ -102,7 +104,7 @@ export class SuasDemandasComponent implements OnInit {
     this.demandasSrv.updateDemanda(d.id, { status: novoStatus }).subscribe({
       next: () => {
         d.status = novoStatus;
-		this.toastr.success(checked ? 'Demanda finalizada!' : 'Demanda marcada como pendente.');
+		    this.toastr.success(checked ? 'Demanda finalizada!' : 'Demanda marcada como pendente.');
       },
       error: () => {
         this.toastr.error('Erro ao atualizar status da demanda');
@@ -269,12 +271,17 @@ export class SuasDemandasComponent implements OnInit {
 
   statusLabel(status?: string | null): string {
     const s = this.normalizeStatus(status);
-    if (s === 'finalizada') return '✔ Finalizada';
-    if (s === 'cancelada') return '✖ Cancelada';
-    return '⌛️ Pendente';
+    if (s === 'finalizada') return 'Finalizada';
+    if (s === 'cancelada') return 'Cancelada';
+    return 'Pendente';
   }
 
   isPendente(status?: string | null): boolean {
     return this.normalizeStatus(status) === 'pendente';
+  }
+
+  cleanSenha(senha?: string | null): string {
+    if (!senha) return '';
+    return senha.replace(/^\s*Senha:\s*/i, '').trim();
   }
 }

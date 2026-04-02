@@ -60,11 +60,9 @@ export class ControleFaxinaComponent implements OnInit {
 
   async loadPayments() {
     if (!this.selectedMonth) return;
-    console.log("this.selectedMonth", this.selectedMonth);
 
     try {
       const [startDate, endDate] = this.getMonthDateRange();
-      console.log('Date Range:', startDate, endDate)
       const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
       const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
       

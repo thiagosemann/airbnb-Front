@@ -11,6 +11,7 @@ import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/aut
 import { Demanda } from 'src/app/shared/utilitarios/demanda';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
+import { PdfService } from 'src/app/shared/service/Pdf-Service/pdfService';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -66,7 +67,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     private cadastroMensagemViaLinkService: CadastroMensagemViaLinkService,
     private demandasService: DemandasService,
     private authService: AuthenticationService,
-    private apartamentoService: ApartamentoService
+    private apartamentoService: ApartamentoService,
+    private pdfService: PdfService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -119,7 +121,6 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.reservasAirbnbService.getReservasPorPeriodo(this.dataInicio, this.dataFim)
       .subscribe({
         next: (reservas) => {
-          console.log('Reservas carregadas:', reservas);
           this.todasReservas = this.tratarReservas(reservas);
           this.reservasFiltradas = [...this.todasReservas];
           this.credenciaisFetias = this.reservasFiltradas.filter(r => r.credencial_made).length;
@@ -752,6 +753,57 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   closeObsPopover(): void {
     this.showObsPopover = false;
     this.selectedObsText = '';
+  }
+
+  async downloadDossieCompleto(): Promise<void> {
+    if (!this.selectedReservation) {
+      this.toastr.warning('Selecione uma reserva primeiro.');
+      return;
+    }
+    try {
+      this.toastr.info('Gerando relatório, aguarde...');
+      const blob = await this.pdfService.gerarDossieCompleto(
+        this.selectedReservation,
+        this.hospedesReserva || [],
+        this.selectedApartamento
+      );
+      this.downloadBlob(blob, `Relatorio_${this.selectedReservation.cod_reserva}.pdf`);
+      this.toastr.success('Relatório gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar dossiê completo:', error);
+      this.toastr.error('Erro ao gerar relatório.');
+    }
+  }
+
+  async downloadDossieHospede(hospede: any): Promise<void> {
+    if (!this.selectedReservation) {
+      this.toastr.warning('Selecione uma reserva primeiro.');
+      return;
+    }
+    try {
+      this.toastr.info('Gerando informações do hóspede...');
+      const blob = await this.pdfService.gerarDossieHospede(
+        this.selectedReservation,
+        hospede,
+        this.selectedApartamento
+      );
+      this.downloadBlob(blob, `Hospede_${hospede.first_name}_${this.selectedReservation.cod_reserva}.pdf`);
+      this.toastr.success('Documento gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar dossiê hóspede:', error);
+      this.toastr.error('Erro ao gerar documento do hóspede.');
+    }
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 
 }

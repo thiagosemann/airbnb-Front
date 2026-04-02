@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { User } from '../../shared/utilitarios/user';
-import { PdfService } from '../../shared/service/Pdf-Service/pdfService';
 
 @Component({
   selector: 'app-content',
@@ -14,8 +13,7 @@ export class ContentComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
-    private pdfService: PdfService
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {

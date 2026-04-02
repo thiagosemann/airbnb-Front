@@ -108,7 +108,6 @@ export class RelatorioNFComponent {
         this.bookingLinhas = sheet ? this.parseBookingSheet(sheet) : [];
         const reservasBooking = this.bookingLinhas.map((b) => this.bookingToReserva(b));
         this.reservasCSV = [...this.reservasCSV, ...reservasBooking];
-        console.log('Booking XLS lido (convertido para reservas)', this.bookingLinhas);
         this.enriquecerReservasComApartamento();
       } catch (err) {
         this.bookingLinhas = [];

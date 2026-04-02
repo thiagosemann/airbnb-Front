@@ -27,6 +27,9 @@ export interface ReservaAirbnb {
   contagemFaxinasDiaPorFaxineira?: number;
   telefone_principal?: string;
   placa_carro?: string;
+  marca_carro?: string;
+  modelo_carro?: string;
+  cor_carro?: string;
   pagamentos: any[];
   early_checkin?: boolean;
   late_checkout?: boolean;

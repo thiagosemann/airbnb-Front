@@ -42,6 +42,7 @@ import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-dema
 import { ForestLandingComponent } from './landing/landing.component';
 import { ReservarComponent } from './Reservar/reservar.component';
 import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-demandas/estatisticas-demandas.component';
+import { ScrapperAirbnbComponent } from './AIRBNB/scrapper-airbnb/scrapper-airbnb.component';
 
 
 const routes: Routes = [
@@ -78,6 +79,7 @@ const routes: Routes = [
 
   { path: 'escalaFaxina', component: EscalaFaxinaComponent, canActivate: [AuthGuardService], data: { role: 'terceirizado' } },
   { path: 'escalaFaxinaAdmin', component: EscalaFaxina2Component, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'scrapperAirbnb', component: ScrapperAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
   { path: 'migrarIcal', component: MigrarICALComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 

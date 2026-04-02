@@ -171,7 +171,6 @@ export class ControleDemandasComponent implements OnInit {
   }
 
   editar(d: Demanda): void {
-    console.log('Editando demanda:', d);
     this.isEditing = true;
     this.showModal = true;
     this.demandaSelecionada = d;

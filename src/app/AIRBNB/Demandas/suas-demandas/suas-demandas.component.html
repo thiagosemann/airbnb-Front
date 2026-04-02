@@ -20,35 +20,57 @@
 
 				<div *ngFor="let d of demandasHoje" class="faxina-card">
 					<div class="card-header">
-						<h3> {{ d.apartamento_nome }}</h3>
+						<div class="header-info">
+							<i class="fas fa-building text-primary"></i>
+							<h3>{{ d.apartamento_nome }}</h3>
+						</div>
 						<span class="status-badge" [class.done]="isFinalizada(d.status)" [class.cancelada]="isCancelada(d.status)">
+							<i class="fas" [ngClass]="isFinalizada(d.status) ? 'fa-check-circle' : (isCancelada(d.status) ? 'fa-times-circle' : 'fa-hourglass-half')"></i>
 							{{ statusLabel(d.status) }}
 						</span>
 					</div>
 					<div class="card-body">
-						<div class="card-row">
-							<strong>Prazo:</strong>
-							<strong>{{ d.prazo }}</strong>
+						<div class="info-grid">
+							<div class="info-item full-width" *ngIf="d.apartamento_endereco">
+								<span class="label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+								<span class="value">{{ d.apartamento_endereco }}</span>
+							</div>
+							<div class="info-item" *ngIf="d.apartamento_senha_porta">
+								<span class="label"><i class="fas fa-key"></i> Senha</span>
+								<span class="value">{{ cleanSenha(d.apartamento_senha_porta) }}</span>
+							</div>
+							<div class="info-item">
+								<span class="label"><i class="far fa-calendar-alt"></i> Prazo</span>
+								<span class="value">{{ d.prazo }} <span class="text-sm">({{ getDiaDaSemana(d.prazo) }})</span></span>
+							</div>
+							<div class="info-item">
+								<span class="label"><i class="far fa-clock"></i> Período</span>
+								<span class="value">{{ displayPeriodo(d.periodo) }}</span>
+							</div>
 						</div>
-						<div class="card-row">
-							<strong>Dia:</strong>
-							  <strong>{{ getDiaDaSemana(d.prazo) }}</strong>
-						</div>
-						<div class="card-row">
-							<strong>Período:</strong>
-							<strong>{{ displayPeriodo(d.periodo) }}</strong>
-						</div>
-						<div class="card-row">
+						
+						<div class="demanda-box">
+							<span class="label"><i class="fas fa-clipboard-list"></i> Descrição da demanda</span>
 							<div class="demanda-text">{{ d.demanda }}</div>
+						</div>
+						
+						<div class="action-row" *ngIf="d.apartamento_endereco">
+							<button class="btn-route" (click)="abrirGoogleMaps(d.apartamento_endereco!)">
+								<i class="fas fa-map-marked-alt"></i> Ver rota no Maps
+							</button>
 						</div>
 					</div>
 					<div class="card-footer">
-						<label class="custom-checkbox">
-							<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
-							<span class="checkmark"></span>
-						</label>
-						<span>Marcar como Finalizada</span>
-						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
+						<div class="checkbox-wrapper">
+							<label class="custom-checkbox">
+								<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
+								<span class="checkmark"></span>
+							</label>
+							<span class="checkbox-label" [class.text-muted]="isFinalizada(d.status)">
+								{{ isFinalizada(d.status) ? 'Finalizada' : 'Marcar como Finalizada' }}
+							</span>
+						</div>
+						<button class="btn-more" (click)="abrirModal(d)">Detalhes</button>
 					</div>
 				</div>
 			</div>
@@ -74,35 +96,57 @@
 
 				<div *ngFor="let d of demandasFuturas" class="faxina-card">
 					<div class="card-header">
-						<h3>{{ d.apartamento_nome }}</h3>
+						<div class="header-info">
+							<i class="fas fa-building text-primary"></i>
+							<h3>{{ d.apartamento_nome }}</h3>
+						</div>
 						<span class="status-badge" [class.done]="isFinalizada(d.status)" [class.cancelada]="isCancelada(d.status)">
+							<i class="fas" [ngClass]="isFinalizada(d.status) ? 'fa-check-circle' : (isCancelada(d.status) ? 'fa-times-circle' : 'fa-hourglass-half')"></i>
 							{{ statusLabel(d.status) }}
 						</span>
 					</div>
 					<div class="card-body">
-						<div class="card-row">
-							<strong>Prazo:</strong>
-							<strong>{{ d.prazo }}</strong>
+						<div class="info-grid">
+							<div class="info-item full-width" *ngIf="d.apartamento_endereco">
+								<span class="label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+								<span class="value">{{ d.apartamento_endereco }}</span>
+							</div>
+							<div class="info-item" *ngIf="d.apartamento_senha_porta">
+								<span class="label"><i class="fas fa-key"></i> Senha</span>
+								<span class="value">{{ cleanSenha(d.apartamento_senha_porta) }}</span>
+							</div>
+							<div class="info-item">
+								<span class="label"><i class="far fa-calendar-alt"></i> Prazo</span>
+								<span class="value">{{ d.prazo }} <span class="text-sm">({{ getDiaDaSemana(d.prazo) }})</span></span>
+							</div>
+							<div class="info-item">
+								<span class="label"><i class="far fa-clock"></i> Período</span>
+								<span class="value">{{ displayPeriodo(d.periodo) }}</span>
+							</div>
 						</div>
-						<div class="card-row">
-							<strong>Dia:</strong>
-							<strong>{{ getDiaDaSemana(d.prazo) }}</strong>
-						</div>
-						<div class="card-row">
-							<strong>Período:</strong>
-							<strong>{{ displayPeriodo(d.periodo) }}</strong>
-						</div>
-						<div class="card-row">
+						
+						<div class="demanda-box">
+							<span class="label"><i class="fas fa-clipboard-list"></i> Descrição da demanda</span>
 							<div class="demanda-text">{{ d.demanda }}</div>
+						</div>
+						
+						<div class="action-row" *ngIf="d.apartamento_endereco">
+							<button class="btn-route" (click)="abrirGoogleMaps(d.apartamento_endereco!)">
+								<i class="fas fa-map-marked-alt"></i> Ver rota no Maps
+							</button>
 						</div>
 					</div>
 					<div class="card-footer">
-						<label class="custom-checkbox">
-							<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
-							<span class="checkmark"></span>
-						</label>
-						<span>Marcar como Finalizada</span>
-						<button class="btn-info" (click)="abrirModal(d)">Mais</button>
+						<div class="checkbox-wrapper">
+							<label class="custom-checkbox">
+								<input type="checkbox" [checked]="isFinalizada(d.status)" (change)="updateStatus(d, $event)">
+								<span class="checkmark"></span>
+							</label>
+							<span class="checkbox-label" [class.text-muted]="isFinalizada(d.status)">
+								{{ isFinalizada(d.status) ? 'Finalizada' : 'Marcar como Finalizada' }}
+							</span>
+						</div>
+						<button class="btn-more" (click)="abrirModal(d)">Detalhes</button>
 					</div>
 				</div>
 			</div>

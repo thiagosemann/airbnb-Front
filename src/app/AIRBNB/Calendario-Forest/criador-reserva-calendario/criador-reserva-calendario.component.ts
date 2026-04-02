@@ -55,7 +55,6 @@ export class CriadorReservaCalendarioComponent {
 
   private loadReservationForEdit(): void {
     if (!this.reservationToEdit) return;
-    console.log('Reserva para edição:', this.reservationToEdit);
     this.newReservation = {
       id: this.reservationToEdit.id,
       apartamento_id: this.reservationToEdit.apartamento_id,
@@ -95,11 +94,9 @@ export class CriadorReservaCalendarioComponent {
         precisa_limpeza: this.newReservation.precisa_limpeza ?? false
       };
 
-      console.log('Payload atualização:', payload);
 
       this.reservasAirbnbService.updateReserva(payload as ReservaAirbnb).subscribe({
         next: (res) => {
-          console.log('Resposta do backend:', res);
           alert('Reserva atualizada com sucesso!');
           this.closeModal();
           this.reservationSaved.emit();
@@ -125,11 +122,9 @@ export class CriadorReservaCalendarioComponent {
         informed: false
       };
 
-      console.log('Payload criação:', payload);
 
       this.reservasAirbnbService.createReservaManual(payload as ReservaAirbnb).subscribe({
         next: (res) => {
-          console.log('Resposta do backend:', res);
           alert('Reserva criada com sucesso!');
           this.closeModal();
           this.reservationSaved.emit();

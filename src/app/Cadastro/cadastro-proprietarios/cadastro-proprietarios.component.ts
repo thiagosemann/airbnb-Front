@@ -106,7 +106,6 @@ export class CadastroProprietariosComponent implements OnInit {
     try {
       this.usersService.getProprietarios().subscribe(
         (users: User[]) => {
-          console.log('Usuários proprietários carregados:', users);
           this.users = this.applySort(users);
           this.filteredUsers = [...this.users];
         },

@@ -49,7 +49,8 @@ export class AppComponent implements OnInit {
     'relatorioNF',
     'controleDemandas',
     'suasDemandas',
-    'performance'
+    'performance',
+    'scrapperAirbnb',
 
   ];
 

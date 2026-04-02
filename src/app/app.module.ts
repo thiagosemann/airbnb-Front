@@ -65,6 +65,7 @@ import { ReservasListComponent } from './Reservar/reservas-list/reservas-list.co
 import { ReservaCardComponent } from './Reservar/reserva-card/reserva-card.component';
 import { ReservaModalComponent } from './Reservar/reserva-modal/reserva-modal.component';
 import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-demandas/estatisticas-demandas.component';
+import { ScrapperAirbnbComponent } from './AIRBNB/scrapper-airbnb/scrapper-airbnb.component';
 
 @NgModule({
   declarations: [
@@ -119,7 +120,8 @@ import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-de
     ReservasListComponent,
     ReservaCardComponent,
     ReservaModalComponent,
-    EstatisticasDemandasComponent
+    EstatisticasDemandasComponent,
+    ScrapperAirbnbComponent
   ],
   imports: [
     BrowserModule,
