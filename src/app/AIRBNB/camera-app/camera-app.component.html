@@ -109,7 +109,8 @@
 
         <div class="form-group">
           <label class="input-label">{{ t.phoneLabel }}</label>
-          <input type="tel" class="input-field" [placeholder]="t.phonePlaceholder" mask="(00) 00000-0000"
+          <input type="tel" class="input-field" [placeholder]="t.phonePlaceholder"
+            [mask]="souEstrangeiro ? '' : '(00) 00000-0000'"
             [(ngModel)]="formData.telefone" name="telefone" required>
         </div>
 
@@ -338,8 +339,8 @@
     </div>
   </div>
 
-  <!-- Step 5/6: Success -->
-  <div class="app-card" *ngIf="step === 5 || step === 6">
+  <!-- Step 5: Success com opção de cadastrar outro ou concluir -->
+  <div class="app-card" *ngIf="step === 5">
     <header style="padding-bottom: 1rem;">
       <div class="logo-row">
         <span class="material-icons-round logo-icon">eco</span>
@@ -378,6 +379,27 @@
         {{ t.finish }}
       </button>
     </footer>
+  </div>
+
+  <!-- Step 6: Tela final após concluir -->
+  <div class="app-card" *ngIf="step === 6" style="justify-content: center; align-items: center; text-align: center;">
+    <header style="padding-bottom: 1rem;">
+      <div class="logo-row">
+        <span class="material-icons-round logo-icon">eco</span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="logo-text">forest</span>
+          <span class="logo-tagline">{{ t.tagline }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="success-container">
+      <span class="material-icons-round" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;">celebration</span>
+      <h1 class="success-title">{{ souEstrangeiro ? 'See you soon!' : 'Até breve!' }}</h1>
+      <p class="success-text" style="max-width: 80%;">
+        {{ souEstrangeiro ? 'Your check-in is complete. Enjoy your stay!' : 'Seu cadastro está concluído. Boas-vindas!' }}
+      </p>
+    </div>
   </div>
 
   <!-- Botão flutuante do WhatsApp -->
