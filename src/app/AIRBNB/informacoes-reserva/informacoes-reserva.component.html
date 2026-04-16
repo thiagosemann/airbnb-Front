@@ -1,0 +1,260 @@
+<div class="main-wrapper">
+
+  <!-- Formulário de busca -->
+  <div class="app-card" *ngIf="step === 'form'">
+    <header>
+      <div class="logo-container">
+        <div class="logo-row">
+          <span class="material-icons-round logo-icon">eco</span>
+          <span class="logo-text">forest</span>
+        </div>
+        <p class="logo-tagline">Gestão e Inovação Patrimonial</p>
+      </div>
+    </header>
+
+    <main>
+      <div style="margin-bottom: 2rem;">
+        <h1 class="step-title">Minha Reserva</h1>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.5;">
+          Consulte as informações e instruções de acesso da sua estadia.
+        </p>
+      </div>
+
+      <form (ngSubmit)="buscar()">
+        <div class="toggle-row">
+          <label class="info-label" style="font-size: 0.875rem; color: var(--text-main);">I am a foreigner</label>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="souEstrangeiro" name="souEstrangeiro">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label">{{ souEstrangeiro ? 'Passport Number' : 'CPF' }}</label>
+          <input
+            type="text"
+            class="input-field"
+            [placeholder]="souEstrangeiro ? 'Document number' : '000.000.000-00'"
+            [mask]="souEstrangeiro ? '' : '000.000.000-00'"
+            [(ngModel)]="cpf"
+            name="cpf"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label">Código da Reserva</label>
+          <input
+            type="text"
+            class="input-field"
+            placeholder="Ex: HMRD89N3TK"
+            [(ngModel)]="codReserva"
+            name="codReserva"
+            style="text-transform: uppercase;"
+            required>
+        </div>
+      </form>
+    </main>
+
+    <footer>
+      <div class="legal-box">
+        <span class="material-icons-round" style="color: var(--primary); font-size: 1.25rem; flex-shrink: 0;">info</span>
+        <p class="legal-text">
+          Informe o CPF cadastrado e o código da reserva para acessar suas informações.
+        </p>
+      </div>
+      <button class="btn-primary" (click)="buscar()" [disabled]="!cpf || !codReserva">
+        <span>Ver minha reserva</span>
+        <span class="material-icons-round">search</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Loading -->
+  <div class="app-card" *ngIf="step === 'loading'" style="justify-content: center;">
+    <div class="loader-wrapper">
+      <div class="loader-spinner"></div>
+      <h2 class="step-title" style="text-align: center;">Buscando...</h2>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div class="app-card" *ngIf="step === 'result'">
+    <header style="padding-bottom: 0.5rem;">
+      <div class="logo-row">
+        <span class="material-icons-round logo-icon" style="font-size: 1.5rem;">eco</span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="logo-text" style="font-size: 1.25rem;">forest</span>
+          <span class="logo-tagline" style="font-size: 0.5rem;">Gestão e Inovação Patrimonial</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- Código da reserva -->
+      <div class="reserva-badge">
+        <span class="material-icons-round" style="color: var(--primary); font-size: 1rem;">confirmation_number</span>
+        <span>{{ reserva?.cod_reserva }}</span>
+      </div>
+
+      <!-- Datas e Horários -->
+      <div class="section-card" *ngIf="reserva">
+        <div class="section-header">
+          <span class="material-icons-round section-icon">calendar_today</span>
+          <span class="section-title">Datas da Estadia</span>
+        </div>
+
+        <div class="dates-row">
+          <div class="date-block">
+            <p class="date-label">Check-in</p>
+            <p class="date-value">{{ formatDate(reserva.start_date) }}</p>
+            <p class="date-time">
+              <span class="material-icons-round" style="font-size: 0.875rem;">schedule</span>
+              {{ reserva.check_in }}
+            </p>
+            <span class="badge badge-green" *ngIf="reserva.early_checkin">Early Check-in</span>
+          </div>
+          <div class="date-divider">
+            <span class="material-icons-round" style="color: #d1d5db;">arrow_forward</span>
+          </div>
+          <div class="date-block">
+            <p class="date-label">Check-out</p>
+            <p class="date-value">{{ formatDate(reserva.end_data) }}</p>
+            <p class="date-time">
+              <span class="material-icons-round" style="font-size: 0.875rem;">schedule</span>
+              {{ reserva.check_out }}
+            </p>
+            <span class="badge badge-blue" *ngIf="reserva.late_checkout">Late Check-out</span>
+          </div>
+        </div>
+
+        <!-- Carro -->
+        <div class="car-row" *ngIf="reserva.placa_carro">
+          <span class="material-icons-round" style="color: var(--primary);">directions_car</span>
+          <div>
+            <p class="car-plate">{{ reserva.placa_carro }}</p>
+            <p class="car-detail">{{ reserva.marca_carro }} {{ reserva.modelo_carro }} · {{ reserva.cor_carro }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="section-card faq-section" *ngIf="getFaq().length > 0">
+        <div class="section-header">
+          <span class="material-icons-round section-icon">help_outline</span>
+          <span class="section-title">Dúvidas Frequentes</span>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item" *ngFor="let item of getFaq(); let i = index">
+            <button class="faq-question" (click)="toggleFaq(i)" [class.faq-open]="openFaqIndex === i">
+              <div class="faq-question-left">
+                <span class="material-icons-round faq-icon">{{ item.icon }}</span>
+                <span class="faq-question-text">{{ item.pergunta }}</span>
+              </div>
+              <span class="material-icons-round faq-chevron">
+                {{ openFaqIndex === i ? 'expand_less' : 'expand_more' }}
+              </span>
+            </button>
+            <div class="faq-answer" *ngIf="openFaqIndex === i">
+              {{ item.resposta }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acesso ao Apartamento -->
+      <div class="section-card" *ngIf="apartamento">
+        <div class="section-header">
+          <span class="material-icons-round section-icon">home</span>
+          <span class="section-title">Seu Apartamento</span>
+        </div>
+
+        <div class="apt-name-row">
+          <span class="apt-name">{{ apartamento.nome }}</span>
+          <span class="apt-floor">{{ apartamento.andar }}º andar</span>
+        </div>
+
+        <p class="apt-address">
+          <span class="material-icons-round" style="font-size: 0.875rem; vertical-align: middle;">location_on</span>
+          {{ apartamento.endereco }}, {{ apartamento.bairro }}
+        </p>
+
+        <div class="info-row">
+          <span class="material-icons-round" style="font-size: 1rem; color: var(--text-muted);">group</span>
+          <span class="info-row-text">Capacidade: {{ apartamento.numero_hospedes }} hóspedes</span>
+        </div>
+
+        <!-- Tipo de check-in -->
+        <div class="access-block" *ngIf="apartamento.tipo_checkin">
+          <div class="access-label">
+            <span class="material-icons-round" style="font-size: 1rem;">login</span>
+            Tipo de Check-in
+          </div>
+          <p class="access-text">{{ apartamento.tipo_checkin }}</p>
+        </div>
+
+        <!-- Acesso ao prédio -->
+        <div class="access-block" *ngIf="apartamento.acesso_predio">
+          <div class="access-label">
+            <span class="material-icons-round" style="font-size: 1rem;">apartment</span>
+            Acesso ao Prédio
+          </div>
+          <p class="access-text">{{ apartamento.acesso_predio }}</p>
+        </div>
+
+        <!-- Acesso à porta -->
+        <div class="access-block" *ngIf="apartamento.acesso_porta">
+          <div class="access-label">
+            <span class="material-icons-round" style="font-size: 1rem;">door_front</span>
+            Acesso à Porta
+          </div>
+          <p class="access-text">{{ apartamento.acesso_porta }}</p>
+        </div>
+
+        <!-- Instruções de entrada -->
+        <div class="access-block highlight-block" *ngIf="apartamento.instrucoes_entrada">
+          <div class="access-label">
+            <span class="material-icons-round" style="font-size: 1rem;">info</span>
+            Instruções de Entrada
+          </div>
+          <p class="access-text">{{ apartamento.instrucoes_entrada }}</p>
+        </div>
+
+        <!-- Link do app -->
+        <a *ngIf="apartamento.link_app" [href]="apartamento.link_app" target="_blank" class="app-link-btn">
+          <span class="material-icons-round">open_in_new</span>
+          Abrir app do apartamento
+        </a>
+      </div>
+
+      <!-- Comodidades do Prédio -->
+      <div class="section-card" *ngIf="predio">
+        <div class="section-header">
+          <span class="material-icons-round section-icon">business</span>
+          <span class="section-title">{{ predio.nome }} · Comodidades</span>
+        </div>
+
+        <div class="amenities-grid" *ngIf="getAmenities().length > 0; else noAmenities">
+          <div class="amenity-chip" *ngFor="let a of getAmenities()">
+            <span class="material-icons-round amenity-icon">{{ a.icon }}</span>
+            <span class="amenity-label">{{ a.label }}</span>
+          </div>
+        </div>
+        <ng-template #noAmenities>
+          <p style="font-size: 0.875rem; color: var(--text-muted);">Nenhuma comodidade cadastrada.</p>
+        </ng-template>
+      </div>
+
+
+    </main>
+
+    <footer style="margin-top: 1rem;">
+      <button class="btn-outline" (click)="novaBusca()">
+        <span class="material-icons-round" style="font-size: 1rem; vertical-align: middle;">search</span>
+        Nova Busca
+      </button>
+    </footer>
+  </div>
+
+</div>

@@ -11,10 +11,168 @@
 
 /* Títulos das seções do formulário */
 .section-title {
-  border-bottom: 2px solid #198754;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: #198754;
-  margin-bottom: 10px;
-  padding-bottom: 4px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e8f5e9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: #198754;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Card para cada seção do formulário */
+.form-card-grid > [class*="col-"] {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  padding: 16px 18px !important;
+}
+
+.form-card-grid {
+  --bs-gutter-x: 0.75rem;
+  --bs-gutter-y: 0.75rem;
+  row-gap: 0.75rem !important;
+}
+
+/* ===== FAQ SECTION ===== */
+
+/* Wrapper verde claro da seção inteira */
+.faq-section-wrapper {
+  background: #f4fbf6;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #c3e6cb;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card de cada grupo */
+.faq-group-block {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid #e4e4e7;
+}
+
+/* Label do grupo (ex: EQUIPAMENTOS) */
+.faq-group-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #198754;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.faq-group-label::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 11px;
+  background: #198754;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Linha de chips */
+.faq-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Chip-style para checkbox */
+.faq-chip-input {
+  display: none;
+}
+
+.faq-chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #dee2e6;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.faq-chip-label::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dee2e6;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.faq-chip-input:checked + .faq-chip-label {
+  border-color: #198754;
+  background: #e8f5e9;
+  color: #0f5132;
+  font-weight: 600;
+}
+
+.faq-chip-input:checked + .faq-chip-label::before {
+  background: #198754;
+}
+
+/* Linha mista: chips + inputs */
+.faq-mixed-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.faq-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+  flex: 1;
+}
+
+.faq-text-group label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* Grid de campos de texto lado a lado */
+.faq-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
 }
 
 /* Tabela com scroll e hover */

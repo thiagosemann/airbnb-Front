@@ -43,6 +43,7 @@ import { ForestLandingComponent } from './landing/landing.component';
 import { ReservarComponent } from './Reservar/reservar.component';
 import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-demandas/estatisticas-demandas.component';
 import { ScrapperAirbnbComponent } from './AIRBNB/scrapper-airbnb/scrapper-airbnb.component';
+import { InformacoesReservaComponent } from './AIRBNB/informacoes-reserva/informacoes-reserva.component';
 
 
 const routes: Routes = [
@@ -50,6 +51,7 @@ const routes: Routes = [
   { path: 'booking/:apartamentoNome', component: CameraAppComponent },
   { path: 'cameraApp/:id', component: CameraAppComponent },
   { path: 'reserva/:id', component: CameraAppComponent },
+  { path: 'informacoes', component: InformacoesReservaComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent },
   { path: 'landing', component: ForestLandingComponent },
   { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },

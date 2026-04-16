@@ -59,6 +59,11 @@ export class CheckInFormService {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
+  // Obter informações da reserva por CPF e código da reserva
+  getInformacoesReserva(cpf: string, codReserva: string): Observable<any> {
+    return this.http.get(`${environment.backendUrl}/informacoes-reserva/${cpf}/${codReserva}`, { headers: this.getHeaders() });
+  }
+
   // Enviar lista de check-ins para WhatsApp
   envioPorCheckins(checkinIds: number[]): Observable<any> {
     const payload = { checkinIds };

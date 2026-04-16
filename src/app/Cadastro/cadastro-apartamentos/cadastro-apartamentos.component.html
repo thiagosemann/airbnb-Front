@@ -131,7 +131,7 @@
         <button class="close-btn" (click)="fecharModal()">×</button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="form" class="row g-2">
+        <form [formGroup]="form" class="row g-3 form-card-grid">
 
           <!-- Seção 1: Informações Básicas -->
           <div class="col-md-6">
@@ -223,25 +223,12 @@
               <label class="form-label">Número de Hóspedes</label>
               <input type="number" class="form-control" formControlName="numero_hospedes">
             </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" formControlName="aceita_pet" id="aceita_pet">
-              <label class="form-check-label" for="aceita_pet">Aceita Pet</label>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" formControlName="totem" id="totem">
-              <label class="form-check-label" for="totem">Totem</label>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" formControlName="adesivo_aviso" id="adesivo_aviso">
-              <label class="form-check-label" for="adesivo_aviso">Adesivo de Aviso</label>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" formControlName="pedir_selfie" id="pedir_selfie">
-              <label class="form-check-label" for="pedir_selfie">Pedir selfie no check-in</label>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" formControlName="tem_garagem" id="tem_garagem">
-              <label class="form-check-label" for="tem_garagem">Tem garagem</label>
+            <div class="faq-chips-row mb-3">
+              <input class="faq-chip-input" type="checkbox" formControlName="aceita_pet" id="aceita_pet"><label class="faq-chip-label" for="aceita_pet">Aceita Pet</label>
+              <input class="faq-chip-input" type="checkbox" formControlName="totem" id="totem"><label class="faq-chip-label" for="totem">Totem</label>
+              <input class="faq-chip-input" type="checkbox" formControlName="adesivo_aviso" id="adesivo_aviso"><label class="faq-chip-label" for="adesivo_aviso">Adesivo de Aviso</label>
+              <input class="faq-chip-input" type="checkbox" formControlName="pedir_selfie" id="pedir_selfie"><label class="faq-chip-label" for="pedir_selfie">Pedir Selfie</label>
+              <input class="faq-chip-input" type="checkbox" formControlName="tem_garagem" id="tem_garagem"><label class="faq-chip-label" for="tem_garagem">Tem Garagem</label>
             </div>
             <!-- Garagem movido para cá como input-group -->
             <div class="mb-3">
@@ -330,67 +317,136 @@
 
           </div>
 
-          <!-- Seção 7: Comodidades -->
-          <div class="col-md-12">
-            <h5 class="section-title">Comodidades</h5>
-            <div class="row">
-              <ng-container *ngFor="let amen of [
-                  'ar_condicionado','secador_cabelo','smart_tv','tv_aberta',
-                  'cafeteira','escritorio','aspirador_de_po','ventilador',
-                  'ferro_passar','sanduicheira','chaleira_eletrica','liquidificador',
-                  'air_fryer','aquecedor','itens_limpeza'
-                ]">
-                <div class="col-md-3">
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" [formControlName]="amen" [id]="amen">
-                    <label class="form-check-label" [for]="amen">
-                      {{ amen.replace('_', ' ') | titlecase }}
-                    </label>
-                  </div>
-                </div>
-              </ng-container>
+          <!-- Itens de Limpeza (único campo que não vai para FAQ) -->
+          <div class="col-md-6">
+            <h5 class="section-title">Itens de Limpeza</h5>
+            <div class="mb-3">
+              <label class="form-label">Itens de limpeza disponíveis</label>
+              <input type="text" class="form-control" formControlName="itens_limpeza"
+                placeholder="Ex: sabão, detergente, esponja...">
             </div>
           </div>
           <!-- Seção 8: Comodidades do Prédio -->
           <div class="col-md-12" formGroupName="predioAmenities" *ngIf="selectedPredio">
             <h5 class="section-title">Comodidades do Prédio</h5>
-            <div class="row">
-              <div class="col-md-3" *ngFor="let amen of amenidadesPredio">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="checkbox" [formControlName]="amen.key"
-                    [id]="'predio_' + amen.key">
-                  <label class="form-check-label" [for]="'predio_' + amen.key">
-                    {{ amen.label }}
-                  </label>
+            <div class="faq-chips-row">
+              <ng-container *ngFor="let amen of amenidadesPredio">
+                <input class="faq-chip-input" type="checkbox" [formControlName]="amen.key" [id]="'predio_' + amen.key">
+                <label class="faq-chip-label" [for]="'predio_' + amen.key">{{ amen.label }}</label>
+              </ng-container>
+            </div>
+          </div>
+
+
+          <!-- Respostas FAQ -->
+          <div class="col-md-12">
+            <h5 class="section-title">Respostas FAQ</h5>
+            <div class="faq-section-wrapper">
+
+              <!-- Equipamentos -->
+              <div class="faq-group-block">
+                <p class="faq-group-label">Equipamentos</p>
+                <div class="faq-chips-row">
+                  <input class="faq-chip-input" type="checkbox" formControlName="ar_condicionado" id="ar_condicionado"><label class="faq-chip-label" for="ar_condicionado">Ar-condicionado</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="ferro_passar" id="ferro_passar"><label class="faq-chip-label" for="ferro_passar">Ferro de Passar</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="secador_cabelo" id="secador_cabelo"><label class="faq-chip-label" for="secador_cabelo">Secador de Cabelo</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="ventilador" id="ventilador"><label class="faq-chip-label" for="ventilador">Ventilador</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="aquecedor" id="aquecedor"><label class="faq-chip-label" for="aquecedor">Aquecedor</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="aspirador_de_po" id="aspirador_de_po"><label class="faq-chip-label" for="aspirador_de_po">Aspirador de Pó</label>
                 </div>
               </div>
-            </div>
-          </div>
 
+              <!-- Cozinha -->
+              <div class="faq-group-block">
+                <p class="faq-group-label">Cozinha</p>
+                <div class="faq-mixed-row">
+                  <div class="faq-chips-row" style="flex: 1; min-width: 100%;">
+                    <input class="faq-chip-input" type="checkbox" formControlName="cafeteira" id="cafeteira"><label class="faq-chip-label" for="cafeteira">Cafeteira</label>
+                    <input class="faq-chip-input" type="checkbox" formControlName="sanduicheira" id="sanduicheira"><label class="faq-chip-label" for="sanduicheira">Sanduicheira</label>
+                    <input class="faq-chip-input" type="checkbox" formControlName="chaleira_eletrica" id="chaleira_eletrica"><label class="faq-chip-label" for="chaleira_eletrica">Chaleira Elétrica</label>
+                    <input class="faq-chip-input" type="checkbox" formControlName="liquidificador" id="liquidificador"><label class="faq-chip-label" for="liquidificador">Liquidificador</label>
+                    <input class="faq-chip-input" type="checkbox" formControlName="air_fryer" id="air_fryer"><label class="faq-chip-label" for="air_fryer">Air Fryer</label>
+                  </div>
+                  <div class="faq-text-group" style="min-width: 180px; max-width: 260px;">
+                    <label>Tipo de Fogão</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="tipo_fogao" placeholder="Ex: Vitrocerâmico, Gás">
+                  </div>
+                </div>
+              </div>
 
-          <!-- Seção 9: Fogão & Chuveiro -->
-          <div class="col-md-6">
-            <h5 class="section-title">Fogão & Chuveiro</h5>
-            <div class="mb-3">
-              <label class="form-label">Tipo de Fogão</label>
-              <input type="text" class="form-control" formControlName="tipo_fogao">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Tipo de Chuveiro</label>
-              <input type="text" class="form-control" formControlName="tipo_chuveiro">
-            </div>
-          </div>
+              <!-- Entretenimento -->
+              <div class="faq-group-block">
+                <p class="faq-group-label">Entretenimento</p>
+                <div class="faq-chips-row">
+                  <input class="faq-chip-input" type="checkbox" formControlName="smart_tv" id="smart_tv"><label class="faq-chip-label" for="smart_tv">Smart TV</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="tv_aberta" id="tv_aberta"><label class="faq-chip-label" for="tv_aberta">TV Aberta</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="tv_quarto" id="tv_quarto"><label class="faq-chip-label" for="tv_quarto">TV no Quarto</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="escritorio" id="escritorio"><label class="faq-chip-label" for="escritorio">Escritório</label>
+                </div>
+              </div>
 
-          <!-- Seção 10: Redes Wi-Fi -->
-          <div class="col-md-6">
-            <h5 class="section-title">Redes Wi-Fi</h5>
-            <div class="mb-3">
-              <label class="form-label">SSID Wi-Fi</label>
-              <input type="text" class="form-control" formControlName="ssid_wifi">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Senha Wi-Fi</label>
-              <input type="text" class="form-control" formControlName="senha_wifi">
+              <!-- Linha: Banheiro + Wi-Fi + Tomadas -->
+              <div class="faq-group-block">
+                <div class="faq-fields-grid">
+                  <div>
+                    <p class="faq-group-label">Banheiro</p>
+                    <div class="faq-text-group">
+                      <label>Tipo de Chuveiro</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="tipo_chuveiro" placeholder="Ex: Elétrico 220V, A gás">
+                    </div>
+                  </div>
+                  <div>
+                    <p class="faq-group-label">Wi-Fi</p>
+                    <div class="faq-text-group" style="margin-bottom: 6px;">
+                      <label>SSID (Nome da rede)</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="ssid_wifi">
+                    </div>
+                    <div class="faq-text-group">
+                      <label>Senha</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="senha_wifi">
+                    </div>
+                  </div>
+                  <div>
+                    <p class="faq-group-label">Tomadas</p>
+                    <div class="faq-text-group" style="margin-bottom: 8px;">
+                      <label>Tensão</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="tensao_tomadas" placeholder="Ex: 110V, 220V">
+                    </div>
+                    <div class="faq-chips-row">
+                      <input class="faq-chip-input" type="checkbox" formControlName="possui_tomada_220" id="possui_tomada_220"><label class="faq-chip-label" for="possui_tomada_220">Possui tomada 220V</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Linha: Lixeira + Lavanderia + Vaga -->
+              <div class="faq-group-block">
+                <div class="faq-fields-grid">
+                  <div class="faq-text-group">
+                    <p class="faq-group-label">Lixeira</p>
+                    <input type="text" class="form-control form-control-sm" formControlName="localizacao_lixeira" placeholder="Ex: Corredor do andar, elevador de serviço">
+                  </div>
+                  <div class="faq-text-group">
+                    <p class="faq-group-label">Lavanderia</p>
+                    <input type="text" class="form-control form-control-sm" formControlName="localizacao_lavanderia" placeholder="Ex: 3º andar, 8h às 22h">
+                  </div>
+                  <div class="faq-text-group">
+                    <p class="faq-group-label">Tamanho da Vaga</p>
+                    <input type="text" class="form-control form-control-sm" formControlName="tamanho_vaga" placeholder="Ex: Padrão, cabe SUV, não cabe caminhonete">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Piscina -->
+              <div class="faq-group-block">
+                <p class="faq-group-label">Piscina</p>
+                <div class="faq-chips-row">
+                  <input class="faq-chip-input" type="checkbox" formControlName="pode_hospede_piscina" id="pode_hospede_piscina"><label class="faq-chip-label" for="pode_hospede_piscina">Hóspede pode usar</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="piscina_aquecida" id="piscina_aquecida"><label class="faq-chip-label" for="piscina_aquecida">Aquecida</label>
+                  <input class="faq-chip-input" type="checkbox" formControlName="exame_piscina" id="exame_piscina"><label class="faq-chip-label" for="exame_piscina">Exige exame médico</label>
+                </div>
+              </div>
+
             </div>
           </div>
           <!-- Transformar as próximas duas seções em col-md-6 lado a lado -->

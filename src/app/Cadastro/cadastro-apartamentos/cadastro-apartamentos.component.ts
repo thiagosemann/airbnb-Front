@@ -141,6 +141,16 @@ export class CadastroApartamentosComponent implements OnInit {
       link_app: [''],
       tipo_fogao: [''],
       tipo_chuveiro: [''],
+      // --- FAQ Hóspede ---
+      tensao_tomadas: [''],
+      possui_tomada_220: [false],
+      localizacao_lixeira: [''],
+      localizacao_lavanderia: [''],
+      exame_piscina: [false],
+      pode_hospede_piscina: [false],
+      piscina_aquecida: [false],
+      tamanho_vaga: [''],
+      // -------------------
       // --- Enxoval fields added ---
       enxoval_sobre_lencol_casal: [0],
       enxoval_fronha: [0],
@@ -150,6 +160,7 @@ export class CadastroApartamentosComponent implements OnInit {
       enxoval_rostos: [0],
       // -----------------------------
       secador_cabelo: [false],
+      tv_quarto: [false],
       cafeteira: [false],
       ventilador: [false],
       ferro_passar: [false],
