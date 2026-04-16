@@ -45,6 +45,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   dataFim: string;
   searchTerm: string = '';
   reservasExibidas: ReservaAirbnb[] = [];
+  plataformaFiltro: string = 'todos';
 
   // Armazena URLs temporárias criadas para preview de PDFs
   private pdfObjectUrls: string[] = [];
@@ -141,14 +142,27 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   }
   aplicarSearch(): void {
     const term = this.searchTerm.trim().toLowerCase();
-    if (!term) {
-      this.reservasExibidas = [...this.reservasFiltradas];
-    } else {
-      this.reservasExibidas = this.reservasFiltradas.filter(r =>
+    let resultado = [...this.reservasFiltradas];
+
+    if (this.plataformaFiltro !== 'todos') {
+      resultado = resultado.filter(r =>
+        this.typeReserva(r.cod_reserva).toLowerCase() === this.plataformaFiltro
+      );
+    }
+
+    if (term) {
+      resultado = resultado.filter(r =>
         (r.apartamento_nome ?? '').toLowerCase().includes(term)
         || (r.cod_reserva ?? '').toLowerCase().includes(term)
       );
     }
+
+    this.reservasExibidas = resultado;
+  }
+
+  setPlataformaFiltro(plataforma: string): void {
+    this.plataformaFiltro = plataforma;
+    this.aplicarSearch();
   }
 
   private isBloqueado(evento: ReservaAirbnb): boolean {

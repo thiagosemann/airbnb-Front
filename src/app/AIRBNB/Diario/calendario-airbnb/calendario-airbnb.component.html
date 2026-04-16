@@ -5,6 +5,11 @@
         <h5>
           <i class="fas fa-calendar-alt"></i> Checkins
         </h5>
+        <div class="plataforma-filter-buttons">
+          <button class="btn btn-sm" [class.active]="plataformaFiltro === 'todos'" (click)="setPlataformaFiltro('todos')">Todos</button>
+          <button class="btn btn-sm airbnb-btn" [class.active]="plataformaFiltro === 'airbnb'" (click)="setPlataformaFiltro('airbnb')">Airbnb</button>
+          <button class="btn btn-sm booking-btn" [class.active]="plataformaFiltro === 'booking'" (click)="setPlataformaFiltro('booking')">Booking</button>
+        </div>
       </div>
 
       <div class="header-center">
