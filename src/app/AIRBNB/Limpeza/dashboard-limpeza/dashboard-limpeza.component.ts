@@ -17,7 +17,7 @@ export class DashboardLimpezaComponent implements OnInit {
   todasFaxinas: any[] = [];
   faxinasFiltradas: any[] = [];
   users: User[] = [];
-  apartamentos: { id: number; nome: string }[] = [];
+  apartamentos: { id: number; nome: string; endereco: string }[] = [];
 
   statsHoje = {
     total: 0,
@@ -55,7 +55,20 @@ export class DashboardLimpezaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.carregarDados();
+    // Carrega dados estáticos uma vez e depois busca faxinas
+    forkJoin({
+      users: this.userService.getUsersByRole('terceirizado'),
+      apartamentos: this.apartamentoService.getAllApartamentos()
+    }).subscribe({
+      next: ({ users, apartamentos }) => {
+        this.users = users;
+        this.apartamentos = apartamentos
+          .map(a => ({ id: a.id, nome: a.nome, endereco: a.endereco || '' }))
+          .sort((a, b) => a.nome.localeCompare(b.nome));
+        this.carregarFaxinas();
+      },
+      error: () => this.toastr.error('Erro ao carregar dados')
+    });
   }
 
   setPeriodoHoje(): void {
@@ -95,29 +108,27 @@ export class DashboardLimpezaComponent implements OnInit {
     return `${y}-${m}-${day}`;
   }
 
+  // Chamado pelos botões e pelo botão Filtrar
   carregarDados(): void {
+    if (!this.dataInicio || !this.dataFim) return;
+    this.carregarFaxinas();
+  }
+
+  private carregarFaxinas(): void {
     if (!this.dataInicio || !this.dataFim) return;
     this.carregando = true;
 
-    // Busca lookback de 30 dias para capturar pendentes anteriores
+    // Para períodos que incluem hoje ou passado, busca também pendentes anteriores
     const lookback = new Date();
     lookback.setDate(lookback.getDate() - 30);
-    const fetchInicio = this.dataInicio <= this.hoje
-      ? this.toISODate(lookback)
-      : this.dataInicio;
+    const lookbackISO = this.toISODate(lookback);
+    const fetchInicio = this.dataInicio <= this.hoje ? lookbackISO : this.dataInicio;
 
     forkJoin({
       reservas: this.reservasService.getFaxinasPorPeriodo(fetchInicio, this.dataFim),
-      limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(fetchInicio, this.dataFim),
-      users: this.userService.getUsersByRole('terceirizado'),
-      apartamentos: this.apartamentoService.getAllApartamentos()
+      limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(fetchInicio, this.dataFim)
     }).subscribe({
-      next: ({ reservas, limpezas, users, apartamentos }) => {
-        this.users = users;
-        this.apartamentos = apartamentos
-          .map(a => ({ id: a.id, nome: a.nome }))
-          .sort((a, b) => a.nome.localeCompare(b.nome));
-
+      next: ({ reservas, limpezas }) => {
         const normExtras = limpezas.map(e => ({
           ...e,
           description: 'LIMPEZA',
@@ -127,10 +138,14 @@ export class DashboardLimpezaComponent implements OnInit {
         }));
 
         let todas = [...reservas, ...normExtras];
+
+        // Mantém apenas: itens do período selecionado + pendentes anteriores
         todas = todas.filter(f => {
           const iso = this.extrairISO(f.end_data);
           const noPeriodo = iso >= this.dataInicio && iso <= this.dataFim;
-          const isPastPending = iso < this.dataInicio && !f.limpeza_realizada && this.dataInicio <= this.hoje;
+          const isPastPending = iso < this.dataInicio
+            && !f.limpeza_realizada
+            && this.dataInicio <= this.hoje;
           return noPeriodo || isPastPending;
         });
 
@@ -149,19 +164,23 @@ export class DashboardLimpezaComponent implements OnInit {
         this.carregando = false;
       },
       error: () => {
-        this.toastr.error('Erro ao carregar dados');
+        this.toastr.error('Erro ao carregar faxinas');
         this.carregando = false;
       }
     });
   }
 
   private extrairISO(dateStr: string): string {
-    if (!dateStr) return '';
+    if (!dateStr || typeof dateStr !== 'string') return '';
+    // dd/MM/yyyy
     if (dateStr.includes('/')) {
-      const [d, m, y] = dateStr.split('/');
-      return `${y}-${m}-${d}`;
+      const parts = dateStr.split('/');
+      if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
-    return dateStr.split('T')[0];
+    // yyyy-MM-dd ou yyyy-MM-ddTHH:mm:ss.sssZ
+    const onlyDate = dateStr.split('T')[0];
+    if (/^\d{4}-\d{2}-\d{2}$/.test(onlyDate)) return onlyDate;
+    return '';
   }
 
   private calcularStats(): void {
@@ -229,12 +248,9 @@ export class DashboardLimpezaComponent implements OnInit {
     return u ? u.first_name : '';
   }
 
-  getParceiro(f: any): string {
-    if (f.description === 'LIMPEZA') return 'Manual';
-    if (f.origem) {
-      return f.origem.charAt(0).toUpperCase() + f.origem.slice(1).toLowerCase();
-    }
-    return 'N/D';
+  getEndereco(apartamentoId: number): string {
+    const apt = this.apartamentos.find(a => a.id === Number(apartamentoId));
+    return apt?.endereco || '';
   }
 
   getHorario(f: any): string {

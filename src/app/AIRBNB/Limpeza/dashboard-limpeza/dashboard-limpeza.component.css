@@ -466,15 +466,10 @@
   color: #94a3b8;
 }
 
-/* Parceiro badge */
-.badge-parceiro {
-  background: #1e293b;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
+/* Endereço */
+.endereco-cell {
+  font-size: 12px;
+  color: #64748b;
 }
 
 /* Colaborador */

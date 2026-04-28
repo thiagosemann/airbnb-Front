@@ -138,7 +138,7 @@
         <thead>
           <tr>
             <th>IMÓVEL</th>
-            <th>PARCEIRO</th>
+            <th>ENDEREÇO</th>
             <th>COLABORADOR(A)</th>
             <th>HORÁRIO</th>
             <th>TIPO</th>
@@ -157,7 +157,7 @@
               </div>
             </td>
             <td>
-              <span class="badge-parceiro">{{ getParceiro(faxina) }}</span>
+              <span class="endereco-cell">{{ getEndereco(faxina.apartamento_id) }}</span>
             </td>
             <td>
               <div class="colaborador-cell">
@@ -178,7 +178,7 @@
                   <i class="fas fa-flag"></i> {{ getDataFormatada(faxina) }}
                 </span>
                 <span *ngIf="faxina.check_in_mesmo_dia" class="badge-prioridade-inline">
-                  ⚠ PRIORIDADE: Saída/Entrada
+                  ⚠ PRIORIDADE: Apartamento com entrada.
                 </span>
               </div>
             </td>
