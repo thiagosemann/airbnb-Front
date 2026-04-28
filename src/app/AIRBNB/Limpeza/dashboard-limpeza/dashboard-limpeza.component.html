@@ -40,20 +40,26 @@
   <!-- ───── STATS CARDS ───── -->
   <div class="stats-row">
 
-    <div class="stat-card stat-total">
+    <div class="stat-card stat-total"
+         [class.card-ativo]="statusFiltro === 'todos'"
+         (click)="setCardFiltro('todos')">
       <i class="fas fa-clipboard-list stat-icon"></i>
       <div class="stat-number teal">{{ statsHoje.total }}</div>
-      <div class="stat-label">TOTAL HOJE</div>
+      <div class="stat-label">TOTAL</div>
     </div>
 
-    <div class="stat-card stat-prioridade">
+    <div class="stat-card stat-prioridade"
+         [class.card-ativo]="statusFiltro === 'prioridade'"
+         (click)="setCardFiltro('prioridade')">
       <span class="badge-prioridade-top">PRIORIDADE</span>
       <i class="fas fa-sync-alt stat-icon"></i>
       <div class="stat-number red">{{ statsHoje.prioridade }}</div>
       <div class="stat-label">PRIORIDADE: SAÍDA/ENTRADA</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card"
+         [class.card-ativo]="statusFiltro === 'concluida'"
+         (click)="setCardFiltro('concluida')">
       <div class="stat-header-row">
         <i class="fas fa-check-circle stat-icon green"></i>
         <span class="stat-percent">{{ percentualConcluidas }}%</span>
@@ -62,25 +68,25 @@
       <div class="stat-label">CONCLUÍDAS</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card"
+         [class.card-ativo]="statusFiltro === 'em-andamento'"
+         (click)="setCardFiltro('em-andamento')">
       <i class="fas fa-spinner stat-icon blue"></i>
       <div class="stat-number blue">{{ statsHoje.emAndamento }}</div>
       <div class="stat-label">EM ANDAMENTO</div>
     </div>
 
-    <div class="stat-card">
-      <i class="fas fa-clock stat-icon yellow"></i>
-      <div class="stat-number yellow">{{ statsHoje.pendentes }}</div>
-      <div class="stat-label">PENDENTES</div>
-    </div>
-
-    <div class="stat-card">
+    <div class="stat-card"
+         [class.card-ativo]="statusFiltro === 'atrasada'"
+         (click)="setCardFiltro('atrasada')">
       <i class="fas fa-exclamation-triangle stat-icon orange"></i>
       <div class="stat-number orange">{{ statsHoje.atrasadas }}</div>
       <div class="stat-label">ATRASADAS</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card"
+         [class.card-ativo]="statusFiltro === 'sos'"
+         (click)="setCardFiltro('sos')">
       <i class="fas fa-bell stat-icon red"></i>
       <div class="stat-number red">{{ statsHoje.sos }}</div>
       <div class="stat-label">SOS</div>
@@ -117,6 +123,7 @@
         <div class="select-wrapper">
           <select [(ngModel)]="statusFiltro" (change)="aplicarFiltros()">
             <option value="todos">Todos os Status</option>
+            <option value="prioridade">Prioridade</option>
             <option value="concluida">Concluídas</option>
             <option value="em-andamento">Em Andamento</option>
             <option value="pendente">Pendente</option>

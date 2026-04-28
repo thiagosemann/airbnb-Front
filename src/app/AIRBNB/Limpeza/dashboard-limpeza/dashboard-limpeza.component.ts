@@ -24,7 +24,6 @@ export class DashboardLimpezaComponent implements OnInit {
     prioridade: 0,
     concluidas: 0,
     emAndamento: 0,
-    pendentes: 0,
     atrasadas: 0,
     sos: 0
   };
@@ -195,9 +194,6 @@ export class DashboardLimpezaComponent implements OnInit {
     this.statsHoje.emAndamento = faxinasPeriodo.filter(
       f => f.faxina_userId && !f.limpeza_realizada
     ).length;
-    this.statsHoje.pendentes = faxinasPeriodo.filter(
-      f => !f.faxina_userId && !f.limpeza_realizada
-    ).length;
     // Atrasadas: contagem global de pendentes anteriores ao período
     this.statsHoje.atrasadas = this.todasFaxinas.filter(
       f => this.extrairISO(f.end_data) < this.dataInicio && !f.limpeza_realizada
@@ -207,6 +203,11 @@ export class DashboardLimpezaComponent implements OnInit {
       this.statsHoje.total > 0
         ? Math.round((this.statsHoje.concluidas / this.statsHoje.total) * 100)
         : 0;
+  }
+
+  setCardFiltro(filtro: string): void {
+    this.statusFiltro = this.statusFiltro === filtro ? 'todos' : filtro;
+    this.aplicarFiltros();
   }
 
   aplicarFiltros(): void {
@@ -219,7 +220,9 @@ export class DashboardLimpezaComponent implements OnInit {
           this.getColaboradorNome(f.faxina_userId)?.toLowerCase().includes(t)
       );
     }
-    if (this.statusFiltro !== 'todos') {
+    if (this.statusFiltro === 'prioridade') {
+      res = res.filter(f => f.check_in_mesmo_dia);
+    } else if (this.statusFiltro !== 'todos') {
       res = res.filter(f => this.getStatus(f) === this.statusFiltro);
     }
     this.faxinasFiltradas = res;
