@@ -22,8 +22,6 @@ import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.co
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
-import { EscalaFaxinaComponent } from './AIRBNB/escala-faxina/escala-faxina.component';
-import { ControleFaxinaComponent } from './AIRBNB/controle-faxina/controle-faxina.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
@@ -33,7 +31,6 @@ import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-v
 import { CadastroPortariasComponent } from './Cadastro/cadastro-portarias/cadastro-portarias.component';
 import { RelatorioGanhosComponent } from './AIRBNB/Relatorios/relatorio-ganhos/relatorio-ganhos.component';
 import { UpladoCSVRelatorioComponent } from './AIRBNB/Relatorios/uplado-csvrelatorio/uplado-csvrelatorio.component';
-import { EscalaFaxina2Component } from './AIRBNB/escala-faxina2/escala-faxina2.component';
 import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
 import { CalendarioPorApartamentoComponent } from './AIRBNB/calendario-por-apartamento/calendario-por-apartamento.component';
 import { TicketReembolsoComponent } from './AIRBNB/ticketReembolso/ticket-reembolso/ticket-reembolso.component';
@@ -67,6 +64,10 @@ import { ReservaModalComponent } from './Reservar/reserva-modal/reserva-modal.co
 import { EstatisticasDemandasComponent } from './AIRBNB/Demandas/estatisticas-demandas/estatisticas-demandas.component';
 import { ScrapperAirbnbComponent } from './AIRBNB/scrapper-airbnb/scrapper-airbnb.component';
 import { InformacoesReservaComponent } from './AIRBNB/informacoes-reserva/informacoes-reserva.component';
+import { EscalaFaxinaComponent } from './AIRBNB/Limpeza/escala-faxina/escala-faxina.component';
+import { ControleFaxinaComponent } from './AIRBNB/Limpeza/controle-faxina/controle-faxina.component';
+import { EscalaFaxina2Component } from './AIRBNB/Limpeza/escala-faxina2/escala-faxina2.component';
+import { DashboardLimpezaComponent } from './AIRBNB/Limpeza/dashboard-limpeza/dashboard-limpeza.component';
 
 @NgModule({
   declarations: [
@@ -123,7 +124,8 @@ import { InformacoesReservaComponent } from './AIRBNB/informacoes-reserva/inform
     ReservaModalComponent,
     EstatisticasDemandasComponent,
     ScrapperAirbnbComponent,
-    InformacoesReservaComponent
+    InformacoesReservaComponent,
+    DashboardLimpezaComponent
   ],
   imports: [
     BrowserModule,

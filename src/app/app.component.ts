@@ -51,6 +51,7 @@ export class AppComponent implements OnInit {
     'suasDemandas',
     'performance',
     'scrapperAirbnb',
+    'DashBoardLimpeza',
 
   ];
 
