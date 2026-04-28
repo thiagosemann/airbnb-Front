@@ -78,6 +78,9 @@ export class NavBarAirbnbComponent {
   controleFaxina(): void {
     this.router.navigate(['/controleFaxina']);
   }
+  dashBoardLimpeza(): void {
+    this.router.navigate(['/dashBoardLimpeza']);
+  }
   vistoria(): void {
     this.router.navigate(['/vistoria']);
   }

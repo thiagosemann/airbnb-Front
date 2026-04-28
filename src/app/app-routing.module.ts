@@ -85,7 +85,7 @@ const routes: Routes = [
   { path: 'scrapperAirbnb', component: ScrapperAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
   { path: 'migrarIcal', component: MigrarICALComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
-  { path: 'DashBoardLimpeza', component: DashboardLimpezaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'dashBoardLimpeza', component: DashboardLimpezaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
 
   { path: 'controleFaxina', component: ControleFaxinaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
