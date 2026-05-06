@@ -1,0 +1,268 @@
+<div class="perf-container">
+
+  <!-- Loading -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Carregando dados...</span>
+  </div>
+
+  <!-- Header -->
+  <div class="perf-header">
+    <div class="header-left">
+      <h2 class="header-title">
+        <i class="fas fa-chart-bar"></i>
+        Performance de Ocupação
+      </h2>
+      <span class="header-subtitle">Análise mensal por apartamento</span>
+    </div>
+
+    <div class="period-selector">
+      <button class="nav-btn" (click)="changeMonth(-1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="period-label-wrap">
+        <span class="period-label">{{ currentMonthLabel }}</span>
+        <span class="period-days-badge">{{ totalDiasNoMes }} dias</span>
+      </div>
+      <button class="nav-btn" (click)="changeMonth(1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="sort-controls">
+      <span class="sort-label">Ordenar por:</span>
+      <button class="sort-btn" [class.active]="sortOrder === 'ocupacao'" (click)="setSortOrder('ocupacao')">
+        Ocupação
+      </button>
+      <button class="sort-btn" [class.active]="sortOrder === 'dias'" (click)="setSortOrder('dias')">
+        Dias
+      </button>
+      <button class="sort-btn" [class.active]="sortOrder === 'nome'" (click)="setSortOrder('nome')">
+        Nome
+      </button>
+    </div>
+
+    <div class="view-toggle">
+      <span class="sort-label">Visualizar:</span>
+      <button class="toggle-btn" [class.active]="viewGrouped" (click)="viewGrouped = true"
+        title="Agrupar por prédio">
+        <i class="fas fa-layer-group"></i> Por Prédio
+      </button>
+      <button class="toggle-btn" [class.active]="!viewGrouped" (click)="viewGrouped = false"
+        title="Mostrar todos os apartamentos">
+        <i class="fas fa-th"></i> Todos
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #dbeafe; color: #3b82f6;">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <div class="stat-body">
+        <span class="stat-number">{{ avgOcupacaoGeral }}%</span>
+        <span class="stat-desc">Ocupação Média Geral</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill" [style.width.%]="avgOcupacaoGeral"
+          [style.background-color]="getOcupacaoColor(avgOcupacaoGeral)"></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #d1fae5; color: #10b981;">
+        <i class="fas fa-building"></i>
+      </div>
+      <div class="stat-body">
+        <span class="stat-number">{{ totalApartamentos }}</span>
+        <span class="stat-desc">Apartamentos Ativos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #fef3c7; color: #f59e0b;">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <div class="stat-body">
+        <span class="stat-number">{{ totalReservas }}</span>
+        <span class="stat-desc">Reservas no Período</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #ede9fe; color: #8b5cf6;">
+        <i class="fas fa-moon"></i>
+      </div>
+      <div class="stat-body">
+        <span class="stat-number">
+          <span class="diarias-reservadas">{{ totalDiasReservadosGeral }}</span>
+          <span class="diarias-sep">/</span>
+          <span class="diarias-total">{{ totalDiasPossivel }}</span>
+        </span>
+        <span class="stat-desc">Diárias Reservadas / Possíveis</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill"
+          [style.width.%]="totalDiasPossivel > 0 ? (totalDiasReservadosGeral / totalDiasPossivel) * 100 : 0"
+          [style.background-color]="'#8b5cf6'">
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card highlight" *ngIf="melhorApartamento">
+      <div class="stat-icon" style="background: #fef9c3; color: #ca8a04;">
+        <i class="fas fa-trophy"></i>
+      </div>
+      <div class="stat-body">
+        <span class="stat-number best-text">{{ melhorApartamento.name }}</span>
+        <span class="stat-desc">Melhor Performance — {{ melhorApartamento.taxaOcupacao }}% ocupação</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE reutilizável para o card de apartamento -->
+  <ng-template #aptCardTpl let-apt="apt" let-showBuilding="showBuilding">
+    <div class="apt-card">
+
+      <!-- Card Header -->
+      <div class="apt-card-top">
+        <div class="apt-color-strip" [style.background-color]="apt.color"></div>
+        <div class="apt-name-wrap">
+          <span class="apt-name">{{ apt.name }}</span>
+        </div>
+        <span class="taxa-badge" [style.background-color]="getOcupacaoColor(apt.taxaOcupacao) + '20'"
+          [style.color]="getOcupacaoColor(apt.taxaOcupacao)"
+          [style.border-color]="getOcupacaoColor(apt.taxaOcupacao)">
+          {{ apt.taxaOcupacao }}%
+        </span>
+      </div>
+
+      <!-- Badge de prédio (apenas na visão plana) -->
+      <div class="building-badge-row" *ngIf="showBuilding">
+        <span class="building-badge" [style.background-color]="apt.color + '20'" [style.color]="apt.color"
+          [style.border-color]="apt.color">
+          <i class="fas fa-building"></i> {{ apt.predioName }}
+        </span>
+      </div>
+
+      <!-- Occupancy Bar -->
+      <div class="occ-bar-wrap">
+        <div class="occ-bar-track">
+          <div class="occ-bar-fill"
+            [style.width.%]="apt.taxaOcupacao"
+            [style.background-color]="getOcupacaoColor(apt.taxaOcupacao)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Source Breakdown Bar -->
+      <div class="source-bar-wrap" *ngIf="apt.diasReservados > 0">
+        <div class="source-bar-track">
+          <div class="source-seg airbnb-seg"
+            [style.width.%]="(apt.airbnbDias / apt.totalDias) * 100"
+            title="Airbnb: {{ apt.airbnbDias }} dias">
+          </div>
+          <div class="source-seg booking-seg"
+            [style.width.%]="(apt.bookingDias / apt.totalDias) * 100"
+            title="Booking: {{ apt.bookingDias }} dias">
+          </div>
+          <div class="source-seg forest-seg"
+            [style.width.%]="(apt.forestDias / apt.totalDias) * 100"
+            title="Forest: {{ apt.forestDias }} dias">
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="apt-metrics">
+        <div class="metric-item">
+          <span class="metric-val">{{ apt.diasReservados }}<span class="metric-total">/{{ apt.totalDias }}</span></span>
+          <span class="metric-lbl">Dias Locados</span>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric-item">
+          <span class="metric-val">{{ apt.reservasCount }}</span>
+          <span class="metric-lbl">Reservas</span>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric-item">
+          <span class="metric-val">{{ apt.mediaEstadia }}</span>
+          <span class="metric-lbl">Média Dias/Res.</span>
+        </div>
+      </div>
+
+      <!-- Source Tags -->
+      <div class="source-tags" *ngIf="apt.airbnbDias > 0 || apt.bookingDias > 0 || apt.forestDias > 0">
+        <span class="src-tag airbnb-tag" *ngIf="apt.airbnbDias > 0">
+          <i class="fab fa-airbnb"></i> {{ apt.airbnbDias }}d
+        </span>
+        <span class="src-tag booking-tag" *ngIf="apt.bookingDias > 0">
+          <i class="fas fa-bed"></i> {{ apt.bookingDias }}d
+        </span>
+        <span class="src-tag forest-tag" *ngIf="apt.forestDias > 0">
+          <i class="fas fa-tree"></i> {{ apt.forestDias }}d
+        </span>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <!-- VIEW: Por Prédio -->
+  <div class="buildings-container" *ngIf="!loading && viewGrouped && buildings.length > 0">
+    <div class="building-section" *ngFor="let building of buildings">
+
+      <div class="building-header" [style.border-left-color]="building.color">
+        <div class="building-info">
+          <span class="building-dot" [style.background-color]="building.color"></span>
+          <span class="building-name">{{ building.predioName }}</span>
+          <span class="building-count">{{ building.apartments.length }} apts</span>
+        </div>
+        <div class="building-avg-wrap">
+          <span class="building-avg-label">Média do prédio:</span>
+          <span class="building-avg-value" [style.color]="getOcupacaoColor(building.avgOcupacao)">
+            {{ building.avgOcupacao }}%
+          </span>
+          <div class="building-mini-bar">
+            <div class="building-mini-fill"
+              [style.width.%]="building.avgOcupacao"
+              [style.background-color]="building.color">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apartments-grid">
+        <ng-container *ngFor="let apt of building.apartments">
+          <ng-container *ngTemplateOutlet="aptCardTpl; context: { apt: apt, showBuilding: false }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: Todos (flat) -->
+  <div class="buildings-container" *ngIf="!loading && !viewGrouped && flatApartments.length > 0">
+    <div class="building-section flat-section">
+      <div class="building-header flat-header">
+        <div class="building-info">
+          <i class="fas fa-th" style="color: #6b7280;"></i>
+          <span class="building-name">Todos os Apartamentos</span>
+          <span class="building-count">{{ flatApartments.length }} apts</span>
+        </div>
+      </div>
+      <div class="apartments-grid">
+        <ng-container *ngFor="let apt of flatApartments">
+          <ng-container *ngTemplateOutlet="aptCardTpl; context: { apt: apt, showBuilding: true }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && buildings.length === 0">
+    <i class="fas fa-chart-bar"></i>
+    <p>Nenhum dado encontrado para o período selecionado.</p>
+  </div>
+
+</div>

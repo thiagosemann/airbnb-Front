@@ -45,6 +45,7 @@ import { EscalaFaxinaComponent } from './AIRBNB/Limpeza/escala-faxina/escala-fax
 import { EscalaFaxina2Component } from './AIRBNB/Limpeza/escala-faxina2/escala-faxina2.component';
 import { ControleFaxinaComponent } from './AIRBNB/Limpeza/controle-faxina/controle-faxina.component';
 import { DashboardLimpezaComponent } from './AIRBNB/Limpeza/dashboard-limpeza/dashboard-limpeza.component';
+import { PerformanceApartamentosComponent } from './AIRBNB/performance-apartamentos/performance-apartamentos.component';
 
 
 const routes: Routes = [
@@ -64,10 +65,13 @@ const routes: Routes = [
   { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'perfomanceApartamentos', component: PerformanceApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+
 
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioSemPasta', component: CalendarioSemPastasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioMobile', component: CalendarioMobileComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+
 
   { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
   { path: 'calendarioDetalhadoMobile/:cod', component: CalendarioMobileComponent },

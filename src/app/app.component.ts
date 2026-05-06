@@ -52,7 +52,7 @@ export class AppComponent implements OnInit {
     'performance',
     'scrapperAirbnb',
     'dashBoardLimpeza',
-
+    'perfomanceApartamentos',
   ];
 
   ngOnInit() {
