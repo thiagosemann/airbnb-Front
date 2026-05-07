@@ -1,300 +1,330 @@
-<!-- controle-ticket-reembolso.component.html -->
-<div class="container">
-  <div class="header-card">
-    <div class="header-title">
-      <i class="bi bi-ticket-detailed"></i>
-      <h1>Tickets de Reembolso</h1>
-    </div>
-    
-    <div class="header-actions">
-      <div class="search-container">
-        <i class="bi bi-search"></i>
-        <input 
-          type="text" 
-          placeholder="Pesquisar tickets..."
-          [(ngModel)]="searchTerm"
-          (input)="filtrarTickets()"
-        >
-      </div>
-      <button class="btn-add" (click)="redirectToNovoTicket()">
-        <i class="bi bi-plus-lg"></i> Novo Ticket
-      </button>
-    </div>
-  </div>
+<div class="container-Reembolso">
+	<div class="header-card">
+		<div class="header-title">
+			<i class="bi bi-ticket-detailed"></i>
+			<h1>Tickets de Reembolso</h1>
+		</div>
 
-  <!-- Cards para mobile -->
-  <div class="tickets-grid d-block d-md-none">
-    <div *ngFor="let ticket of ticketsFiltrados" class="ticket-card">
-      <div class="ticket-header">
-        <div class="ticket-apartment">
-          <i class="bi bi-building"></i>{{ ticket.apartamento_nome }}
-        </div>
-        <div class="ticket-status" [ngClass]="getStatusClass(ticket.status!)">
-          {{ ticket.status }}
-        </div>
-      </div>
-      
-      <div class="ticket-details">
-        <div class="ticket-item">
-          <i class="bi bi-tag"></i> {{ ticket.item_problema }}
-        </div>
-        <div class="ticket-values">
-          <div *ngIf="ticket.valor_material" class="value-item">
-            <span>Valor Total:</span>
-            <strong>R$ {{ ticket.valor_total | number:'1.2-2' }}</strong>
-          </div>
-          <div *ngIf="ticket.created_at" class="value-item text-muted" style="font-size:0.85rem;">
-            <span><i class="bi bi-clock-history"></i> Criado há {{ calcularDiasDesde(ticket.created_at) }} dia(s)</span>
-          </div>
-          <div *ngIf="ticket.link_pagamento" class="value-item" style="font-size:0.85rem;">
-            <a [href]="ticket.link_pagamento" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
-              Link de pagamento
-            </a>
-          </div>
-          <div *ngIf="ticket.auth" class="value-item" style="font-size:0.85rem;">
-            <a [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + ticket.auth" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
-              Link de aceite proprietário
-            </a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="ticket-actions">
-        <button class="btn-edit" (click)="editarTicket(ticket)" title="Editar">
-          <i class="bi bi-pencil"></i>
-        </button>
-        <button class="btn-delete" (click)="excluirTicket(ticket.id!)" title="Excluir">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>
-    </div>
-    
-    <div *ngIf="ticketsFiltrados.length === 0" class="no-results">
-      <i class="bi bi-ticket"></i>
-      <p>Nenhum ticket encontrado</p>
-    </div>
-  </div>
+		<div class="header-actions">
+			<div class="controls-row">
+				<div class="search-container">
+					<i class="bi bi-search"></i>
+					<input type="text" placeholder="Pesquisar tickets..." [(ngModel)]="searchTerm" (input)="filtrarTickets()">
+				</div>
 
-  <!-- Tabela para desktop -->
-  <div class="d-none d-md-block">
-    <div class="table-responsive">
-      <table class="tickets-table">
-        <thead>
-          <tr>
-            <th>Ap</th>
-            <th>Item</th>
-            <th>Status</th>
-            <th>Valor Total (R$)</th>
-            <th>Link Pagamento</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ticket of ticketsFiltrados">
-            <td>{{ ticket.apartamento_nome }}</td>
-            <td>{{ ticket.item_problema }}</td>
-            <td>
-              <span class="status-badge" [ngClass]="getStatusClass(ticket.status!)">
-                {{ ticket.status }}
-              </span>
-            </td>
-            <td>{{ ticket.valor_total| number:'1.2-2' }}</td>
-            <ng-container *ngIf="ticket.link_pagamento">
-              <td><a href="{{ ticket.link_pagamento }}" target="_blank">Abrir Link</a></td>
-            </ng-container>
-            <ng-container *ngIf="!ticket.link_pagamento">
-              <td>N/A</td>
-            </ng-container>
-            <td>
-              <div class="actions">
-                <button class="btn-edit" (click)="editarTicket(ticket)" title="Editar">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn-delete" (click)="excluirTicket(ticket.id!)" title="Excluir">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-              <div *ngIf="ticket.created_at" class="text-muted mt-1" style="font-size:0.85rem;">
-                <i class="bi bi-clock-history"></i> Criado há {{ calcularDiasDesde(ticket.created_at) }} dia(s)
-              </div>
-              <div *ngIf="ticket.auth" class="mt-1" style="font-size:0.85rem;">
-                <a [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + ticket.auth" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
-                  Link de aceite proprietário
-                </a>
-              </div>
-            </td>
-          </tr>
-          <tr *ngIf="ticketsFiltrados.length === 0">
-            <td colspan="6" class="no-results-table">
-              <i class="bi bi-ticket"></i>
-              Nenhum ticket encontrado
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+				<select *ngIf="activeStatusTab === ''" class="form-select control-select" (change)="filtrarTickets()">
+					<option value="">Todos status</option>
+					<option value="PENDENTE">Pendente</option>
+					<option value="REALIZADO">Realizado</option>
+					<option value="PAGO">Pago</option>
+				</select>
 
-  <!-- Modal de edição -->
-  <div class="modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Editar Ticket</h2>
-        <button class="modal-close" (click)="fecharModal()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <form [formGroup]="form">
-          <div class="form-section">
-          <h3><i class="bi bi-info-circle"></i> Apartamento e Status</h3>
-          <div class="form-row">
-            <div class="form-group">
-                <label>Apartamento *</label>
-                <select formControlName="apartamento_id">
-                  <option value="" disabled>Selecione o apartamento</option>
-                  <option *ngFor="let apt of apartamentos" [value]="apt.id">{{ apt.nome }}</option>
-                </select>
-            </div>
-              <div class="form-group">
-                <label>Status *</label>
-                <select formControlName="status">
-                  <option value="PENDENTE">Pendente</option>
-                  <option value="REALIZADO">Realizado</option>
-                  <option value="PAGO">Pago</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="form-section">
-            <h3><i class="bi bi-calendar"></i> Datas </h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Data Realização:</label>
-                <input type="date" formControlName="data_realizado">
-              </div>
-              
-              <div class="form-group">
-                <label>Data Conclusão:</label>
-                <input type="date" formControlName="data_pagamento">
-              </div>
-              <div class="form-group">
-                <label>Criado em:</label>
-                <span class="input-like-span">{{ form.value.created_at | date: 'dd/MM/yyyy' }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="form-section">
-            <h3><i class="bi bi-info-circle"></i> Informações do Ticket</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Item *</label>
-                <input type="text" formControlName="item_problema">
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label>Descrição</label>
-                <textarea rows="3" formControlName="descricao_problema"></textarea>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label>Solução</label>
-                <input type="text" formControlName="solucao">
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-section">
-            <h3><i class="bi bi-cash"></i> Valores</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Valor Material (R$)</label>
-                <input type="number" formControlName="valor_material">
-              </div>
-              
-              <div class="form-group">
-                <label>Valor Mão de Obra (R$)</label>
-                <input type="number" formControlName="valor_mao_obra">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Link Pagamento:</label>
-                <input type="text" formControlName="link_pagamento">
-              </div>
+				<button class="btn-forest" [class.active]="filtroForest" (click)="toggleFiltroForest()" title="Filtrar por responsável Forest">
+					<i class="bi bi-tree"></i> Forest
+				</button>
 
-            </div>
-          </div>
-          
+				<button class="btn-add" (click)="redirectToNovoTicket()">
+					<i class="bi bi-plus-lg"></i> Novo Ticket
+				</button>
 
-          
-          <div class="form-section">
-            <h3><i class="bi bi-paperclip"></i> Arquivos Anexados</h3>
-            <div class="novo-arquivo mt-3">
-              <label class="form-label">Adicionar novo arquivo:</label>
-              <div class="file-input-container">
-                <input type="file" (change)="onFileInputChange($event)" accept="image/*,application/pdf" multiple>
-                <i class="bi bi-cloud-arrow-up"></i>
-                <span>Selecionar arquivos</span>
-              </div>
-              <small class="file-hint">Formatos aceitos: JPG, PNG, PDF (máx. 5MB)</small>
-            </div>
-            <table class="anexos-table" *ngIf="arquivosModal.length > 0">
-              <thead>
-                <tr>
-                  <th>Arquivo</th>
-                  <th class="text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let arquivo of arquivosModal; let i = index">
-                  <td class="arquivo-nome align-middle">
-                      <span  class="pdf-link">
-                        <span>{{ arquivo.file_name || 'Arquivo' }}</span>
-                      </span>
-                  </td>
-                  <td class="text-center align-middle">
-                    <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="baixarArquivo(arquivo, i)" title="Baixar">
-                      <i class="bi bi-download"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="deletarArquivo(arquivo,i)" title="Remover">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+				<!-- Resumo mensal compacto -->
+				<div class="resumo-inline" *ngIf="resumoMensal.length > 0">
+					<button class="nav-mes-btn" (click)="mesSelecionadoIndex = mesSelecionadoIndex + 1" [disabled]="mesSelecionadoIndex >= resumoMensal.length - 1" title="Mês anterior">
+						<i class="bi bi-chevron-left"></i>
+					</button>
+					<div class="resumo-inline-body">
+						<span class="resumo-inline-mes"><i class="bi bi-calendar3"></i> {{ resumoMensal[mesSelecionadoIndex].mes }}</span>
+						<span class="resumo-inline-sep">·</span>
+						<span class="resumo-inline-pago">R$ {{ resumoMensal[mesSelecionadoIndex].totalPago | number:'1.2-2' }}</span>
+						<span class="resumo-inline-sep">/</span>
+						<span class="resumo-inline-total">R$ {{ resumoMensal[mesSelecionadoIndex].total | number:'1.2-2' }}</span>
+						<span class="resumo-inline-sep">·</span>
+						<span class="resumo-inline-qtd">{{ resumoMensal[mesSelecionadoIndex].quantidade }} tickets</span>
+					</div>
+					<button class="nav-mes-btn" (click)="mesSelecionadoIndex = mesSelecionadoIndex - 1" [disabled]="mesSelecionadoIndex <= 0" title="Próximo mês">
+						<i class="bi bi-chevron-right"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-          <div class="form-section">
-            <h3><i class="bi bi-link-45deg"></i> Links</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Link de aceite proprietário:</label>
-                <a *ngIf="form.value.auth" [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + form.value.auth" target="_blank" rel="noopener" class="input-like-span" style="color:#198754;word-break:break-all;">
-                  https://www.apartamentosforest.com.br/aceiteTicketProprietario/{{ form.value.auth }}
-                </a>
-                <span *ngIf="!form.value.auth" class="input-like-span text-muted">Não disponível</span>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <div class="footer-buttons">
-          <button class="btn btn-cancel" type="button" (click)="fecharModal()">
-            <i class="bi bi-x-lg"></i> Cancelar
-          </button>
-          <button class="btn btn-save" type="button" (click)="onSubmit()" [disabled]="form.invalid">
-            <i class="bi bi-check-lg"></i> Salvar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+	<!-- Cards para mobile -->
+	<div class="tickets-grid d-block d-md-none">
+		<div *ngFor="let ticket of ticketsFiltrados" class="ticket-card">
+			<div class="ticket-header">
+				<div class="ticket-apartment">
+					<i class="bi bi-building"></i>{{ ticket.apartamento_nome }}
+				</div>
+				<div class="ticket-status" [ngClass]="getStatusClass(ticket.status!)">
+					{{ ticket.status }}
+				</div>
+			</div>
+
+			<div class="ticket-details">
+				<div class="ticket-item">
+					<i class="bi bi-tag"></i> {{ ticket.item_problema }}
+				</div>
+				<div class="ticket-values">
+					<div *ngIf="ticket.valor_material" class="value-item">
+						<span>Valor Total:</span>
+						<strong>R$ {{ ticket.valor_total | number:'1.2-2' }}</strong>
+					</div>
+					<div *ngIf="ticket.created_at" class="value-item">
+						<span><i class="bi bi-clock-history"></i> Criado há {{ calcularDiasDesde(ticket.created_at) }} dia(s)</span>
+					</div>
+					<div *ngIf="ticket.link_pagamento" class="value-item">
+						<a [href]="ticket.link_pagamento" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
+							Link de pagamento
+						</a>
+					</div>
+					<div *ngIf="ticket.auth" class="value-item">
+						<a [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + ticket.auth" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
+							Link de aceite proprietário
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="ticket-actions">
+				<button class="btn-edit" (click)="editarTicket(ticket)" title="Editar">
+					<i class="bi bi-pencil"></i>
+				</button>
+				<button class="btn-delete" (click)="excluirTicket(ticket.id!)" title="Excluir">
+					<i class="bi bi-trash"></i>
+				</button>
+			</div>
+		</div>
+
+		<div *ngIf="ticketsFiltrados.length === 0" class="no-results">
+			<i class="bi bi-ticket"></i>
+			<p>Nenhum ticket encontrado</p>
+		</div>
+	</div>
+
+	<!-- Tabela para desktop -->
+	<div class="d-none d-md-block">
+		<div class="status-tabs" style="margin-left: 5px;">
+			<button type="button" [class.active]="activeStatusTab === 'PENDENTE'" (click)="setStatusTab('PENDENTE')">Pendentes</button>
+			<button type="button" [class.active]="activeStatusTab === 'REALIZADO'" (click)="setStatusTab('REALIZADO')">Realizados</button>
+			<button type="button" [class.active]="activeStatusTab === 'PAGO'" (click)="setStatusTab('PAGO')">Pagos</button>
+			<button type="button" [class.active]="activeStatusTab === ''" (click)="setStatusTab('')">Todos</button>
+		</div>
+		<div class="table-responsive">
+			<table class="tickets-table">
+				<thead>
+					<tr>
+						<th style="width: 13%;">Apartamento</th>
+						<th style="width: 18%;">Item</th>
+						<th style="width: 10%;">Status</th>
+						<th style="width: 10%;">Valor Total (R$)</th>
+						<th style="width: 10%;">Responsável</th>
+						<th style="width: 13%;">Link Pagamento</th>
+						<th style="width: 26%;">Ações</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let ticket of ticketsFiltrados">
+						<td>{{ ticket.apartamento_nome }}</td>
+						<td>{{ ticket.item_problema }}</td>
+						<td>
+							<span class="status-badge" [ngClass]="getStatusClass(ticket.status!)">
+								{{ ticket.status }}
+							</span>
+						</td>
+						<td>{{ ticket.valor_total | number:'1.2-2' }}</td>
+						<td>{{ getUserName(ticket.user_id) }}</td>
+						<td>
+							<a *ngIf="ticket.link_pagamento" [href]="ticket.link_pagamento" target="_blank" style="color:#198754;">Abrir Link</a>
+							<span *ngIf="!ticket.link_pagamento" class="text-muted">N/A</span>
+						</td>
+						<td>
+							<div class="actions">
+								<button class="btn-edit" (click)="editarTicket(ticket)" title="Editar">
+									<i class="bi bi-pencil"></i>
+								</button>
+								<button class="btn-delete" (click)="excluirTicket(ticket.id!)" title="Excluir">
+									<i class="bi bi-trash"></i>
+								</button>
+							</div>
+							<div *ngIf="ticket.created_at" class="text-muted mt-1" style="font-size:0.82rem;">
+								<i class="bi bi-clock-history"></i> Criado há {{ calcularDiasDesde(ticket.created_at) }} dia(s)
+							</div>
+							<div *ngIf="ticket.auth" class="mt-1" style="font-size:0.82rem;">
+								<a [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + ticket.auth" target="_blank" rel="noopener" style="color:#198754;word-break:break-all;">
+									Link aceite proprietário
+								</a>
+							</div>
+						</td>
+					</tr>
+					<tr *ngIf="ticketsFiltrados.length === 0">
+						<td colspan="7" class="no-results-table">
+							<i class="bi bi-ticket"></i>
+							Nenhum ticket encontrado
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Modal de edição -->
+	<div class="modal-backdrop" *ngIf="showModal">
+		<div class="modal-content" (click)="$event.stopPropagation()">
+			<div class="modal-header">
+				<h2>Editar Ticket</h2>
+				<button class="modal-close" (click)="fecharModal()">
+					<i class="bi bi-x-lg"></i>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<form [formGroup]="form">
+					<div class="form-section">
+						<h3><i class="bi bi-info-circle"></i> Apartamento e Status</h3>
+						<div class="form-row">
+							<div class="form-group">
+								<label>Apartamento *</label>
+								<select formControlName="apartamento_id" class="form-select">
+									<option value="" disabled>Selecione o apartamento</option>
+									<option *ngFor="let apt of apartamentos" [value]="apt.id">{{ apt.nome }}</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Status *</label>
+								<select formControlName="status" class="form-select">
+									<option value="PENDENTE">Pendente</option>
+									<option value="REALIZADO">Realizado</option>
+									<option value="PAGO">Pago</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Responsável</label>
+								<select formControlName="user_id" class="form-select">
+									<option [ngValue]="null">— Nenhum —</option>
+									<option *ngFor="let u of usuarios" [ngValue]="u.id">{{ u.first_name }}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-calendar"></i> Datas</h3>
+						<div class="form-row">
+							<div class="form-group">
+								<label>Data Realização:</label>
+								<input type="date" formControlName="data_realizado" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Data Conclusão:</label>
+								<input type="date" formControlName="data_pagamento" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Criado em:</label>
+								<span class="input-like-span">{{ form.value.created_at | date: 'dd/MM/yyyy' }}</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-info-circle"></i> Informações do Ticket</h3>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Item *</label>
+								<input type="text" formControlName="item_problema" class="form-control">
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Descrição</label>
+								<textarea rows="3" formControlName="descricao_problema" class="form-control" placeholder="Descreva o problema..."></textarea>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Solução</label>
+								<input type="text" formControlName="solucao" class="form-control">
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-cash"></i> Valores</h3>
+						<div class="form-row">
+							<div class="form-group">
+								<label>Valor Material (R$)</label>
+								<input type="number" formControlName="valor_material" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Valor Mão de Obra (R$)</label>
+								<input type="number" formControlName="valor_mao_obra" class="form-control">
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Link Pagamento:</label>
+								<input type="text" formControlName="link_pagamento" class="form-control">
+							</div>
+						</div>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-paperclip"></i> Arquivos Anexados</h3>
+						<div class="novo-arquivo mt-3">
+							<label class="form-label">Adicionar novo arquivo:</label>
+							<div class="file-input-container">
+								<input type="file" (change)="onFileInputChange($event)" accept="image/*,application/pdf" multiple>
+								<i class="bi bi-cloud-arrow-up"></i>
+								<span>Selecionar arquivos</span>
+							</div>
+							<small class="file-hint">Formatos aceitos: JPG, PNG, PDF (máx. 5MB)</small>
+						</div>
+						<table class="anexos-table" *ngIf="arquivosModal.length > 0">
+							<thead>
+								<tr>
+									<th>Arquivo</th>
+									<th class="text-center">Ações</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let arquivo of arquivosModal; let i = index">
+									<td class="arquivo-nome align-middle">
+										<span class="pdf-link">
+											<span>{{ arquivo.file_name || 'Arquivo' }}</span>
+										</span>
+									</td>
+									<td class="text-center align-middle">
+										<button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="baixarArquivo(arquivo, i)" title="Baixar">
+											<i class="bi bi-download"></i>
+										</button>
+										<button class="btn btn-sm btn-outline-danger" (click)="deletarArquivo(arquivo, i)" title="Remover">
+											<i class="bi bi-trash"></i>
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="form-section">
+						<h3><i class="bi bi-link-45deg"></i> Links</h3>
+						<div class="form-row">
+							<div class="form-group" style="min-width: 100%">
+								<label>Link de aceite proprietário:</label>
+								<a *ngIf="form.value.auth" [href]="'https://www.apartamentosforest.com.br/aceiteTicketProprietario/' + form.value.auth" target="_blank" rel="noopener" class="input-like-span" style="color:#198754;word-break:break-all;">
+									https://www.apartamentosforest.com.br/aceiteTicketProprietario/{{ form.value.auth }}
+								</a>
+								<span *ngIf="!form.value.auth" class="input-like-span text-muted">Não disponível</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer-actions">
+						<button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+						<button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="form.invalid">Salvar</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>

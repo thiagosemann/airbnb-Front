@@ -4,6 +4,8 @@ import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB
 import { TicketReembolso, TicketReembolsoArquivo } from 'src/app/shared/utilitarios/ticketReembolso';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { TicketReembolsoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/ticketReembolso_service';
+import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
+import { User } from 'src/app/shared/utilitarios/user';
 
 @Component({
   selector: 'app-ticket-reembolso',
@@ -16,14 +18,17 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
   apartamentos: Apartamento[] = [];
   @ViewChild('inputFile') inputFile!: ElementRef<HTMLInputElement>;
   arquivos: TicketReembolsoArquivo[] = [];
+  currentUser: User | null = null;
 
   constructor(
     private fb: FormBuilder,
     private ticketSrv: TicketReembolsoService,
     private aptoSrv: ApartamentoService,
+    private authSrv: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authSrv.getUser();
     this.initForm();
     this.aptoSrv.getAllApartamentos().subscribe(a => this.apartamentos = a);
   }
@@ -64,7 +69,8 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
       created_at: [null],
       updated_at: [null],
       auth: [''],
-      link_pagamento: ['']
+      link_pagamento: [''],
+      user_id: [this.currentUser?.id ?? null],
     });
   }
 
@@ -114,6 +120,7 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
       updated_at: raw.updated_at || null,
       auth: raw.auth || '',
       link_pagamento: raw.link_pagamento || '',
+      user_id: this.currentUser?.id,
       arquivos: this.arquivos || [],
     };
     this.ticketSrv.createReembolso(payload).subscribe({

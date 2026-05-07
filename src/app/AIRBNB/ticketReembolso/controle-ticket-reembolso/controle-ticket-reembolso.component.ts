@@ -6,6 +6,8 @@ import { TicketReembolsoService } from 'src/app/shared/service/Banco_de_Dados/AI
 import { TicketReembolso, TicketReembolsoArquivo } from 'src/app/shared/utilitarios/ticketReembolso';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
+import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
+import { User } from 'src/app/shared/utilitarios/user';
 
 @Component({
   selector: 'app-controle-ticket-reembolso',
@@ -21,18 +23,26 @@ export class ControleTicketReembolsoComponent implements OnInit {
   arquivosModal: TicketReembolsoArquivo[] = [];
   searchTerm: string = '';
   apartamentos: Apartamento[] = [];
+  usuarios: User[] = [];
+  activeStatusTab: string = 'PENDENTE';
+  filtroForest = false;
+  readonly FOREST_USER_ID = 6641;
+  resumoMensal: { mes: string; total: number; totalPago: number; quantidade: number }[] = [];
+  mesSelecionadoIndex = 0;
 
   constructor(
     private service: TicketReembolsoService,
     private fb: FormBuilder,
     private router: Router,
-    private apartamentoService: ApartamentoService
+    private apartamentoService: ApartamentoService,
+    private userService: UserService,
   ) {}
 
   ngOnInit(): void {
     this.loadTickets();
     this.initForm();
     this.carregarApartamentos();
+    this.carregarUsuarios();
   }
 
   carregarApartamentos() {
@@ -41,13 +51,50 @@ export class ControleTicketReembolsoComponent implements OnInit {
     });
   }
 
+  carregarUsuarios() {
+    this.userService.getUsersByRole('admin').subscribe({
+      next: u => (this.usuarios = u),
+    });
+  }
+
+  getUserName(id: number | undefined): string {
+    if (!id) return '-';
+    const u = this.usuarios.find(x => x.id === id);
+    return u ? u.first_name : '-';
+  }
+
   loadTickets() {
     this.service.getAllReembolsos().subscribe(list => {
       this.tickets = list;
-      this.ticketsFiltrados = [...list];
-      this.ticketsFiltrados.sort((a, b) => Number(b.id) - Number(a.id));
-      this.somarValores();
+      this.tickets.forEach(t => {
+        t.valor_total = (Number(t.valor_material) || 0) + (Number(t.valor_mao_obra) || 0);
+      });
+      this.tickets.sort((a, b) => Number(b.id) - Number(a.id));
+      this.calcularResumoMensal();
+      this.filtrarTickets();
     });
+  }
+
+  calcularResumoMensal() {
+    const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const mapa: { [key: string]: { total: number; totalPago: number; quantidade: number } } = {};
+    this.tickets.forEach(t => {
+      if (!t.created_at) return;
+      const d = new Date(t.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!mapa[key]) mapa[key] = { total: 0, totalPago: 0, quantidade: 0 };
+      mapa[key].total += t.valor_total || 0;
+      if (t.status === 'PAGO') mapa[key].totalPago += t.valor_total || 0;
+      mapa[key].quantidade++;
+    });
+    const chaves = Object.keys(mapa).sort((a, b) => b.localeCompare(a));
+    this.resumoMensal = chaves.map(key => {
+      const [year, month] = key.split('-');
+      return { mes: `${MESES[Number(month) - 1]}/${year}`, ...mapa[key] };
+    });
+    const mesAtual = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const idx = chaves.indexOf(mesAtual);
+    this.mesSelecionadoIndex = idx >= 0 ? idx : 0;
   }
 
   initForm() {
@@ -67,26 +114,39 @@ export class ControleTicketReembolsoComponent implements OnInit {
       created_at: [null],
       updated_at: [null],
       auth: [''],
-      link_pagamento: ['']
+      link_pagamento: [''],
+      user_id: [null],
     });
+  }
+
+  setStatusTab(tab: string) {
+    this.activeStatusTab = tab;
+    this.filtrarTickets();
+  }
+
+  toggleFiltroForest() {
+    this.filtroForest = !this.filtroForest;
+    this.filtrarTickets();
   }
 
   filtrarTickets() {
     const term = this.searchTerm.toLowerCase();
-    this.ticketsFiltrados = this.tickets.filter(t =>
-      t.apartamento_id?.toString().includes(term) ||
-      (t.item_problema ?? '').toLowerCase().includes(term) ||
-      (t.status ?? '').toLowerCase().includes(term)
-    );
+    this.ticketsFiltrados = this.tickets.filter(t => {
+      const matchSearch =
+        (t.apartamento_nome ?? '').toLowerCase().includes(term) ||
+        (t.item_problema ?? '').toLowerCase().includes(term) ||
+        (t.status ?? '').toLowerCase().includes(term);
+      const matchStatus = this.activeStatusTab === '' || (t.status ?? '') === this.activeStatusTab;
+      const matchForest = !this.filtroForest || t.user_id === this.FOREST_USER_ID;
+      return matchSearch && matchStatus && matchForest;
+    });
   }
 
   getStatusClass(status: string): string {
     switch (status) {
       case 'PENDENTE': return 'status-pendente';
-      case 'AUTORIZADO': return 'status-autorizado';
-      case 'AGUARDANDO PAGAMENTO': return 'status-pagamento';
+      case 'REALIZADO': return 'status-realizado';
       case 'PAGO': return 'status-pago';
-      case 'CANCELADO': return 'status-cancelado';
       default: return '';
     }
   }
@@ -163,12 +223,6 @@ export class ControleTicketReembolsoComponent implements OnInit {
       reader.readAsDataURL(file);
     }
     input.value = '';
-  }
-
-  somarValores() {
-    this.ticketsFiltrados.forEach(ticket => {
-      ticket.valor_total = (Number(ticket.valor_material) || 0) + (Number(ticket.valor_mao_obra) || 0);
-    });
   }
 
   baixarArquivo(arquivo: TicketReembolsoArquivo, index: number) {

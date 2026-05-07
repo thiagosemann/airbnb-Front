@@ -24,6 +24,7 @@ export interface TicketReembolso {
   updated_at?: string;
   auth?: string;
   link_pagamento?: string;
+  user_id?: number;
   apartamento_nome?: string; // Nome do apartamento, opcional
   valor_total?: number;
   files?: TicketReembolsoArquivo[];
