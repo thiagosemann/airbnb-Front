@@ -109,6 +109,8 @@
   border-collapse: collapse;
   background: #fff;
   margin-bottom: 2rem;
+  /* overflow: hidden herdado de .panel-base quebra position:sticky no thead */
+  overflow: visible;
 }
 
 .calendar-table th {
