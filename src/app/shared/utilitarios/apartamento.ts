@@ -54,6 +54,7 @@ export interface Apartamento {
   link_ayrton_calendario?: string;
   modificado_user_nome?: string;
   modificado_user_id?: number;
+  user_proprietario_nome?: string;
   data_ultima_modificacao?: string;
   link_anuncio_airbnb?: string;
   link_anuncio_booking?: string;

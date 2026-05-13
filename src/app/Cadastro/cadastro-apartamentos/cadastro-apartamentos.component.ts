@@ -54,6 +54,8 @@ export class CadastroApartamentosComponent implements OnInit {
   exportingXls = false;
   exportProgress = 0;
 
+  loadingApartamentos = false;
+
   // Definição das comodidades do prédio
   amenidadesPredio = [
     { key: 'piscina', label: 'Piscina' },
@@ -307,12 +309,17 @@ export class CadastroApartamentosComponent implements OnInit {
 
   /** Carrega apartamentos e pré-processa nomes de usuário */
   private carregarApartamentos(): void {
+    this.loadingApartamentos = true;
     this.apartamentoService.getAllApartamentos().subscribe({
       next: data => {
         this.apartamentos = data.sort((a, b) => a.nome.localeCompare(b.nome));
         this.apartamentosFiltrados = [...this.apartamentos];
+        this.loadingApartamentos = false;
       },
-      error: err => console.error('Erro ao carregar apartamentos:', err)
+      error: err => {
+        console.error('Erro ao carregar apartamentos:', err);
+        this.loadingApartamentos = false;
+      }
     });
   }
 
@@ -323,7 +330,8 @@ export class CadastroApartamentosComponent implements OnInit {
     } else {
       this.apartamentosFiltrados = this.apartamentos.filter(apt =>
         apt.nome.toLowerCase().includes(termo) ||
-        this.getNomePredio(apt.predio_id).toLowerCase().includes(termo)
+        this.getNomePredio(apt.predio_id).toLowerCase().includes(termo) ||
+        (apt.user_proprietario_nome || '').toLowerCase().includes(termo)
       );
     }
   }
@@ -631,12 +639,20 @@ export class CadastroApartamentosComponent implements OnInit {
     if (!isNaN(d.getTime())) {
       return d.toLocaleDateString('pt-BR');
     }
-    // Fallback para formato YYYY-MM-DD
     const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(String(dataString));
     if (m) {
       return `${m[3]}/${m[2]}/${m[1]}`;
     }
     return String(dataString);
+  }
+
+  formatarDataHora(dataString: string): string {
+    if (!dataString) return '-';
+    const d = new Date(dataString);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+    return this.formatarData(dataString);
   }
 
   /** Insere uma tag na posição do cursor no textarea de instruções */
