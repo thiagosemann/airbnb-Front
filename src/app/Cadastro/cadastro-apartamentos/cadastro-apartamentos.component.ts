@@ -177,7 +177,6 @@ export class CadastroApartamentosComponent implements OnInit {
       air_fryer: [false],
       link_anuncio_airbnb: [''],
       link_anuncio_booking: [''],
-      modificado_user_id: [0],
       data_ultima_modificacao: [''],
       cod_link_proprietario: [''],
       categoria: [''],
@@ -350,8 +349,7 @@ export class CadastroApartamentosComponent implements OnInit {
       enxoval_rostos: 0,
       pedir_selfie: false,
       tem_garagem: false,
-      instrucoes_entrada: '',
-      modificado_user_id: this.currentUserId
+      instrucoes_entrada: ''
     });
   }
 
@@ -360,7 +358,7 @@ export class CadastroApartamentosComponent implements OnInit {
     this.showModal = true;
     this.form.patchValue(apt);
     this.apartamentoSelecionado = apt;
-
+    console.log(apt)
     // Carregar reservas do apartamento
     this.reservasDoApartamento = [];
     this.reservasAgrupadasPorMes = [];
