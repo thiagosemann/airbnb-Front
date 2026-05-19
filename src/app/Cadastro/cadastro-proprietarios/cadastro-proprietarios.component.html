@@ -183,24 +183,37 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Nome *</label>
-                <input type="text" formControlName="first_name" placeholder="Nome do proprietário">
+                <input type="text" formControlName="first_name" placeholder="Nome do proprietário"
+                  [class.input-invalid]="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+                <small class="field-error" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+                  Nome é obrigatório
+                </small>
               </div>
-              
+
               <div class="form-group">
                 <label>Sobrenome</label>
                 <input type="text" formControlName="last_name" placeholder="Sobrenome">
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label>CPF/CNPJ *</label>
-                <input type="text" formControlName="cpf" mask="000.000.000-00||00.000.000/0000-00" placeholder="000.000.000-00 ou 00.000.000/0000-00">
+                <input type="text" formControlName="cpf" mask="000.000.000-00||00.000.000/0000-00" placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                  [class.input-invalid]="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+                <small class="field-error" *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['required']">CPF/CNPJ é obrigatório</ng-container>
+                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['cpfCnpjInvalido']">CPF/CNPJ inválido — verifique os dígitos</ng-container>
+                </small>
               </div>
-              
+
               <div class="form-group">
                 <label>Telefone *</label>
-                <input type="text" formControlName="Telefone" mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+                <input type="text" formControlName="Telefone" mask="(00) 00000-0000" placeholder="(00) 00000-0000"
+                  [class.input-invalid]="userForm.get('Telefone')?.invalid && userForm.get('Telefone')?.touched">
+                <small class="field-error" *ngIf="userForm.get('Telefone')?.invalid && userForm.get('Telefone')?.touched">
+                  Telefone é obrigatório
+                </small>
               </div>
             </div>
             

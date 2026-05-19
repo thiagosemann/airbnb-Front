@@ -191,7 +191,13 @@ export class CadastroProprietariosComponent implements OnInit {
 
   async salvarUsuario() {
     if (this.userForm.invalid) {
-      this.toastr.warning('Preencha os campos obrigatórios');
+      this.userForm.markAllAsTouched();
+      const cpfCtrl = this.userForm.get('cpf');
+      if (cpfCtrl?.errors?.['cpfCnpjInvalido']) {
+        this.toastr.warning('CPF/CNPJ inválido. Verifique o documento informado.');
+      } else {
+        this.toastr.warning('Preencha os campos obrigatórios');
+      }
       return;
     }
 

@@ -196,6 +196,18 @@
   font-size: 1rem;
 }
 
+.input-invalid {
+  border-color: #dc3545 !important;
+  background-color: #fff8f8;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+}
+
 .apartamentos-container {
   display: flex;
   flex-direction: column;
