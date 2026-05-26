@@ -565,6 +565,34 @@
             </div>
           </div>
 
+          <!-- Prioridades de Atendimento -->
+          <div class="col-md-12">
+            <h5 class="section-title">Prioridades de Atendimento</h5>
+            <div class="row">
+              <div class="mb-3 col-md-4">
+                <label class="form-label">Prioridade 1</label>
+                <select class="form-select" formControlName="user_prioridade1">
+                  <option [ngValue]="null">Nenhum</option>
+                  <option *ngFor="let u of terceirizadosP1" [ngValue]="u.id">{{ u.first_name }} {{ u.last_name }}</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label class="form-label">Prioridade 2</label>
+                <select class="form-select" formControlName="user_prioridade2">
+                  <option [ngValue]="null">Nenhum</option>
+                  <option *ngFor="let u of terceirizadosP2" [ngValue]="u.id">{{ u.first_name }} {{ u.last_name }}</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label class="form-label">Prioridade 3</label>
+                <select class="form-select" formControlName="user_prioridade3">
+                  <option [ngValue]="null">Nenhum</option>
+                  <option *ngFor="let u of terceirizadosP3" [ngValue]="u.id">{{ u.first_name }} {{ u.last_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <!-- Instruções de Entrada -->
           <div class="col-md-12">
             <h5 class="section-title">Instruções de Entrada</h5>

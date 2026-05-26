@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
     'scrapperAirbnb',
     'dashBoardLimpeza',
     'perfomanceApartamentos',
+    'disponibilidade-tercerizado'
   ];
 
   ngOnInit() {

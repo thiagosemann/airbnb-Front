@@ -69,6 +69,7 @@ import { ControleFaxinaComponent } from './AIRBNB/Limpeza/controle-faxina/contro
 import { EscalaFaxina2Component } from './AIRBNB/Limpeza/escala-faxina2/escala-faxina2.component';
 import { DashboardLimpezaComponent } from './AIRBNB/Limpeza/dashboard-limpeza/dashboard-limpeza.component';
 import { PerformanceApartamentosComponent } from './AIRBNB/performance-apartamentos/performance-apartamentos.component';
+import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-tercerizado/disponibilidade-tercerizado.component';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import { PerformanceApartamentosComponent } from './AIRBNB/performance-apartamen
     ScrapperAirbnbComponent,
     InformacoesReservaComponent,
     DashboardLimpezaComponent,
-    PerformanceApartamentosComponent
+    PerformanceApartamentosComponent,
+    DisponibilidadeTercerizadoComponent
   ],
   imports: [
     BrowserModule,

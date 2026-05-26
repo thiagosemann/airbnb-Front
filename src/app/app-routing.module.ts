@@ -28,6 +28,7 @@ import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReemb
 import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.component';
 import { ControlePortasComponent } from './AIRBNB/controle-portas/controle-portas.component';
 import { NpsLimpezaComponent } from './AIRBNB/nps-limpeza/nps-limpeza.component';
+import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-tercerizado/disponibilidade-tercerizado.component';
 import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-limpeza-hospede.component';
 import { CalendarioSemPastasComponent } from './AIRBNB/Calendario-Forest/calendario-sem-pastas/calendario-sem-pastas.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
@@ -79,6 +80,7 @@ const routes: Routes = [
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'nps-limpeza', component: NpsLimpezaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'disponibilidade-tercerizado', component: DisponibilidadeTercerizadoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'nps/:apartamentoId/:userId', component: NpsLimpezaHospedeComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
   { path: 'aceiteTicketProprietario/:auth', component: AceiteTicketReembolsoProprietarioComponent },

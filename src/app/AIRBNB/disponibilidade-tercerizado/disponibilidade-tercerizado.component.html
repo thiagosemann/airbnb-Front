@@ -1,0 +1,96 @@
+<div class="container">
+
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-title">
+      <i class="bi bi-calendar2-week-fill"></i>
+      <h1>Disponibilidade dos Terceirizados</h1>
+    </div>
+  </div>
+
+  <!-- Seletor de terceirizado -->
+  <div class="select-card">
+    <label class="select-label">
+      <i class="bi bi-person-fill me-1"></i> Terceirizado
+    </label>
+    <select class="form-select select-user" [(ngModel)]="selectedUserId" (ngModelChange)="onUserChange()">
+      <option [ngValue]="null" disabled>Selecione um terceirizado...</option>
+      <option *ngFor="let u of terceirizados" [ngValue]="u.id">{{ getNomeTerceirizado(u) }}</option>
+    </select>
+  </div>
+
+  <!-- Estado vazio -->
+  <div *ngIf="!selectedUserId" class="empty-state">
+    <i class="bi bi-calendar2-x"></i>
+    <p>Selecione um terceirizado para configurar os limites de limpeza por dia.</p>
+    <small class="text-muted">Dias sem limite configurado permitem qualquer quantidade de limpezas.</small>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="selectedUserId && loading" class="loading-card">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p>Carregando disponibilidade...</p>
+  </div>
+
+  <!-- Grid de dias -->
+  <div *ngIf="selectedUserId && !loading" class="dias-section">
+    <div class="dias-info">
+      <i class="bi bi-info-circle me-1"></i>
+      Defina o máximo de limpezas por dia. Deixe em branco para <strong>sem limite</strong>.
+    </div>
+
+    <div class="dias-grid">
+      <div
+        *ngFor="let dia of dias; trackBy: trackByDia"
+        class="dia-card"
+        [class.dia-limitado]="dia.value !== null && dia.value !== undefined && dia.value.toString() !== ''"
+        [class.dia-modificado]="dia.value !== dia.originalValue"
+      >
+        <div class="dia-header">
+          <span class="dia-abrev">{{ dia.abrev }}</span>
+          <span class="dia-label">{{ dia.label }}</span>
+        </div>
+        <div class="dia-body">
+          <input
+            type="number"
+            class="form-control dia-input"
+            min="0"
+            [value]="dia.value ?? ''"
+            (input)="onDiaInput(dia, $event)"
+            placeholder="Sem limite"
+          >
+        </div>
+        <div class="dia-status">
+          <span *ngIf="dia.value !== null && dia.value !== undefined && dia.value.toString() !== ''" class="badge-limitado">
+            Máx {{ dia.value }} limpeza{{ dia.value !== 1 ? 's' : '' }}
+          </span>
+          <span *ngIf="dia.value === null || dia.value === undefined || dia.value.toString() === ''" class="badge-livre">
+            Sem limite
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer com botão salvar -->
+    <div class="save-footer">
+      <span *ngIf="!hasMudancas" class="text-muted save-hint">
+        <i class="bi bi-check2-circle me-1"></i> Nenhuma alteração pendente
+      </span>
+      <span *ngIf="hasMudancas" class="save-hint-pending">
+        <i class="bi bi-pencil-square me-1"></i> Há alterações não salvas
+      </span>
+      <button
+        class="btn-save"
+        [disabled]="!hasMudancas || saving"
+        (click)="salvar()"
+      >
+        <span *ngIf="saving" class="spinner-border spinner-border-sm me-1" role="status"></span>
+        <i *ngIf="!saving" class="bi bi-floppy me-1"></i>
+        {{ saving ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+
+</div>

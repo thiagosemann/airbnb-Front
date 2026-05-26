@@ -134,6 +134,9 @@ export class NavBarAirbnbComponent {
   npsLimpeza(): void {
     this.router.navigate(['/nps-limpeza']);
   }
+  disponibilidadeTercerizado(): void {
+    this.router.navigate(['/disponibilidade-tercerizado']);
+  }
   toggleMobileDropdown(dropdownName: string): void {
     // Fecha todos os outros dropdowns
     Object.keys(this.mobileDropdowns).forEach(key => {

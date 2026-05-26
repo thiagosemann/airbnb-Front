@@ -75,6 +75,7 @@ export class CadastroApartamentosComponent implements OnInit {
   ];
 
   selectedPredio: Predio | null = null;
+  terceirizados: User[] = [];
 
   // Tags disponíveis para instruções de entrada
   tagsDisponiveis = [
@@ -183,7 +184,10 @@ export class CadastroApartamentosComponent implements OnInit {
       cod_link_proprietario: [''],
       categoria: [''],
       tipo_anuncio_repasse: [''],
-      instrucoes_entrada: ['']
+      instrucoes_entrada: [''],
+      user_prioridade1: [null],
+      user_prioridade2: [null],
+      user_prioridade3: [null]
     });
 
     // Adiciona sub-FormGroup para as amenidades do prédio
@@ -199,6 +203,11 @@ export class CadastroApartamentosComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.userService.getUsersByRole('terceirizado').subscribe({
+      next: users => this.terceirizados = users,
+      error: err => console.error('Erro ao carregar terceirizados:', err)
+    });
+
     // Carrega prédios primeiro
     this.predioService.getAllPredios().subscribe({
       next: preds => {
@@ -677,6 +686,24 @@ export class CadastroApartamentosComponent implements OnInit {
       // Fallback: append no final
       control.setValue((control.value || '') + tagStr);
     }
+  }
+
+  get terceirizadosP1(): User[] {
+    const p2 = this.form.get('user_prioridade2')?.value;
+    const p3 = this.form.get('user_prioridade3')?.value;
+    return this.terceirizados.filter(u => u.id !== p2 && u.id !== p3);
+  }
+
+  get terceirizadosP2(): User[] {
+    const p1 = this.form.get('user_prioridade1')?.value;
+    const p3 = this.form.get('user_prioridade3')?.value;
+    return this.terceirizados.filter(u => u.id !== p1 && u.id !== p3);
+  }
+
+  get terceirizadosP3(): User[] {
+    const p1 = this.form.get('user_prioridade1')?.value;
+    const p2 = this.form.get('user_prioridade2')?.value;
+    return this.terceirizados.filter(u => u.id !== p1 && u.id !== p2);
   }
 
   /** Preview: substitui tags pelos valores reais do formulário */
