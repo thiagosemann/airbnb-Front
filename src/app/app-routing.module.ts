@@ -66,7 +66,7 @@ const routes: Routes = [
   { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
-  { path: 'perfomanceApartamentos', component: PerformanceApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'performanceApartamentos', component: PerformanceApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
 
   { path: 'calendario', component: CalendarioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },

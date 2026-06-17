@@ -131,6 +131,9 @@ export class NavBarAirbnbComponent {
   relatorioGanhos(): void {
     this.router.navigate(['/relatoriosGanhos']);
   }
+  performanceApartamentos(): void {
+    this.router.navigate(['/performanceApartamentos']);
+  }
   npsLimpeza(): void {
     this.router.navigate(['/nps-limpeza']);
   }

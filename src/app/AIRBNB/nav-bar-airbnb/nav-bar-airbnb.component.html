@@ -75,7 +75,7 @@
               <li><a class="dropdown-item" (click)="suasDemandas()">Suas Demandas</a></li>
               <li><a class="dropdown-item" (click)="controleDemandas()">Controle Demandas</a></li>
               <li *ngIf="user.id === 1 || user.id === 4"><a class="dropdown-item"
-                  (click)="performance()">Performance</a></li>
+                  (click)="performance()">Performance Equipe</a></li>
             </ul>
           </div>
 
@@ -102,6 +102,7 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" (click)="subirCSVRelatorio()">Subir CSV</a></li>
               <li><a class="dropdown-item" (click)="relatorioNF(); toggleMenu()">Relatório NF</a></li>
+              <li><a class="dropdown-item" (click)="performanceApartamentos(); toggleMenu()">Performance</a></li>
 
             </ul>
           </div>
@@ -189,7 +190,7 @@
             <div class="mobile-dropdown-menu">
               <button (click)="controleDemandas(); toggleMenu()">Controle Demandas</button>
               <button (click)="suasDemandas(); toggleMenu()">Suas Demandas</button>
-              <button *ngIf="user.id === 1 || user.id === 4" (click)="performance(); toggleMenu()">Performance</button>
+              <button *ngIf="user.id === 1 || user.id === 4" (click)="performance(); toggleMenu()">Performance Equipe</button>
             </div>
           </div>
 
@@ -217,7 +218,8 @@
             </button>
             <div class="mobile-dropdown-menu">
               <button (click)="subirCSVRelatorio(); toggleMenu()">Subir CSV</button>
-              <button (click)="relatorioNF(); toggleMenu()">Subir CSV</button>
+              <button (click)="relatorioNF(); toggleMenu()">Relatório NF</button>
+              <button (click)="performanceApartamentos(); toggleMenu()">Performance</button>
 
             </div>
           </div>
