@@ -31,15 +31,15 @@
 
             </ul>
           </div>
-          <!-- Faxinas -->
+          <!-- Limpezas -->
           <div class="dropdown">
             <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-broom"></i> Faxinas
+              <i class="fas fa-broom"></i> Limpezas
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" (click)="dashBoardLimpeza()">Dashboard</a></li>
-              <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Faxina</a></li>
-              <li><a class="dropdown-item" (click)="controleFaxina()">Controle Faxina</a></li>
+              <li><a class="dropdown-item" (click)="escalaFaxinaAdmin()">Escala Limpeza</a></li>
+              <li><a class="dropdown-item" (click)="controleFaxina()">Controle Limpeza</a></li>
               <li><a class="dropdown-item" (click)="npsLimpeza()">NPS Limpeza</a></li>
               <li><a class="dropdown-item" (click)="disponibilidadeTercerizado()">Disponibilidade</a></li>
             </ul>
@@ -79,10 +79,10 @@
             </ul>
           </div>
 
-          <!-- Gerenciamento -->
+          <!-- Cadastro -->
           <div class="dropdown">
             <button class="navbar-perfil-btn dropdown-toggle" type="button">
-              <i class="fas fa-gear"></i> Gerenciamento
+              <i class="fas fa-gear"></i> Cadastro
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" (click)="cadastroPredio()">Prédios</a></li>
@@ -143,15 +143,15 @@
             Pasta</button>
           <button (click)="calendarioMobile(); toggleMenu()"><i class="fas fa-calendar"></i> Calendário Mobile</button>
 
-          <!-- Dropdown para Faxinas -->
+          <!-- Dropdown para Limpezas -->
           <div class="mobile-dropdown" [class.active]="mobileDropdowns['faxinas']">
             <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('faxinas')">
-              <i class="fas fa-broom"></i> Faxinas <i class="dropdown-arrow fas"
+              <i class="fas fa-broom"></i> Limpezas <i class="dropdown-arrow fas"
                 [ngClass]="mobileDropdowns['faxinas'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
             </button>
             <div class="mobile-dropdown-menu">
-              <button (click)="escalaFaxinaAdmin(); toggleMenu()">Escala Faxina</button>
-              <button (click)="controleFaxina(); toggleMenu()">Controle Faxina</button>
+              <button (click)="escalaFaxinaAdmin(); toggleMenu()">Escala Limpeza</button>
+              <button (click)="controleFaxina(); toggleMenu()">Controle Limpeza</button>
               <button (click)="npsLimpeza(); toggleMenu()">NPS Limpeza</button>
               <button (click)="disponibilidadeTercerizado(); toggleMenu()">Disponibilidade</button>
             </div>
@@ -194,10 +194,10 @@
             </div>
           </div>
 
-          <!-- Dropdown para Gerenciamento -->
+          <!-- Dropdown para Cadastro -->
           <div class="mobile-dropdown" [class.active]="mobileDropdowns['gerenciamento']">
             <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('gerenciamento')">
-              <i class="fas fa-gear"></i> Gerenciamento <i class="dropdown-arrow fas"
+              <i class="fas fa-gear"></i> Cadastro <i class="dropdown-arrow fas"
                 [ngClass]="mobileDropdowns['gerenciamento'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
             </button>
             <div class="mobile-dropdown-menu">
