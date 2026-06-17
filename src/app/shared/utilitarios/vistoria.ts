@@ -47,4 +47,5 @@ export interface Vistoria {
   // Check
   usuario_nome?:string;
   apartamento_nome?:string;
+  apartamento_ativo?: number; // 1 = ativo, 0 = inativo
 }

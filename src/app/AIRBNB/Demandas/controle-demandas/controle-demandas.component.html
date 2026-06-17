@@ -39,6 +39,7 @@
 			<div class="ticket-header">
 				<div class="ticket-apartment">
 					<i class="bi bi-building"></i>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}
+					<span *ngIf="d.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
 				</div>
 				<div class="ticket-status" [ngClass]="getStatusClass(d.status)">
 					{{ d.status }}
@@ -135,7 +136,9 @@
 						<td>
 							<span class="type-badge" [ngClass]="getTypeClass(d.type)">{{ displayTipo(d.type) }}</span>
 						</td>
-						<td>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}</td>
+						<td>{{ d.apartamento_nome || getAptoNome(d.apartamento_id) }}
+							<span *ngIf="d.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
+						</td>
 						<td>{{ getUserName(d.user_id_responsavel) }}</td>
 						<td class="demanda-text one-line">
 							<div class="demanda-row">

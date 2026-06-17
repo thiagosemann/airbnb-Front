@@ -56,6 +56,9 @@ export class CadastroApartamentosComponent implements OnInit {
 
   loadingApartamentos = false;
 
+  // Quando true, a lista mostra apartamentos inativos em vez dos ativos
+  verInativos = false;
+
   // Definição das comodidades do prédio
   amenidadesPredio = [
     { key: 'piscina', label: 'Piscina' },
@@ -316,10 +319,13 @@ export class CadastroApartamentosComponent implements OnInit {
     });
   }
 
-  /** Carrega apartamentos e pré-processa nomes de usuário */
+  /** Carrega apartamentos (ativos ou inativos) e pré-processa nomes de usuário */
   private carregarApartamentos(): void {
     this.loadingApartamentos = true;
-    this.apartamentoService.getAllApartamentos().subscribe({
+    const fonte = this.verInativos
+      ? this.apartamentoService.getApartamentosInativos()
+      : this.apartamentoService.getAllApartamentos();
+    fonte.subscribe({
       next: data => {
         this.apartamentos = data.sort((a, b) => a.nome.localeCompare(b.nome));
         this.apartamentosFiltrados = [...this.apartamentos];
@@ -330,6 +336,12 @@ export class CadastroApartamentosComponent implements OnInit {
         this.loadingApartamentos = false;
       }
     });
+  }
+
+  /** Alterna entre a lista de ativos e inativos */
+  toggleVerInativos(): void {
+    this.verInativos = !this.verInativos;
+    this.carregarApartamentos();
   }
 
   filtrarApartamentos(event: Event): void {
@@ -558,15 +570,19 @@ export class CadastroApartamentosComponent implements OnInit {
     }));
   }
 
-  excluirApartamento(id: number): void {
-    if (!id) return;
-    if (!confirm('Tem certeza que deseja excluir este apartamento?')) return;
-    this.apartamentoService.deleteApartamento(id).subscribe({
+  alterarStatusApartamento(apt: Apartamento, ativar: boolean): void {
+    if (!apt?.id) return;
+    const msg = ativar
+      ? 'Reativar este apartamento? Ele volta para a carteira e para as limpezas.'
+      : 'Inativar este apartamento? Ele sai da carteira e das limpezas, mas o histórico é mantido.';
+    if (!confirm(msg)) return;
+
+    this.apartamentoService.setApartamentoStatus(apt.id, ativar).subscribe({
       next: () => {
-        this.toastr.success('Apartamento excluído com sucesso!');
+        this.toastr.success(`Apartamento ${ativar ? 'reativado' : 'inativado'} com sucesso!`);
         this.carregarApartamentos();
       },
-      error: () => this.toastr.error('Erro ao excluir apartamento')
+      error: () => this.toastr.error(`Erro ao ${ativar ? 'reativar' : 'inativar'} apartamento`)
     });
   }
 

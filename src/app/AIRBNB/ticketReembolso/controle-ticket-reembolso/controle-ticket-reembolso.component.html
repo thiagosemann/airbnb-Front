@@ -55,6 +55,7 @@
 			<div class="ticket-header">
 				<div class="ticket-apartment">
 					<i class="bi bi-building"></i>{{ ticket.apartamento_nome }}
+					<span *ngIf="ticket.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
 				</div>
 				<div class="ticket-status" [ngClass]="getStatusClass(ticket.status!)">
 					{{ ticket.status }}
@@ -125,7 +126,9 @@
 				</thead>
 				<tbody>
 					<tr *ngFor="let ticket of ticketsFiltrados">
-						<td>{{ ticket.apartamento_nome }}</td>
+						<td>{{ ticket.apartamento_nome }}
+							<span *ngIf="ticket.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
+						</td>
 						<td>{{ ticket.item_problema }}</td>
 						<td>
 							<span class="status-badge" [ngClass]="getStatusClass(ticket.status!)">

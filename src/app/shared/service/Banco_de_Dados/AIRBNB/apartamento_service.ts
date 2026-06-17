@@ -35,6 +35,21 @@ export class ApartamentoService {
     return this.http.delete(`${this.url}/apartamentos-airbnb/${id}`, { headers: this.getHeaders() });
   }
 
+  // Ativa (is_active=1) ou inativa (is_active=0) um apartamento.
+  // Inativar faz cascade inativando os vínculos com empresas no backend.
+  setApartamentoStatus(id: number, isActive: boolean): Observable<any> {
+    return this.http.patch(
+      `${this.url}/apartamentos-airbnb/${id}/status`,
+      { is_active: isActive ? 1 : 0 },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Lista apartamentos inativos (is_active = 0) da empresa
+  getApartamentosInativos(): Observable<Apartamento[]> {
+    return this.http.get<Apartamento[]>(`${this.url}/apartamentos-airbnb/inativos`, { headers: this.getHeaders() });
+  }
+
   getApartamentosByPredio(predioId: number): Observable<Apartamento[]> {
     return this.http.get<Apartamento[]>(`${this.url}/apartamentos-airbnb/predios/${predioId}`, { headers: this.getHeaders() });
   }

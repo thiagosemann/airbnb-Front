@@ -40,6 +40,7 @@
       <div class="ticket-header">
         <div class="ticket-apartment">
           <i class="bi bi-building"></i>{{ nps.apartamento_nome || getApartamentoNome(nps.apartamento_id) }}
+          <span *ngIf="nps.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
         </div>
         <div class="ticket-status" [ngClass]="getNotaBadgeClass(nps.nota_geral)">
           Nota: {{ nps.nota_geral }}
@@ -93,7 +94,9 @@
         </thead>
         <tbody>
           <tr *ngFor="let nps of npsFiltrados">
-            <td>{{ nps.apartamento_nome || getApartamentoNome(nps.apartamento_id) }}</td>
+            <td>{{ nps.apartamento_nome || getApartamentoNome(nps.apartamento_id) }}
+              <span *ngIf="nps.apartamento_ativo === 0" class="badge bg-secondary ms-1">Inativo</span>
+            </td>
             <td>{{ getUserNome(nps.user_id, nps.terceirizado_nome) }}</td>
             <td>
               <span class="status-badge" [ngClass]="getNotaBadgeClass(nps.nota_geral)">

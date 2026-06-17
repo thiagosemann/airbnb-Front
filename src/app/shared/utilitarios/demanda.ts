@@ -14,4 +14,5 @@ export interface Demanda {
   apartamento_nome?: string; // retornado pelo JOIN do backend
   apartamento_endereco?: string;
   apartamento_senha_porta?: string;
+  apartamento_ativo?: number; // 1 = ativo, 0 = inativo
 }

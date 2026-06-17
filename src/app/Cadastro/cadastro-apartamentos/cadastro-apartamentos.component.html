@@ -24,6 +24,10 @@
       <button class="btn-add" (click)="abrirModal()">
         <i class="bi bi-plus-lg"></i> Novo
       </button>
+      <button class="btn-export" (click)="toggleVerInativos()" [title]="verInativos ? 'Ver apartamentos ativos' : 'Ver apartamentos inativos'">
+        <i class="bi" [ngClass]="verInativos ? 'bi-check-circle' : 'bi-archive'"></i>
+        {{ verInativos ? 'Ver ativos' : 'Ver inativos' }}
+      </button>
       <button class="btn-export" (click)="baixarXls()" [disabled]="exportingXls">
         <i class="bi bi-file-earmark-excel"></i>
         <ng-container *ngIf="!exportingXls; else loadingXlsTpl">Baixar XLS</ng-container>
@@ -73,8 +77,11 @@
         <button class="btn-edit" (click)="editarApartamento(apt)" title="Editar">
           <i class="bi bi-pencil"></i>
         </button>
-        <button class="btn-delete" (click)="excluirApartamento(apt.id)" title="Excluir">
-          <i class="bi bi-trash"></i>
+        <button *ngIf="!verInativos" class="btn-delete" (click)="alterarStatusApartamento(apt, false)" title="Inativar">
+          <i class="bi bi-box-arrow-down"></i>
+        </button>
+        <button *ngIf="verInativos" class="btn-edit" (click)="alterarStatusApartamento(apt, true)" title="Reativar">
+          <i class="bi bi-arrow-counterclockwise"></i>
         </button>
       </div>
     </div>
@@ -122,8 +129,11 @@
                 <button class="btn-edit" (click)="editarApartamento(apt)" title="Editar">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn-delete" (click)="excluirApartamento(apt.id)" title="Excluir">
-                  <i class="bi bi-trash"></i>
+                <button *ngIf="!verInativos" class="btn-delete" (click)="alterarStatusApartamento(apt, false)" title="Inativar">
+                  <i class="bi bi-box-arrow-down"></i>
+                </button>
+                <button *ngIf="verInativos" class="btn-edit" (click)="alterarStatusApartamento(apt, true)" title="Reativar">
+                  <i class="bi bi-arrow-counterclockwise"></i>
                 </button>
               </div>
             </td>
@@ -620,7 +630,10 @@
 
           <!-- Reservas do Apartamento -->
           <div class="col-md-12" *ngIf="isEditing">
-            <h5 class="section-title">Reservas do Apartamento</h5>
+            <h5 class="section-title">
+              Reservas do Apartamento
+              <span *ngIf="verInativos" class="badge bg-secondary ms-1">Apartamento inativo</span>
+            </h5>
 
             <div *ngIf="reservasLoading" class="text-center text-muted py-3">
               <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>

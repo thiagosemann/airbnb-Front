@@ -69,4 +69,6 @@ export interface Apartamento {
   enxoval_rostos?: number;
   pedir_selfie?: boolean;
   instrucoes_entrada?: string;
+  is_active?: number;          // 1 = ativo (na carteira), 0 = inativo
+  apartamento_ativo?: number;  // 1/0 — status do apartamento retornado nas telas de histórico
 }

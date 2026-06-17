@@ -18,6 +18,7 @@ export interface NpsLimpeza {
 
   // Campos vindos dos JOINs do backend
   apartamento_nome?: string;
+  apartamento_ativo?: number; // 1 = ativo, 0 = inativo
   terceirizado_nome?: string;
 }
 
