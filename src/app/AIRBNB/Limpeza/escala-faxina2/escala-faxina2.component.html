@@ -145,7 +145,10 @@
       <tr *ngFor="let faxina of faxinasFiltradas" [class.cancelada]="faxina.description === 'CANCELADA'">
           <td>{{ faxina.end_data }}</td>
           <td>{{ getDiaDaSemana(faxina.end_data) }}</td>
-          <td>{{ faxina.apartamento_nome }}</td>
+          <td>
+            {{ faxina.apartamento_nome }}
+            <span *ngIf="faxina.apartamento_ativo === 0" class="badge bg-secondary ms-1" style="font-size:0.7em;">Inativo</span>
+          </td>
           <td>{{ faxina.check_out }} - {{ formatarCheckInMesmoDia(faxina) }}</td>
           <td>{{ faxina.apartamento_senha }}</td>
           <td>
@@ -189,7 +192,10 @@
                 [class.limpeza-badge]="faxina.description === 'LIMPEZA'">
             {{ faxina.description === 'CANCELADA' ? 'Cancelada' : (faxina.description === 'LIMPEZA' ? 'Limpeza Manual' : 'Reserva') }}
           </span>
-          <span class="card-title">Apt: {{ faxina.apartamento_nome }}</span>
+          <span class="card-title">
+            Apt: {{ faxina.apartamento_nome }}
+            <span *ngIf="faxina.apartamento_ativo === 0" class="badge bg-secondary ms-1" style="font-size:0.75em;">Inativo</span>
+          </span>
         </div>
         
         <div class="card-content">

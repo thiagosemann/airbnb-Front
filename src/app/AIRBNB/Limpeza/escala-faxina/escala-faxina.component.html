@@ -37,7 +37,10 @@
             [class.cancelada]="faxina.description === 'CANCELADA'">
 
           <div class="card-header">
-            <h3>Apt {{ faxina.apartamento_nome }}</h3>
+            <h3>
+              Apt {{ faxina.apartamento_nome }}
+              <span *ngIf="faxina.apartamento_ativo === 0" class="badge bg-secondary ms-1" style="font-size:0.7em;">Inativo</span>
+            </h3>
             <ng-container *ngIf="faxina.description === 'CANCELADA'">
                 <span class="status-badge" [class.done]="faxina.limpeza_realizada">
                   {{ '❌ CANCELADA' }}
@@ -116,11 +119,14 @@
         <div *ngIf="!carregandoFuturas && faxinasFuturas.length === 0" class="no-data">
           Nenhuma faxina encontrada para o período selecionado.
         </div>
-        <div *ngFor="let faxina of faxinasFuturas"  
-             class="faxina-card"   
+        <div *ngFor="let faxina of faxinasFuturas"
+             class="faxina-card"
              [class.cancelada]="faxina.description === 'CANCELADA'">
           <div class="card-header">
-            <h3>Apt {{ faxina.apartamento_nome }}</h3>
+            <h3>
+              Apt {{ faxina.apartamento_nome }}
+              <span *ngIf="faxina.apartamento_ativo === 0" class="badge bg-secondary ms-1" style="font-size:0.7em;">Inativo</span>
+            </h3>
             <ng-container *ngIf="faxina.description === 'CANCELADA'">
                 <span class="status-badge" [class.done]="faxina.limpeza_realizada">
                   {{ '❌ CANCELADA' }}

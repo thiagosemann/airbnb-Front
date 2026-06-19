@@ -35,4 +35,5 @@ export interface ReservaAirbnb {
   late_checkout?: boolean;
   origem?: string;
   precisa_limpeza?: boolean;
+  apartamento_ativo?: number; // 1 = ativo, 0 = inativo
 }
