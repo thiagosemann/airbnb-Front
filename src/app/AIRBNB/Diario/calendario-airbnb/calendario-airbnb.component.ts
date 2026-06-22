@@ -59,6 +59,13 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   selectedApartamento: Apartamento | null = null;
   instrucoesResolvidas: string = '';
 
+  // Modal de horário Early/Late
+  showEarlyTimeModal: boolean = false;
+  showLateTimeModal: boolean = false;
+  pendingTimeReserva: ReservaAirbnb | null = null;
+  earlyTimeInput: string = '';
+  lateTimeInput: string = '';
+
   constructor(
     private reservasAirbnbService: ReservasAirbnbService,
     private checkinFormService: CheckInFormService,
@@ -818,6 +825,99 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  }
+
+  getCheckInDisplay(event: ReservaAirbnb): string {
+    if (event.early_checkin || this.hasPaymentType('early', event)) {
+      return event.check_in || '15:00';
+    }
+    return this.getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []);
+  }
+
+  openEarlyTimeModal(reserva: ReservaAirbnb, domEvent: Event): void {
+    domEvent.preventDefault();
+    if (reserva.early_checkin) {
+      reserva.early_checkin = false;
+      reserva.start_date = this.formatarDataBanco(reserva.start_date);
+      reserva.end_data = this.formatarDataBanco(reserva.end_data);
+      this.reservasAirbnbService.updateReserva(reserva).subscribe({
+        error: (err) => console.error('Erro ao atualizar reserva', err)
+      });
+      return;
+    }
+    this.pendingTimeReserva = reserva;
+    this.earlyTimeInput = reserva.check_in || '15:00';
+    this.showEarlyTimeModal = true;
+  }
+
+  confirmEarlyTime(): void {
+    if (!this.pendingTimeReserva) return;
+    if (!this.earlyTimeInput) {
+      this.toastr.warning('Informe o horário de early check-in.');
+      return;
+    }
+    const reserva = this.pendingTimeReserva;
+    reserva.check_in = this.earlyTimeInput;
+    reserva.early_checkin = true;
+    reserva.start_date = this.formatarDataBanco(reserva.start_date);
+    reserva.end_data = this.formatarDataBanco(reserva.end_data);
+    this.reservasAirbnbService.updateReserva(reserva).subscribe({
+      next: () => this.toastr.success('Early check-in atualizado!'),
+      error: (err) => {
+        console.error('Erro ao atualizar reserva', err);
+        this.toastr.error('Erro ao atualizar reserva.');
+      }
+    });
+    this.showEarlyTimeModal = false;
+    this.pendingTimeReserva = null;
+  }
+
+  closeEarlyTimeModal(): void {
+    this.showEarlyTimeModal = false;
+    this.pendingTimeReserva = null;
+  }
+
+  openLateTimeModal(reserva: ReservaAirbnb, domEvent: Event): void {
+    domEvent.preventDefault();
+    if (reserva.late_checkout) {
+      reserva.late_checkout = false;
+      reserva.start_date = this.formatarDataBanco(reserva.start_date);
+      reserva.end_data = this.formatarDataBanco(reserva.end_data);
+      this.reservasAirbnbService.updateReserva(reserva).subscribe({
+        error: (err) => console.error('Erro ao atualizar reserva', err)
+      });
+      return;
+    }
+    this.pendingTimeReserva = reserva;
+    this.lateTimeInput = reserva.check_out || '12:00';
+    this.showLateTimeModal = true;
+  }
+
+  confirmLateTime(): void {
+    if (!this.pendingTimeReserva) return;
+    if (!this.lateTimeInput) {
+      this.toastr.warning('Informe o horário de late check-out.');
+      return;
+    }
+    const reserva = this.pendingTimeReserva;
+    reserva.check_out = this.lateTimeInput;
+    reserva.late_checkout = true;
+    reserva.start_date = this.formatarDataBanco(reserva.start_date);
+    reserva.end_data = this.formatarDataBanco(reserva.end_data);
+    this.reservasAirbnbService.updateReserva(reserva).subscribe({
+      next: () => this.toastr.success('Late check-out atualizado!'),
+      error: (err) => {
+        console.error('Erro ao atualizar reserva', err);
+        this.toastr.error('Erro ao atualizar reserva.');
+      }
+    });
+    this.showLateTimeModal = false;
+    this.pendingTimeReserva = null;
+  }
+
+  closeLateTimeModal(): void {
+    this.showLateTimeModal = false;
+    this.pendingTimeReserva = null;
   }
 
 }

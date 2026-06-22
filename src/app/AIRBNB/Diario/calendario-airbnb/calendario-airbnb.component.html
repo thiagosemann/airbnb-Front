@@ -101,10 +101,7 @@
               </div>
               <div class="info-item">
                 <i class="fas fa-door-open"></i>
-                <span>
-                  Check-in: {{ event.check_in }}
-                  | Previsto: {{ getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}
-                </span>
+                <span>Check-in: {{ getCheckInDisplay(event) }}</span>
               </div>
             </div>
 
@@ -135,7 +132,7 @@
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox"
                     [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin"
-                    [disabled]="hasPaymentType('early', event)" (change)="updateStatus(event, 'early_checkin', $event)">
+                    [disabled]="hasPaymentType('early', event)" (click)="!hasPaymentType('early', event) && openEarlyTimeModal(event, $event)">
                 </div>
               </div>
               <div class="status-check-item">
@@ -143,7 +140,7 @@
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox"
                     [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout"
-                    [disabled]="hasPaymentType('late', event)" (change)="updateStatus(event, 'late_checkout', $event)">
+                    [disabled]="hasPaymentType('late', event)" (click)="!hasPaymentType('late', event) && openLateTimeModal(event, $event)">
                 </div>
               </div>
             </div>
@@ -172,14 +169,13 @@
         <th style="width: 5%;">Fim</th>
         <th style="width: 5%;">Última faxina</th>
         <th style="width: 5%;">Check-In</th>
-        <th style="width: 5%;">Previsto</th>
         <th style="width: 5%;">Hóspedes</th>
         <th style="width: 5%;">Credencial</th>
         <th style="width: 5%;">Informado</th>
         <th style="width: 5%;">Docs</th>
         <th style="width: 3%;">Early</th>
         <th style="width: 3%;">Late</th>
-        <th style="width: 36%;">Observações</th>
+        <th style="width: 41%;">Observações</th>
         <th style="width: 3%;">Ações</th>
       </tr>
     </thead>
@@ -197,14 +193,9 @@
           <div class="cleaner-name">{{ event.previous_faxina_first_name || '-' }}</div>
         </td>
         <td>
-          <span class="time-badge" [class.time-green]="event.check_in === '15:00'"
-            [class.time-red]="event.check_in && event.check_in !== '15:00'">{{ event.check_in || '-' }}</span>
-        </td>
-        <td>
           <span class="time-badge"
-            [class.time-green]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) === '15:00'"
-            [class.time-red]="getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) !== '15:00'">{{
-            getMenorHorarioPrevistoChegada(event.horarioPrevistoChegada || []) }}</span>
+            [class.time-green]="getCheckInDisplay(event) === '15:00'"
+            [class.time-red]="getCheckInDisplay(event) !== '15:00'">{{ getCheckInDisplay(event) }}</span>
         </td>
         <td>{{ event.qtd_hospedes }}</td>
         <td>
@@ -230,14 +221,14 @@
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin"
-              [disabled]="hasPaymentType('early', event)" (change)="updateStatus(event, 'early_checkin', $event)">
+              [disabled]="hasPaymentType('early', event)" (click)="!hasPaymentType('early', event) && openEarlyTimeModal(event, $event)">
             <span class="checkmark"></span>
           </label>
         </td>
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout"
-              [disabled]="hasPaymentType('late', event)" (change)="updateStatus(event, 'late_checkout', $event)">
+              [disabled]="hasPaymentType('late', event)" (click)="!hasPaymentType('late', event) && openLateTimeModal(event, $event)">
             <span class="checkmark"></span>
           </label>
         </td>
@@ -262,7 +253,7 @@
         </td>
       </tr>
       <tr *ngIf="reservasExibidas.length === 0">
-        <td colspan="15">Nenhuma reserva no período selecionado</td>
+        <td colspan="14">Nenhuma reserva no período selecionado</td>
       </tr>
     </tbody>
   </table>
@@ -630,6 +621,46 @@
             </div>
           </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Early Check-in -->
+<div class="time-modal-overlay" *ngIf="showEarlyTimeModal" (click)="closeEarlyTimeModal()">
+  <div class="time-modal" (click)="$event.stopPropagation()">
+    <div class="time-modal-header">
+      <h5><i class="fas fa-clock"></i> Early Check-in</h5>
+      <button class="time-modal-close" (click)="closeEarlyTimeModal()">×</button>
+    </div>
+    <div class="time-modal-body">
+      <p>Informe o novo horário de <strong>check-in</strong>:</p>
+      <input type="time" class="form-control" [(ngModel)]="earlyTimeInput">
+    </div>
+    <div class="time-modal-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="closeEarlyTimeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" (click)="confirmEarlyTime()">
+        <i class="fas fa-check"></i> Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Late Check-out -->
+<div class="time-modal-overlay" *ngIf="showLateTimeModal" (click)="closeLateTimeModal()">
+  <div class="time-modal" (click)="$event.stopPropagation()">
+    <div class="time-modal-header">
+      <h5><i class="fas fa-clock"></i> Late Check-out</h5>
+      <button class="time-modal-close" (click)="closeLateTimeModal()">×</button>
+    </div>
+    <div class="time-modal-body">
+      <p>Informe o novo horário de <strong>check-out</strong>:</p>
+      <input type="time" class="form-control" [(ngModel)]="lateTimeInput">
+    </div>
+    <div class="time-modal-footer">
+      <button class="btn btn-outline-secondary btn-sm" (click)="closeLateTimeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" (click)="confirmLateTime()">
+        <i class="fas fa-check"></i> Confirmar
+      </button>
     </div>
   </div>
 </div>

@@ -296,3 +296,80 @@
   border-radius: 4px;
   background: #f8f9fa;
 }
+
+/* Modais de horário Early/Late */
+.time-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.time-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 340px;
+  max-width: 92vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  animation: timeModalIn 0.18s ease;
+}
+
+@keyframes timeModalIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.time-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #00a699;
+  color: #fff;
+}
+
+.time-modal-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  padding: 0;
+}
+
+.time-modal-close:hover {
+  opacity: 1;
+}
+
+.time-modal-body {
+  padding: 24px 20px 16px;
+}
+
+.time-modal-body p {
+  margin-bottom: 12px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.time-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid #eee;
+}
