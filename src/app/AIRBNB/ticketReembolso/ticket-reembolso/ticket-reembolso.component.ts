@@ -30,7 +30,9 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
   ngOnInit(): void {
     this.currentUser = this.authSrv.getUser();
     this.initForm();
-    this.aptoSrv.getAllApartamentos().subscribe(a => this.apartamentos = a);
+    this.aptoSrv.getAllApartamentos().subscribe(a =>
+      this.apartamentos = a.sort((x, y) => x.nome.localeCompare(y.nome, 'pt-BR'))
+    );
   }
   ngAfterViewInit(): void {
     this.inputFile.nativeElement.addEventListener('change', (event: Event) => {
