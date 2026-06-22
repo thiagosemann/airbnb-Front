@@ -191,3 +191,88 @@
 .form-control-sm.border-primary-subtle:hover {
   border-color: #198754 !important;
 }
+
+/* Combo typeahead de apartamento */
+.apto-combo {
+  position: relative;
+}
+
+.apto-combo input.form-control {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding-right: 38px;
+  height: 42px;
+}
+
+.apto-combo input.form-control:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+  outline: none;
+}
+
+.combo-caret {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+
+.apto-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  z-index: 25;
+  padding: 4px;
+}
+
+.apto-dropdown::-webkit-scrollbar {
+  width: 10px;
+}
+
+.apto-dropdown::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.apto-dropdown::-webkit-scrollbar-thumb {
+  background: #198754;
+  border-radius: 8px;
+  border: 2px solid #f3f4f6;
+}
+
+.apto-option {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.apto-option:hover,
+.apto-option:focus {
+  background: #e8f5e9;
+  outline: none;
+}
+
+.apto-empty {
+  padding: 10px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+}

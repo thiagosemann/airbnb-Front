@@ -11,10 +11,22 @@
         <!-- Apartamento -->
         <div class="col-md-6">
           <label class="form-label small fw-bold text-muted">Apartamento *</label>
-          <select formControlName="apartamento_id" class="form-select form-select-sm border-primary-subtle">
-            <option [ngValue]="null" disabled>-- Selecione --</option>
-            <option *ngFor="let apto of apartamentos" [ngValue]="apto.id">{{ apto.nome }}</option>
-          </select>
+          <div class="apto-combo">
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Digite ou selecione"
+              [(ngModel)]="aptoInputValue"
+              [ngModelOptions]="{standalone: true}"
+              (input)="onAptoTypeahead($any($event.target)?.value)"
+              (focus)="openAptoList()"
+              (blur)="closeAptoListLater()">
+            <span class="combo-caret" aria-hidden="true">▼</span>
+            <div class="apto-dropdown" *ngIf="showAptoList" (mousedown)="$event.preventDefault()">
+              <button type="button" class="apto-option" *ngFor="let a of filteredApartamentos" (click)="selectApto(a)">{{ a.nome }}</button>
+              <div *ngIf="!filteredApartamentos.length" class="apto-empty">Nenhum encontrado</div>
+            </div>
+          </div>
         </div>
 
 

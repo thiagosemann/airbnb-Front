@@ -16,6 +16,10 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
   step = 1;
   formTicket!: FormGroup;
   apartamentos: Apartamento[] = [];
+  filteredApartamentos: Apartamento[] = [];
+  showAptoList = false;
+  aptoInputValue = '';
+  private aptoListCloseTimer: any;
   @ViewChild('inputFile') inputFile!: ElementRef<HTMLInputElement>;
   arquivos: TicketReembolsoArquivo[] = [];
   currentUser: User | null = null;
@@ -30,9 +34,12 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
   ngOnInit(): void {
     this.currentUser = this.authSrv.getUser();
     this.initForm();
-    this.aptoSrv.getAllApartamentos().subscribe(a =>
-      this.apartamentos = a.sort((x, y) => x.nome.localeCompare(y.nome, 'pt-BR'))
-    );
+    this.aptoSrv.getAllApartamentos().subscribe(a => {
+      this.apartamentos = [...(a || [])].sort((x, y) =>
+        String(x?.nome || '').localeCompare(String(y?.nome || ''), 'pt-BR')
+      );
+      this.filteredApartamentos = [...this.apartamentos];
+    });
   }
   ngAfterViewInit(): void {
     this.inputFile.nativeElement.addEventListener('change', (event: Event) => {
@@ -94,6 +101,34 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
     this.arquivos.splice(idx, 1);
   }
 
+  openAptoList(): void {
+    this.showAptoList = true;
+    this.filteredApartamentos = [...this.apartamentos];
+  }
+
+  closeAptoListLater(): void {
+    clearTimeout(this.aptoListCloseTimer);
+    this.aptoListCloseTimer = setTimeout(() => (this.showAptoList = false), 120);
+  }
+
+  onAptoTypeahead(value: string): void {
+    clearTimeout(this.aptoListCloseTimer);
+    this.aptoInputValue = String(value || '');
+    const term = this.aptoInputValue.trim().toLowerCase();
+    this.filteredApartamentos = term
+      ? this.apartamentos.filter(a => String(a.nome || '').toLowerCase().includes(term))
+      : [...this.apartamentos];
+    this.showAptoList = true;
+    const exact = this.apartamentos.find(a => String(a.nome || '').toLowerCase() === term);
+    this.formTicket.get('apartamento_id')?.setValue(exact ? exact.id : null);
+  }
+
+  selectApto(apto: Apartamento): void {
+    this.aptoInputValue = apto.nome || '';
+    this.formTicket.get('apartamento_id')?.setValue(apto.id ?? null);
+    this.showAptoList = false;
+  }
+
   getAptoNome(id: number): string {
     const apto = this.apartamentos.find(a => a.id === id);
     return apto ? apto.nome : '';
@@ -147,6 +182,8 @@ export class TicketReembolsoComponent implements OnInit, AfterViewInit  {
       pagamento_confirmado: false,
     });
     this.arquivos = [];
+    this.aptoInputValue = '';
+    this.filteredApartamentos = [...this.apartamentos];
     this.step = 1;
   }
 }
