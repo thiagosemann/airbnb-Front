@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { CheckInFormService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/checkinForm_service';
+import { EmpresaService, Empresa } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/empresa_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { User } from 'src/app/shared/utilitarios/user';
@@ -20,19 +21,45 @@ export class UsersControlComponent implements OnInit {
   isEditing = false;
   selectedUserId: number | null = null;
   userForm: FormGroup;
-  isLoading = false;           // ← nova flag
-  searchTerm:string = "";
-  userCheckins: any[] = []; // ← armazena os check-ins do user
+  isLoading = false;
+  isTableLoading = false;
+  searchTerm: string = '';
+  userCheckins: any[] = [];
   user: User | null = null;
+  empresas: Empresa[] = [];
+
+  // Filtro de role
+  roleFiltro: string = 'all';
+  readonly roleOpcoes = [
+    { valor: 'all',          label: 'Todos'    },
+    { valor: 'guest',        label: 'Hóspede'  },
+    { valor: 'terceirizado', label: 'Limpeza'  },
+    { valor: 'admin',        label: 'Admin'    },
+  ];
+
+  // Paginação
+  page     = 1;
+  pageSize = 20;
+  total    = 0;
+
+  get totalPages(): number { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
+
+  get pageNumbers(): number[] {
+    const range = 2; // páginas de cada lado da atual
+    const start = Math.max(1, this.page - range);
+    const end   = Math.min(this.totalPages, this.page + range);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
 
   constructor(
     private fb: FormBuilder,
     private usersService: UserService,
     private sanitizer: DomSanitizer,
     private checkinService: CheckInFormService,
+    private empresaService: EmpresaService,
     private toastr: ToastrService,
     private authService: AuthenticationService,
-    
+
   ) {
     this.userForm = this.fb.group({
       first_name: ['', Validators.required],
@@ -41,6 +68,7 @@ export class UsersControlComponent implements OnInit {
       Telefone: ['', Validators.required],
       email: ['', [Validators.email]],
       role: ['guest', Validators.required],
+      empresa_id: [null],
       imagemBase64: [''],
       documentBase64: ['']
     });
@@ -49,22 +77,62 @@ export class UsersControlComponent implements OnInit {
   ngOnInit(): void {
     this.user = this.authService.getUser();
     this.carregarUsuarios();
+    this.userForm.get('role')!.valueChanges.subscribe(() => this.ajustarValidacaoEmpresa());
+    if (this.isMaster) {
+      this.empresaService.getEmpresas().subscribe({
+        next: empresas => this.empresas = empresas,
+        error: err => console.error('Erro ao carregar empresas:', err)
+      });
+    }
   }
 
-  async carregarUsuarios() {
-    try {
-      this.usersService.getUsers().subscribe(
-        (users: User[]) => {
-          this.users = users;
-          this.filteredUsers = [...users]; // Inicializa filteredUsers
-        },
-        (error) => {
-          console.error('Erro ao carregar usuários:', error);
-        }
-      );
-    } catch (error) {
-      console.error('Erro ao carregar usuários:', error);
+  // Empresa 1 (master) gerencia várias empresas e precisa escolher a empresa do terceirizado
+  get isMaster(): boolean {
+    return this.user?.empresa_id === 1;
+  }
+
+  // Exibe o seletor de empresa apenas para o master ao cadastrar/editar um terceirizado
+  get mostrarSeletorEmpresa(): boolean {
+    return this.isMaster && this.userForm.get('role')?.value === 'terceirizado';
+  }
+
+  private ajustarValidacaoEmpresa(): void {
+    const empresaCtrl = this.userForm.get('empresa_id')!;
+    if (this.mostrarSeletorEmpresa) {
+      empresaCtrl.setValidators(Validators.required);
+    } else {
+      empresaCtrl.clearValidators();
+      empresaCtrl.setValue(null);
     }
+    empresaCtrl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  carregarUsuarios(): void {
+    this.isTableLoading = true;
+    this.usersService.getUsersPaginated({ page: this.page, limit: this.pageSize, role: this.roleFiltro }).subscribe({
+      next: ({ data, total }) => {
+        this.users = data;
+        this.total = total;
+        this.aplicarFiltroTexto();
+        this.isTableLoading = false;
+      },
+      error: err => {
+        console.error('Erro ao carregar usuários:', err);
+        this.isTableLoading = false;
+      }
+    });
+  }
+
+  setRoleFiltro(role: string): void {
+    this.roleFiltro = role;
+    this.page = 1;
+    this.carregarUsuarios();
+  }
+
+  irParaPagina(p: number): void {
+    if (p < 1 || p > this.totalPages || p === this.page) return;
+    this.page = p;
+    this.carregarUsuarios();
   }
   
 
@@ -78,6 +146,7 @@ export class UsersControlComponent implements OnInit {
 
     this.userForm.reset({
       role: roleValue,
+      empresa_id: null,
       imagemBase64: '',
       documentBase64: ''
     });
@@ -161,6 +230,17 @@ export class UsersControlComponent implements OnInit {
     let userData = this.userForm.value;
     userData.cpf = userData.cpf.replace(/\D/g, '');
     userData.id = this.selectedUserId;
+
+    // Define a empresa do terceirizado (limpeza): o master escolhe; demais herdam a própria empresa
+    if (userData.role === 'terceirizado') {
+      userData.empresa_id = this.isMaster ? userData.empresa_id : (this.user?.empresa_id ?? null);
+      if (!userData.empresa_id) {
+        this.toastr.warning('Selecione a empresa do terceirizado.');
+        return;
+      }
+    } else {
+      userData.empresa_id = null;
+    }
     try {
       if (this.isEditing && this.selectedUserId) {
           this.usersService.updateUser(userData).subscribe(
@@ -207,18 +287,20 @@ export class UsersControlComponent implements OnInit {
   }
 
   filtrar(): void {
+    this.aplicarFiltroTexto();
+  }
+
+  private aplicarFiltroTexto(): void {
     const termo = this.searchTerm.toLowerCase().trim();
-    
     if (!termo) {
       this.filteredUsers = [...this.users];
       return;
     }
-  
-    this.filteredUsers = this.users.filter(user => 
-      (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
-      user.cpf.replace(/\D/g, '').includes(termo) ||
-      user.Telefone?.replace(/\D/g, '').includes(termo) ||
-      user.role.toLowerCase().includes(termo)
+    this.filteredUsers = this.users.filter(u =>
+      (u.first_name + ' ' + u.last_name).toLowerCase().includes(termo) ||
+      u.cpf.replace(/\D/g, '').includes(termo) ||
+      u.Telefone?.replace(/\D/g, '').includes(termo) ||
+      u.role.toLowerCase().includes(termo)
     );
   }
   formatCPF(cpf:string):string{

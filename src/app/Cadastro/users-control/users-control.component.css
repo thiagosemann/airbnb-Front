@@ -174,3 +174,45 @@ h2 {
 .text-end button:hover {
   transform: scale(1.05);
 }
+
+/* Filtros de role */
+.role-filter-btn {
+  border: 2px solid #dee2e6;
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
+  background: #fff;
+  transition: all 0.18s ease;
+}
+
+.role-filter-btn:hover {
+  border-color: #198754;
+  color: #198754;
+}
+
+.role-filter-btn.active {
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+}
+
+/* Paginação */
+.pagination .page-link {
+  color: #198754;
+  border-radius: 6px;
+  margin: 0 2px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #adb5bd;
+}

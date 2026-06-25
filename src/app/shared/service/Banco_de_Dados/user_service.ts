@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { User } from '../../utilitarios/user';
 import { environment } from 'enviroments';
@@ -11,13 +11,25 @@ export class UserService {
   private url = environment.backendUrl;
   constructor(private http: HttpClient) {}
 
-  // Método para obter todos os usuários
+  // Método para obter todos os usuários (legado, sem paginação)
   getUsers(): Observable<User[]> {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: 'Bearer ' + token,
-    });
+    const headers = new HttpHeaders({ Authorization: 'Bearer ' + token });
     return this.http.get<User[]>(`${this.url}/users-airbnb`, { headers });
+  }
+
+  // Método paginado com filtro de role — retorna { data, total, page, limit }
+  getUsersPaginated(opts: { page?: number; limit?: number; role?: string } = {}):
+    Observable<{ data: User[]; total: number; page: number; limit: number }> {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = new HttpHeaders({ Authorization: 'Bearer ' + token });
+    let params = new HttpParams()
+      .set('page',  String(opts.page  ?? 1))
+      .set('limit', String(opts.limit ?? 20));
+    if (opts.role && opts.role !== 'all') params = params.set('role', opts.role);
+    return this.http.get<{ data: User[]; total: number; page: number; limit: number }>(
+      `${this.url}/users-airbnb`, { headers, params }
+    );
   }
 
   // Método para obter apenas proprietários

@@ -69,7 +69,9 @@
                     [(ngModel)]="cancelada.faxina_userId"
                     (change)="updateReserva(cancelada)">
               <option value="">Selecione</option>
-              <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+              <optgroup *ngFor="let grupo of gruposDoApartamento(cancelada.apartamento_id)" [label]="grupo.empresa_nome">
+                <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
+              </optgroup>
             </select>
           </td>
         </tr>
@@ -109,7 +111,9 @@
                     [(ngModel)]="cancelada.faxina_userId"
                     (change)="updateReserva(cancelada)">
               <option value="">Selecione</option>
-              <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+              <optgroup *ngFor="let grupo of gruposDoApartamento(cancelada.apartamento_id)" [label]="grupo.empresa_nome">
+                <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -131,14 +135,15 @@
     <table class="calendar-table">
       <thead>
         <tr>
-          <th style="width: 10%;">Data</th>
-          <th style="width: 10%;">Dia</th>
+          <th style="width: 9%;">Data</th>
+          <th style="width: 9%;">Dia</th>
           <th style="width: 10%;">Apt</th>
-          <th style="width: 30%;">Check-Out</th>
-          <th style="width: 10%;">Senha</th>
-          <th style="width: 10%;">Finalizado</th>
-          <th style="width: 10%;">Responsável</th>
-          <th style="width: 10%;">Total Dia</th>
+          <th style="width: 24%;">Check-Out</th>
+          <th style="width: 8%;">Senha</th>
+          <th style="width: 8%;">Finalizado</th>
+          <th style="width: 12%;">Responsável</th>
+          <th style="width: 12%;">Empresa</th>
+          <th style="width: 8%;">Total Dia</th>
         </tr>
       </thead>
       <tbody>
@@ -164,13 +169,20 @@
                     [(ngModel)]="faxina.faxina_userId"
                     (change)="updateReserva(faxina)">
               <option value="">Selecione</option>
-              <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+              <optgroup *ngFor="let grupo of gruposDoApartamento(faxina.apartamento_id)" [label]="grupo.empresa_nome">
+                <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
+              </optgroup>
             </select>
+          </td>
+          <td>
+            <span *ngIf="empresaNomeDoResponsavel(faxina) as empNome"
+                  class="badge text-white"
+                  [style.background-color]="corEmpresaDoResponsavel(faxina)">{{ empNome }}</span>
           </td>
           <td>{{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasHoje) }}</td>
         </tr>
         <tr *ngIf="faxinasHoje.length === 0">
-          <td colspan="8">Nenhuma faxina para hoje</td>
+          <td colspan="9">Nenhuma faxina para hoje</td>
         </tr>
       </tbody>
     </table>
@@ -218,7 +230,14 @@
             <i class="fas fa-user"></i>
             <span>Responsável: {{ getResponsavelNome(faxina.faxina_userId) || 'Não definido' }}</span>
           </div>
-          
+
+          <div class="card-row" *ngIf="empresaNomeDoResponsavel(faxina)">
+            <i class="fas fa-building"></i>
+            <span class="me-1">Empresa:</span>
+            <span class="badge text-white"
+                  [style.background-color]="corEmpresaDoResponsavel(faxina)">{{ empresaNomeDoResponsavel(faxina) }}</span>
+          </div>
+
           <div class="card-row">
             <label class="custom-checkbox">
               <input type="checkbox"
@@ -235,7 +254,9 @@
                   [(ngModel)]="faxina.faxina_userId"
                   (change)="updateReserva(faxina)">
             <option value="">Atribuir funcionária</option>
-            <option *ngFor="let u of users" [value]="u.id">{{ u.first_name }}</option>
+            <optgroup *ngFor="let grupo of gruposDoApartamento(faxina.apartamento_id)" [label]="grupo.empresa_nome">
+              <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
+            </optgroup>
           </select>
         </div>
         
@@ -291,9 +312,11 @@
                     name="faxina_userId"
                     [(ngModel)]="limpezaExtra.faxina_userId">
               <option [ngValue]="null">Selecione</option>
-              <option *ngFor="let user of users" [ngValue]="user.id">
-                {{ user.first_name }}
-              </option>
+              <optgroup *ngFor="let grupo of gruposDoApartamento(limpezaExtra.apartamento_id)" [label]="grupo.empresa_nome">
+                <option *ngFor="let user of grupo.terceirizados" [ngValue]="user.id">
+                  {{ user.first_name }}
+                </option>
+              </optgroup>
             </select>
           </div>
         </form>

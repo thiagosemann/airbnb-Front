@@ -1,7 +1,8 @@
 <!-- users-control.component.html -->
 <div class="containerAux py-3">
-  <!-- Cabeçalho + SearchBar em mobile -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+
+  <!-- Cabeçalho + SearchBar + Botão -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
     <div style="margin-right: 15px;">
       <h2 class="mb-2 mb-md-0">Usuários</h2>
     </div>
@@ -9,8 +10,7 @@
       <div class="search-container-desktop position-relative me-md-2 flex-grow-1">
         <i class="fas fa-search search-icon position-absolute"></i>
         <input type="text" class="form-control search-input ps-4"
-          placeholder="    Pesquisar por nome, CPF, telefone ou email..." [(ngModel)]="searchTerm" (input)="filtrar()">
-
+          placeholder="    Pesquisar por nome, CPF, telefone..." [(ngModel)]="searchTerm" (input)="filtrar()">
       </div>
       <button class="btn btn-primary d-flex align-items-center justify-content-center" (click)="abrirModal()">
         <i class="fas fa-plus me-2"></i>Novo Usuário
@@ -18,82 +18,112 @@
     </div>
   </div>
 
-  <!-- Lista de cards (xs–md) -->
-  <div class="row row-cols-1 row-cols-sm-2 g-3 d-block d-md-flex flex-md-wrap d-md-none">
-    <div *ngFor="let user of filteredUsers" class="col">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body p-3">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title mb-0">{{ user.first_name }} {{ user.last_name }}</h5>
-            <span class="badge bg-success-subtle text-success ms-2">
-              {{ user.role | titlecase }}
-            </span>
-          </div>
-          <ul class="list-unstyled small mb-3">
-            <li><i class="fas fa-id-card me-1 text-secondary"></i>{{ formatCPF(user.cpf) }}</li>
-            <li><i class="fas fa-phone me-1 text-secondary"></i>{{ formtarTelefone(user.Telefone) }}</li>
-            <li><i class="fas fa-envelope me-1 text-secondary"></i>{{ user.email }}</li>
-          </ul>
-          <div class="d-flex justify-content-end gap-1">
-            <button class="btn btn-sm btn-outline-primary" (click)="editarUsuario(user)" title="Editar usuário">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)" title="Excluir usuário">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div *ngIf="!filteredUsers.length" class="col-12 text-center py-4 text-muted">
-      Nenhum usuário encontrado.
+  <!-- Filtros de role -->
+  <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+    <button *ngFor="let op of roleOpcoes"
+            class="btn btn-sm role-filter-btn"
+            [class.active]="roleFiltro === op.valor"
+            (click)="setRoleFiltro(op.valor)">
+      {{ op.label }}
+    </button>
+    <span class="text-muted ms-auto small">{{ total }} usuário{{ total !== 1 ? 's' : '' }}</span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isTableLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Carregando...</span>
     </div>
   </div>
 
-  <!-- Tabela para telas maiores -->
-  <div class="table-wrapper d-none d-md-block">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>CPF</th>
-            <th>Telefone</th>
-            <th>Tipo</th>
-            <th class="text-end">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of filteredUsers">
-            <td class="fw-medium">{{ user.first_name }} {{ user.last_name }}</td>
-            <td>{{ formatCPF(user.cpf) }}</td>
-            <td>{{ formtarTelefone(user.Telefone) }}</td>
-            <td>
-              <span class="badge bg-success-subtle text-success">
-                {{ user.role | titlecase }}
-              </span>
-            </td>
-            <td class="text-end">
-              <div class="d-flex justify-content-end gap-2">
-                <button class="btn btn-sm btn-outline-primary" (click)="editarUsuario(user)" title="Editar usuário">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)"
-                  title="Excluir usuário">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr *ngIf="!filteredUsers.length">
-            <td colspan="5" class="text-center py-4 text-muted">
-              Nenhum usuário encontrado.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <ng-container *ngIf="!isTableLoading">
+
+    <!-- Lista de cards – mobile -->
+    <div class="row row-cols-1 row-cols-sm-2 g-3 d-block d-md-flex flex-md-wrap d-md-none">
+      <div *ngFor="let user of filteredUsers" class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0">{{ user.first_name }} {{ user.last_name }}</h5>
+              <span class="badge bg-success-subtle text-success ms-2">{{ user.role | titlecase }}</span>
+            </div>
+            <ul class="list-unstyled small mb-3">
+              <li><i class="fas fa-id-card me-1 text-secondary"></i>{{ formatCPF(user.cpf) }}</li>
+              <li><i class="fas fa-phone me-1 text-secondary"></i>{{ formtarTelefone(user.Telefone) }}</li>
+              <li><i class="fas fa-envelope me-1 text-secondary"></i>{{ user.email }}</li>
+            </ul>
+            <div class="d-flex justify-content-end gap-1">
+              <button class="btn btn-sm btn-outline-primary" (click)="editarUsuario(user)"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-outline-danger"  (click)="excluirUsuario(user.id!)"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!filteredUsers.length" class="col-12 text-center py-4 text-muted">Nenhum usuário encontrado.</div>
     </div>
-  </div>
+
+    <!-- Tabela – desktop -->
+    <div class="table-wrapper d-none d-md-block">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Telefone</th>
+              <th>Tipo</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td class="fw-medium">{{ user.first_name }} {{ user.last_name }}</td>
+              <td>{{ formatCPF(user.cpf) }}</td>
+              <td>{{ formtarTelefone(user.Telefone) }}</td>
+              <td>
+                <span class="badge bg-success-subtle text-success">{{ user.role | titlecase }}</span>
+              </td>
+              <td class="text-end">
+                <div class="d-flex justify-content-end gap-2">
+                  <button class="btn btn-sm btn-outline-primary" (click)="editarUsuario(user)" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="excluirUsuario(user.id!)" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredUsers.length">
+              <td colspan="5" class="text-center py-4 text-muted">Nenhum usuário encontrado.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-3">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" [class.disabled]="page === 1">
+          <button class="page-link" (click)="irParaPagina(1)" title="Primeira">«</button>
+        </li>
+        <li class="page-item" [class.disabled]="page === 1">
+          <button class="page-link" (click)="irParaPagina(page - 1)">‹</button>
+        </li>
+        <li *ngFor="let p of pageNumbers" class="page-item" [class.active]="p === page">
+          <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="page === totalPages">
+          <button class="page-link" (click)="irParaPagina(page + 1)">›</button>
+        </li>
+        <li class="page-item" [class.disabled]="page === totalPages">
+          <button class="page-link" (click)="irParaPagina(totalPages)" title="Última">»</button>
+        </li>
+      </ul>
+    </nav>
+
+  </ng-container>
 
   <!-- Modal (mantido igual) -->
   <div class="modal" *ngIf="showModal">
@@ -146,6 +176,18 @@
                 <option value="guest">Hóspede</option>
                 <option value="terceirizado">Limpeza</option>
               </select>
+            </div>
+
+            <div class="mb-3" *ngIf="mostrarSeletorEmpresa">
+              <label class="form-label fw-medium">Empresa</label>
+              <select class="form-select border-success" formControlName="empresa_id">
+                <option [ngValue]="null" disabled>Selecione a empresa</option>
+                <option *ngFor="let empresa of empresas" [ngValue]="empresa.id">{{ empresa.nome }}</option>
+              </select>
+              <small class="text-danger"
+                     *ngIf="userForm.get('empresa_id')?.invalid && userForm.get('empresa_id')?.touched">
+                Selecione a empresa do terceirizado.
+              </small>
             </div>
           </div>
 

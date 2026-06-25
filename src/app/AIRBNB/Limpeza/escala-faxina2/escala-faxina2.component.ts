@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
+import { ApartamentoEmpresaService, VinculoApartamentoEmpresa } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentoEmpresa_service';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
@@ -9,6 +10,12 @@ import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service'
 import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { User } from 'src/app/shared/utilitarios/user';
+
+interface EmpresaTerceirizados {
+  empresa_id: number;
+  empresa_nome: string;
+  terceirizados: User[];
+}
 
 @Component({
   selector: 'app-escala-faxina2',
@@ -29,6 +36,27 @@ export class EscalaFaxina2Component {
   carregando: boolean = true;
   users:User[]=[]
   user: User | null = null; // Adicionado para armazenar o usuário atual
+
+  // Vínculos apartamento-empresa e índices auxiliares para filtrar/agrupar terceirizados por empresa
+  vinculos: VinculoApartamentoEmpresa[] = [];
+  private empresasPorApartamento = new Map<number, { id: number; nome: string }[]>();
+  private gruposPorApartamento = new Map<number, EmpresaTerceirizados[]>();
+  private empresaNomePorUserId = new Map<number, string>();
+  private empresaIdPorUserId = new Map<number, number>();
+
+  // Paleta de cores para distinguir empresas nos badges (cor fixa por empresa)
+  private readonly paletaEmpresas: string[] = [
+    '#0d6efd', // azul
+    '#198754', // verde
+    '#fd7e14', // laranja
+    '#6f42c1', // roxo
+    '#d63384', // rosa
+    '#0dcaf0', // ciano
+    '#dc3545', // vermelho
+    '#20c997', // teal
+    '#ffc107', // amarelo
+    '#6610f2'  // índigo
+  ];
   filtro = {
   data: '',
   dia: '',
@@ -46,8 +74,9 @@ canceladasHoje: any[] = [];
               private authService: AuthenticationService,
               private limpezaExtraService: LimpezaExtraService,
               private apartamentosService: ApartamentoService,
+              private apartamentoEmpresaService: ApartamentoEmpresaService,
               private toastr: ToastrService
-            ) { 
+            ) {
               const hoje = new Date();
               const umaSemanaAtras = new Date();
               umaSemanaAtras.setDate(hoje.getDate() - 7);
@@ -60,21 +89,118 @@ canceladasHoje: any[] = [];
   ngOnInit(): void {
     this.user = this.authService.getUser(); // Obter o usuário atual
     this.pesquisarPorPeriodo();
-    this.getUsersByRole();
+    this.carregarBaseEscala();
     this.apartamentosService.getAllApartamentos().subscribe(list => {
      this.apartamentos = list.sort((a, b) => a.nome.localeCompare(b.nome)).map(a => ({ id: a.id, nome: a.nome }));
     });
   }
 
-  getUsersByRole():void{
-    this.userService.getUsersByRole('terceirizado').subscribe(
-      users => {
-        this.users = users;
+  // Carrega terceirizados (das empresas vinculadas) e os vínculos apartamento-empresa,
+  // montando os índices usados para filtrar/agrupar os terceirizados por empresa.
+  private carregarBaseEscala(): void {
+    forkJoin({
+      terceirizados: this.apartamentoEmpresaService.getTerceirizados(),
+      vinculos: this.apartamentoEmpresaService.getVinculos()
+    }).subscribe({
+      next: ({ terceirizados, vinculos }) => {
+        this.users = terceirizados;
+        this.vinculos = vinculos;
+        this.indexarBaseEscala();
       },
-      error => {
-        console.error('Erro ao obter os eventos do calendário', error);
+      error: err => console.error('Erro ao carregar terceirizados/vínculos da escala', err)
+    });
+  }
+
+  // (Re)constrói os índices a partir de this.users e this.vinculos.
+  private indexarBaseEscala(): void {
+    this.empresasPorApartamento.clear();
+    this.gruposPorApartamento.clear();
+    this.empresaNomePorUserId.clear();
+    this.empresaIdPorUserId.clear();
+
+    for (const u of this.users) {
+      this.empresaNomePorUserId.set(Number(u.id), u.empresa_nome || '');
+      this.empresaIdPorUserId.set(Number(u.id), Number(u.empresa_id));
+    }
+
+    for (const v of this.vinculos) {
+      const aptId = Number(v.apartamento_id);
+      const lista = this.empresasPorApartamento.get(aptId) || [];
+      if (!lista.some(e => e.id === Number(v.empresa_id))) {
+        lista.push({ id: Number(v.empresa_id), nome: v.empresa_nome });
       }
-    );
+      this.empresasPorApartamento.set(aptId, lista);
+    }
+  }
+
+  // Empresas vinculadas a um apartamento
+  empresasDoApartamento(apartamentoId: number): { id: number; nome: string }[] {
+    return this.empresasPorApartamento.get(Number(apartamentoId)) || [];
+  }
+
+  // Terceirizados elegíveis para um apartamento, agrupados por empresa (para o <optgroup>).
+  // Sem vínculo conhecido (ex.: ainda carregando ou modal sem apto), agrupa todos os terceirizados.
+  gruposDoApartamento(apartamentoId: number): EmpresaTerceirizados[] {
+    const key = Number(apartamentoId);
+    const cacheKey = Number.isNaN(key) ? -1 : key;
+    if (this.gruposPorApartamento.has(cacheKey)) {
+      return this.gruposPorApartamento.get(cacheKey)!;
+    }
+
+    const empresas = this.empresasDoApartamento(cacheKey);
+    let grupos: EmpresaTerceirizados[];
+    if (empresas.length === 0) {
+      grupos = this.agruparTodosTerceirizados();
+    } else {
+      grupos = empresas
+        .map(e => ({
+          empresa_id: e.id,
+          empresa_nome: e.nome,
+          terceirizados: this.users.filter(u => Number(u.empresa_id) === e.id)
+        }))
+        .filter(g => g.terceirizados.length > 0);
+    }
+    this.gruposPorApartamento.set(cacheKey, grupos);
+    return grupos;
+  }
+
+  // Fallback: agrupa todos os terceirizados carregados por empresa
+  private agruparTodosTerceirizados(): EmpresaTerceirizados[] {
+    const mapa = new Map<number, EmpresaTerceirizados>();
+    for (const u of this.users) {
+      const eid = Number(u.empresa_id);
+      if (!mapa.has(eid)) {
+        mapa.set(eid, { empresa_id: eid, empresa_nome: u.empresa_nome || 'Sem empresa', terceirizados: [] });
+      }
+      mapa.get(eid)!.terceirizados.push(u);
+    }
+    return Array.from(mapa.values());
+  }
+
+  // Nome da empresa do terceirizado atribuído (quem está trabalhando no apto)
+  empresaNomeDoResponsavel(faxina: any): string {
+    if (!faxina?.faxina_userId) return '';
+    return this.empresaNomePorUserId.get(Number(faxina.faxina_userId)) || '';
+  }
+
+  // Texto com as empresas disponíveis para o apartamento (usado quando não há responsável)
+  empresasNomesDoApartamento(apartamentoId: number): string {
+    return this.empresasDoApartamento(apartamentoId).map(e => e.nome).join(' / ');
+  }
+
+  // Cor fixa (determinística) por empresa, para distinguir empresas nos badges
+  corDaEmpresa(empresaId: number | null | undefined): string {
+    if (empresaId === null || empresaId === undefined || Number.isNaN(Number(empresaId))) {
+      return '#6c757d'; // cinza padrão
+    }
+    const idx = Math.abs(Number(empresaId)) % this.paletaEmpresas.length;
+    return this.paletaEmpresas[idx];
+  }
+
+  // Cor da empresa do terceirizado atribuído (quem está trabalhando no apto)
+  corEmpresaDoResponsavel(faxina: any): string {
+    const eid = faxina?.faxina_userId ? this.empresaIdPorUserId.get(Number(faxina.faxina_userId)) : null;
+    return this.corDaEmpresa(eid);
   }
   pesquisarPorPeriodo(): void {
     if (!this.dataInicio || !this.dataFim) {

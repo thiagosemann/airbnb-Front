@@ -21,6 +21,7 @@ export interface User {
     sabado?: number;
     domingo?: number;
     empresa_id?: number; // ← nova propriedade
+    empresa_nome?: string; // nome da empresa do terceirizado (escala de faxina)
     qtd_apartamentos?: number;
     [key: string]: any; // Índice para acessar propriedades com base em uma string
 
