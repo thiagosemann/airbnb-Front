@@ -132,7 +132,7 @@
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox"
                     [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin"
-                    [disabled]="hasPaymentType('early', event)" (click)="!hasPaymentType('early', event) && openEarlyTimeModal(event, $event)">
+                    [disabled]="hasPaymentType('early', event)" (change)="openEarlyTimeModal(event, $event)">
                 </div>
               </div>
               <div class="status-check-item">
@@ -140,7 +140,7 @@
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox"
                     [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout"
-                    [disabled]="hasPaymentType('late', event)" (click)="!hasPaymentType('late', event) && openLateTimeModal(event, $event)">
+                    [disabled]="hasPaymentType('late', event)" (change)="openLateTimeModal(event, $event)">
                 </div>
               </div>
             </div>
@@ -221,14 +221,14 @@
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" [checked]="hasPaymentType('early', event) ? true : !!event.early_checkin"
-              [disabled]="hasPaymentType('early', event)" (click)="!hasPaymentType('early', event) && openEarlyTimeModal(event, $event)">
+              [disabled]="hasPaymentType('early', event)" (change)="openEarlyTimeModal(event, $event)">
             <span class="checkmark"></span>
           </label>
         </td>
         <td>
           <label class="custom-checkbox">
             <input type="checkbox" [checked]="hasPaymentType('late', event) ? true : !!event.late_checkout"
-              [disabled]="hasPaymentType('late', event)" (click)="!hasPaymentType('late', event) && openLateTimeModal(event, $event)">
+              [disabled]="hasPaymentType('late', event)" (change)="openLateTimeModal(event, $event)">
             <span class="checkmark"></span>
           </label>
         </td>

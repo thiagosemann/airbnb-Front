@@ -835,8 +835,9 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   }
 
   openEarlyTimeModal(reserva: ReservaAirbnb, domEvent: Event): void {
-    domEvent.preventDefault();
-    if (reserva.early_checkin) {
+    const checkbox = domEvent.target as HTMLInputElement;
+    if (!checkbox.checked) {
+      // Desmarcando: salva direto sem modal
       reserva.early_checkin = false;
       reserva.start_date = this.formatarDataBanco(reserva.start_date);
       reserva.end_data = this.formatarDataBanco(reserva.end_data);
@@ -845,6 +846,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       });
       return;
     }
+    // Marcando: reverte o checkbox e abre o modal
+    checkbox.checked = false;
     this.pendingTimeReserva = reserva;
     this.earlyTimeInput = reserva.check_in || '15:00';
     this.showEarlyTimeModal = true;
@@ -878,8 +881,9 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   }
 
   openLateTimeModal(reserva: ReservaAirbnb, domEvent: Event): void {
-    domEvent.preventDefault();
-    if (reserva.late_checkout) {
+    const checkbox = domEvent.target as HTMLInputElement;
+    if (!checkbox.checked) {
+      // Desmarcando: salva direto sem modal
       reserva.late_checkout = false;
       reserva.start_date = this.formatarDataBanco(reserva.start_date);
       reserva.end_data = this.formatarDataBanco(reserva.end_data);
@@ -888,6 +892,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       });
       return;
     }
+    // Marcando: reverte o checkbox e abre o modal
+    checkbox.checked = false;
     this.pendingTimeReserva = reserva;
     this.lateTimeInput = reserva.check_out || '12:00';
     this.showLateTimeModal = true;
