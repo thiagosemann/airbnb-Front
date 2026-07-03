@@ -50,6 +50,7 @@ import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-
 import { RelatorioNFComponent } from './AIRBNB/Relatorios/relatorio-nf/relatorio-nf.component';
 import { ControleDemandasComponent } from './AIRBNB/Demandas/controle-demandas/controle-demandas.component';
 import { SuasDemandasComponent } from './AIRBNB/Demandas/suas-demandas/suas-demandas.component';
+import { ProvisionamentosComponent } from './AIRBNB/Financeiro/provisionamentos/provisionamentos.component';
 import { PrediosComLimpezaComponent } from './AIRBNB/Diario/predios-com-limpeza/predios-com-limpeza.component';
 import { CriadorReservaCalendarioComponent } from './AIRBNB/Calendario-Forest/criador-reserva-calendario/criador-reserva-calendario.component';
 import { ForestLandingComponent } from './landing/landing.component';
@@ -114,6 +115,7 @@ import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-te
     RelatorioNFComponent,
     ControleDemandasComponent,
     SuasDemandasComponent,
+    ProvisionamentosComponent,
     PrediosComLimpezaComponent,
     CriadorReservaCalendarioComponent,
     ForestLandingComponent,

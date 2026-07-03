@@ -79,6 +79,16 @@
             </ul>
           </div>
 
+          <!-- Financeiro -->
+          <div class="dropdown">
+            <button class="navbar-perfil-btn dropdown-toggle" type="button">
+              <i class="fas fa-coins"></i> Financeiro
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" (click)="provisionamentos()">Provisionamentos</a></li>
+            </ul>
+          </div>
+
           <!-- Cadastro -->
           <div class="dropdown">
             <button class="navbar-perfil-btn dropdown-toggle" type="button">
@@ -191,6 +201,17 @@
               <button (click)="controleDemandas(); toggleMenu()">Controle Demandas</button>
               <button (click)="suasDemandas(); toggleMenu()">Suas Demandas</button>
               <button *ngIf="user.id === 1 || user.id === 4" (click)="performance(); toggleMenu()">Performance Equipe</button>
+            </div>
+          </div>
+
+          <!-- Dropdown para Financeiro -->
+          <div class="mobile-dropdown" [class.active]="mobileDropdowns['financeiro']">
+            <button class="mobile-dropdown-toggle" (click)="toggleMobileDropdown('financeiro')">
+              <i class="fas fa-coins"></i> Financeiro <i class="dropdown-arrow fas"
+                [ngClass]="mobileDropdowns['financeiro'] ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div class="mobile-dropdown-menu">
+              <button (click)="provisionamentos(); toggleMenu()">Provisionamentos</button>
             </div>
           </div>
 

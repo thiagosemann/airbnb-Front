@@ -1,0 +1,237 @@
+<app-nav-bar-airbnb></app-nav-bar-airbnb>
+
+<div class="prov-container">
+  <header class="prov-header">
+    <h1><i class="fas fa-coins"></i> Provisionamentos</h1>
+    <button class="btn-primario" (click)="abrirNovo()">
+      <i class="fas fa-plus"></i> Novo lançamento
+    </button>
+  </header>
+
+  <!-- ===================== RESUMO ===================== -->
+  <section class="resumo-grid">
+    <div class="resumo-card" *ngFor="let st of ordemStatus" [ngClass]="'st-' + st.toLowerCase()">
+      <div class="resumo-topo">
+        <span class="resumo-titulo">{{ rotuloStatus[st] }}</span>
+        <span class="resumo-qtd">{{ resumo[st].quantidade }}</span>
+      </div>
+      <div class="resumo-valores">
+        <span class="v-entrada"><i class="fas fa-arrow-down"></i> {{ moeda(resumo[st].entrada) }}</span>
+        <span class="v-saida"><i class="fas fa-arrow-up"></i> {{ moeda(resumo[st].saida) }}</span>
+      </div>
+      <div class="resumo-saldo" [class.negativo]="saldo(resumo[st]) < 0">
+        Saldo: {{ moeda(saldo(resumo[st])) }}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FILTROS ===================== -->
+  <section class="filtros">
+    <div class="filtro-periodo">
+      <div class="campo">
+        <label>De</label>
+        <input type="date" [(ngModel)]="dataInicio" />
+      </div>
+      <div class="campo">
+        <label>Até</label>
+        <input type="date" [(ngModel)]="dataFim" />
+      </div>
+      <button class="btn-sec" (click)="carregar()"><i class="fas fa-search"></i> Aplicar</button>
+      <div class="atalhos">
+        <button class="chip" (click)="aplicarAtalhoDia()">Dia</button>
+        <button class="chip" (click)="aplicarAtalho7Dias()">7 dias</button>
+        <button class="chip" (click)="aplicarAtalhoMes()">Mês</button>
+      </div>
+    </div>
+
+    <div class="filtro-linha">
+      <div class="filtro-status">
+        <span class="filtro-label">Status:</span>
+        <button *ngFor="let st of ordemStatus" class="chip-status" [ngClass]="'st-' + st.toLowerCase()"
+          [class.off]="!statusSelecionados[st]" (click)="toggleStatus(st)">
+          {{ rotuloStatus[st] }}
+        </button>
+      </div>
+
+      <div class="filtro-tipo">
+        <span class="filtro-label">Transação:</span>
+        <button class="chip" [class.ativo]="tipoFiltro === ''" (click)="setTipoFiltro('')">Todas</button>
+        <button class="chip" [class.ativo]="tipoFiltro === 'entrada'" (click)="setTipoFiltro('entrada')">Entrada</button>
+        <button class="chip" [class.ativo]="tipoFiltro === 'saida'" (click)="setTipoFiltro('saida')">Saída</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GRID ===================== -->
+  <section class="grid-wrap">
+    <div *ngIf="carregando" class="aviso">Carregando…</div>
+    <table class="grid" *ngIf="!carregando">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Vínculo</th>
+          <th>Apartamento</th>
+          <th>Transação</th>
+          <th class="right">Valor</th>
+          <th>Prevista</th>
+          <th>Realizada</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let it of itensFiltrados">
+          <tr [ngClass]="classeStatus(it)">
+            <td>{{ it.id }}</td>
+            <td>{{ vinculoDisplay(it) }}</td>
+            <td>{{ aptoNome(it) || '—' }}</td>
+            <td>
+              <span class="badge-tipo" [ngClass]="it.tipo">
+                <i class="fas" [ngClass]="it.tipo === 'entrada' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                {{ it.tipo === 'entrada' ? 'Entrada' : 'Saída' }}
+              </span>
+            </td>
+            <td class="right valor" [ngClass]="it.tipo">{{ moeda(it.valor) }}</td>
+            <td>{{ (it.data_prevista | date:'dd/MM/yyyy') || '—' }}</td>
+            <td>{{ (it.data_realizada | date:'dd/MM/yyyy') || '—' }}</td>
+            <td>
+              <span class="badge-status" [ngClass]="classeStatus(it)">{{ rotuloStatus[statusDe(it)] }}</span>
+            </td>
+            <td class="acoes">
+              <button class="ic" title="Observação" (click)="toggleDetalhe(it)" *ngIf="it.descricao">
+                <i class="fas fa-comment-dots"></i>
+              </button>
+              <button class="ic" title="Editar" (click)="abrirEdicao(it)"><i class="fas fa-pen"></i></button>
+              <button class="ic danger" title="Excluir" (click)="pedirExclusao(it)"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="expandidoId === it.id" class="detalhe-row">
+            <td colspan="9">
+              <strong>Observação:</strong> {{ it.descricao }}
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="itensFiltrados.length === 0">
+          <td colspan="9" class="vazio">Nenhum lançamento no período/filtro selecionado.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div class="prov-modal-overlay" *ngIf="modalAberto" (click)="fecharModal()">
+  <div class="prov-modal" (click)="$event.stopPropagation()">
+    <div class="prov-modal-header">
+      <h2>{{ editandoId ? 'Editar' : 'Novo' }} provisionamento</h2>
+      <button class="prov-close" (click)="fecharModal()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="prov-modal-body">
+      <div class="linha">
+        <div class="campo">
+          <label>Vínculo</label>
+          <select formControlName="vinculo_tipo" (change)="onVinculoTipoChange()">
+            <option value="forest">Forest</option>
+            <option value="proprietario">Proprietário</option>
+            <option value="fornecedor">Fornecedor</option>
+            <option value="texto">Texto livre</option>
+          </select>
+        </div>
+
+        <div class="campo" *ngIf="form.get('vinculo_tipo')?.value === 'proprietario'">
+          <label>Proprietário</label>
+          <select formControlName="vinculo_id">
+            <option [ngValue]="null">Selecione…</option>
+            <option *ngFor="let p of proprietarios" [ngValue]="p.id">{{ nomeUser(p) }}</option>
+          </select>
+        </div>
+
+        <div class="campo"
+          *ngIf="form.get('vinculo_tipo')?.value === 'fornecedor' || form.get('vinculo_tipo')?.value === 'texto'">
+          <label>{{ form.get('vinculo_tipo')?.value === 'fornecedor' ? 'Fornecedor' : 'Identificação' }}</label>
+          <input type="text" formControlName="vinculo_label" placeholder="Digite…" />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Apartamento (opcional)</label>
+          <select formControlName="apartamento_id">
+            <option [ngValue]="null">— Nenhum —</option>
+            <option *ngFor="let a of apartamentos" [ngValue]="a.id">{{ a.nome }}</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Transação</label>
+          <select formControlName="tipo">
+            <option value="entrada">Entrada</option>
+            <option value="saida">Saída</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Valor (R$)</label>
+          <input type="number" step="0.01" min="0" formControlName="valor" placeholder="0,00" />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Data Prevista</label>
+          <input type="date" formControlName="data_prevista" />
+        </div>
+        <div class="campo">
+          <label>Data Realizada</label>
+          <input type="date" formControlName="data_realizada" (change)="onDataRealizadaChange()" />
+        </div>
+        <div class="campo">
+          <label>Status</label>
+          <select formControlName="status" (change)="onStatusChange()">
+            <option value="PREVISTO">Previsto</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="REALIZADO">Realizado</option>
+          </select>
+          <small class="dica">Ao preencher a Data Realizada, o status vira “Realizado” automaticamente.</small>
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo full">
+          <label>Descrição / Observação</label>
+          <textarea formControlName="descricao" rows="3" placeholder="Detalhamento do lançamento…"></textarea>
+        </div>
+      </div>
+
+      <div class="prov-modal-footer">
+        <button type="button" class="btn-sec" (click)="fecharModal()">Cancelar</button>
+        <button type="submit" class="btn-primario" [disabled]="form.invalid">
+          <i class="fas fa-save"></i> Salvar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL CONFIRMAR EXCLUSÃO ===================== -->
+<div class="prov-modal-overlay" *ngIf="confirmExcluirAberto" (click)="cancelarExclusao()">
+  <div class="prov-modal prov-modal-sm" (click)="$event.stopPropagation()">
+    <div class="prov-modal-header">
+      <h2 class="perigo"><i class="fas fa-triangle-exclamation"></i> Excluir lançamento</h2>
+      <button class="prov-close" (click)="cancelarExclusao()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="prov-modal-body">
+      <p class="confirm-texto">
+        Tem certeza que deseja excluir o provisionamento
+        <strong>#{{ itemExcluir?.id }}</strong><ng-container *ngIf="itemExcluir">
+          — {{ vinculoDisplay(itemExcluir) }} ({{ moeda(itemExcluir.valor) }})</ng-container>?
+      </p>
+      <p class="confirm-aviso"><i class="fas fa-circle-info"></i> Essa ação não pode ser desfeita.</p>
+      <div class="prov-modal-footer">
+        <button type="button" class="btn-sec" (click)="cancelarExclusao()">Cancelar</button>
+        <button type="button" class="btn-perigo" (click)="confirmarExclusao()">
+          <i class="fas fa-trash"></i> Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -47,6 +47,7 @@ import { EscalaFaxina2Component } from './AIRBNB/Limpeza/escala-faxina2/escala-f
 import { ControleFaxinaComponent } from './AIRBNB/Limpeza/controle-faxina/controle-faxina.component';
 import { DashboardLimpezaComponent } from './AIRBNB/Limpeza/dashboard-limpeza/dashboard-limpeza.component';
 import { PerformanceApartamentosComponent } from './AIRBNB/performance-apartamentos/performance-apartamentos.component';
+import { ProvisionamentosComponent } from './AIRBNB/Financeiro/provisionamentos/provisionamentos.component';
 
 
 const routes: Routes = [
@@ -105,6 +106,7 @@ const routes: Routes = [
   { path: 'suasDemandas', component: SuasDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'performance', component: EstatisticasDemandasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'reservar', component: ReservarComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'provisionamentos', component: ProvisionamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'forest-landing', component: ForestLandingComponent },
 
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // redireciona para '/home' quando o caminho é vazio

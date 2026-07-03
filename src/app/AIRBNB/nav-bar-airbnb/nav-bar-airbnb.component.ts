@@ -19,7 +19,8 @@ export class NavBarAirbnbComponent {
     vistorias: false,
     gerenciamento: false,
     relatorios: false,
-    demandas: false
+    demandas: false,
+    financeiro: false
   };
   constructor(private authService: AuthenticationService,
     private router: Router,
@@ -133,6 +134,9 @@ export class NavBarAirbnbComponent {
   }
   performanceApartamentos(): void {
     this.router.navigate(['/performanceApartamentos']);
+  }
+  provisionamentos(): void {
+    this.router.navigate(['/provisionamentos']);
   }
   npsLimpeza(): void {
     this.router.navigate(['/nps-limpeza']);
