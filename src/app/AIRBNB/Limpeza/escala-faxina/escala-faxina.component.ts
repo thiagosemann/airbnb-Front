@@ -291,8 +291,30 @@ export class EscalaFaxinaComponent implements OnInit {
     return lista.sort((a, b) => {
       const aCancelada = a.description === 'CANCELADA';
       const bCancelada = b.description === 'CANCELADA';
-      return Number(aCancelada) - Number(bCancelada);
+      // Canceladas sempre por último
+      if (aCancelada !== bCancelada) {
+        return Number(aCancelada) - Number(bCancelada);
+      }
+      // Demais ordenadas por data de faxina (end_data) crescente
+      return this.getTimestampOrdenacao(a.end_data) - this.getTimestampOrdenacao(b.end_data);
     });
+  }
+
+  // Retorna um timestamp comparável a partir de datas em YYYY-MM-DD, ISO ou dd/MM/yyyy
+  private getTimestampOrdenacao(dateStr: any): number {
+    if (!dateStr || typeof dateStr !== 'string') return Number.MAX_SAFE_INTEGER;
+    const onlyDate = dateStr.split('T')[0];
+    let ano: number, mes: number, dia: number;
+    let m = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      ano = +m[1]; mes = +m[2]; dia = +m[3];
+    } else if ((m = onlyDate.match(/^(\d{2})\/(\d{2})\/(\d{4})$/))) {
+      dia = +m[1]; mes = +m[2]; ano = +m[3];
+    } else {
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? Number.MAX_SAFE_INTEGER : d.getTime();
+    }
+    return new Date(ano, mes - 1, dia).getTime();
   }
 
   // Converte para dd/MM/yyyy sem criar Date (evitando deslocamento por fuso)
