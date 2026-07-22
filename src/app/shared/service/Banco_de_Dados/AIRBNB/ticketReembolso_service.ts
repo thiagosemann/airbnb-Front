@@ -1,8 +1,8 @@
 // src/app/shared/service/ticket-reembolso.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { TicketReembolso } from 'src/app/shared/utilitarios/ticketReembolso';
+import { TicketReembolso, ResumoReembolsoRow, ResumoReembolsoFiltro } from 'src/app/shared/utilitarios/ticketReembolso';
 import { environment } from 'enviroments';
 
 
@@ -25,6 +25,30 @@ export class TicketReembolsoService {
   /** Lista todos os tickets de reembolso */
   getAllReembolsos(): Observable<TicketReembolso[]> {
     return this.http.get<TicketReembolso[]>(`${this.url}/ticket-reembolso`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Resumo agregado de reembolsos por apartamento ou proprietário, para o fechamento mensal */
+  getResumoReembolsos(filtro: ResumoReembolsoFiltro): Observable<ResumoReembolsoRow[]> {
+    let params = new HttpParams()
+      .set('periodo', filtro.periodo)
+      .set('agrupamento', filtro.agrupamento);
+    if (filtro.mes) {
+      params = params.set('mes', filtro.mes);
+    }
+    if (filtro.status && filtro.status.length) {
+      params = params.set('status', filtro.status.join(','));
+    }
+    return this.http.get<ResumoReembolsoRow[]>(`${this.url}/ticket-reembolso/resumo`, {
+      headers: this.getHeaders(),
+      params
+    });
+  }
+
+  /** Primeiro mês com ticket de reembolso registrado, para popular o filtro de mês */
+  getPeriodoDisponivelReembolso(): Observable<{ primeiroMes: string | null }> {
+    return this.http.get<{ primeiroMes: string | null }>(`${this.url}/ticket-reembolso/periodo-disponivel`, {
       headers: this.getHeaders()
     });
   }

@@ -1,0 +1,193 @@
+<div class="container-Fechamento">
+	<div class="header-card">
+		<div class="header-title">
+			<i class="bi bi-calendar2-check"></i>
+			<h1>Fechamento Mensal de Reembolsos</h1>
+		</div>
+
+		<div class="header-actions">
+			<!-- Agrupamento -->
+			<div class="segmented">
+				<button type="button" [class.active]="agrupamento === 'apartamento'" (click)="setAgrupamento('apartamento')">
+					<i class="bi bi-building"></i> Por Apartamento
+				</button>
+				<button type="button" [class.active]="agrupamento === 'proprietario'" (click)="setAgrupamento('proprietario')">
+					<i class="bi bi-person-badge"></i> Por Proprietário
+				</button>
+			</div>
+
+			<div class="controls-row">
+				<!-- Período -->
+				<div class="periodo-group">
+					<button type="button" [class.active]="periodo === '15d'" (click)="setPeriodo('15d')">15 dias</button>
+					<button type="button" [class.active]="periodo === '30d'" (click)="setPeriodo('30d')">30 dias</button>
+					<button type="button" [class.active]="periodo === 'mes'" (click)="setPeriodo('mes')">Mês</button>
+				</div>
+
+				<select *ngIf="periodo === 'mes'" class="form-select control-select" [(ngModel)]="mesSelecionado" (change)="onMesChange()">
+					<option *ngFor="let m of mesesDisponiveis" [value]="m.value">{{ m.label }}</option>
+				</select>
+
+				<!-- Status -->
+				<div class="status-checks">
+					<label class="status-check" [class.active]="filtroPendente">
+						<input type="checkbox" [checked]="filtroPendente" (change)="toggleStatus('PENDENTE')" />
+						Pendente
+					</label>
+					<label class="status-check" [class.active]="filtroPago">
+						<input type="checkbox" [checked]="filtroPago" (change)="toggleStatus('PAGO')" />
+						Pago
+					</label>
+				</div>
+			</div>
+
+			<!-- Resumo geral -->
+			<div class="resumo-cards">
+				<div class="resumo-card pendente">
+					<span class="resumo-card-label">Pendente</span>
+					<span class="resumo-card-valor">R$ {{ totalPendente | number:'1.2-2' }}</span>
+				</div>
+				<div class="resumo-card pago">
+					<span class="resumo-card-label">Pago</span>
+					<span class="resumo-card-valor">R$ {{ totalPago | number:'1.2-2' }}</span>
+				</div>
+				<div class="resumo-card geral">
+					<span class="resumo-card-label">Total Geral</span>
+					<span class="resumo-card-valor">R$ {{ totalGeral | number:'1.2-2' }}</span>
+				</div>
+				<div class="resumo-card quantidade">
+					<span class="resumo-card-label">Tickets</span>
+					<span class="resumo-card-valor">{{ quantidadeGeral }}</span>
+				</div>
+			</div>
+
+			<button type="button" class="btn-export-total" (click)="exportarRelatorioTotal()">
+				<i class="bi bi-file-earmark-excel"></i> Exportar Relatório Total (XLS)
+			</button>
+		</div>
+	</div>
+
+	<div *ngIf="loading" class="loading-box">
+		<i class="bi bi-arrow-repeat spin"></i> Carregando resumo...
+	</div>
+
+	<div *ngIf="erro" class="erro-box">
+		<i class="bi bi-exclamation-triangle"></i> {{ erro }}
+	</div>
+
+	<!-- Visão por Apartamento -->
+	<ng-container *ngIf="!loading && agrupamento === 'apartamento'">
+		<div *ngIf="linhasApartamento.length === 0" class="no-results">
+			<i class="bi bi-inbox"></i>
+			<p>Nenhum reembolso encontrado para este filtro</p>
+		</div>
+
+		<div class="table-responsive" *ngIf="linhasApartamento.length > 0">
+			<table class="fechamento-table">
+				<thead>
+					<tr>
+						<th style="width: 24%;">Apartamento</th>
+						<th style="width: 11%;">Qtd Pendente</th>
+						<th style="width: 15%;">Total Pendente</th>
+						<th style="width: 11%;">Qtd Pago</th>
+						<th style="width: 15%;">Total Pago</th>
+						<th style="width: 16%;">Total Geral</th>
+						<th style="width: 8%;">Ações</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let apt of linhasApartamento">
+						<tr class="linha-clicavel" (click)="toggleExpandirApartamento(apt.apartamento_id)">
+							<td>
+								<i class="bi" [ngClass]="expandidoApartamentoId === apt.apartamento_id ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+								{{ apt.apartamento_nome }}
+							</td>
+							<td>{{ apt.porStatus['PENDENTE']?.quantidade || 0 }}</td>
+							<td>R$ {{ (apt.porStatus['PENDENTE']?.total || 0) | number:'1.2-2' }}</td>
+							<td>{{ apt.porStatus['PAGO']?.quantidade || 0 }}</td>
+							<td>R$ {{ (apt.porStatus['PAGO']?.total || 0) | number:'1.2-2' }}</td>
+							<td><strong>R$ {{ apt.totalGeral | number:'1.2-2' }}</strong></td>
+							<td>
+								<button type="button" class="btn-export-linha" title="Exportar XLS deste apartamento" (click)="exportarApartamentoXls(apt, $event)">
+									<i class="bi bi-file-earmark-excel"></i>
+								</button>
+							</td>
+						</tr>
+						<tr class="linha-detalhe" *ngIf="expandidoApartamentoId === apt.apartamento_id">
+							<td colspan="7">
+								<table class="detalhe-table">
+									<thead>
+										<tr>
+											<th>Item</th>
+											<th>Status</th>
+											<th>Criado em</th>
+											<th>Valor (R$)</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr *ngFor="let t of detalheApartamento(apt.apartamento_id)">
+											<td>{{ t.item_problema }}</td>
+											<td><span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span></td>
+											<td>{{ t.created_at | date:'dd/MM/yyyy' }}</td>
+											<td>{{ t.valor_total | number:'1.2-2' }}</td>
+										</tr>
+										<tr *ngIf="detalheApartamento(apt.apartamento_id).length === 0">
+											<td colspan="4" class="text-muted">Nenhum ticket no detalhamento.</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+	</ng-container>
+
+	<!-- Visão por Proprietário -->
+	<ng-container *ngIf="!loading && agrupamento === 'proprietario'">
+		<div *ngIf="linhasProprietario.length === 0" class="no-results">
+			<i class="bi bi-inbox"></i>
+			<p>Nenhum reembolso encontrado para este filtro</p>
+		</div>
+
+		<div class="proprietario-list" *ngIf="linhasProprietario.length > 0">
+			<div class="proprietario-card" *ngFor="let prop of linhasProprietario">
+				<div class="proprietario-header">
+					<div class="proprietario-nome">
+						<i class="bi bi-person-badge"></i> {{ prop.proprietario_nome }}
+					</div>
+					<div class="proprietario-totais">
+						<span>{{ prop.quantidadeGeral }} tickets</span>
+						<strong>R$ {{ prop.totalGeral | number:'1.2-2' }}</strong>
+						<button type="button" class="btn-export-linha" title="Exportar XLS deste proprietário" (click)="exportarProprietarioXls(prop, $event)">
+							<i class="bi bi-file-earmark-excel"></i>
+						</button>
+					</div>
+				</div>
+				<table class="detalhe-table">
+					<thead>
+						<tr>
+							<th>Apartamento</th>
+							<th>Qtd Pendente</th>
+							<th>Total Pendente</th>
+							<th>Qtd Pago</th>
+							<th>Total Pago</th>
+							<th>Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let apt of prop.apartamentos">
+							<td>{{ apt.apartamento_nome }}</td>
+							<td>{{ apt.porStatus['PENDENTE']?.quantidade || 0 }}</td>
+							<td>R$ {{ (apt.porStatus['PENDENTE']?.total || 0) | number:'1.2-2' }}</td>
+							<td>{{ apt.porStatus['PAGO']?.quantidade || 0 }}</td>
+							<td>R$ {{ (apt.porStatus['PAGO']?.total || 0) | number:'1.2-2' }}</td>
+							<td><strong>R$ {{ apt.totalGeral | number:'1.2-2' }}</strong></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</ng-container>
+</div>

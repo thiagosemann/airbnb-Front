@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
     'escalaFaxinaAdmin',
     'ticketReembolso',
     'controleTicketReembolso',
+    'fechamentoReembolso',
     'controleFaxina',
     'vistoria',
     'controle-vistoria',

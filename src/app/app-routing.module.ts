@@ -23,6 +23,7 @@ import { CalendarioComponent } from './AIRBNB/calendario/calendario.component';
 import { CalendarioPorApartamentoComponent } from './AIRBNB/calendario-por-apartamento/calendario-por-apartamento.component';
 import { TicketReembolsoComponent } from './AIRBNB/ticketReembolso/ticket-reembolso/ticket-reembolso.component';
 import { ControleTicketReembolsoComponent } from './AIRBNB/ticketReembolso/controle-ticket-reembolso/controle-ticket-reembolso.component';
+import { FechamentoReembolsoComponent } from './AIRBNB/ticketReembolso/fechamento-reembolso/fechamento-reembolso.component';
 import { CadastroProprietariosComponent } from './Cadastro/cadastro-proprietarios/cadastro-proprietarios.component';
 import { AceiteTicketReembolsoProprietarioComponent } from './AIRBNB/ticketReembolso/aceite-ticket-reembolso-proprietario/aceite-ticket-reembolso-proprietario.component';
 import { QrcodescannerComponent } from './AIRBNB/qrcodescanner/qrcodescanner.component';
@@ -79,6 +80,7 @@ const routes: Routes = [
   { path: 'calendarioDetalhadoMobile/:cod', component: CalendarioMobileComponent },
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'fechamentoReembolso', component: FechamentoReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'controleNodeMcuPortas', component: ControlePortasComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'nps-limpeza', component: NpsLimpezaComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'disponibilidade-tercerizado', component: DisponibilidadeTercerizadoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },

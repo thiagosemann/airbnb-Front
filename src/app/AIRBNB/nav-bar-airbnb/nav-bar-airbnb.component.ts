@@ -95,6 +95,9 @@ export class NavBarAirbnbComponent {
   controleTicket(): void {
     this.router.navigate(['/controleTicketReembolso']);
   }
+  fechamentoReembolso(): void {
+    this.router.navigate(['/fechamentoReembolso']);
+  }
 
   // Demandas
   controleDemandas(): void {

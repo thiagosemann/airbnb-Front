@@ -31,3 +31,23 @@ export interface TicketReembolso {
   files?: TicketReembolsoArquivo[];
   arquivos?: TicketReembolsoArquivo[]; // Para envio
 }
+
+export interface ResumoReembolsoRow {
+  apartamento_id: number;
+  apartamento_nome: string;
+  proprietario_id?: number | null;
+  proprietario_nome?: string | null;
+  status: string;
+  quantidade: number;
+  total: number;
+}
+
+export type PeriodoReembolsoFiltro = '15d' | '30d' | 'mes';
+export type AgrupamentoReembolsoFiltro = 'apartamento' | 'proprietario';
+
+export interface ResumoReembolsoFiltro {
+  periodo: PeriodoReembolsoFiltro;
+  mes?: string; // 'YYYY-MM'
+  status?: string[];
+  agrupamento: AgrupamentoReembolsoFiltro;
+}
