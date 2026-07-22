@@ -12,7 +12,6 @@ import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBN
   styleUrls: ['./controle-faxina.component.css','./controle-faxina.component2.css','./controle-faxina.component3.css']
 })
 export class ControleFaxinaComponent implements OnInit {
-  private readonly TIMEZONE_SP = 'America/Sao_Paulo';
   users: User[] = [];
   selectedMonth: string = '';
   monthOptions: any[] = [];
@@ -125,23 +124,32 @@ export class ControleFaxinaComponent implements OnInit {
     return [formatDate(start), formatDate(end)];
   }
 
-  // Extrai ano/mês/dia sempre no fuso de São Paulo, independente do fuso do ambiente (browser/servidor)
+  // Extrai ano/mês/dia direto da string, sem passar por Date/Intl.
+  // end_data é uma data de calendário pura (sem hora); convertê-la via Date com fuso
+  // aplicaria um deslocamento (a string "YYYY-MM-DD" é interpretada como meia-noite UTC),
+  // fazendo o dia "voltar" quando reformatada para o fuso de SP. Parsing textual evita isso.
   private getSPDateParts(dateString: string): { year: number; month: number; day: number } {
+    if (dateString) {
+      const onlyDate = dateString.split('T')[0];
+      const isoMatch = onlyDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (isoMatch) {
+        const [, y, mo, d] = isoMatch;
+        return { year: Number(y), month: Number(mo) - 1, day: Number(d) };
+      }
+      const brMatch = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (brMatch) {
+        const [, d, mo, y] = brMatch;
+        return { year: Number(y), month: Number(mo) - 1, day: Number(d) };
+      }
+    }
     const date = new Date(dateString);
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: this.TIMEZONE_SP,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-
-    const get = (type: string) => Number(parts.find(p => p.type === type)?.value);
-    return { year: get('year'), month: get('month') - 1, day: get('day') };
+    return { year: date.getFullYear(), month: date.getMonth(), day: date.getDate() };
   }
 
   private formatDateSP(dateString: string): string {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: this.TIMEZONE_SP });
+    const { year, month, day } = this.getSPDateParts(dateString);
+    return `${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/${year}`;
   }
 
   private parseSelectedYearMonth(): { year: number; monthIndex: number } {
@@ -327,11 +335,13 @@ export class ControleFaxinaComponent implements OnInit {
     return day.toString().padStart(2, '0');
   }
 
+  private readonly MESES_ABREV = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
+
   // Função para obter o mês abreviado
   getMonth(dateString: string): string {
     if (!dateString) return '--';
-    const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', { month: 'short', timeZone: this.TIMEZONE_SP });
+    const { month } = this.getSPDateParts(dateString);
+    return this.MESES_ABREV[month];
   }
 
   // Função para obter a data da última faxina

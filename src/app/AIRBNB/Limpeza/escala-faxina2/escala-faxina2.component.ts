@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import * as XLSX from 'xlsx';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ApartamentoEmpresaService, VinculoApartamentoEmpresa } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentoEmpresa_service';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
@@ -68,6 +69,16 @@ export class EscalaFaxina2Component {
 
 faxinasFiltradas: any[] = [];
 canceladasHoje: any[] = [];
+
+  // ---------------------------------- Exportação XLS ----------------------------------
+  showExportModal: boolean = false;
+  exportFiltro = {
+    apartamentoId: '',
+    empresaId: '',
+    responsavelId: '',
+    status: 'todas', // todas | finalizadas | pendentes
+    incluirCanceladas: true
+  };
 
   constructor(private reservasService: ReservasAirbnbService,
               private userService: UserService,
@@ -501,6 +512,86 @@ private formatDates(lista: any[]): any[] {
 
   fecharModal(): void {
     this.showModal = false;
+  }
+
+  // ---------------------------------- Exportação XLS ----------------------------------
+  // Empresas disponíveis para o filtro de exportação (únicas, a partir dos terceirizados carregados)
+  get empresasDisponiveisExport(): { id: number; nome: string }[] {
+    const mapa = new Map<number, string>();
+    for (const u of this.users) {
+      if (u.empresa_id !== undefined && u.empresa_id !== null) {
+        mapa.set(Number(u.empresa_id), u.empresa_nome || 'Sem empresa');
+      }
+    }
+    return Array.from(mapa.entries())
+      .map(([id, nome]) => ({ id, nome }))
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+  }
+
+  // Responsáveis disponíveis para o filtro de exportação, respeitando a empresa selecionada
+  get responsaveisDisponiveisExport(): User[] {
+    if (!this.exportFiltro.empresaId) return this.users;
+    return this.users.filter(u => Number(u.empresa_id) === Number(this.exportFiltro.empresaId));
+  }
+
+  abrirModalExport(): void {
+    this.showExportModal = true;
+  }
+
+  fecharModalExport(): void {
+    this.showExportModal = false;
+  }
+
+  private aplicarFiltrosExport(lista: any[]): any[] {
+    const { apartamentoId, empresaId, responsavelId, status, incluirCanceladas } = this.exportFiltro;
+
+    return lista.filter(faxina => {
+      if (!incluirCanceladas && faxina.description === 'CANCELADA') return false;
+
+      if (apartamentoId && Number(faxina.apartamento_id) !== Number(apartamentoId)) return false;
+
+      if (responsavelId && Number(faxina.faxina_userId) !== Number(responsavelId)) return false;
+
+      if (empresaId) {
+        const empresaDoResponsavel = faxina.faxina_userId
+          ? this.empresaIdPorUserId.get(Number(faxina.faxina_userId))
+          : null;
+        if (Number(empresaDoResponsavel) !== Number(empresaId)) return false;
+      }
+
+      if (status === 'finalizadas' && !faxina.limpeza_realizada) return false;
+      if (status === 'pendentes' && faxina.limpeza_realizada) return false;
+
+      return true;
+    });
+  }
+
+  exportarXls(): void {
+    const dados = this.aplicarFiltrosExport(this.faxinasFiltradas);
+
+    if (dados.length === 0) {
+      this.toastr.warning('Nenhuma faxina encontrada para os filtros selecionados');
+      return;
+    }
+
+    const worksheetData = dados.map(faxina => ({
+      'Data': faxina.end_data,
+      'Dia da Semana': this.getDiaDaSemana(faxina.end_data),
+      'Apartamento': faxina.apartamento_nome,
+      'Status': faxina.description === 'CANCELADA' ? 'Cancelada' : (faxina.description === 'LIMPEZA' ? 'Limpeza Manual' : 'Reserva'),
+      'Check-Out': faxina.check_out || '',
+      'Senha': faxina.apartamento_senha || '',
+      'Finalizado': faxina.limpeza_realizada ? 'Sim' : 'Não',
+      'Responsável': this.getResponsavelNome(faxina.faxina_userId) || 'Não definido',
+      'Empresa': this.empresaNomeDoResponsavel(faxina)
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Escala de Faxina');
+    XLSX.writeFile(workbook, `escala_faxina_${this.dataInicio}_a_${this.dataFim}.xlsx`);
+
+    this.fecharModalExport();
   }
 
   saveLimpezaExtra(): void {

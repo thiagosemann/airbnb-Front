@@ -18,6 +18,11 @@
         <i class="fas fa-plus"></i> Nova Limpeza
       </button>
       </div>
+      <div class="form-group">
+         <button class="btn btn-primary" (click)="abrirModalExport()">
+        <i class="fas fa-file-excel"></i> Exportar XLS
+      </button>
+      </div>
     </div>
       <div class="search-container">
         <i class="fas fa-search search-icon"></i>
@@ -327,6 +332,64 @@
                   [disabled]="formLimpeza.invalid"
                   (click)="saveLimpezaExtra()">
             Salvar
+          </button>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal para Exportar XLS -->
+<div class="modal" *ngIf="showExportModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="mb-0">Exportar Escala em XLS</h3>
+        <button class="close-btn" (click)="fecharModalExport()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted" style="font-size:0.9em;">
+          Serão exportadas as faxinas do período {{ formatarData(dataInicio) }} a {{ formatarData(dataFim) }},
+          já considerando os filtros de pesquisa aplicados na tela.
+        </p>
+        <div class="form-group">
+          <label>Apartamento</label>
+          <select class="form-control" [(ngModel)]="exportFiltro.apartamentoId">
+            <option value="">Todos</option>
+            <option *ngFor="let apt of apartamentos" [value]="apt.id">{{ apt.nome }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Empresa</label>
+          <select class="form-control" [(ngModel)]="exportFiltro.empresaId" (change)="exportFiltro.responsavelId = ''">
+            <option value="">Todas</option>
+            <option *ngFor="let emp of empresasDisponiveisExport" [value]="emp.id">{{ emp.nome }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Responsável</label>
+          <select class="form-control" [(ngModel)]="exportFiltro.responsavelId">
+            <option value="">Todos</option>
+            <option *ngFor="let u of responsaveisDisponiveisExport" [value]="u.id">{{ u.first_name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status da Limpeza</label>
+          <select class="form-control" [(ngModel)]="exportFiltro.status">
+            <option value="todas">Todas</option>
+            <option value="finalizadas">Finalizadas</option>
+            <option value="pendentes">Pendentes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="custom-checkbox">
+            <input type="checkbox" [(ngModel)]="exportFiltro.incluirCanceladas">
+            <span class="checkmark"></span>
+            Incluir reservas canceladas
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-cancel-modal" (click)="fecharModalExport()">Cancelar</button>
+          <button class="btn btc-save-modal" (click)="exportarXls()">
+            <i class="fas fa-file-excel"></i> Exportar
           </button>
       </div>
     </div>
