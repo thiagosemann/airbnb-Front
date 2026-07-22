@@ -1,5 +1,42 @@
-/* Design palette (explicit values, no CSS variables) */
-/* Primary: #0d6efd | Surface: #ffffff | Muted: #6c757d | Border: #e9ecef */
+/* ============================================================
+   Relatório de Nota Fiscal — identidade "ledger de conciliação"
+   Paleta/tipografia escopadas a este componente via :host (não vaza
+   para o resto do app, que usa Inter + azul Bootstrap por padrão).
+
+   Direção: página de conciliação contábil (Airbnb/Booking -> NF por
+   apartamento/proprietário), não um dashboard SaaS genérico. Números
+   monetários em mono tabular alinham como um extrato impresso; o total
+   de Nota Fiscal (o motivo da página existir) recebe uma régua dupla
+   em latão, como o total de um razão contábil.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:host {
+	--paper: #F5F2EA;
+	--paper-raised: #FBF9F4;
+	--ink: #1C2B22;
+	--ink-muted: #5B6A5F;
+	--forest: #2F5D42;
+	--forest-dim: #7C9484;
+	--forest-wash: rgba(47,93,66,0.08);
+	--brass: #A8763A;
+	--brass-wash: rgba(168,118,58,0.12);
+	--clay: #A63F2B;
+	--clay-wash: rgba(166,63,43,0.09);
+	--hairline: rgba(28,43,34,0.14);
+
+	display: block;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* Foco visível padrão para qualquer elemento interativo sem regra própria */
+:host :focus-visible {
+	outline: 2px solid var(--forest);
+	outline-offset: 2px;
+}
 
 /* Container principal */
 .container {
@@ -7,9 +44,22 @@
 }
 
 /* Títulos */
+.page-eyebrow {
+	display: block;
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.72rem;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--brass);
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
 h2 {
-  color: #212529;
-  font-weight: 600;
+	font-family: 'Fraunces', serif;
+	color: var(--ink);
+	font-weight: 600;
+	letter-spacing: -0.01em;
 }
 
 .page-head {
@@ -20,50 +70,67 @@ h2 {
 }
 
 .page-subtitle {
-	color: #6c757d;
+	color: var(--ink-muted);
 	font-size: 0.95rem;
 }
 
-/* Tabs */
+/* Tabs — divisores sublinhados, não pílulas de SaaS genérico */
 .tabs {
-	display: inline-flex;
-	gap: 6px;
-	padding: 6px;
-	background: #ffffff;
-	border: 1px solid #e9ecef;
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid var(--hairline);
+	border-radius: 0;
+	box-shadow: none;
 }
 .tab {
 	border: 0;
 	background: transparent;
-	color: #495057;
-	font-weight: 700;
-	border-radius: 10px;
-	padding: 8px 12px;
+	color: var(--ink-muted);
+	font-weight: 600;
+	font-size: 0.92rem;
+	border-radius: 6px 6px 0 0;
+	padding: 10px 14px 12px;
 	line-height: 1;
-	transition: background 0.15s ease, color 0.15s ease;
+	position: relative;
+	transition: color 0.15s ease;
+}
+.tab::after {
+	content: '';
+	position: absolute;
+	left: 14px;
+	right: 14px;
+	bottom: -1px;
+	height: 2px;
+	background: transparent;
+	transition: background 0.15s ease;
 }
 .tab:hover {
-	background: #f8f9fa;
+	color: var(--ink);
 }
 .tab.active {
-	background: rgba(13,110,253,0.12);
-	color: #0b5ed7;
+	color: var(--forest);
+}
+.tab.active::after {
+	background: var(--forest);
 }
 .tab:focus {
 	outline: none;
-	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.18);
+	box-shadow: 0 0 0 0.2rem var(--forest-wash);
 }
 
 .tab-badge {
 	margin-left: 8px;
-	padding: 2px 8px;
+	padding: 1px 8px;
 	border-radius: 999px;
-	background: rgba(220,53,69,0.12);
-	color: #b02a37;
-	font-weight: 800;
-	font-size: 0.8rem;
+	background: var(--clay-wash);
+	color: var(--clay);
+	font-weight: 700;
+	font-size: 0.76rem;
+	font-family: 'IBM Plex Mono', monospace;
 }
 
 .truncate {
@@ -79,66 +146,88 @@ h2 {
 	gap: 6px;
 }
 
+/* Marca de margem (não pílula): lê como anotação num razão contábil */
 .error-chip {
 	display: inline-flex;
 	align-items: center;
-	padding: 4px 10px;
-	border-radius: 999px;
+	padding: 5px 10px;
+	border-radius: 4px;
 	font-size: 0.82rem;
-	font-weight: 700;
-	background: rgba(220,53,69,0.10);
-	color: #b02a37;
-	border: 1px solid rgba(220,53,69,0.20);
+	font-weight: 500;
+	background: var(--clay-wash);
+	color: var(--clay);
+	border: 1px solid rgba(166,63,43,0.22);
+	border-left: 3px solid var(--clay);
 }
 
-/* Input group */
+/* Campos de formulário */
+.form-label {
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+}
+.form-text {
+	color: var(--ink-muted);
+	font-size: 0.8rem;
+}
+.form-control {
+	background: var(--paper-raised);
+	border-color: var(--hairline);
+	color: var(--ink);
+}
 .form-control:focus {
-	border-color: #0d6efd;
-	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+	background: var(--paper-raised);
+	border-color: var(--forest);
+	box-shadow: 0 0 0 0.2rem var(--forest-wash);
+	color: var(--ink);
 }
 
 /* Painel (card) */
 .panel {
-	background: #ffffff;
-	border: 1px solid #e9ecef;
-	border-radius: 14px;
-	padding: 16px;
-	box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+	background: var(--paper-raised);
+	border: 1px solid var(--hairline);
+	border-radius: 12px;
+	padding: 18px;
+	box-shadow: none;
 }
 
-/* Etapas */
+/* Etapas — sequência real (enviar -> vincular -> exportar), numeração é informação aqui */
 .steps {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	border: 1px solid var(--hairline);
+	border-radius: 10px;
+	overflow: hidden;
 }
 .steps .step {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 8px 12px;
-	border-radius: 999px;
-	border: 1px solid #e9ecef;
-	background: #f8f9fa;
-	color: #495057;
-	font-weight: 600;
-	font-size: 0.9rem;
+	padding: 10px 14px;
+	border-right: 1px solid var(--hairline);
+	background: var(--paper-raised);
+	color: var(--ink-muted);
+	font-weight: 500;
+	font-size: 0.86rem;
+	flex: 1 1 160px;
+}
+.steps .step:last-child {
+	border-right: none;
 }
 .steps .step .step-num {
-	width: 22px;
-	height: 22px;
-	border-radius: 999px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	background: #ffffff;
-	border: 1px solid #dee2e6;
-	font-size: 0.85rem;
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: var(--brass);
 }
 .steps .step.active {
-	border-color: rgba(13,110,253,0.25);
-	background: rgba(13,110,253,0.08);
-	color: #0b5ed7;
+	background: var(--forest);
+	color: #ffffff;
+}
+.steps .step.active .step-num {
+	color: rgba(255,255,255,0.75);
 }
 
 /* Status line */
@@ -148,44 +237,52 @@ h2 {
 	align-items: center;
 	gap: 10px;
 	padding: 8px 10px;
-	border-radius: 10px;
-	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	border: 1px solid var(--hairline);
 	font-size: 0.9rem;
 }
 .status-info {
-	background: rgba(13,110,253,0.06);
-	color: #0b5ed7;
+	background: var(--forest-wash);
+	color: var(--forest);
 }
 .status-warn {
-	background: rgba(255,193,7,0.14);
-	color: #664d03;
+	background: var(--brass-wash);
+	color: var(--brass);
 }
 
 /* Botões */
 .btn-action {
 	padding: 10px 18px;
 	font-weight: 600;
-	border-radius: 10px;
-	box-shadow: 0 6px 18px rgba(13,110,253,0.14);
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	border-radius: 8px;
+	background-color: var(--forest);
+	border-color: var(--forest);
+	box-shadow: none;
+	transition: background-color 0.15s ease;
 }
-.btn-action:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 10px 24px rgba(13,110,253,0.18);
+.btn-action:hover:not(:disabled) {
+	background-color: #244a35;
+	border-color: #244a35;
+	transform: none;
+	box-shadow: none;
+}
+.btn-action:focus {
+	box-shadow: 0 0 0 0.2rem var(--forest-wash);
 }
 .btn-action:disabled {
-	opacity: 0.7;
+	opacity: 0.6;
 	transform: none;
 	box-shadow: none;
 }
 
 .btn-outline-danger {
-	color: #dc3545;
-	border-color: #dc3545;
+	color: var(--clay);
+	border-color: var(--clay);
 }
 
 .btn-outline-danger:hover {
-	background-color: #dc3545;
+	background-color: var(--clay);
+	border-color: var(--clay);
 	color: white;
 }
 
@@ -200,10 +297,13 @@ h2 {
 	position: sticky;
 	top: 0;
 	z-index: 2;
-	background-color: #ffffff;
-	color: #212529;
-	font-weight: 700;
-	border-bottom: 1px solid #e9ecef;
+	background-color: var(--paper-raised);
+	color: var(--ink);
+	font-weight: 600;
+	font-size: 0.76rem;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--hairline);
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -211,30 +311,34 @@ h2 {
 }
 
 .table-wrapper::-webkit-scrollbar-track {
-	background: #e0e0e0;
+	background: var(--paper);
 	border-radius: 10px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-	background: #0d6efd;
+	background: var(--forest-dim);
 	border-radius: 10px;
 }
 
 .table {
 	margin: 0;
+	color: var(--ink);
 }
 .table tbody td {
-	border-top-color: #f1f3f5;
+	border-top-color: var(--hairline);
 }
+/* Ledger: valores monetários e percentuais em mono tabular, alinhados como um extrato */
 .table td.text-end, .table th.text-end {
 	text-align: right !important;
+	font-family: 'IBM Plex Mono', monospace;
+	font-variant-numeric: tabular-nums;
 }
 .table td, .table th {
 	vertical-align: middle;
 }
 
 .table-hover tbody tr:hover {
-  background-color: rgba(13, 110, 253, 0.05);
+  background-color: var(--forest-wash);
 }
 
 /* Pills (Tipo) */
@@ -245,39 +349,47 @@ h2 {
 	border-radius: 999px;
 	font-size: 0.82rem;
 	font-weight: 700;
-	border: 1px solid #e9ecef;
+	border: 1px solid var(--hairline);
 	white-space: nowrap;
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 .pill-host {
-	background: rgba(25,135,84,0.10);
-	color: #146c43;
-	border-color: rgba(25,135,84,0.20);
+	background: var(--forest-wash);
+	color: var(--forest);
+	border-color: rgba(47,93,66,0.22);
 }
 .pill-cohost {
-	background: rgba(13,110,253,0.10);
-	color: #0b5ed7;
-	border-color: rgba(13,110,253,0.20);
+	background: var(--brass-wash);
+	color: var(--brass);
+	border-color: rgba(168,118,58,0.24);
 }
 
-/* KPIs */
+/* KPIs — tira de totais estilo extrato, com o total de NF em destaque */
 .kpi-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 12px;
+	display: flex;
+	align-items: stretch;
+	border: 1px solid var(--hairline);
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--paper-raised);
 }
 .kpi {
-	border-radius: 14px;
-	border: 1px solid #e9ecef;
-	background: #ffffff;
+	flex: 1 1 0;
+	border-radius: 0;
+	border: none;
+	border-right: 1px solid var(--hairline);
+	background: transparent;
+	box-shadow: none;
 	padding: 14px 16px;
-	box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.kpi:last-child {
+	border-right: none;
 }
 .kpi-primary {
-	background: linear-gradient(180deg, rgba(13,110,253,0.12), rgba(13,110,253,0.06));
-	border-color: rgba(13,110,253,0.20);
+	background: var(--brass-wash);
 }
 .kpi-neutral {
-	background: #ffffff;
+	background: transparent;
 }
 /* Responsividade */
 @media (max-width: 767px) {
@@ -285,34 +397,55 @@ h2 {
 		width: 100%;
 	}
 	.kpi-grid {
-		grid-template-columns: 1fr;
+		flex-direction: column;
+	}
+	.kpi {
+		border-right: none;
+		border-bottom: 1px solid var(--hairline);
+	}
+	.kpi:last-child {
+		border-bottom: none;
 	}
 }
 
 .total-label {
-	font-size: 0.85rem;
-	color: #6c757d;
-	margin-bottom: 4px;
+	font-size: 0.72rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+	margin-bottom: 6px;
+	font-weight: 600;
 }
 
 .total-value {
-  font-size: 1.25rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.2;
+  color: var(--ink);
+}
+
+/* Total de Nota Fiscal: régua dupla em latão, como o total de um razão contábil */
+.kpi-primary .total-value {
+	color: var(--brass);
+	font-size: 1.34rem;
+	padding-top: 7px;
+	border-top: 3px double var(--brass);
 }
 
 .progress {
-  background-color: #e9ecef;
+  background-color: var(--hairline);
 }
 .progress-bar {
-	background-color: #0d6efd;
+	background-color: var(--forest);
 }
 
 /* Overlay de carregamento (se necessário) */
 .loading-overlay {
 	position: absolute;
 	inset: 0;
-	background: rgba(255,255,255,0.6);
+	background: rgba(245,242,234,0.7);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -322,5 +455,11 @@ h2 {
 @media (max-width: 576px) {
 	.total-value {
 		font-size: 1.1rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-action, .tab, .progress-bar, .form-control {
+		transition: none !important;
 	}
 }

@@ -49,10 +49,11 @@ export class ReservasAirbnbService {
     );
   }
 
-  getAllReservas(): Observable<ReservaAirbnb[]> {
+  getAllReservas(incluirInativos: boolean = false): Observable<ReservaAirbnb[]> {
+    const params = new HttpParams().set('incluirInativos', String(incluirInativos));
     return this.http.get<ReservaAirbnb[]>(
       this.apiUrl,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(), params }
     );
   }
 

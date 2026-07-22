@@ -2,8 +2,9 @@
 	<!-- Cabeçalho -->
 	<div class="page-head mb-3">
 		<div>
+			<span class="page-eyebrow">Forest · Conciliação</span>
 			<h2 class="mb-1">Relatório de Nota Fiscal</h2>
-			<div class="page-subtitle">Carregue o CSV, aguarde o enriquecimento e exporte o XLS.</div>
+			<div class="page-subtitle">Envie os arquivos de pagamento, confira os vínculos e exporte os valores por proprietário.</div>
 		</div>
 	</div>
 
@@ -11,9 +12,9 @@
 	<div class="panel mb-3">
 		<!-- Etapas -->
 		<div class="steps mb-3">
-			<span class="step" [class.active]="!carregando && reservasCSV.length === 0"><span class="step-num">1</span>Upload CSV</span>
-			<span class="step" [class.active]="carregandoDados"><span class="step-num">2</span>Enriquecimento</span>
-			<span class="step" [class.active]="reservasCSV.length > 0 && !carregandoDados"><span class="step-num">3</span>Exportar XLS</span>
+			<span class="step" [class.active]="!carregando && reservasCSV.length === 0"><span class="step-num">01</span>Enviar arquivos</span>
+			<span class="step" [class.active]="carregandoDados"><span class="step-num">02</span>Vincular dados</span>
+			<span class="step" [class.active]="reservasCSV.length > 0 && !carregandoDados"><span class="step-num">03</span>Exportar XLS</span>
 		</div>
 
 		<div class="row g-3 align-items-start">
@@ -32,25 +33,25 @@
 			</div>
 
 			<div class="mb-2 mt-3">
-				<label for="bookingInput" class="form-label">Upload de XLS do Booking</label>
+				<label for="bookingInput" class="form-label">Upload de arquivo do Booking (payout)</label>
 				<input
 					type="file"
 					id="bookingInput"
-					accept=".xls,.xlsx"
+					accept=".xls,.xlsx,.csv"
 					(change)="processarBookingXLS($event)"
 					[disabled]="carregandoBooking"
 					class="form-control"
 				/>
-				<div class="form-text">Colunas lidas: C=nome, D=endereço, E=hóspede, F=entrada, G=saída, H=status, I=valor, J=taxa.</div>
+				<div class="form-text">Colunas lidas pelo cabeçalho: Property name, Check-in date, Check-out date, Reservation status, Transaction amount (já líquido da comissão do Booking). Linhas "(Payout)" são ignoradas.</div>
 			</div>
 
 			<!-- Status conciso -->
 			<div *ngIf="carregando" class="status-line status-info mb-2">Processando arquivo CSV...</div>
 			<div *ngIf="carregandoDados" class="status-line status-warn mb-2">
-				<span>Buscando reservas e apartamentos...</span>
+				<span>Vinculando reservas e apartamentos...</span>
 				<span>{{ aptosProcessados }}/{{ aptosTotal }} ({{ progressPercent }}%)</span>
 			</div>
-			<div *ngIf="carregandoBooking" class="status-line status-info mb-2">Lendo XLS do Booking...</div>
+			<div *ngIf="carregandoBooking" class="status-line status-info mb-2">Lendo arquivo do Booking...</div>
 
 			<!-- Barra de progresso (única) -->
 			<div *ngIf="carregandoDados" class="mb-2">
@@ -70,7 +71,7 @@
 
 			<!-- Empty state -->
 			<div *ngIf="!carregando && reservasCSV.length === 0" class="text-muted mt-2">
-				Nenhum registro carregado. Faça upload do CSV para começar.
+				Nenhum registro carregado ainda. Envie o arquivo de pagamentos para começar.
 			</div>
 		</div>
 

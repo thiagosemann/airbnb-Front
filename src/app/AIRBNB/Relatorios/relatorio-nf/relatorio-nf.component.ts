@@ -5,6 +5,7 @@ import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIR
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ApartamentosProprietarioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentos_proprietario_service';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
+import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { firstValueFrom } from 'rxjs';
 
 type BookingLinha = {
@@ -36,12 +37,25 @@ export class RelatorioNFComponent {
   aptosProcessados = 0;    // quantidade já processada
   progressPercent = 0;     // progresso visual de carregamento de apartamentos
   private apartamentosMap: Map<number, Apartamento> = new Map<number, Apartamento>();
+  private reservasPorCodigo: Map<string, ReservaAirbnb> = new Map<string, ReservaAirbnb>();
 
   bookingLinhas: BookingLinha[] = [];
   carregandoBooking = false;
 
   activeTab: 'erros' | 'reservas' | 'apartamentos' | 'proprietarios' = 'reservas';
   private proprietariosPorApartamentoId: Map<number, any[]> = new Map<number, any[]>();
+
+  // Linhas derivadas de reservasCSV, recalculadas apenas quando os dados mudam (recomputeDerivedData)
+  // em vez de a cada ciclo de detecção de mudanças do Angular — evita reprocessar o arquivo inteiro
+  // a cada interação do usuário (hover, scroll, clique) enquanto a tabela está na tela.
+  private nfRowsCache: any[] = [];
+  private nfRowsPorApartamentoCache: any[] = [];
+  private nfRowsPorProprietarioCache: any[] = [];
+  private nfRowsErrosCache: any[] = [];
+  private totalLimpezaCache = 0;
+  private totalTaxaSiteCache = 0;
+  private totalProprietarioCache = 0;
+  private totalNotaFiscalCache = 0;
 
   constructor(
     private reservasService: ReservasAirbnbService,
@@ -102,7 +116,9 @@ export class RelatorioNFComponent {
     reader.onload = (e: any) => {
       try {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
+        // raw:true evita que o XLSX converta datas/números do CSV (ex: "2026-05-01") em serial numbers
+        // interpretados no fuso horário local, o que causava deslocamento de 1 dia (UTC-3).
+        const workbook = XLSX.read(data, { type: 'array', raw: true });
         const sheetName = workbook.SheetNames[0];
         const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
         this.bookingLinhas = sheet ? this.parseBookingSheet(sheet) : [];
@@ -241,6 +257,75 @@ export class RelatorioNFComponent {
   }
 
   private parseBookingSheet(sheet: XLSX.WorkSheet): BookingLinha[] {
+    const aoa: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+    if (!aoa.length) return [];
+
+    const normalize = (s: any) => String(s ?? '')
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toUpperCase()
+      .trim();
+
+    const headerRow = (aoa[0] || []).map((h: any) => normalize(h));
+    const findIdx = (names: string[]): number => {
+      for (const n of names) {
+        const idx = headerRow.indexOf(n);
+        if (idx >= 0) return idx;
+      }
+      return -1;
+    };
+
+    // Novo modelo de exportação do Booking (relatório de payout): colunas identificadas pelo cabeçalho
+    const idxTipo = findIdx(['TYPE/TRANSACTION TYPE', 'TYPE', 'TRANSACTION TYPE']);
+    const idxCheckIn = findIdx(['CHECK-IN DATE']);
+    const idxCheckOut = findIdx(['CHECK-OUT DATE']);
+    const idxStatus = findIdx(['RESERVATION STATUS']);
+    const idxPropriedade = findIdx(['PROPERTY NAME']);
+    // Transaction amount (coluna W): valor já líquido da comissão do Booking.
+    // A comissão do próprio Booking é ignorada de propósito — a comissão da Forest
+    // é aplicada depois, em cima desse valor líquido, via porcentagem_cobrada do apartamento.
+    const idxValor = findIdx(['TRANSACTION AMOUNT']);
+
+    const formatoNovo = idxPropriedade >= 0 && idxCheckIn >= 0 && idxValor >= 0;
+
+    if (formatoNovo) {
+      const linhas: BookingLinha[] = [];
+      for (let r = 1; r < aoa.length; r++) {
+        const row = aoa[r];
+        if (!row || !row.length) continue;
+
+        // Pula linhas de resumo "(Payout)"; considera apenas as linhas de reserva
+        const tipoRaw = idxTipo >= 0 ? String(row[idxTipo] ?? '').trim() : '';
+        if (!tipoRaw || /PAYOUT/i.test(tipoRaw)) continue;
+
+        const nome = String(row[idxPropriedade] ?? '').trim();
+        const dataIni = this.normalizeBookingDate(row[idxCheckIn]);
+        const dataFim = idxCheckOut >= 0 ? this.normalizeBookingDate(row[idxCheckOut]) : '';
+        const status = idxStatus >= 0 ? String(row[idxStatus] ?? '').trim() : '';
+        const valor = idxValor >= 0 ? this.parseMoney(String(row[idxValor] ?? '')) : 0;
+        const taxa = 0;
+
+        if (!nome && !dataIni && !dataFim && !status && !valor) continue;
+
+        const aptCode = this.extractAptCode(nome);
+        const codReserva = aptCode && dataIni ? `B-${aptCode}${dataIni}` : '';
+
+        linhas.push({
+          codReserva,
+          nome,
+          endereco: '',
+          hospede: '',
+          dataIni,
+          dataFim,
+          status,
+          valor,
+          taxa
+        });
+      }
+      return linhas;
+    }
+
+    // Fallback: modelo antigo, colunas por posição fixa (C=nome, D=endereço, E=hóspede, F=entrada, G=saída, H=status, I=valor, J=taxa)
     const linhas: BookingLinha[] = [];
     const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1');
 
@@ -373,15 +458,62 @@ export class RelatorioNFComponent {
       .trim();
   }
 
+  // Guarda o motivo da última falha ao carregar a lista de apartamentos,
+  // para explicar por que TODAS as linhas ficaram sem apartamento vinculado.
+  private apartamentosCarregamentoErro: string | null = null;
+  // Motivo de erro ao buscar proprietários, por apartamento_id (quando a busca falha de verdade,
+  // em vez de simplesmente não haver proprietário cadastrado).
+  private proprietariosErroPorApartamentoId: Map<number, string> = new Map<number, string>();
+
+  // Extrai uma mensagem legível de um erro de HTTP/JS para exibir ao usuário.
+  private formatErro(e: any): string {
+    if (!e) return 'erro desconhecido';
+    if (typeof e === 'string') return e;
+    const status = e.status ?? e?.error?.status;
+    const msg = e?.error?.message || e?.error?.error || e?.message || e?.statusText;
+    if (status && msg) return `HTTP ${status} - ${msg}`;
+    if (status) return `HTTP ${status}`;
+    if (msg) return String(msg);
+    try { return JSON.stringify(e); } catch { return String(e); }
+  }
+
+  // Motivo da última falha ao carregar reservas em massa (mesmo padrão de apartamentosCarregamentoErro).
+  private reservasCarregamentoErro: string | null = null;
+
+  // Carrega apartamentos ATIVOS e INATIVOS (reservas antigas podem apontar para
+  // apartamentos já desativados, e mesmo assim precisam ser reconhecidas aqui).
   private async carregarApartamentosMap(): Promise<void> {
+    this.apartamentosCarregamentoErro = null;
     try {
-      const todos = await firstValueFrom(this.apartamentoService.getAllApartamentos());
+      const [ativos, inativos] = await Promise.all([
+        firstValueFrom(this.apartamentoService.getAllApartamentos()),
+        firstValueFrom(this.apartamentoService.getApartamentosInativos()).catch(() => [] as Apartamento[])
+      ]);
       this.apartamentosMap.clear();
-      for (const a of todos) {
+      for (const a of [...(ativos || []), ...(inativos || [])]) {
         this.apartamentosMap.set(a.id, a);
       }
     } catch (e) {
-      // mantém mapa vazio em erro
+      // mantém mapa vazio em erro, mas guarda o motivo para explicar nas linhas afetadas
+      this.apartamentosCarregamentoErro = this.formatErro(e);
+    }
+  }
+
+  // Busca TODAS as reservas de uma vez, incluindo as de apartamentos inativos,
+  // e indexa por cod_reserva, para resolver cada linha localmente sem 1 requisição por linha.
+  private async carregarReservasMap(): Promise<void> {
+    this.reservasCarregamentoErro = null;
+    try {
+      const todas = await firstValueFrom(this.reservasService.getAllReservas(true));
+      this.reservasPorCodigo.clear();
+      for (const res of todas) {
+        const cod = (res.cod_reserva || '').trim();
+        if (cod && !this.reservasPorCodigo.has(cod)) {
+          this.reservasPorCodigo.set(cod, res);
+        }
+      }
+    } catch (e) {
+      this.reservasCarregamentoErro = this.formatErro(e);
     }
   }
 
@@ -392,63 +524,102 @@ export class RelatorioNFComponent {
     this.aptosProcessados = 0;
     this.progressPercent = this.aptosTotal ? 0 : 100;
     try {
-      await this.carregarApartamentosMap();
+      // 1) Duas requisições em paralelo (em vez de uma por linha do arquivo importado).
+      await Promise.all([this.carregarApartamentosMap(), this.carregarReservasMap()]);
+
+      // 2) Resolve cod_reserva -> apartamento_id localmente e reúne quais apartamentos
+      // ainda precisam de busca de proprietário (sem repetir apartamentos já em cache).
+      const aptoIdsParaBuscar = new Set<number>();
+      for (const r of this.reservasCSV) {
+        const codigo = (r.cod_reserva || '').trim();
+        const aptoId = codigo ? this.reservasPorCodigo.get(codigo)?.apartamento_id : undefined;
+        if (aptoId && !this.proprietariosPorApartamentoId.has(aptoId)) {
+          aptoIdsParaBuscar.add(aptoId);
+        }
+      }
+
+      // 3) Busca os proprietários de todos os apartamentos envolvidos em paralelo.
+      await Promise.all(Array.from(aptoIdsParaBuscar).map(async (aptoId) => {
+        try {
+          const props = await firstValueFrom(this.aptoProprietarioService.getProprietariosByApartamento(aptoId));
+          this.proprietariosPorApartamentoId.set(aptoId, Array.isArray(props) ? props : []);
+        } catch (e) {
+          this.proprietariosPorApartamentoId.set(aptoId, []);
+          this.proprietariosErroPorApartamentoId.set(aptoId, this.formatErro(e));
+        }
+      }));
+
+      // 4) Com tudo já em memória, monta erros/enriquecimento de cada linha sem nenhuma requisição.
       for (const r of this.reservasCSV) {
         const erros: string[] = [];
         (r as any)._erros = erros;
-        try {
-          const reservas = await firstValueFrom(this.reservasService.getReservaByCodReserva(r.cod_reserva));
-          if (!reservas || !reservas.length) {
-            erros.push('Reserva não encontrada');
-          }
-          const aptoId = reservas && reservas.length ? reservas[0].apartamento_id : undefined;
-          if (aptoId) {
-            r.apartamento_id = aptoId;
-            const apto = this.apartamentosMap.get(aptoId);
-            if (apto) {
-              r.apartamento_nome = apto.nome;
-              // Guardamos valores para uso na exportação
-              (r as any)._valor_enxoval_ap = apto.valor_enxoval ?? 0;
-              (r as any)._valor_limpeza_ap = apto.valor_limpeza ?? 0;
-              const pctRaw = apto.porcentagem_cobrada ?? 0;
-              (r as any)._porcentagem_cobrada_ap = pctRaw > 1 ? (pctRaw / 100) : pctRaw;
-            } else {
-              erros.push('Apartamento não encontrado');
-            }
+        const codigo = (r.cod_reserva || '').trim();
+        const anuncio = (r as any)._anuncio || r.apartamento_nome || '';
 
-			// Carrega proprietários do apartamento (cache por apartamento_id)
-			if (!this.proprietariosPorApartamentoId.has(aptoId)) {
-				try {
-					const props = await firstValueFrom(this.aptoProprietarioService.getProprietariosByApartamento(aptoId));
-					this.proprietariosPorApartamentoId.set(aptoId, Array.isArray(props) ? props : []);
-				} catch (e) {
-					this.proprietariosPorApartamentoId.set(aptoId, []);
-				}
-			}
-			(r as any)._proprietarios = this.proprietariosPorApartamentoId.get(aptoId) || [];
-			if (!((r as any)._proprietarios || []).length) {
-				erros.push('Proprietário não encontrado');
-			}
+        if (!codigo) {
+          erros.push(
+            anuncio
+              ? `Código de reserva não pôde ser gerado a partir do arquivo (anúncio: "${anuncio}")`
+              : 'Código de reserva vazio/ausente no arquivo importado'
+          );
+        } else {
+          const reserva = this.reservasPorCodigo.get(codigo);
+          if (!reserva) {
+            const motivoCarga = this.reservasCarregamentoErro
+              ? ` (falha ao carregar reservas: ${this.reservasCarregamentoErro})`
+              : '';
+            erros.push(`Reserva não encontrada para o código "${codigo}"${anuncio ? ` (anúncio: "${anuncio}")` : ''}${motivoCarga}`);
           } else {
-            erros.push('Apartamento não vinculado');
+            const aptoId = reserva.apartamento_id;
+            if (aptoId) {
+              r.apartamento_id = aptoId;
+              const apto = this.apartamentosMap.get(aptoId);
+              if (apto) {
+                const inativo = Number(apto.is_active) === 0;
+                r.apartamento_nome = inativo ? `${apto.nome} (inativo)` : apto.nome;
+                // Guardamos valores para uso na exportação
+                (r as any)._valor_enxoval_ap = apto.valor_enxoval ?? 0;
+                (r as any)._valor_limpeza_ap = apto.valor_limpeza ?? 0;
+                const pctRaw = apto.porcentagem_cobrada ?? 0;
+                (r as any)._porcentagem_cobrada_ap = pctRaw > 1 ? (pctRaw / 100) : pctRaw;
+              } else {
+                const nomeConhecido = reserva.apartamento_nome ? ` "${reserva.apartamento_nome}"` : '';
+                const motivo = this.apartamentosCarregamentoErro
+                  ? ` (falha ao carregar lista de apartamentos: ${this.apartamentosCarregamentoErro})`
+                  : ' (id não existe na lista de apartamentos carregada)';
+                erros.push(`Apartamento${nomeConhecido} (id ${aptoId}) não encontrado${motivo}`);
+              }
+
+              (r as any)._proprietarios = this.proprietariosPorApartamentoId.get(aptoId) || [];
+              if (!((r as any)._proprietarios || []).length) {
+                const erroBusca = this.proprietariosErroPorApartamentoId.get(aptoId);
+                const nomeApto = r.apartamento_nome || apto?.nome || `id ${aptoId}`;
+                erros.push(
+                  erroBusca
+                    ? `Erro ao buscar proprietários do apartamento "${nomeApto}": ${erroBusca}`
+                    : `Nenhum proprietário cadastrado para o apartamento "${nomeApto}"`
+                );
+              }
+            } else {
+              erros.push(`Reserva "${codigo}"${reserva.id ? ` (id ${reserva.id})` : ''} encontrada, mas sem apartamento_id vinculado`);
+            }
           }
-        } catch (e) {
-          erros.push('Erro ao buscar reserva/apartamento');
         }
-          // Atualiza progresso após cada reserva processada
-          this.aptosProcessados += 1;
-          this.progressPercent = Math.round((this.aptosProcessados / (this.aptosTotal || 1)) * 100);
+
+        this.aptosProcessados += 1;
+        this.progressPercent = Math.round((this.aptosProcessados / (this.aptosTotal || 1)) * 100);
       }
+      this.recomputeDerivedData();
     } finally {
       this.carregandoDados = false;
     }
-      if (this.aptosTotal > 0) this.progressPercent = 100;
+    if (this.aptosTotal > 0) this.progressPercent = 100;
   }
 
   // Linhas com erro de vinculação/enriquecimento (para a aba Erros)
-  get nfRowsErros(): any[] {
+  private buildNfRowsErros(rows: any[]): any[] {
     const byCodigo = new Map<string, any>();
-    for (const r of this.nfRows) {
+    for (const r of rows) {
       byCodigo.set(String(r.cod_reserva || '').trim(), r);
     }
 
@@ -473,8 +644,12 @@ export class RelatorioNFComponent {
     return out;
   }
 
+  get nfRowsErros(): any[] {
+    return this.nfRowsErrosCache;
+  }
+
   get totalErros(): number {
-    return this.nfRowsErros.length;
+    return this.nfRowsErrosCache.length;
   }
 
   /**
@@ -530,6 +705,7 @@ export class RelatorioNFComponent {
   excluirReserva(index: number) {
     if (confirm('Tem certeza que deseja excluir este registro?')) {
       this.reservasCSV.splice(index, 1);
+      this.recomputeDerivedData();
     }
   }
 
@@ -630,13 +806,35 @@ export class RelatorioNFComponent {
 
   // Gera linhas calculadas para tabela e exportação XLS, garantindo consistência
   get nfRows(): any[] {
-    return this.buildNFRows();
+    return this.nfRowsCache;
+  }
+
+  // Recalcula todas as visões derivadas de reservasCSV de uma só vez. Chamado explicitamente
+  // após qualquer mutação de dados (import, exclusão), nunca implicitamente pelo template.
+  private recomputeDerivedData(): void {
+    const rows = this.buildNFRows();
+    this.nfRowsCache = rows;
+    this.nfRowsPorApartamentoCache = this.buildNfRowsPorApartamento(rows);
+    this.nfRowsPorProprietarioCache = this.buildNfRowsPorProprietario(rows);
+    this.nfRowsErrosCache = this.buildNfRowsErros(rows);
+
+    let limpeza = 0, taxaSite = 0, proprietario = 0, notaFiscal = 0;
+    for (const r of rows) {
+      limpeza += Number(r.valor_limpeza) || 0;
+      taxaSite += Number((r as any).taxa_site) || 0;
+      proprietario += Number(r.valor_proprietario) || 0;
+      notaFiscal += Number(r.valor_nota_fiscal) || 0;
+    }
+    this.totalLimpezaCache = limpeza;
+    this.totalTaxaSiteCache = taxaSite;
+    this.totalProprietarioCache = proprietario;
+    this.totalNotaFiscalCache = notaFiscal;
   }
 
   // Linhas agregadas por apartamento (para a aba Apartamentos)
-  get nfRowsPorApartamento(): any[] {
+  private buildNfRowsPorApartamento(rows: any[]): any[] {
     const agrupado = new Map<string, any>();
-    for (const r of this.nfRows) {
+    for (const r of rows) {
       const apt = (r?.apartamento || '').trim() || 'Sem apartamento';
       let acc = agrupado.get(apt);
       if (!acc) {
@@ -695,9 +893,13 @@ export class RelatorioNFComponent {
     return out;
   }
 
+  get nfRowsPorApartamento(): any[] {
+    return this.nfRowsPorApartamentoCache;
+  }
+
   // Linhas agregadas por proprietário (para a aba Proprietários)
   // Observação: quando um apartamento tem múltiplos proprietários, os valores são divididos igualmente entre eles.
-  get nfRowsPorProprietario(): any[] {
+  private buildNfRowsPorProprietario(rows: any[]): any[] {
     const proprietariosPorCodigo = new Map<string, any[]>();
     for (const r of this.reservasCSV) {
       proprietariosPorCodigo.set((r.cod_reserva || '').trim(), (r as any)._proprietarios || []);
@@ -731,7 +933,7 @@ export class RelatorioNFComponent {
 
     const outMap = new Map<string, any>();
 
-    for (const row of this.nfRows) {
+    for (const row of rows) {
       const codigo = String(row.cod_reserva || '').trim();
       const proprietarios = proprietariosPorCodigo.get(codigo) || [];
       const owners = proprietarios.length ? proprietarios : [null];
@@ -780,6 +982,10 @@ export class RelatorioNFComponent {
 
     out.sort((a: any, b: any) => String(a.proprietario).localeCompare(String(b.proprietario), 'pt-BR'));
     return out;
+  }
+
+  get nfRowsPorProprietario(): any[] {
+    return this.nfRowsPorProprietarioCache;
   }
 
   private buildNFRows(): Array<{apartemento?: string; apartamento: string; tipo?: string; isAnfitriao?: boolean; isCoanfitriao?: boolean; cod_reserva: string; valor_total: number; valor_limpeza: number; valor_proprietario: number; porc_cobrada: number; valor_nota_fiscal: number}> {
@@ -833,18 +1039,18 @@ export class RelatorioNFComponent {
     return out;
   }
 
-  // Totais agregados para indicadores
+  // Totais agregados para indicadores (calculados uma vez em recomputeDerivedData)
   get totalLimpeza(): number {
-    return this.nfRows.reduce((acc, r: any) => acc + (r.valor_limpeza || 0), 0);
+    return this.totalLimpezaCache;
   }
   get totalTaxaSite(): number {
-    return this.nfRows.reduce((acc, r: any) => acc + ((r as any).taxa_site || 0), 0);
+    return this.totalTaxaSiteCache;
   }
   get totalProprietario(): number {
-    return this.nfRows.reduce((acc, r: any) => acc + (r.valor_proprietario || 0), 0);
+    return this.totalProprietarioCache;
   }
   get totalNotaFiscal(): number {
-    return this.nfRows.reduce((acc, r: any) => acc + (r.valor_nota_fiscal || 0), 0);
+    return this.totalNotaFiscalCache;
   }
 
   private csvEscape(valor: string | undefined): string {
