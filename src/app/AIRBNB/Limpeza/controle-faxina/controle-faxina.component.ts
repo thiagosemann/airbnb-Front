@@ -12,6 +12,7 @@ import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBN
   styleUrls: ['./controle-faxina.component.css','./controle-faxina.component2.css','./controle-faxina.component3.css']
 })
 export class ControleFaxinaComponent implements OnInit {
+  private readonly TIMEZONE_SP = 'America/Sao_Paulo';
   users: User[] = [];
   selectedMonth: string = '';
   monthOptions: any[] = [];
@@ -72,14 +73,14 @@ export class ControleFaxinaComponent implements OnInit {
       
       allServicos.forEach(servico => {
         const userId = servico.faxina_userId;
-        const data = new Date(servico.end_data);
+        const { year: dataYear, month: dataMonth } = this.getSPDateParts(servico.end_data);
 
         const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
         if (
           servico.limpeza_realizada &&
           userId &&
-          data.getMonth() === selMonthIndex &&
-          data.getFullYear() === selYear
+          dataMonth === selMonthIndex &&
+          dataYear === selYear
         ) {
           if (!pagamentosMap.has(userId)) {
             pagamentosMap.set(userId, {
@@ -124,6 +125,25 @@ export class ControleFaxinaComponent implements OnInit {
     return [formatDate(start), formatDate(end)];
   }
 
+  // Extrai ano/mês/dia sempre no fuso de São Paulo, independente do fuso do ambiente (browser/servidor)
+  private getSPDateParts(dateString: string): { year: number; month: number; day: number } {
+    const date = new Date(dateString);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: this.TIMEZONE_SP,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+
+    const get = (type: string) => Number(parts.find(p => p.type === type)?.value);
+    return { year: get('year'), month: get('month') - 1, day: get('day') };
+  }
+
+  private formatDateSP(dateString: string): string {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: this.TIMEZONE_SP });
+  }
+
   private parseSelectedYearMonth(): { year: number; monthIndex: number } {
     // Expecting format YYYY-MM
     const parts = this.selectedMonth.split('-');
@@ -161,7 +181,7 @@ export class ControleFaxinaComponent implements OnInit {
       const worksheetData = filteredServicos.map(r => ({
         'ID Reserva': r.id,
         'Apartamento': r.apartamento_nome,
-        'Data Fim': new Date(r.end_data).toLocaleDateString('pt-BR'),
+        'Data Fim': this.formatDateSP(r.end_data),
         'Limpeza Realizada': r.limpeza_realizada ? 'Sim' : 'Não',
         'Valor': r.valor_limpeza ? Number(r.valor_limpeza) : 0
       }));
@@ -211,7 +231,7 @@ export class ControleFaxinaComponent implements OnInit {
           detalhadoSheets[user.first_name] = XLSX.utils.json_to_sheet(userServicos.map(r => ({
             'ID Reserva': r.id,
             'Apartamento': r.apartamento_nome,
-            'Data Fim': new Date(r.end_data).toLocaleDateString('pt-BR'),
+            'Data Fim': this.formatDateSP(r.end_data),
             'Limpeza Realizada': r.limpeza_realizada ? 'Sim' : 'Não',
             'Valor': r.valor_limpeza ? Number(r.valor_limpeza) : 0
           })));
@@ -256,13 +276,13 @@ export class ControleFaxinaComponent implements OnInit {
       const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
       
       this.faxinasDetalhadas = allServicos.filter(servico => {
-        const data = new Date(servico.end_data);
+        const { year: dataYear, month: dataMonth } = this.getSPDateParts(servico.end_data);
         const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
         return (
           servico.faxina_userId === pagamento.user.id &&
           servico.limpeza_realizada &&
-          data.getMonth() === selMonthIndex &&
-          data.getFullYear() === selYear
+          dataMonth === selMonthIndex &&
+          dataYear === selYear
         );
       });
       
@@ -279,8 +299,7 @@ export class ControleFaxinaComponent implements OnInit {
   }
   
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    return this.formatDateSP(dateString);
   }
   
   getAverageFaxinas(): string {
@@ -304,15 +323,15 @@ export class ControleFaxinaComponent implements OnInit {
   // Função para obter o dia da data
   getDay(dateString: string): string {
     if (!dateString) return '--';
-    const date = new Date(dateString);
-    return date.getDate().toString().padStart(2, '0');
+    const { day } = this.getSPDateParts(dateString);
+    return day.toString().padStart(2, '0');
   }
 
   // Função para obter o mês abreviado
   getMonth(dateString: string): string {
     if (!dateString) return '--';
     const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', { month: 'short' });
+    return date.toLocaleString('pt-BR', { month: 'short', timeZone: this.TIMEZONE_SP });
   }
 
   // Função para obter a data da última faxina
@@ -326,7 +345,6 @@ export class ControleFaxinaComponent implements OnInit {
       new Date(b.end_data).getTime() - new Date(a.end_data).getTime()
     );
     
-    const lastDate = new Date(sortedFaxinas[0].end_data);
-    return lastDate.toLocaleDateString('pt-BR');
+    return this.formatDateSP(sortedFaxinas[0].end_data);
   }
 }
