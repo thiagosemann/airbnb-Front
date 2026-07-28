@@ -409,14 +409,33 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * O backend grava created_at/updated_at em UTC (servidor de produção roda em UTC),
+   * então o horário precisa ser convertido para America/Sao_Paulo antes de exibir.
+   */
   formatarDataparaTable(dataISO: string): string {
-    const data = new Date(dataISO);
-    const horas = data.getUTCHours().toString().padStart(2, '0');
-    const minutos = data.getUTCMinutes().toString().padStart(2, '0');
-    const dia = data.getUTCDate().toString().padStart(2, '0');
-    const mes = (data.getUTCMonth() + 1).toString().padStart(2, '0');
-    const ano = data.getUTCFullYear();
-    return `${horas}:${minutos} - ${dia}/${mes}/${ano}`;
+    if (!dataISO) {
+      return '';
+    }
+    // Datas sem indicador de fuso ("2026-07-25 16:13:00") vêm do banco em UTC.
+    const semFuso = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?$/.test(dataISO);
+    const data = new Date(semFuso ? `${dataISO.replace(' ', 'T')}Z` : dataISO);
+    if (isNaN(data.getTime())) {
+      return '';
+    }
+    const partes = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(data).reduce((acc, p) => {
+      acc[p.type] = p.value;
+      return acc;
+    }, {} as Record<string, string>);
+    return `${partes['hour']}:${partes['minute']} - ${partes['day']}/${partes['month']}/${partes['year']}`;
   }
 
   formatarTelefone(telefone: string): string {
