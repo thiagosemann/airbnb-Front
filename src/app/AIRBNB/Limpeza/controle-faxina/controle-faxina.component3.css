@@ -240,9 +240,25 @@
   color: var(--texto-fraco);
 }
 
+/* Apartamento é como a pessoa reconhece a limpeza; o código é a referência
+   para conferir contra a planilha. Hierarquia, não duas linhas de igual peso. */
+.item__ref {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .item__apartamento {
   font-size: 14px;
   color: var(--texto);
+}
+
+.item__codigo {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--texto-fraco);
+  overflow-wrap: anywhere;
 }
 
 .item__guia {

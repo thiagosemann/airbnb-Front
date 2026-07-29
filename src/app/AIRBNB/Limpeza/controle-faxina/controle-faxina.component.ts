@@ -112,7 +112,7 @@ export class ControleFaxinaComponent implements OnInit {
       console.error('Erro ao carregar pagamentos:', error);
       this.servicosDoMes = [];
       this.recalcular();
-      this.erro = 'Não foi possível carregar as faxinas deste mês. Tente de novo.';
+      this.erro = 'Não foi possível carregar as limpezas deste mês. Tente de novo.';
     } finally {
       this.carregando = false;
     }
@@ -185,20 +185,20 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   get rotuloFaxinas(): string {
-    if (this.filtroStatus === 'pendentes') return 'Faxinas pendentes';
-    if (this.filtroStatus === 'todas') return 'Faxinas no mês';
-    return 'Faxinas concluídas';
+    if (this.filtroStatus === 'pendentes') return 'Limpezas pendentes';
+    if (this.filtroStatus === 'todas') return 'Limpezas no mês';
+    return 'Limpezas concluídas';
   }
 
   get mensagemVazio(): string {
-    if (this.filtroStatus === 'pendentes') return `Nenhuma faxina pendente em ${this.mesSelecionadoLabel}.`;
-    if (this.filtroStatus === 'todas') return `Nenhuma faxina em ${this.mesSelecionadoLabel}.`;
-    return `Nenhuma faxina concluída em ${this.mesSelecionadoLabel}.`;
+    if (this.filtroStatus === 'pendentes') return `Nenhuma limpeza pendente em ${this.mesSelecionadoLabel}.`;
+    if (this.filtroStatus === 'todas') return `Nenhuma limpeza em ${this.mesSelecionadoLabel}.`;
+    return `Nenhuma limpeza concluída em ${this.mesSelecionadoLabel}.`;
   }
 
   get ajudaVazio(): string {
     if (this.filtroStatus === 'pendentes') return 'Tudo que foi atribuído neste mês já está concluído.';
-    return 'Faxinas aparecem aqui depois de atribuídas a uma terceirizada na escala.';
+    return 'Limpezas aparecem aqui depois de atribuídas a uma terceirizada na escala.';
   }
 
   getMonthDateRange(): [string, string] {
@@ -277,9 +277,15 @@ export class ControleFaxinaComponent implements OnInit {
     return `${this.selectedMonth}_${this.filtroStatus}`;
   }
 
+  // Limpeza extra não nasce de reserva e não tem cod_reserva. Em vez de deixar
+  // vazio, identifica pela origem — planilha e modal continuam rastreáveis.
+  codigoServico(servico: any): string {
+    return servico?.cod_reserva || `Limpeza extra #${servico?.id}`;
+  }
+
   private linhaPlanilha(servico: any) {
     return {
-      'ID Reserva': servico.id,
+      'Cód. Reserva': this.codigoServico(servico),
       'Apartamento': servico.apartamento_nome,
       'Data Fim': this.formatDateSP(servico.end_data),
       'Limpeza Realizada': servico.limpeza_realizada ? 'Sim' : 'Não',
@@ -293,27 +299,27 @@ export class ControleFaxinaComponent implements OnInit {
       .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
 
     if (servicos.length === 0) {
-      alert('Nenhuma faxina neste recorte para esta terceirizada.');
+      alert('Nenhuma limpeza neste recorte para esta terceirizada.');
       return;
     }
 
     const worksheet = XLSX.utils.json_to_sheet(servicos.map(s => this.linhaPlanilha(s)));
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Faxinas');
-    XLSX.writeFile(workbook, `faxinas_${pagamento.user.first_name}_${this.sufixoArquivo}.xlsx`);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Limpezas');
+    XLSX.writeFile(workbook, `limpezas_${pagamento.user.first_name}_${this.sufixoArquivo}.xlsx`);
   }
 
   downloadResumoGeralXls(): void {
     const servicos = this.servicosFiltrados();
     if (servicos.length === 0) {
-      alert('Nenhuma faxina neste recorte para exportar.');
+      alert('Nenhuma limpeza neste recorte para exportar.');
       return;
     }
 
     // Resumo espelha exatamente as linhas da tela, na mesma ordem.
     const resumoSheet = XLSX.utils.json_to_sheet(this.pagamentos.map(p => ({
       'Terceirizada': p.user?.first_name || 'Terceirizada removida',
-      'Faxinas': p.totalFaxinas,
+      'Limpezas': p.totalFaxinas,
       'Valor Total': p.valorTotal
     })));
 

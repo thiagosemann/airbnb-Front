@@ -4,8 +4,8 @@
   <header class="folha">
     <div class="folha__cabecalho">
       <div>
-        <p class="olho">Limpeza · Fechamento mensal</p>
-        <h1 class="folha__titulo">Faxinas a pagar</h1>
+        <p class="olho">Fechamento mensal</p>
+        <h1 class="folha__titulo">Limpezas a pagar</h1>
       </div>
 
       <div class="controles">
@@ -65,7 +65,7 @@
             <dd>{{ totalFaxinas }}</dd>
           </div>
           <div class="composicao__item">
-            <dt>Média por faxina</dt>
+            <dt>Média por limpeza</dt>
             <dd>R$ {{ valorPorFaxina | number:'1.2-2' }}</dd>
           </div>
           <div class="composicao__item">
@@ -106,7 +106,7 @@
       </li>
     </ul>
 
-    <!-- Mês sem faxinas neste recorte -->
+    <!-- Mês sem limpezas neste recorte -->
     <div class="vazio" *ngIf="!carregando && pagamentos.length === 0">
       <p class="vazio__titulo">{{ mensagemVazio }}</p>
       <p class="vazio__ajuda">{{ ajudaVazio }}</p>
@@ -122,14 +122,14 @@
         <span class="linha__guia" aria-hidden="true"></span>
 
         <span class="linha__faxinas">
-          <b>{{ pagamento.totalFaxinas }}</b> {{ pagamento.totalFaxinas === 1 ? 'faxina' : 'faxinas' }}
+          <b>{{ pagamento.totalFaxinas }}</b> {{ pagamento.totalFaxinas === 1 ? 'limpeza' : 'limpezas' }}
         </span>
 
         <span class="linha__valor">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</span>
 
         <span class="linha__acoes">
           <button type="button" class="botao botao--texto" (click)="openDetails(pagamento)">
-            Ver faxinas
+            Ver limpezas
           </button>
           <button type="button" class="botao botao--vazado" (click)="downloadXls(pagamento)">
             <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
@@ -179,7 +179,7 @@
           <dd>{{ selectedterceirizado?.totalFaxinas }}</dd>
         </div>
         <div class="numeros__item">
-          <dt>Média por faxina</dt>
+          <dt>Média por limpeza</dt>
           <dd>R$ {{ getAverageValue() | number:'1.2-2' }}</dd>
         </div>
         <div class="numeros__item">
@@ -193,7 +193,7 @@
       </p>
 
       <h3 class="ficha__subtitulo">
-        Faxinas do mês
+        Limpezas do mês
         <span class="contagem">{{ faxinasDetalhadas.length }}</span>
       </h3>
 
@@ -207,7 +207,10 @@
             <b>{{ getDay(faxina.end_data) }}</b>
             <small>{{ getMonth(faxina.end_data) }}</small>
           </span>
-          <span class="item__apartamento">{{ faxina.apartamento_nome || 'Apartamento não identificado' }}</span>
+          <span class="item__ref">
+            <span class="item__apartamento">{{ faxina.apartamento_nome || 'Apartamento não identificado' }}</span>
+            <span class="item__codigo">{{ codigoServico(faxina) }}</span>
+          </span>
 
           <!-- A situação só é dita quando o filtro não a diz: em "Todas" a lista é mista. -->
           <span
