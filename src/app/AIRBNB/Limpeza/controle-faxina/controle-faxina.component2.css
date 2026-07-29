@@ -1,241 +1,328 @@
+/* ==========================================================================
+   Linhas da folha, botões e estados vazios
+   ========================================================================== */
 
-.download-btn {
-  padding: 10px 18px;
-  background: linear-gradient(135deg, #4361ee, #3a56d4);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
+.linhas {
+  margin-top: 40px;
+}
+
+.linhas__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.linhas__titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto-fraco);
+}
+
+.linhas__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--cartao);
+  border: 1px solid var(--traco);
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   A linha: sigla · nome ······ contagem · valor · ações
+   O filete inferior de cada linha é, ele mesmo, a barra de volume.
+   -------------------------------------------------------------------------- */
+
+.linha {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--traco);
+  transition: background-color 140ms ease;
+}
+
+.linha:last-child {
+  border-bottom: none;
+}
+
+.linha:hover {
+  background: #FAFBFB;
+}
+
+.linha__volume {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--real);
+  max-width: 100%;
+  animation: crescer 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left center;
+}
+
+.linha:last-child .linha__volume {
+  bottom: 0;
+}
+
+@keyframes crescer {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.linha__sigla {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--traco);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--texto-fraco);
+  flex-shrink: 0;
+}
+
+.linha__nome {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--texto);
+  white-space: nowrap;
+}
+
+/* Pontilhado de livro-caixa ligando o nome ao valor. */
+.linha__guia {
+  height: 0.85em;
+  border-bottom: 1.5px dotted var(--traco);
+  min-width: 24px;
+}
+
+.linha__faxinas {
+  font-size: 13px;
+  color: var(--texto-fraco);
+  white-space: nowrap;
+}
+
+.linha__faxinas b {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+}
+
+.linha__valor {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--real);
+  white-space: nowrap;
+  min-width: 118px;
+  text-align: right;
+}
+
+.linha__acoes {
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
 }
 
-.download-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(67, 97, 238, 0.4);
-}
+/* --------------------------------------------------------------------------
+   Botões
+   -------------------------------------------------------------------------- */
 
-.download-btn:active {
-  transform: translateY(0);
-}
-
-.no-data {
-  grid-column: 1 / span 4;
-  text-align: center;
-  padding: 40px 20px;
-  color: #a0aec0;
-}
-
-.no-data i {
-  font-size: 48px;
-  margin-bottom: 15px;
-  color: #e2e8f0;
-}
-
-.no-data p {
-  margin: 5px 0;
-  font-size: 16px;
-}
-
-/* Responsividade */
-@media (max-width: 992px) {
-  .stats-summary {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .controle-container {
-    padding: 15px;
-  }
-  
-  .payment-table-header,
-  .payment-item {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  
-  .payment-table-header {
-    display: none;
-  }
-  
-  .payment-item {
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #edf2f7;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-  
-  .terceirizado-info {
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-  
-  .faxinas-count, .payment-value, .terceirizado-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .progress-bar {
-    width: 80%;
-    max-width: 200px;
-  }
-  
-  .download-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .payment-filter {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .month-select {
-    width: 100%;
-  }
-  
-  .stat-card {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .total-indicator {
-    align-self: flex-start;
-  }
-}
-/* Adicione ao final do arquivo CSS */
-/* Modal de Detalhes - Versão Melhorada */
-.terceirizado-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
+.botao {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  padding: 20px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px solid #edf2f7;
-  background: #f8f9ff;
-  position: relative;
-}
-
-.modal-title-container {
-  flex: 1;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 20px;
-  color: #2d3748;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-subtitle {
-  font-size: 16px;
-  color: #718096;
-  margin-top: 5px;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  font-family: var(--corpo);
+  font-size: 13px;
   font-weight: 500;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
   cursor: pointer;
-  color: #718096;
-  transition: all 0.3s ease;
-  line-height: 1;
-  padding: 5px;
-  margin-top: -5px;
+  white-space: nowrap;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
-.close-btn:hover {
-  color: #e53e3e;
-  transform: scale(1.1);
+.botao:focus-visible {
+  outline: 2px solid var(--real);
+  outline-offset: 2px;
 }
 
-.modal-body {
-  padding: 25px;
-  overflow-y: auto;
-  flex: 1;
+.botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.terceirizado-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
+.botao--solido {
+  background: var(--tinta);
+  color: #fff;
 }
 
-.summary-item {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  border: 1px solid #edf2f7;
-  transition: all 0.3s ease;
+.botao--solido:hover:not(:disabled) {
+  background: var(--tinta-clara);
 }
 
-.summary-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+.botao--vazado {
+  background: transparent;
+  border-color: var(--traco);
+  color: var(--texto-fraco);
 }
 
-.summary-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: white;
-  background: linear-gradient(135deg, #4361ee, #3a56d4);
+.botao--vazado:hover:not(:disabled) {
+  border-color: var(--texto-fraco);
+  color: var(--texto);
 }
 
-.summary-content {
-  flex: 1;
+.botao--texto {
+  background: transparent;
+  color: var(--real);
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
+.botao--texto:hover:not(:disabled) {
+  background: rgba(15, 122, 82, 0.08);
+}
+
+/* Botão sobre a faixa escura: inverte para papel. */
+.botao--claro {
+  background: #fff;
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.botao--claro:hover:not(:disabled) {
+  background: #E4E9E7;
+}
+
+.botao--claro:focus-visible {
+  outline-color: var(--menta);
+}
+
+/* Sobre a faixa escura, o botão vazado inverte. */
+.folha__erro .botao--vazado {
+  border-color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.folha__erro .botao--vazado:hover:not(:disabled) {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Vazio e carregamento
+   -------------------------------------------------------------------------- */
+
+.vazio {
+  background: var(--cartao);
+  border: 1px solid var(--traco);
+  border-radius: 4px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.vazio__titulo {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--texto);
+}
+
+.vazio__ajuda {
+  margin: 8px auto 0;
+  font-size: 14px;
+  color: var(--texto-fraco);
+  max-width: 44ch;
+}
+
+/* Especificidade dupla de propósito: precisa vencer o .linha do media query abaixo. */
+.linha.linha--fantasma {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: none;
+  pointer-events: none;
+}
+
+.fantasma {
+  display: block;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ECEFEE 25%, #F6F8F7 50%, #ECEFEE 75%);
+  background-size: 240% 100%;
+  animation: pulsar 1.4s ease-in-out infinite;
+}
+
+.fantasma--sigla {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.fantasma--nome {
+  max-width: 260px;
+}
+
+@keyframes pulsar {
+  from { background-position: 120% 0; }
+  to   { background-position: -120% 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Responsivo
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .linha {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'sigla nome  valor'
+      'sigla conta valor'
+      'acoes acoes acoes';
+    gap: 4px 14px;
+    padding: 16px 18px;
+  }
+
+  .linha__sigla  { grid-area: sigla; align-self: start; }
+  .linha__nome   { grid-area: nome; white-space: normal; }
+  .linha__faxinas{ grid-area: conta; }
+  .linha__valor  { grid-area: valor; align-self: start; min-width: 0; }
+  .linha__guia   { display: none; }
+
+  .linha__acoes {
+    grid-area: acoes;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .linhas {
+    margin-top: 28px;
+  }
+
+  .linhas__cabecalho .botao--solido {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linha__volume,
+  .fantasma {
+    animation: none;
+  }
+}

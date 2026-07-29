@@ -13,7 +13,7 @@ const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'O
 interface ApartamentoResumo {
   apartamento_id: number;
   apartamento_nome: string;
-  porStatus: { [status: string]: { quantidade: number; total: number } };
+  porStatus: { [status: string]: { quantidade: number; total: number } | undefined };
   quantidadeGeral: number;
   totalGeral: number;
 }

@@ -1,224 +1,234 @@
-<div class="controle-container">
-  <div class="payment-screen">
-    <div class="header">
-      <h2><i class="icon fas fa-broom"></i> Gestão de Pagamentos</h2>
-    </div>
-    
-    <div class="payment-filter">
-      <div class="filter-label">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Selecione o período:</span>
-      </div>
-      <select class="month-select" [(ngModel)]="selectedMonth" (change)="loadPayments()">
-        <option value="">Selecione o mês</option>
-        <option *ngFor="let month of monthOptions" [value]="month.value">
-          {{ month.label }}
-        </option>
-      </select>
-    </div>
+<div class="fechamento">
 
-    <div class="stats-summary">
-      <div class="stat-card">
-        <div class="stat-icon bg-blue">
-          <i class="fas fa-wallet"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-title">Total do Mês</div>
-          <div class="stat-value">R$ {{ totalMes | number:'1.2-2' }}</div>
-        </div>
+  <!-- Faixa de fechamento: o canhoto da folha de pagamento -->
+  <header class="folha">
+    <div class="folha__cabecalho">
+      <div>
+        <p class="olho">Limpeza · Fechamento mensal</p>
+        <h1 class="folha__titulo">Faxinas a pagar</h1>
       </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon bg-green">
-          <i class="fas fa-broom"></i>
+
+      <div class="controles">
+        <div class="campo-mes">
+          <label class="campo-mes__rotulo" for="mes-referencia">Mês de referência</label>
+          <div class="campo-mes__caixa">
+            <select
+              id="mes-referencia"
+              class="campo-mes__select"
+              [(ngModel)]="selectedMonth"
+              (change)="loadPayments()">
+              <option value="">Escolher mês</option>
+              <option *ngFor="let month of monthOptions" [value]="month.value">
+                {{ month.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down campo-mes__seta" aria-hidden="true"></i>
+          </div>
         </div>
-        <div class="stat-content">
-          <div class="stat-title">Valor Médio por Faxina</div>
-          <div class="stat-value">R$ {{ valorPorFaxina | number:'1.2-2' }}</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon bg-purple">
-          <i class="fas fa-clipboard-list"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-title">Total de Faxinas</div>
-          <div class="stat-value">{{ totalFaxinas }}</div>
+
+        <div class="campo-mes" *ngIf="selectedMonth && !erro">
+          <span class="campo-mes__rotulo" id="rotulo-situacao">Situação</span>
+          <div class="segmentos" role="group" aria-labelledby="rotulo-situacao">
+            <button
+              *ngFor="let opcao of opcoesFiltro"
+              type="button"
+              class="segmentos__opcao"
+              [class.segmentos__opcao--ativa]="filtroStatus === opcao.valor"
+              [attr.aria-pressed]="filtroStatus === opcao.valor"
+              (click)="aplicarFiltro(opcao.valor)">
+              {{ opcao.rotulo }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="payment-summary">
-      <div class="transaction-list">
-        <div class="section-header">
-          <h3><i class="fas fa-users"></i> Pagamentos por Terceirizado</h3>
-          <div class="total-indicator">
-            {{ pagamentos.length }} terceirizado(s)
-          </div>
-          <button class="download-btn" (click)="downloadResumoGeralXls()">
-            <i class="fas fa-download"></i> Baixar Resumo Geral
-          </button>
-        </div>
-        
-        <div class="payment-table-header">
-          <div class="col-user">Terceirizado</div>
-          <div class="col-count">Faxinas</div>
-          <div class="col-value">Valor</div>
-          <div class="col-actions">Ações</div>
-        </div>
-        
-        <div class="payment-items">
-          <div *ngIf="pagamentos.length === 0" class="no-data">
-            <i class="fas fa-file-alt"></i>
-            <p>Nenhum dado disponível</p>
-            <p>Selecione um mês para visualizar os pagamentos</p>
-          </div>
-          
-          <div class="payment-item" *ngFor="let pagamento of pagamentos">
-            <div class="terceirizado-info">
-              <div class="avatar">{{ getInitials(pagamento.user.first_name) }}</div>
-              <div class="terceirizado-name">{{ pagamento.user.first_name }}</div>
-            </div>
-            <div class="faxinas-count">
-              {{ pagamento.totalFaxinas }}
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width]="getProgressWidth(pagamento.totalFaxinas) + '%'"></div>
-              </div>
-            </div>
-            <div class="payment-value">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</div>
-            <div class="terceirizado-actions">
-              <button class="download-btn" (click)="downloadXls(pagamento)">
-                <i class="fas fa-download"></i> XLS
-              </button>
-              <button class="details-btn" (click)="openDetails(pagamento)">
-                <i class="fas fa-eye"></i> Detalhes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Estado inicial: nada escolhido ainda -->
+    <div class="folha__convite" *ngIf="!selectedMonth">
+      <p>Escolha um mês acima para ver quanto há a pagar e baixar as planilhas.</p>
     </div>
-  </div>
 
-   <!-- Modal de Detalhes do Terceirizado - Versão Melhorada -->
-  <div class="terceirizado-modal" *ngIf="showModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title-container">
-          <h3><i class="fas fa-user-circle"></i> Detalhes do Terceirizado</h3>
-          <div class="modal-subtitle">{{ selectedterceirizado?.user?.first_name }}</div>
-        </div>
-        <button class="close-btn" (click)="closeModal()">&times;</button>
-      </div>
-      
-      <div class="modal-body">
-        <div class="terceirizado-summary">
-          <div class="summary-item">
-            <div class="summary-icon">
-              <i class="fas fa-broom"></i>
-            </div>
-            <div class="summary-content">
-              <div class="summary-label">Faxinas Realizadas</div>
-              <div class="summary-value">{{ selectedterceirizado?.totalFaxinas }}</div>
-            </div>
+    <!-- Montante do mês -->
+    <div class="folha__corpo" *ngIf="selectedMonth && !erro">
+      <p class="folha__legenda">{{ rotuloTotal }} {{ mesSelecionadoLabel }}</p>
+
+      <p class="montante" [class.montante--carregando]="carregando">
+        <span class="montante__moeda">R$</span><span class="montante__valor">{{ totalMes | number:'1.2-2' }}</span>
+      </p>
+
+      <div class="perfuracao" aria-hidden="true"></div>
+
+      <div class="folha__rodape">
+        <dl class="composicao">
+          <div class="composicao__item">
+            <dt>{{ rotuloFaxinas }}</dt>
+            <dd>{{ totalFaxinas }}</dd>
           </div>
-          
-          <div class="summary-item">
-            <div class="summary-icon">
-              <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <div class="summary-content">
-              <div class="summary-label">Total Recebido</div>
-              <div class="summary-value">R$ {{ selectedterceirizado?.valorTotal | number:'1.2-2' }}</div>
-            </div>
+          <div class="composicao__item">
+            <dt>Média por faxina</dt>
+            <dd>R$ {{ valorPorFaxina | number:'1.2-2' }}</dd>
           </div>
-          
-          <div class="summary-item">
-            <div class="summary-icon">
-              <i class="fas fa-star"></i>
-            </div>
-            <div class="summary-content">
-              <div class="summary-label">Avaliação Média</div>
-              <div class="summary-value">{{ getRating() }}</div>
-            </div>
+          <div class="composicao__item">
+            <dt>Terceirizadas</dt>
+            <dd>{{ pagamentos.length }}</dd>
           </div>
-        </div>
-        
-        <div class="divider"></div>
-        
-        <div class="stats-grid">
-          <div class="stat-card-sm">
-            <div class="stat-icon-sm bg-blue">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="stat-content-sm">
-              <div class="stat-title-sm">Média Mensal</div>
-              <div class="stat-value-sm">{{ getAverageFaxinas() }}</div>
-            </div>
-          </div>
-          
-          <div class="stat-card-sm">
-            <div class="stat-icon-sm bg-green">
-              <i class="fas fa-money-bill"></i>
-            </div>
-            <div class="stat-content-sm">
-              <div class="stat-title-sm">Valor Médio</div>
-              <div class="stat-value-sm">R$ {{ getAverageValue() | number:'1.2-2' }}</div>
-            </div>
-          </div>
-          
-          <div class="stat-card-sm">
-            <div class="stat-icon-sm bg-purple">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-content-sm">
-              <div class="stat-title-sm">Última Faxina</div>
-              <div class="stat-value-sm">{{ getLastCleaning() }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="section-header">
-          <h4><i class="fas fa-history"></i> Histórico de Faxinas</h4>
-          <div class="total-faxinas">{{ faxinasDetalhadas.length }} faxinas</div>
-        </div>
-        
-        <div class="faxinas-container">
-          <div class="faxina-header">
-            <div class="col-date">Data</div>
-            <div class="col-apartamento">Apartamento</div>
-            <div class="col-value">Valor</div>
-            <div class="col-status">Status</div>
-          </div>
-          
-          <div class="faxina-items">
-            <div *ngIf="faxinasDetalhadas.length === 0" class="no-data-sm">
-              <i class="fas fa-file-alt"></i>
-              <p>Nenhuma faxina encontrada</p>
-            </div>
-            
-            <div class="faxina-item" *ngFor="let faxina of faxinasDetalhadas">
-              <div class="faxina-date">
-                <div class="faxina-day">{{ getDay(faxina.end_data) }}</div>
-                <div class="faxina-month">{{ getMonth(faxina.end_data) }}</div>
-              </div>
-              <div class="faxina-apartamento">{{ faxina.apartamento_nome || 'N/A' }}</div>
-              <div class="faxina-value">R$ {{ faxina.valor_limpeza | number:'1.2-2' }}</div>
-              <div class="faxina-status">
-                <span class="status-badge completed" *ngIf="faxina.limpeza_realizada">Concluída</span>
-                <span class="status-badge pending" *ngIf="!faxina.limpeza_realizada">Pendente</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-footer">
-        <button class="download-all-btn" (click)="downloadXls(selectedterceirizado)">
-          <i class="fas fa-download"></i> Baixar Relatório Completo
+        </dl>
+
+        <button
+          type="button"
+          class="botao botao--claro"
+          [disabled]="carregando || pagamentos.length === 0"
+          (click)="downloadResumoGeralXls()">
+          <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
+          Baixar resumo do mês
         </button>
       </div>
     </div>
+
+    <div class="folha__erro" *ngIf="erro" role="alert">
+      <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+      <span>{{ erro }}</span>
+      <button type="button" class="botao botao--vazado" (click)="loadPayments()">Tentar de novo</button>
+    </div>
+  </header>
+
+  <!-- Linhas da folha -->
+  <section class="linhas" *ngIf="selectedMonth && !erro">
+    <div class="linhas__cabecalho">
+      <h2 class="linhas__titulo">Por terceirizada</h2>
+    </div>
+
+    <!-- Carregando -->
+    <ul class="linhas__lista" *ngIf="carregando">
+      <li class="linha linha--fantasma" *ngFor="let i of [1,2,3,4]">
+        <span class="fantasma fantasma--sigla"></span>
+        <span class="fantasma fantasma--nome"></span>
+      </li>
+    </ul>
+
+    <!-- Mês sem faxinas neste recorte -->
+    <div class="vazio" *ngIf="!carregando && pagamentos.length === 0">
+      <p class="vazio__titulo">{{ mensagemVazio }}</p>
+      <p class="vazio__ajuda">{{ ajudaVazio }}</p>
+    </div>
+
+    <!-- A folha -->
+    <ul class="linhas__lista" *ngIf="!carregando && pagamentos.length > 0">
+      <li class="linha" *ngFor="let pagamento of pagamentos; trackBy: trackByPagamento">
+        <span class="linha__sigla" aria-hidden="true">{{ getInitials(pagamento.user?.first_name) }}</span>
+
+        <span class="linha__nome">{{ pagamento.user?.first_name || 'Terceirizada removida' }}</span>
+
+        <span class="linha__guia" aria-hidden="true"></span>
+
+        <span class="linha__faxinas">
+          <b>{{ pagamento.totalFaxinas }}</b> {{ pagamento.totalFaxinas === 1 ? 'faxina' : 'faxinas' }}
+        </span>
+
+        <span class="linha__valor">R$ {{ pagamento.valorTotal | number:'1.2-2' }}</span>
+
+        <span class="linha__acoes">
+          <button type="button" class="botao botao--texto" (click)="openDetails(pagamento)">
+            Ver faxinas
+          </button>
+          <button type="button" class="botao botao--vazado" (click)="downloadXls(pagamento)">
+            <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
+            Planilha
+          </button>
+        </span>
+
+        <!-- O filete da linha também é a barra de volume desta terceirizada -->
+        <span
+          class="linha__volume"
+          [style.width.%]="getProgressWidth(pagamento.totalFaxinas)"
+          aria-hidden="true"></span>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<!-- Detalhe de uma terceirizada -->
+<div class="tela" *ngIf="showModal" (click)="closeModal()">
+  <div
+    class="ficha"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ficha-nome"
+    (click)="$event.stopPropagation()">
+
+    <header class="ficha__cabecalho">
+      <div>
+        <p class="olho olho--escuro">{{ mesSelecionadoLabel }}</p>
+        <h2 class="ficha__nome" id="ficha-nome">
+          {{ selectedterceirizado?.user?.first_name || 'Terceirizada' }}
+        </h2>
+      </div>
+      <button type="button" class="ficha__fechar" (click)="closeModal()" aria-label="Fechar">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="ficha__corpo">
+      <dl class="numeros">
+        <div class="numeros__item numeros__item--destaque">
+          <dt>{{ rotuloTotalCurto }}</dt>
+          <dd>R$ {{ selectedterceirizado?.valorTotal | number:'1.2-2' }}</dd>
+        </div>
+        <div class="numeros__item">
+          <dt>{{ rotuloFaxinas }}</dt>
+          <dd>{{ selectedterceirizado?.totalFaxinas }}</dd>
+        </div>
+        <div class="numeros__item">
+          <dt>Média por faxina</dt>
+          <dd>R$ {{ getAverageValue() | number:'1.2-2' }}</dd>
+        </div>
+        <div class="numeros__item">
+          <dt>Apartamentos</dt>
+          <dd>{{ getApartamentosAtendidos() }}</dd>
+        </div>
+      </dl>
+
+      <p class="ficha__periodo">
+        Período de <b>{{ getPeriodoCoberto() }}</b>
+      </p>
+
+      <h3 class="ficha__subtitulo">
+        Faxinas do mês
+        <span class="contagem">{{ faxinasDetalhadas.length }}</span>
+      </h3>
+
+      <p class="vazio__titulo" *ngIf="faxinasDetalhadas.length === 0">
+        {{ mensagemVazio }}
+      </p>
+
+      <ul class="itens" *ngIf="faxinasDetalhadas.length > 0">
+        <li class="item" *ngFor="let faxina of faxinasDetalhadas; trackBy: trackByFaxina">
+          <span class="item__data">
+            <b>{{ getDay(faxina.end_data) }}</b>
+            <small>{{ getMonth(faxina.end_data) }}</small>
+          </span>
+          <span class="item__apartamento">{{ faxina.apartamento_nome || 'Apartamento não identificado' }}</span>
+
+          <!-- A situação só é dita quando o filtro não a diz: em "Todas" a lista é mista. -->
+          <span
+            class="situacao"
+            *ngIf="filtroStatus === 'todas'"
+            [class.situacao--pendente]="!faxina.limpeza_realizada">
+            {{ faxina.limpeza_realizada ? 'Concluída' : 'Pendente' }}
+          </span>
+
+          <span class="item__guia" aria-hidden="true"></span>
+          <span class="item__valor">R$ {{ faxina.valor_limpeza | number:'1.2-2' }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <footer class="ficha__rodape">
+      <button type="button" class="botao botao--texto" (click)="closeModal()">Fechar</button>
+      <button type="button" class="botao botao--solido" (click)="downloadXls(selectedterceirizado)">
+        <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
+        Baixar planilha
+      </button>
+    </footer>
   </div>
 </div>

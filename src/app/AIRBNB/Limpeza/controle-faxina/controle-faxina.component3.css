@@ -1,299 +1,319 @@
+/* ==========================================================================
+   Ficha da terceirizada — o extrato individual por trás da linha da folha
+   ========================================================================== */
 
-.summary-label {
-  font-size: 14px;
-  color: #718096;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.summary-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #2d3748;
-}
-
-.divider {
-  height: 1px;
-  background: #e2e8f0;
-  margin: 20px 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.stat-card-sm {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  border: 1px solid #f1f5f9;
-  transition: all 0.3s ease;
-}
-
-.stat-card-sm:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-}
-
-.stat-icon-sm {
-  width: 45px;
-  height: 45px;
-  border-radius: 10px;
+.tela {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(18, 42, 46, 0.55);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px;
+  animation: revelar 180ms ease both;
+}
+
+@keyframes revelar {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ficha {
+  background: var(--cartao);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(18, 42, 46, 0.28);
+  animation: subir 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.ficha__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px 28px 20px;
+  border-bottom: 1px solid var(--traco);
+}
+
+.ficha__nome {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--texto);
+}
+
+.ficha__fechar {
+  background: transparent;
+  border: none;
+  padding: 6px;
   font-size: 18px;
-  color: white;
+  line-height: 1;
+  color: var(--texto-fraco);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 140ms ease, background-color 140ms ease;
 }
 
-.bg-blue {
-  background: linear-gradient(135deg, #4361ee, #3a56d4);
+.ficha__fechar:hover {
+  background: var(--papel);
+  color: var(--texto);
 }
 
-.bg-green {
-  background: linear-gradient(135deg, #06d6a0, #05b88b);
+.ficha__fechar:focus-visible {
+  outline: 2px solid var(--real);
+  outline-offset: 2px;
 }
 
-.bg-purple {
-  background: linear-gradient(135deg, #7209b7, #5f0b9e);
-}
-
-.stat-content-sm {
+.ficha__corpo {
+  padding: 24px 28px 28px;
+  overflow-y: auto;
   flex: 1;
 }
 
-.stat-title-sm {
-  font-size: 13px;
-  color: #718096;
-  margin-bottom: 3px;
-  font-weight: 500;
-}
-
-.stat-value-sm {
-  font-size: 18px;
-  font-weight: 700;
-  color: #2d3748;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 0 5px;
-}
-
-.section-header h4 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2d3748;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Números reais, derivados das faxinas do mês. */
+.numeros {
   margin: 0;
-}
-
-.total-faxinas {
-  background: #f1f5f9;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #4a5568;
-}
-
-.faxinas-container {
-  border: 1px solid #edf2f7;
-  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--traco);
+  border: 1px solid var(--traco);
+  border-radius: 3px;
   overflow: hidden;
 }
 
-.faxina-header {
-  display: grid;
-  grid-template-columns: 1.2fr 2fr 1fr 1.2fr;
-  padding: 12px 15px;
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #4a5568;
-  border-bottom: 1px solid #edf2f7;
-}
-
-.faxina-items {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.faxina-item {
-  display: grid;
-  grid-template-columns: 1.2fr 2fr 1fr 1.2fr;
-  padding: 15px;
-  border-bottom: 1px solid #edf2f7;
-  align-items: center;
-  transition: all 0.3s ease;
-}
-
-.faxina-item:hover {
-  background-color: #f8f9ff;
-}
-
-.faxina-date {
+.numeros__item {
+  background: var(--cartao);
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
-.faxina-day {
-  font-size: 16px;
+.numeros dt {
+  font-size: 10px;
   font-weight: 600;
-  color: #2d3748;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--texto-fraco);
 }
 
-.faxina-month {
-  font-size: 13px;
-  color: #718096;
-}
-
-.faxina-apartamento {
+.numeros dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 19px;
   font-weight: 500;
-  color: #2d3748;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
 }
 
-.faxina-value {
-  font-weight: 600;
-  color: #06d6a0;
+.numeros__item--destaque {
+  background: var(--tinta);
 }
 
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
+.numeros__item--destaque dt {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.numeros__item--destaque dd {
+  color: var(--menta);
+}
+
+.ficha__periodo {
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--texto-fraco);
+}
+
+.ficha__periodo b {
+  font-family: var(--mono);
   font-weight: 500;
-  display: inline-block;
-  text-align: center;
-  width: 90px;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
 }
 
-.status-badge.completed {
-  background: rgba(6, 214, 160, 0.1);
-  color: #05b88b;
-}
-
-.status-badge.pending {
-  background: rgba(255, 209, 102, 0.1);
-  color: #e6a700;
-}
-
-.no-data-sm {
-  grid-column: 1 / span 4;
-  text-align: center;
-  padding: 30px 20px;
-  color: #a0aec0;
-}
-
-.no-data-sm i {
-  font-size: 36px;
-  margin-bottom: 10px;
-  color: #e2e8f0;
-}
-
-.modal-footer {
-  padding: 15px 25px;
-  border-top: 1px solid #edf2f7;
-  display: flex;
-  justify-content: center;
-}
-
-.download-all-btn {
-  padding: 12px 25px;
-  background: linear-gradient(135deg, #4361ee, #3a56d4);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
+.ficha__subtitulo {
+  margin: 30px 0 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(67, 97, 238, 0.3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto-fraco);
 }
 
-.download-all-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+.contagem {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 2px 8px;
+  border: 1px solid var(--traco);
+  border-radius: 20px;
+  color: var(--texto-fraco);
 }
 
-/* Responsividade para o modal */
-@media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    max-height: 90vh;
+.ficha__carregando {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texto-fraco);
+}
+
+/* Itens: mesma gramática de pontilhado da folha, em escala menor. */
+.itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--traco);
+  border-radius: 3px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--traco);
+}
+
+/* Situação só aparece no recorte "Todas", onde a lista é mista. */
+.situacao {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--real);
+  white-space: nowrap;
+}
+
+.situacao::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 1px;
+}
+
+.situacao--pendente {
+  color: var(--pendente);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item__data {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--mono);
+  min-width: 54px;
+}
+
+.item__data b {
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+}
+
+.item__data small {
+  font-size: 11px;
+  color: var(--texto-fraco);
+}
+
+.item__apartamento {
+  font-size: 14px;
+  color: var(--texto);
+}
+
+.item__guia {
+  height: 0.8em;
+  border-bottom: 1.5px dotted var(--traco);
+  min-width: 16px;
+}
+
+.item__valor {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--real);
+}
+
+.ficha__rodape {
+  padding: 16px 28px;
+  border-top: 1px solid var(--traco);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  background: var(--papel);
+}
+
+/* --------------------------------------------------------------------------
+   Responsivo
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .tela {
+    padding: 0;
+    align-items: flex-end;
   }
-  
-  .terceirizado-summary {
-    grid-template-columns: 1fr;
+
+  .ficha {
+    max-width: none;
+    max-height: 92vh;
+    border-radius: 4px 4px 0 0;
   }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
+
+  .ficha__cabecalho,
+  .ficha__corpo,
+  .ficha__rodape {
+    padding-left: 18px;
+    padding-right: 18px;
   }
-  
-  .faxina-header {
+
+  .item {
+    grid-template-columns: auto 1fr auto;
+    gap: 6px 10px;
+  }
+
+  .item__guia {
     display: none;
   }
-  
-  .faxina-item {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 10px;
-    border: 1px solid #edf2f7;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  .situacao {
+    grid-column: 2 / -1;
   }
-  
-  .faxina-date {
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .faxina-day {
-    font-size: 18px;
-  }
-  
-  .status-badge {
-    width: auto;
+
+  .ficha__rodape .botao--solido {
+    flex: 1;
+    justify-content: center;
   }
 }
 
-@media (max-width: 576px) {
-  .modal-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .total-faxinas {
-    align-self: flex-start;
+@media (prefers-reduced-motion: reduce) {
+  .tela,
+  .ficha {
+    animation: none;
   }
 }

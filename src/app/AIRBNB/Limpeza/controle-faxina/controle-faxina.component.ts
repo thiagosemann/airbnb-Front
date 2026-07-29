@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, LOCALE_ID, OnInit } from '@angular/core';
+// O app não registra locale, então os pipes caem em en-US e imprimem "16,400.00".
+// Numa folha de pagamento em reais isso é leitura errada, não só estilo.
+// A variante global/ se auto-registra: import só por efeito colateral, sem tipagem.
+import '@angular/common/locales/global/pt';
 import * as XLSX from 'xlsx';
 import { User } from 'src/app/shared/utilitarios/user';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
@@ -9,7 +13,10 @@ import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBN
 @Component({
   selector: 'app-controle-faxina',
   templateUrl: './controle-faxina.component.html',
-  styleUrls: ['./controle-faxina.component.css','./controle-faxina.component2.css','./controle-faxina.component3.css']
+  styleUrls: ['./controle-faxina.component.css','./controle-faxina.component2.css','./controle-faxina.component3.css'],
+  // 'pt' no CLDR é o português do Brasil (pt-PT é que é a variante), e é
+  // exatamente o locale que o import acima registra — sem depender de fallback.
+  providers: [{ provide: LOCALE_ID, useValue: 'pt' }]
 })
 export class ControleFaxinaComponent implements OnInit {
   users: User[] = [];
@@ -18,9 +25,24 @@ export class ControleFaxinaComponent implements OnInit {
   pagamentos: any[] = [];
   totalMes: number = 0;
   totalFaxinas: number = 0;
-  valorPorFaxina: number = 50;
+  valorPorFaxina: number = 0;
   maxFaxinas: number = 0;
-  
+  carregando: boolean = false;
+  erro: string = '';
+
+  // Filtro por situação da limpeza. Governa a tela inteira — totais, linhas,
+  // detalhe e planilhas — para que o que se vê seja exatamente o que se exporta.
+  filtroStatus: 'todas' | 'concluidas' | 'pendentes' = 'todas';
+  readonly opcoesFiltro: { valor: 'todas' | 'concluidas' | 'pendentes'; rotulo: string }[] = [
+    { valor: 'todas', rotulo: 'Todas' },
+    { valor: 'concluidas', rotulo: 'Concluídas' },
+    { valor: 'pendentes', rotulo: 'Pendentes' }
+  ];
+
+  // Serviços crus do mês. Trocar o filtro é recorte de dado já carregado,
+  // não motivo para uma nova ida ao servidor.
+  private servicosDoMes: any[] = [];
+
   // Variáveis para detalhamento
   showModal: boolean = false;
   selectedterceirizado: any = null;
@@ -39,17 +61,26 @@ export class ControleFaxinaComponent implements OnInit {
 
   generateMonthOptions() {
     const months = [];
-    const date = new Date();
+    const hoje = new Date();
+    // Ancora o cursor no dia 1: setMonth em um dia 29/30/31 transborda para o mês
+    // seguinte (ex.: 31/03 -> setMonth(fevereiro) vira 03/03), duplicando meses na lista.
+    const cursor = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     for (let i = 0; i < 24; i++) {
-      const month = date.getMonth();
-      const year = date.getFullYear();
+      const month = cursor.getMonth();
+      const year = cursor.getFullYear();
+      const nome = cursor.toLocaleString('pt-BR', { month: 'long' });
       months.push({
-        label: `${date.toLocaleString('default', { month: 'long' })}/${year}`,
+        label: `${nome.charAt(0).toUpperCase()}${nome.slice(1)} ${year}`,
         value: `${year}-${(month + 1).toString().padStart(2, '0')}`
       });
-      date.setMonth(date.getMonth() - 1);
+      cursor.setMonth(month - 1);
     }
     this.monthOptions = months;
+  }
+
+  get mesSelecionadoLabel(): string {
+    const opcao = this.monthOptions.find(m => m.value === this.selectedMonth);
+    return opcao ? opcao.label : '';
   }
 
   getUsers(): void {
@@ -59,54 +90,115 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   async loadPayments() {
-    if (!this.selectedMonth) return;
+    if (!this.selectedMonth) {
+      this.servicosDoMes = [];
+      this.recalcular();
+      return;
+    }
 
+    this.carregando = true;
+    this.erro = '';
     try {
       const [startDate, endDate] = this.getMonthDateRange();
       const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
       const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
-      
-      const pagamentosMap = new Map<number, any>();
-      this.maxFaxinas = 0;
-      const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
-      
-      allServicos.forEach(servico => {
-        const userId = servico.faxina_userId;
-        const { year: dataYear, month: dataMonth } = this.getSPDateParts(servico.end_data);
 
-        const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
-        if (
-          servico.limpeza_realizada &&
-          userId &&
-          dataMonth === selMonthIndex &&
-          dataYear === selYear
-        ) {
-          if (!pagamentosMap.has(userId)) {
-            pagamentosMap.set(userId, {
-              user: this.users.find(u => u.id === userId),
-              totalFaxinas: 0,
-              valorTotal: 0
-            });
-          }
-          
-          const entry = pagamentosMap.get(userId);
-          entry.totalFaxinas++; 
-          entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
-          
-          if (entry.totalFaxinas > this.maxFaxinas) {
-            this.maxFaxinas = entry.totalFaxinas;
-          }
-        }
-      });
+      // Guarda concluídas e pendentes: o filtro é aplicado depois, sem novo request.
+      this.servicosDoMes = [...(reservas || []), ...(limpezasExtras || [])]
+        .filter(servico => servico.faxina_userId && this.pertenceAoMesSelecionado(servico.end_data));
 
-      this.pagamentos = Array.from(pagamentosMap.values());
-      this.calcularTotais();
-      const totalFaxinasRealizadas = this.totalFaxinas;
-      const somaValoresFaxinas = this.totalMes;
-      this.valorPorFaxina = totalFaxinasRealizadas > 0 ? (somaValoresFaxinas / totalFaxinasRealizadas) : 0;
+      this.recalcular();
     } catch (error) {
       console.error('Erro ao carregar pagamentos:', error);
+      this.servicosDoMes = [];
+      this.recalcular();
+      this.erro = 'Não foi possível carregar as faxinas deste mês. Tente de novo.';
+    } finally {
+      this.carregando = false;
     }
+  }
+
+  aplicarFiltro(valor: 'todas' | 'concluidas' | 'pendentes'): void {
+    if (this.filtroStatus === valor) return;
+    this.filtroStatus = valor;
+    this.recalcular();
+    if (this.showModal && this.selectedterceirizado) {
+      this.montarDetalhes(this.selectedterceirizado);
+    }
+  }
+
+  private passaNoFiltro(servico: any): boolean {
+    if (this.filtroStatus === 'concluidas') return !!servico.limpeza_realizada;
+    if (this.filtroStatus === 'pendentes') return !servico.limpeza_realizada;
+    return true;
+  }
+
+  private servicosFiltrados(): any[] {
+    return this.servicosDoMes.filter(servico => this.passaNoFiltro(servico));
+  }
+
+  private recalcular(): void {
+    const pagamentosMap = new Map<number, any>();
+    this.maxFaxinas = 0;
+
+    this.servicosFiltrados().forEach(servico => {
+      const userId = servico.faxina_userId;
+      if (!pagamentosMap.has(userId)) {
+        pagamentosMap.set(userId, {
+          user: this.users.find(u => u.id === userId),
+          totalFaxinas: 0,
+          valorTotal: 0
+        });
+      }
+
+      const entry = pagamentosMap.get(userId);
+      entry.totalFaxinas++;
+      entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
+
+      if (entry.totalFaxinas > this.maxFaxinas) {
+        this.maxFaxinas = entry.totalFaxinas;
+      }
+    });
+
+    // Maior valor primeiro: a folha é lida de cima para baixo por quanto se paga.
+    this.pagamentos = Array.from(pagamentosMap.values())
+      .sort((a, b) => b.valorTotal - a.valorTotal);
+
+    this.calcularTotais();
+    this.valorPorFaxina = this.totalFaxinas > 0 ? (this.totalMes / this.totalFaxinas) : 0;
+  }
+
+  // --- Rótulos que mudam com o filtro -------------------------------------
+  // "A pagar" só é verdade para faxinas concluídas; chamar pendente de a pagar
+  // numa tela de pagamento é afirmação errada, não sinônimo.
+
+  get rotuloTotal(): string {
+    if (this.filtroStatus === 'pendentes') return 'Total pendente em';
+    if (this.filtroStatus === 'todas') return 'Total previsto em';
+    return 'Total a pagar em';
+  }
+
+  get rotuloTotalCurto(): string {
+    if (this.filtroStatus === 'pendentes') return 'Pendente';
+    if (this.filtroStatus === 'todas') return 'Previsto';
+    return 'A pagar';
+  }
+
+  get rotuloFaxinas(): string {
+    if (this.filtroStatus === 'pendentes') return 'Faxinas pendentes';
+    if (this.filtroStatus === 'todas') return 'Faxinas no mês';
+    return 'Faxinas concluídas';
+  }
+
+  get mensagemVazio(): string {
+    if (this.filtroStatus === 'pendentes') return `Nenhuma faxina pendente em ${this.mesSelecionadoLabel}.`;
+    if (this.filtroStatus === 'todas') return `Nenhuma faxina em ${this.mesSelecionadoLabel}.`;
+    return `Nenhuma faxina concluída em ${this.mesSelecionadoLabel}.`;
+  }
+
+  get ajudaVazio(): string {
+    if (this.filtroStatus === 'pendentes') return 'Tudo que foi atribuído neste mês já está concluído.';
+    return 'Faxinas aparecem aqui depois de atribuídas a uma terceirizada na escala.';
   }
 
   getMonthDateRange(): [string, string] {
@@ -166,167 +258,165 @@ export class ControleFaxinaComponent implements OnInit {
     return { year, monthIndex: month - 1 };
   }
 
+  // Um serviço pertence ao mês selecionado pela data de calendário da faxina (end_data),
+  // comparada textualmente — nunca por Date, que deslocaria o dia pelo fuso.
+  private pertenceAoMesSelecionado(endData: string): boolean {
+    if (!endData) return false;
+    const { year, month } = this.getSPDateParts(endData);
+    const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
+    return year === selYear && month === selMonthIndex;
+  }
+
   calcularTotais() {
     this.totalFaxinas = this.pagamentos.reduce((sum, p) => sum + p.totalFaxinas, 0);
     this.totalMes = this.pagamentos.reduce((sum, p) => sum + p.valorTotal, 0);
   }
 
+  // Sufixo do nome do arquivo, para que a planilha diga qual recorte ela contém.
+  private get sufixoArquivo(): string {
+    return `${this.selectedMonth}_${this.filtroStatus}`;
+  }
+
+  private linhaPlanilha(servico: any) {
+    return {
+      'ID Reserva': servico.id,
+      'Apartamento': servico.apartamento_nome,
+      'Data Fim': this.formatDateSP(servico.end_data),
+      'Limpeza Realizada': servico.limpeza_realizada ? 'Sim' : 'Não',
+      'Valor': servico.valor_limpeza ? Number(servico.valor_limpeza) : 0
+    };
+  }
+
   downloadXls(pagamento: any): void {
-    const [startDate, endDate] = this.getMonthDateRange();
-    Promise.all([
-      this.reservasService.getReservasPorPeriodo(startDate, endDate).toPromise(),
-      this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise()
-    ]).then(([reservas, extras]) => {
-      const allServicos = [...(reservas || []), ...(extras || [])];
-      // Agora inclui todas as faxinas, não só as realizadas
-      const filteredServicos = allServicos.filter(r => r.faxina_userId === pagamento.user.id);
+    const servicos = this.servicosFiltrados()
+      .filter(s => s.faxina_userId === pagamento?.user?.id)
+      .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
 
-      if (filteredServicos.length === 0) {
-        alert('Nenhuma reserva encontrada para este terceirizado no período selecionado.');
-        return;
-      }
+    if (servicos.length === 0) {
+      alert('Nenhuma faxina neste recorte para esta terceirizada.');
+      return;
+    }
 
-      const worksheetData = filteredServicos.map(r => ({
-        'ID Reserva': r.id,
-        'Apartamento': r.apartamento_nome,
-        'Data Fim': this.formatDateSP(r.end_data),
-        'Limpeza Realizada': r.limpeza_realizada ? 'Sim' : 'Não',
-        'Valor': r.valor_limpeza ? Number(r.valor_limpeza) : 0
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Reservas');
-      XLSX.writeFile(workbook, `reservas_${pagamento.user.first_name}.xlsx`);
-    });
+    const worksheet = XLSX.utils.json_to_sheet(servicos.map(s => this.linhaPlanilha(s)));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Faxinas');
+    XLSX.writeFile(workbook, `faxinas_${pagamento.user.first_name}_${this.sufixoArquivo}.xlsx`);
   }
 
   downloadResumoGeralXls(): void {
-    const [startDate, endDate] = this.getMonthDateRange();
-    Promise.all([
-      this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise(),
-      this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise()
-    ]).then(([reservas, extras]) => {
-      const allServicos = [...(reservas || []), ...(extras || [])];
-      // Agrupa por terceirizado
-      const resumoMap = new Map<number, { nome: string, totalFaxinas: number, valorTotal: number }>();
-      this.users.filter(user => user.id !== undefined).forEach(user => {
-        resumoMap.set(user.id as number, { nome: user.first_name, totalFaxinas: 0, valorTotal: 0 });
-      });
-      // Agora soma todas as faxinas, não só as realizadas
-      allServicos.forEach(servico => {
-        if (servico.faxina_userId) {
-          const entry = resumoMap.get(servico.faxina_userId);
-          if (entry) {
-            entry.totalFaxinas++;
-            entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
-          }
-        }
-      });
-      // Monta dados para a aba Resumo
-      const resumoData = Array.from(resumoMap.values()).filter(e => e.totalFaxinas > 0);
-      const resumoSheet = XLSX.utils.json_to_sheet(resumoData.map(e => ({
-        'Terceirizado': e.nome,
-        'Total Faxinas': e.totalFaxinas,
-        'Valor Total': e.valorTotal
-      })));
-      // Monta dados detalhados para cada terceirizado
-      const detalhadoSheets: { [key: string]: XLSX.WorkSheet } = {};
-      this.users.filter(user => user.id !== undefined).forEach(user => {
-        // Inclui todas as faxinas, não só as realizadas
-        const userServicos = allServicos.filter(s => s.faxina_userId === user.id);
-        if (userServicos.length > 0) {
-          detalhadoSheets[user.first_name] = XLSX.utils.json_to_sheet(userServicos.map(r => ({
-            'ID Reserva': r.id,
-            'Apartamento': r.apartamento_nome,
-            'Data Fim': this.formatDateSP(r.end_data),
-            'Limpeza Realizada': r.limpeza_realizada ? 'Sim' : 'Não',
-            'Valor': r.valor_limpeza ? Number(r.valor_limpeza) : 0
-          })));
-        }
-      });
-      // Cria o workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, resumoSheet, 'Resumo');
-      Object.keys(detalhadoSheets).forEach(nome => {
-        XLSX.utils.book_append_sheet(workbook, detalhadoSheets[nome], nome);
-      });
-      XLSX.writeFile(workbook, `resumo_terceirizadas_${this.selectedMonth}.xlsx`);
+    const servicos = this.servicosFiltrados();
+    if (servicos.length === 0) {
+      alert('Nenhuma faxina neste recorte para exportar.');
+      return;
+    }
+
+    // Resumo espelha exatamente as linhas da tela, na mesma ordem.
+    const resumoSheet = XLSX.utils.json_to_sheet(this.pagamentos.map(p => ({
+      'Terceirizada': p.user?.first_name || 'Terceirizada removida',
+      'Faxinas': p.totalFaxinas,
+      'Valor Total': p.valorTotal
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, resumoSheet, 'Resumo');
+
+    this.pagamentos.forEach(pagamento => {
+      const nome = pagamento.user?.first_name;
+      if (!nome) return;
+      const doUsuario = servicos
+        .filter(s => s.faxina_userId === pagamento.user.id)
+        .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
+      if (doUsuario.length === 0) return;
+      // Nome de aba no Excel: máximo 31 caracteres e sem os caracteres reservados.
+      const aba = nome.replace(/[\\/?*\[\]:]/g, '').substring(0, 31);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        XLSX.utils.json_to_sheet(doUsuario.map(s => this.linhaPlanilha(s))),
+        aba
+      );
     });
+
+    XLSX.writeFile(workbook, `resumo_terceirizadas_${this.sufixoArquivo}.xlsx`);
   }
 
   getInitials(name: string): string {
     if (!name) return '';
-    const names = name.split(' ');
-    let initials = names[0].substring(0, 1).toUpperCase();
-    
-    if (names.length > 1) {
-      initials += names[names.length - 1].substring(0, 1).toUpperCase();
-    }
-    
-    return initials;
+    const partes = name.trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0) return '';
+    // Sem sobrenome, duas letras do próprio nome: "Zilda" e "Tacyane" viravam
+    // ambas "T"/"Z" isolados e colidiam na lista.
+    if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+    return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
   }
 
+  // Teto visual de 88%: no 100% o filete encosta nas duas bordas e passa a ler como
+  // divisor de seção em vez de barra. Parando antes, a linha continua sendo medida.
   getProgressWidth(count: number): number {
     if (this.maxFaxinas === 0) return 0;
-    return (count / this.maxFaxinas) * 100;
+    return (count / this.maxFaxinas) * 88;
   }
   
-  // Métodos para o detalhamento
-  async openDetails(pagamento: any) {
+  // Detalhamento: lê do mesmo cache da folha, então abre sem request e não pode
+  // divergir do que está na linha.
+  openDetails(pagamento: any): void {
     this.selectedterceirizado = pagamento;
-    
-    try {
-      const [startDate, endDate] = this.getMonthDateRange();
-      const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
-      const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
-      
-      const allServicos = [...(reservas || []), ...(limpezasExtras || [])];
-      
-      this.faxinasDetalhadas = allServicos.filter(servico => {
-        const { year: dataYear, month: dataMonth } = this.getSPDateParts(servico.end_data);
-        const { year: selYear, monthIndex: selMonthIndex } = this.parseSelectedYearMonth();
-        return (
-          servico.faxina_userId === pagamento.user.id &&
-          servico.limpeza_realizada &&
-          dataMonth === selMonthIndex &&
-          dataYear === selYear
-        );
-      });
-      
-      this.showModal = true;
-    } catch (error) {
-      console.error('Erro ao carregar detalhes:', error);
-    }
+    this.montarDetalhes(pagamento);
+    this.showModal = true;
   }
-  
+
+  private montarDetalhes(pagamento: any): void {
+    this.faxinasDetalhadas = this.servicosFiltrados()
+      .filter(servico => servico.faxina_userId === pagamento?.user?.id)
+      .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
+  }
+
+  @HostListener('document:keydown.escape')
   closeModal() {
     this.showModal = false;
     this.selectedterceirizado = null;
     this.faxinasDetalhadas = [];
   }
-  
+
   formatDate(dateString: string): string {
     return this.formatDateSP(dateString);
   }
-  
-  getAverageFaxinas(): string {
-    // Implementar lógica real de cálculo de média histórica
-    const avg = this.selectedterceirizado?.totalFaxinas * 0.85;
-    return avg ? avg.toFixed(1) : 'N/A';
+
+  // Chave numérica AAAAMMDD para ordenar sem construir Date (que deslocaria o dia pelo fuso).
+  private chaveData(dateString: string): number {
+    const { year, month, day } = this.getSPDateParts(dateString);
+    return year * 10000 + month * 100 + day;
   }
-  
+
+  // Valor médio efetivamente pago a esta terceirizada no mês.
   getAverageValue(): number {
-    // Implementar lógica real de cálculo de valor médio
-    return this.selectedterceirizado?.valorTotal / this.selectedterceirizado?.totalFaxinas || 0;
+    const t = this.selectedterceirizado;
+    if (!t || !t.totalFaxinas) return 0;
+    return t.valorTotal / t.totalFaxinas;
   }
-  
-  getRating(): string {
-    // Implementar lógica real de avaliação
-    const ratings = [4.2, 4.5, 4.8, 4.0, 4.7];
-    return ratings[Math.floor(Math.random() * ratings.length)].toFixed(1);
+
+  // Primeira e última faxina do mês, para dar contexto ao período trabalhado.
+  getPeriodoCoberto(): string {
+    if (!this.faxinasDetalhadas.length) return '—';
+    const ordenadas = [...this.faxinasDetalhadas].sort(
+      (a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data)
+    );
+    const primeira = this.formatDateSP(ordenadas[0].end_data);
+    const ultima = this.formatDateSP(ordenadas[ordenadas.length - 1].end_data);
+    return primeira === ultima ? primeira : `${primeira} a ${ultima}`;
   }
-  // Adicione estas novas funções ao componente TypeScript
+
+  // Quantos apartamentos distintos esta terceirizada atendeu no mês.
+  getApartamentosAtendidos(): number {
+    return new Set(this.faxinasDetalhadas.map(f => f.apartamento_nome)).size;
+  }
+
+  trackByPagamento(_: number, pagamento: any): number {
+    return pagamento?.user?.id;
+  }
+
+  trackByFaxina(index: number, faxina: any): string {
+    return `${faxina?.id}-${faxina?.end_data}-${index}`;
+  }
 
   // Função para obter o dia da data
   getDay(dateString: string): string {
@@ -344,17 +434,4 @@ export class ControleFaxinaComponent implements OnInit {
     return this.MESES_ABREV[month];
   }
 
-  // Função para obter a data da última faxina
-  getLastCleaning(): string {
-    if (!this.faxinasDetalhadas || this.faxinasDetalhadas.length === 0) {
-      return 'N/A';
-    }
-    
-    // Ordenar por data (mais recente primeiro)
-    const sortedFaxinas = [...this.faxinasDetalhadas].sort((a, b) => 
-      new Date(b.end_data).getTime() - new Date(a.end_data).getTime()
-    );
-    
-    return this.formatDateSP(sortedFaxinas[0].end_data);
-  }
 }
