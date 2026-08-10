@@ -234,16 +234,23 @@
         </td>
         <td class="obs-col">
           <div class="obs-cell-wrapper">
-            <span class="obs-text" [class.has-content]="event.Observacoes && event.Observacoes.trim()">
-              {{ event.Observacoes || '-' }}
+            <span class="obs-text" [class.has-content]="getUltimaObservacaoTexto(event)">
+              {{ getUltimaObservacaoTexto(event) || '-' }}
             </span>
-            <button *ngIf="event.Observacoes && event.Observacoes.length > 30" class="obs-expand-btn"
+            <span class="obs-count" *ngIf="(event.total_observacoes || 0) > 1"
+              [title]="event.total_observacoes + ' observações no histórico'">
+              {{ event.total_observacoes }}
+            </span>
+            <button *ngIf="getUltimaObservacaoTexto(event)" class="obs-expand-btn"
               (click)="openObsPopover(event, $event)" title="Ver observação completa">
               <i class="fas fa-expand-alt"></i>
             </button>
           </div>
-          <div class="obs-tooltip" *ngIf="event.Observacoes && event.Observacoes.length > 30">
-            {{ event.Observacoes }}
+          <small class="obs-assinatura" *ngIf="getUltimaObservacaoAssinatura(event)">
+            {{ getUltimaObservacaoAssinatura(event) }}
+          </small>
+          <div class="obs-tooltip" *ngIf="getUltimaObservacaoTexto(event).length > 30">
+            {{ getUltimaObservacaoTexto(event) }}
           </div>
         </td>
         <td>
@@ -391,17 +398,80 @@
           </div>
         </div>
       </div>
-      <!-- Observações da reserva: campo adicionado antes do cadastro de hóspede -->
+      <!-- Observações da reserva: timeline com data, hora e autor de cada registro -->
       <div class="modal-section panel-base" role="group" aria-labelledby="observacoesTitle">
         <div class="panel-header compact">
           <div class="icon-circle small warn"><i class="fa-solid fa-pen-to-square"></i></div>
           <div class="panel-titles">
             <h5 id="observacoesTitle">Observações</h5>
+            <span class="panel-subtitle" *ngIf="observacoesTimeline.length">
+              {{ observacoesTimeline.length }} registro(s) no histórico
+            </span>
           </div>
         </div>
+
+        <!-- Nova observação -->
         <div class="modal-item full-width">
-          <textarea class="form-control obs-textarea" rows="3" [(ngModel)]="selectedReservation!.Observacoes"
-            (blur)="saveObservacoes()" placeholder="Escreva uma observação..."></textarea>
+          <textarea class="form-control obs-textarea" rows="3" [(ngModel)]="novaObservacao"
+            [disabled]="salvandoObservacao" placeholder="Escreva uma observação..."></textarea>
+          <div class="obs-add-actions">
+            <button type="button" class="btn btn-primary btn-sm" (click)="adicionarObservacao()"
+              [disabled]="salvandoObservacao || !novaObservacao.trim()">
+              <i class="fa-solid fa-plus" *ngIf="!salvandoObservacao"></i>
+              <i class="fa-solid fa-spinner fa-spin" *ngIf="salvandoObservacao"></i>
+              Adicionar observação
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="obs-timeline">
+          <div class="obs-timeline-loading" *ngIf="carregandoObservacoes">
+            <i class="fa-solid fa-spinner fa-spin"></i> Carregando histórico...
+          </div>
+
+          <p class="obs-timeline-empty" *ngIf="!carregandoObservacoes && observacoesTimeline.length === 0">
+            Nenhuma observação registrada para esta reserva.
+          </p>
+
+          <div class="obs-timeline-item" *ngFor="let obs of observacoesTimeline">
+            <div class="obs-timeline-marker"></div>
+            <div class="obs-timeline-content">
+              <div class="obs-timeline-meta">
+                <span class="obs-timeline-autor"><i class="fa-solid fa-user"></i> {{ obs.user_nome }}</span>
+                <span class="obs-timeline-data">{{ formatarDataparaTable(obs.created_at) }}</span>
+                <span class="obs-timeline-editado" *ngIf="obs.updated_at !== obs.created_at">(editado)</span>
+              </div>
+
+              <!-- Modo leitura -->
+              <p class="obs-timeline-texto" *ngIf="editandoObsId !== obs.id">{{ obs.texto }}</p>
+
+              <!-- Modo edição (somente autor) -->
+              <div class="obs-timeline-edit" *ngIf="editandoObsId === obs.id">
+                <textarea class="form-control obs-textarea" rows="3" [(ngModel)]="editandoObsTexto"
+                  [disabled]="salvandoObservacao"></textarea>
+                <div class="obs-timeline-edit-actions">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="salvarEdicaoObservacao()"
+                    [disabled]="salvandoObservacao || !editandoObsTexto.trim()">
+                    <i class="fa-solid fa-check"></i> Salvar
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicaoObservacao()"
+                    [disabled]="salvandoObservacao">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+
+              <div class="obs-timeline-actions" *ngIf="editandoObsId !== obs.id && podeEditarObservacao(obs)">
+                <button type="button" class="obs-icon-btn" (click)="iniciarEdicaoObservacao(obs)" title="Editar">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button type="button" class="obs-icon-btn danger" (click)="removerObservacao(obs)" title="Remover">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <hr>
@@ -670,11 +740,15 @@
   <div class="obs-popover" (click)="$event.stopPropagation()" [style.top.px]="obsPopoverPosition.top"
     [style.left.px]="obsPopoverPosition.left">
     <div class="obs-popover-header">
-      <span><i class="fas fa-sticky-note"></i> Observação</span>
+      <span><i class="fas fa-sticky-note"></i> Observação mais recente</span>
       <button class="obs-popover-close" (click)="closeObsPopover()">&times;</button>
     </div>
     <div class="obs-popover-body">
       {{ selectedObsText }}
+    </div>
+    <div class="obs-popover-footer" *ngIf="selectedObsAutor || selectedObsData">
+      <i class="fa-solid fa-user"></i> {{ selectedObsAutor }}
+      <span *ngIf="selectedObsData"> · {{ selectedObsData }}</span>
     </div>
   </div>
 </div>

@@ -916,3 +916,198 @@ input[type="date"]:focus {
     max-width: 80px;
   }
 }
+
+/* ===== Timeline de observações ===== */
+
+/* Assinatura (autor · data) da observação mais recente na tabela */
+.obs-assinatura {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: #98a4ae;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-table tr.early-payment .obs-assinatura {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Contador de registros no histórico */
+.obs-count {
+  flex: 0 0 auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e6f6f4;
+  color: #00857b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.calendar-table tr.early-payment .obs-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.obs-popover-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #edf1f4;
+  font-size: 0.85rem;
+  color: #6b7885;
+}
+
+.obs-popover-footer i {
+  margin-right: 6px;
+}
+
+/* Botão de adicionar nova observação */
+.obs-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.obs-add-actions .btn i {
+  margin-right: 6px;
+}
+
+/* Lista da timeline */
+.obs-timeline {
+  margin-top: 18px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.obs-timeline-loading,
+.obs-timeline-empty {
+  font-size: 0.88rem;
+  color: #8a97a3;
+  margin: 8px 0;
+}
+
+.obs-timeline-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+/* Linha vertical que conecta os registros */
+.obs-timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8ed;
+}
+
+.obs-timeline-marker {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #00a699;
+  box-shadow: 0 0 0 3px rgba(0, 166, 153, .15);
+  z-index: 1;
+}
+
+/* O primeiro item é a observação vigente no diário */
+.obs-timeline-item:first-child .obs-timeline-marker {
+  background: #ff5a5f;
+  box-shadow: 0 0 0 3px rgba(255, 90, 95, .18);
+}
+
+.obs-timeline-content {
+  position: relative;
+  flex: 1;
+  background: #f7f9fb;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.obs-timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  color: #7c8894;
+}
+
+.obs-timeline-autor {
+  font-weight: 700;
+  color: #3f4950;
+}
+
+.obs-timeline-autor i {
+  margin-right: 4px;
+  color: #00a699;
+}
+
+.obs-timeline-editado {
+  font-style: italic;
+}
+
+.obs-timeline-texto {
+  margin: 0;
+  padding-right: 56px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #2d333f;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.obs-timeline-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.obs-icon-btn {
+  border: none;
+  background: transparent;
+  color: #9aa6b1;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.obs-icon-btn:hover {
+  background: #e9eef3;
+  color: #3f4950;
+}
+
+.obs-icon-btn.danger:hover {
+  background: #ffe9ea;
+  color: #ff5a5f;
+}
+
+.obs-timeline-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.obs-timeline-edit .obs-textarea {
+  min-height: 80px;
+}
+
+.panel-subtitle {
+  display: block;
+  font-size: 0.78rem;
+  color: #8a97a3;
+}

@@ -7,7 +7,13 @@ export interface ReservaAirbnb {
   description: string;
   end_data: string;  // Ou Date se for converter datas
   start_date: string; // Ou Date se for converter datas
+  /** @deprecated Substituído pela timeline `reserva_observacoes`. Mantido para reservas antigas. */
   Observacoes: string;
+  /** Texto da observação mais recente da timeline (o que a coluna do diário exibe) */
+  ultima_observacao?: string | null;
+  ultima_observacao_data?: string | null;
+  ultima_observacao_user?: string | null;
+  total_observacoes?: number;
   cod_reserva: string;
   link_reserva: string;
   limpeza_realizada: boolean;

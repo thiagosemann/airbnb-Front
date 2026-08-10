@@ -12,6 +12,8 @@ import { Demanda } from 'src/app/shared/utilitarios/demanda';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { Apartamento } from 'src/app/shared/utilitarios/apartamento';
 import { PdfService } from 'src/app/shared/service/Pdf-Service/pdfService';
+import { ObservacoesReservaService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/observacoesReserva_service';
+import { ObservacaoReserva } from 'src/app/shared/utilitarios/observacaoReserva';
 
 @Component({
   selector: 'app-calendario-airbnb',
@@ -53,7 +55,17 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   // Popover de observações expandidas
   showObsPopover: boolean = false;
   selectedObsText: string = '';
+  selectedObsAutor: string = '';
+  selectedObsData: string = '';
   obsPopoverPosition: { top: number; left: number } = { top: 0, left: 0 };
+
+  // Timeline de observações da reserva aberta no modal
+  observacoesTimeline: ObservacaoReserva[] = [];
+  novaObservacao: string = '';
+  carregandoObservacoes: boolean = false;
+  salvandoObservacao: boolean = false;
+  editandoObsId: number | null = null;
+  editandoObsTexto: string = '';
 
   // Apartamento selecionado e instruções resolvidas
   selectedApartamento: Apartamento | null = null;
@@ -76,7 +88,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     private demandasService: DemandasService,
     private authService: AuthenticationService,
     private apartamentoService: ApartamentoService,
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private observacoesService: ObservacoesReservaService
   ) {
     // Definir datas padrão (últimos 30 dias e próximos 30 dias)
     const hoje = new Date();
@@ -191,11 +204,15 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     this.selectedApartamento = null;
     this.instrucoesResolvidas = '';
     this.showModal = true;
+    this.resetEdicaoObservacao();
+    this.novaObservacao = '';
+    this.observacoesTimeline = [];
     if (this.selectedReservation.id) {
       this.getRespostasByReservaId(
         this.selectedReservation.id.toString(),
         this.selectedReservation.cod_reserva
       );
+      this.carregarObservacoes(this.selectedReservation.id);
     }
     // Busca dados do apartamento para instruções de entrada
     if (this.selectedReservation.apartamento_id) {
@@ -213,6 +230,9 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.showModal = false;
     this.linkPagamento = "";
+    this.observacoesTimeline = [];
+    this.novaObservacao = '';
+    this.resetEdicaoObservacao();
     this.revokeObjectUrls();
   }
 
@@ -658,31 +678,139 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Salva (temporariamente apenas loga) as observações da reserva.
-   * Chamado quando o textarea perde o foco.
-   */
-  saveObservacoes(): void {
-    if (!this.selectedReservation) return;
+  // ----------------------- Timeline de observações -----------------------
 
-    // Preparar dados: garantir datas no formato do backend
-    try {
-      this.selectedReservation.start_date = this.formatarDataBanco(this.selectedReservation.start_date);
-      this.selectedReservation.end_data = this.formatarDataBanco(this.selectedReservation.end_data);
-    } catch (e) {
-      // se algo der errado na conversão, ainda tentamos enviar
+  /** Carrega o histórico de observações da reserva (mais recente primeiro) */
+  carregarObservacoes(reservaId: number): void {
+    this.carregandoObservacoes = true;
+    this.observacoesService.getByReservaId(reservaId).subscribe({
+      next: (obs) => {
+        this.observacoesTimeline = obs || [];
+        this.carregandoObservacoes = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar observações:', err);
+        this.observacoesTimeline = [];
+        this.carregandoObservacoes = false;
+        this.toastr.error('Erro ao carregar observações');
+      }
+    });
+  }
+
+  /** Cria um novo registro na timeline; o autor é resolvido no backend pelo token */
+  adicionarObservacao(): void {
+    if (!this.selectedReservation || !this.selectedReservation.id) return;
+
+    const texto = this.novaObservacao.trim();
+    if (!texto) {
+      this.toastr.warning('Escreva uma observação antes de salvar.');
+      return;
     }
 
-    // Chamar service para atualizar a reserva com as observações
-    this.reservasAirbnbService.updateReserva(this.selectedReservation)
-      .subscribe({
-        next: () => {
-        },
-        error: (err) => {
-          console.error('Erro ao salvar observações:', err);
-          this.toastr.error('Erro ao salvar observações');
-        }
-      });
+    this.salvandoObservacao = true;
+    this.observacoesService.create({
+      reserva_id: this.selectedReservation.id,
+      cod_reserva: this.selectedReservation.cod_reserva,
+      texto
+    }).subscribe({
+      next: (criada) => {
+        this.observacoesTimeline = [criada, ...this.observacoesTimeline];
+        this.novaObservacao = '';
+        this.salvandoObservacao = false;
+        this.sincronizarUltimaObservacao();
+        this.toastr.success('Observação registrada!');
+      },
+      error: (err) => {
+        console.error('Erro ao registrar observação:', err);
+        this.salvandoObservacao = false;
+        this.toastr.error('Erro ao registrar observação');
+      }
+    });
+  }
+
+  /** Só o autor pode editar/remover o próprio registro (regra também validada no backend) */
+  podeEditarObservacao(obs: ObservacaoReserva): boolean {
+    const user = this.authService.getUser();
+    return !!user && !!user.id && obs.user_id === user.id;
+  }
+
+  iniciarEdicaoObservacao(obs: ObservacaoReserva): void {
+    this.editandoObsId = obs.id;
+    this.editandoObsTexto = obs.texto;
+  }
+
+  cancelarEdicaoObservacao(): void {
+    this.resetEdicaoObservacao();
+  }
+
+  private resetEdicaoObservacao(): void {
+    this.editandoObsId = null;
+    this.editandoObsTexto = '';
+  }
+
+  salvarEdicaoObservacao(): void {
+    if (this.editandoObsId === null) return;
+
+    const texto = this.editandoObsTexto.trim();
+    if (!texto) {
+      this.toastr.warning('A observação não pode ficar vazia.');
+      return;
+    }
+
+    const id = this.editandoObsId;
+    this.salvandoObservacao = true;
+    this.observacoesService.update(id, texto).subscribe({
+      next: (atualizada) => {
+        this.observacoesTimeline = this.observacoesTimeline.map(o => o.id === id ? atualizada : o);
+        this.salvandoObservacao = false;
+        this.resetEdicaoObservacao();
+        this.sincronizarUltimaObservacao();
+        this.toastr.success('Observação atualizada!');
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar observação:', err);
+        this.salvandoObservacao = false;
+        this.toastr.error(err?.error?.error || 'Erro ao atualizar observação');
+      }
+    });
+  }
+
+  removerObservacao(obs: ObservacaoReserva): void {
+    if (!confirm('Remover esta observação da timeline?')) return;
+
+    this.observacoesService.delete(obs.id).subscribe({
+      next: () => {
+        this.observacoesTimeline = this.observacoesTimeline.filter(o => o.id !== obs.id);
+        this.sincronizarUltimaObservacao();
+        this.toastr.success('Observação removida!');
+      },
+      error: (err) => {
+        console.error('Erro ao remover observação:', err);
+        this.toastr.error(err?.error?.error || 'Erro ao remover observação');
+      }
+    });
+  }
+
+  /** Reflete a observação mais recente na linha da tabela sem precisar recarregar o período */
+  private sincronizarUltimaObservacao(): void {
+    if (!this.selectedReservation) return;
+    const ultima = this.observacoesTimeline[0] || null;
+    this.selectedReservation.ultima_observacao = ultima ? ultima.texto : null;
+    this.selectedReservation.ultima_observacao_data = ultima ? ultima.created_at : null;
+    this.selectedReservation.ultima_observacao_user = ultima ? ultima.user_nome : null;
+    this.selectedReservation.total_observacoes = this.observacoesTimeline.length;
+  }
+
+  /** Texto exibido na coluna "observações" do diário: sempre o mais recente da timeline */
+  getUltimaObservacaoTexto(event: ReservaAirbnb): string {
+    return (event.ultima_observacao || event.Observacoes || '').trim();
+  }
+
+  /** Legenda "autor · data" da observação mais recente */
+  getUltimaObservacaoAssinatura(event: ReservaAirbnb): string {
+    if (!event.ultima_observacao_data) return '';
+    const autor = event.ultima_observacao_user || 'Desconhecido';
+    return `${autor} · ${this.formatarDataparaTable(event.ultima_observacao_data)}`;
   }
 
   sendMensagemCadastroViaLink(): void {
@@ -771,10 +899,14 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Abre o popover para exibir observação completa */
-  openObsPopover(event: any, mouseEvent: MouseEvent): void {
+  /** Abre o popover para exibir a observação mais recente por completo */
+  openObsPopover(event: ReservaAirbnb, mouseEvent: MouseEvent): void {
     mouseEvent.stopPropagation();
-    this.selectedObsText = event.Observacoes || '';
+    this.selectedObsText = this.getUltimaObservacaoTexto(event);
+    this.selectedObsAutor = event.ultima_observacao_user || '';
+    this.selectedObsData = event.ultima_observacao_data
+      ? this.formatarDataparaTable(event.ultima_observacao_data)
+      : '';
 
     // Posicionar o popover centralizado na tela
     const viewportWidth = window.innerWidth;
@@ -793,6 +925,8 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   closeObsPopover(): void {
     this.showObsPopover = false;
     this.selectedObsText = '';
+    this.selectedObsAutor = '';
+    this.selectedObsData = '';
   }
 
   async downloadDossieCompleto(): Promise<void> {
