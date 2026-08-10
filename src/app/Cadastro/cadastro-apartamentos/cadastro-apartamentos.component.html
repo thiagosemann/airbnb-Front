@@ -77,6 +77,9 @@
         <button class="btn-edit" (click)="editarApartamento(apt)" title="Editar">
           <i class="bi bi-pencil"></i>
         </button>
+        <button class="btn-edit" (click)="gerenciarAcessos(apt)" title="Acesso das empresas">
+          <i class="bi bi-shield-lock"></i>
+        </button>
         <button *ngIf="!verInativos" class="btn-delete" (click)="alterarStatusApartamento(apt, false)" title="Inativar">
           <i class="bi bi-box-arrow-down"></i>
         </button>
@@ -128,6 +131,9 @@
               <div class="actions">
                 <button class="btn-edit" (click)="editarApartamento(apt)" title="Editar">
                   <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-edit" (click)="gerenciarAcessos(apt)" title="Acesso das empresas">
+                  <i class="bi bi-shield-lock"></i>
                 </button>
                 <button *ngIf="!verInativos" class="btn-delete" (click)="alterarStatusApartamento(apt, false)" title="Inativar">
                   <i class="bi bi-box-arrow-down"></i>

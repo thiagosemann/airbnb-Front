@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { PredioService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/predio_service';
@@ -103,7 +104,8 @@ export class CadastroApartamentosComponent implements OnInit {
     private userService: UserService,
     private toastr: ToastrService,
     private reservasAirbnbService: ReservasAirbnbService,
-    private apartamentosProprietarioService: ApartamentosProprietarioService
+    private apartamentosProprietarioService: ApartamentosProprietarioService,
+    private router: Router
   ) {
     // Recupera ID do usuário atual (para auditoria)
     const user: User | null = this.authService.getUser();
@@ -317,6 +319,11 @@ export class CadastroApartamentosComponent implements OnInit {
         (this.form.get('predioAmenities') as FormGroup).patchValue(vals);
       }
     });
+  }
+
+  /** Abre a tela de acesso das empresas já filtrada por este apartamento */
+  gerenciarAcessos(apt: Apartamento): void {
+    this.router.navigate(['/controleAcessoApartamentos'], { queryParams: { apartamento: apt.id } });
   }
 
   /** Carrega apartamentos (ativos ou inativos) e pré-processa nomes de usuário */

@@ -1,0 +1,202 @@
+<div class="container">
+
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-title">
+      <i class="bi bi-shield-lock-fill"></i>
+      <h1>
+        Acesso das Empresas
+        <span class="badge-count-header" *ngIf="!loading">
+          {{ linhasFiltradas.length }}<ng-container *ngIf="linhasFiltradas.length !== linhas.length"> / {{ linhas.length }}</ng-container>
+        </span>
+      </h1>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-container">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Apartamento, prédio ou empresa..."
+          [value]="termoBusca"
+          (input)="filtrar($event)"
+        >
+      </div>
+      <button
+        class="btn-filtro"
+        [class.ativo]="apenasCompartilhados"
+        (click)="toggleApenasCompartilhados()"
+        title="Mostrar apenas apartamentos com empresa secundária"
+      >
+        <i class="bi" [ngClass]="apenasCompartilhados ? 'bi-funnel-fill' : 'bi-funnel'"></i>
+        Compartilhados ({{ totalCompartilhados }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-card">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p>Carregando acessos...</p>
+  </div>
+
+  <!-- Cards para mobile -->
+  <div class="acessos-grid d-block d-md-none" *ngIf="!loading">
+    <div *ngFor="let linha of linhasFiltradas" class="acesso-card">
+      <div class="acesso-card-header">
+        <div class="acesso-card-name">{{ linha.apartamento.nome }}</div>
+        <small class="text-muted">{{ linha.apartamento.predio_name || '-' }}</small>
+      </div>
+
+      <div class="acesso-card-body">
+        <div class="linha-dona">
+          <span class="rotulo">Empresa dona</span>
+          <span class="chip chip-dona">
+            <i class="bi bi-star-fill"></i> {{ linha.empresaDonaNome }}
+          </span>
+        </div>
+
+        <div class="linha-convidadas">
+          <span class="rotulo">Com acesso</span>
+          <div class="chips">
+            <span *ngFor="let empresa of linha.convidadas" class="chip">
+              {{ empresa.nome }}
+              <button
+                *ngIf="linha.souDona"
+                class="chip-remove"
+                (click)="revogar(linha, empresa)"
+                [title]="'Remover acesso de ' + empresa.nome"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            </span>
+            <span *ngIf="!linha.convidadas.length" class="sem-acesso">Nenhuma empresa secundária</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="acesso-card-actions">
+        <button *ngIf="linha.souDona" class="btn-add" (click)="abrirModal(linha)">
+          <i class="bi bi-plus-lg"></i> Conceder acesso
+        </button>
+        <span *ngIf="!linha.souDona" class="somente-leitura">
+          <i class="bi bi-lock"></i> Administrado por {{ linha.empresaDonaNome }}
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="!linhasFiltradas.length" class="no-results">
+      <i class="bi bi-shield-lock"></i>
+      <p>Nenhum apartamento encontrado.</p>
+    </div>
+  </div>
+
+  <!-- Tabela para desktop -->
+  <div class="d-none d-md-block" *ngIf="!loading">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-header">
+          <tr>
+            <th class="sortable" (click)="ordenar('apartamento')" title="Ordenar por apartamento">
+              Apartamento <i class="bi" [ngClass]="iconeOrdenacao('apartamento')"></i>
+            </th>
+            <th class="sortable" (click)="ordenar('predio')" title="Ordenar por prédio">
+              Prédio <i class="bi" [ngClass]="iconeOrdenacao('predio')"></i>
+            </th>
+            <th class="sortable" (click)="ordenar('dona')" title="Ordenar por empresa dona">
+              Empresa dona <i class="bi" [ngClass]="iconeOrdenacao('dona')"></i>
+            </th>
+            <th class="sortable" (click)="ordenar('acessos')" title="Ordenar por quantidade de empresas com acesso">
+              Empresas com acesso <i class="bi" [ngClass]="iconeOrdenacao('acessos')"></i>
+            </th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let linha of linhasFiltradas">
+            <td>{{ linha.apartamento.nome }}</td>
+            <td>{{ linha.apartamento.predio_name || '-' }}</td>
+            <td>
+              <span class="chip chip-dona">
+                <i class="bi bi-star-fill"></i> {{ linha.empresaDonaNome }}
+              </span>
+            </td>
+            <td>
+              <div class="chips">
+                <span *ngFor="let empresa of linha.convidadas" class="chip">
+                  {{ empresa.nome }}
+                  <button
+                    *ngIf="linha.souDona"
+                    class="chip-remove"
+                    (click)="revogar(linha, empresa)"
+                    [title]="'Remover acesso de ' + empresa.nome"
+                  >
+                    <i class="bi bi-x"></i>
+                  </button>
+                </span>
+                <span *ngIf="!linha.convidadas.length" class="sem-acesso">Nenhuma empresa secundária</span>
+              </div>
+            </td>
+            <td class="text-center">
+              <button
+                *ngIf="linha.souDona"
+                class="btn-add btn-add-sm"
+                (click)="abrirModal(linha)"
+                title="Conceder acesso a outra empresa"
+              >
+                <i class="bi bi-plus-lg"></i> Conceder
+              </button>
+              <span *ngIf="!linha.souDona" class="somente-leitura" [title]="'Apenas ' + linha.empresaDonaNome + ' pode alterar'">
+                <i class="bi bi-lock"></i> Somente leitura
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="!linhasFiltradas.length">
+            <td colspan="5" class="no-results-table">
+              <i class="bi bi-shield-lock"></i>
+              Nenhum apartamento encontrado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal: conceder acesso -->
+  <div class="modal-overlay" *ngIf="showModal && linhaSelecionada" (click)="fecharModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header-custom">
+        <h2>Conceder acesso</h2>
+        <button class="close-btn" (click)="fecharModal()">×</button>
+      </div>
+
+      <div class="modal-body-custom">
+        <p class="modal-apt">
+          <i class="bi bi-house-door"></i> {{ linhaSelecionada.apartamento.nome }}
+          <small>{{ linhaSelecionada.apartamento.predio_name || '' }}</small>
+        </p>
+
+        <label for="empresaSelect">Empresa</label>
+        <select id="empresaSelect" class="form-select" [(ngModel)]="empresaSelecionadaId">
+          <option [ngValue]="null" disabled>Selecione a empresa...</option>
+          <option *ngFor="let empresa of empresasDisponiveis" [ngValue]="empresa.id">{{ empresa.nome }}</option>
+        </select>
+
+        <p class="aviso" *ngIf="!empresasDisponiveis.length">
+          Todas as empresas já possuem acesso a este apartamento.
+        </p>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+        <button class="btn-save" (click)="conceder()" [disabled]="!empresaSelecionadaId || salvando">
+          <span *ngIf="salvando" class="spinner-border spinner-border-sm me-2"></span>
+          Conceder acesso
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

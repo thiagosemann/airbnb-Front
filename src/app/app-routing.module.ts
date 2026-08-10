@@ -13,6 +13,7 @@ import { RegisterComponent } from './Acesso/register/register.component';
 import { ProfileComponent } from './Acesso/profile/profile.component';
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
+import { ControleAcessoApartamentosComponent } from './Cadastro/controle-acesso-apartamentos/controle-acesso-apartamentos.component';
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 import { VistoriaComponent } from './AIRBNB/vistoria/vistoria.component';
 import { ControleVistoriaComponent } from './AIRBNB/controle-vistoria/controle-vistoria.component';
@@ -65,6 +66,7 @@ const routes: Routes = [
   { path: 'cadastroPredio', component: CadastroPredioComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'cadastroUsuario', component: UsersControlComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'cadastroApartamento', component: CadastroApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
+  { path: 'controleAcessoApartamentos', component: ControleAcessoApartamentosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'cadastroProprietarios', component: CadastroProprietariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'calendarioAirbnb', component: CalendarioAirbnbComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'checkouts-diarios', component: CheckoutsDiariosComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },

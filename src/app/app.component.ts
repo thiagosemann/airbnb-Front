@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
     'calendarioSemPasta',
     'cadastroPredio',
     'cadastroApartamento',
+    'controleAcessoApartamentos',
     'cadastroProprietarios',
     'cadastroUsuario',
     'escalaFaxina',
@@ -60,7 +61,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        const currentRoute = this.router.url.split('/')[1]; // Obtém o primeiro segmento da rota
+        // Primeiro segmento da rota, sem query params (?a=1) nem fragmento (#x)
+        const currentRoute = this.router.url.split('/')[1].split(/[?#]/)[0];
 
         // Verifica se a rota atual está na lista de rotas sem navbar
         if (this.semNavBar.includes(currentRoute)) {

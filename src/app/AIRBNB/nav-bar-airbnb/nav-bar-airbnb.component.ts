@@ -64,6 +64,9 @@ export class NavBarAirbnbComponent {
   cadastroApartamento(): void {
     this.router.navigate(['/cadastroApartamento']);
   }
+  controleAcessoApartamentos(): void {
+    this.router.navigate(['/controleAcessoApartamentos']);
+  }
   cadastroProprietarios(): void {
     this.router.navigate(['/cadastroProprietarios']);
   }

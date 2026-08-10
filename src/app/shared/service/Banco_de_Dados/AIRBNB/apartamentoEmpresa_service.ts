@@ -10,6 +10,11 @@ export interface VinculoApartamentoEmpresa {
   empresa_nome: string;
 }
 
+export interface EmpresaComAcesso {
+  id: number;
+  nome: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +43,35 @@ export class ApartamentoEmpresaService {
     return this.http.get<User[]>(
       `${this.url}/apartamentos-empresa/terceirizados`,
       { headers: this.getHeaders() }
+    );
+  }
+
+  // Empresas com acesso ativo a um apartamento
+  getEmpresasDoApartamento(apartamentoId: number): Observable<EmpresaComAcesso[]> {
+    return this.http.get<EmpresaComAcesso[]>(
+      `${this.url}/apartamentos-empresa/empresas/${apartamentoId}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Concede acesso de uma empresa secundária ao apartamento.
+  // O backend só aceita quando a empresa logada é a dona do apartamento.
+  vincularEmpresa(apartamentoId: number, empresaId: number): Observable<any> {
+    return this.http.post(
+      `${this.url}/apartamentos-empresa`,
+      { apartamento_id: apartamentoId, empresa_id: empresaId },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Revoga o acesso de uma empresa secundária ao apartamento
+  desvincularEmpresa(apartamentoId: number, empresaId: number): Observable<any> {
+    return this.http.delete(
+      `${this.url}/apartamentos-empresa`,
+      {
+        headers: this.getHeaders(),
+        body: { apartamento_id: apartamentoId, empresa_id: empresaId }
+      }
     );
   }
 }

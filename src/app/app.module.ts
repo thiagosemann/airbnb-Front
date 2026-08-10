@@ -21,6 +21,7 @@ import { RegisterComponent } from './Acesso/register/register.component';
 import { NavBarAirbnbComponent } from './AIRBNB/nav-bar-airbnb/nav-bar-airbnb.component';
 import { CadastroPredioComponent } from './Cadastro/cadastro-predio/cadastro-predio.component';
 import { CadastroApartamentosComponent } from './Cadastro/cadastro-apartamentos/cadastro-apartamentos.component';
+import { ControleAcessoApartamentosComponent } from './Cadastro/controle-acesso-apartamentos/controle-acesso-apartamentos.component';
 import { UsersControlComponent } from './Cadastro/users-control/users-control.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -88,6 +89,7 @@ import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-te
     NavBarAirbnbComponent,
     CadastroPredioComponent,
     CadastroApartamentosComponent,
+    ControleAcessoApartamentosComponent,
     UsersControlComponent,
     EscalaFaxinaComponent,
     ControleFaxinaComponent,
