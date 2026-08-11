@@ -687,6 +687,9 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       next: (obs) => {
         this.observacoesTimeline = obs || [];
         this.carregandoObservacoes = false;
+        // O backend converte a observação antiga da reserva no primeiro registro
+        // da timeline, então a linha da tabela precisa refletir isso na hora.
+        this.sincronizarUltimaObservacao();
       },
       error: (err) => {
         console.error('Erro ao carregar observações:', err);
@@ -728,8 +731,12 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Só o autor pode editar/remover o próprio registro (regra também validada no backend) */
+  /**
+   * Só o autor pode editar/remover o próprio registro (regra também validada no backend).
+   * Registros migrados do campo antigo não têm autor, então ficam liberados.
+   */
   podeEditarObservacao(obs: ObservacaoReserva): boolean {
+    if (obs.user_id === null) return true;
     const user = this.authService.getUser();
     return !!user && !!user.id && obs.user_id === user.id;
   }
