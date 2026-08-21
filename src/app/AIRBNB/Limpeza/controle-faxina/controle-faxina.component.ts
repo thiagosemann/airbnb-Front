@@ -55,8 +55,12 @@ export class ControleFaxinaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getUsers();
     this.generateMonthOptions();
+    // A folha abre no mes corrente, que e o recorte consultado no dia a dia.
+    // generateMonthOptions comeca por ele, entao a primeira opcao ja e o mes de hoje.
+    this.selectedMonth = this.monthOptions[0]?.value || '';
+    this.getUsers();
+    this.loadPayments();
   }
 
   generateMonthOptions() {
@@ -86,6 +90,9 @@ export class ControleFaxinaComponent implements OnInit {
   getUsers(): void {
     this.userService.getUsersByRole('terceirizado').subscribe(users => {
       this.users = users;
+      // Terceirizadas e folha carregam em paralelo. Se a folha chegou primeiro,
+      // as linhas foram montadas sem nome: refaz o agrupamento agora que ha nomes.
+      if (this.servicosDoMes.length) this.recalcular();
     });
   }
 
