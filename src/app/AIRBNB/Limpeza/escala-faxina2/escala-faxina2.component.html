@@ -140,15 +140,16 @@
     <table class="calendar-table">
       <thead>
         <tr>
-          <th style="width: 9%;">Data</th>
-          <th style="width: 9%;">Dia</th>
-          <th style="width: 10%;">Apt</th>
-          <th style="width: 24%;">Check-Out</th>
-          <th style="width: 8%;">Senha</th>
-          <th style="width: 8%;">Finalizado</th>
-          <th style="width: 12%;">Responsável</th>
-          <th style="width: 12%;">Empresa</th>
-          <th style="width: 8%;">Total Dia</th>
+          <th style="width: 8%;">Data</th>
+          <th style="width: 8%;">Dia</th>
+          <th style="width: 9%;">Apt</th>
+          <th style="width: 17%;">Check-Out</th>
+          <th style="width: 6%;">Senha</th>
+          <th style="width: 6%;">Finalizado</th>
+          <th style="width: 14%;">Responsável</th>
+          <th style="width: 10%;">Empresa</th>
+          <th style="width: 15%;">Alocado por</th>
+          <th style="width: 7%;">Total Dia</th>
         </tr>
       </thead>
       <tbody>
@@ -170,24 +171,60 @@
             </label>
           </td>
           <td>
-            <select class="service-select"
-                    [(ngModel)]="faxina.faxina_userId"
-                    (change)="updateReserva(faxina)">
-              <option value="">Selecione</option>
-              <optgroup *ngFor="let grupo of gruposDoApartamento(faxina.apartamento_id)" [label]="grupo.empresa_nome">
-                <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
-              </optgroup>
-            </select>
+            <div class="alocacao-cell">
+              <select class="service-select"
+                      [(ngModel)]="faxina.faxina_userId"
+                      [disabled]="alocacaoBloqueada(faxina)"
+                      (change)="updateReserva(faxina)">
+                <option value="">Selecione</option>
+                <optgroup *ngFor="let grupo of gruposDoApartamento(faxina.apartamento_id)" [label]="grupo.empresa_nome">
+                  <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
+                </optgroup>
+              </select>
+              <!-- Limpeza de hoje ou anterior só troca de responsável com justificativa -->
+              <button *ngIf="alocacaoBloqueada(faxina)"
+                      class="btn-alocacao btn-bloqueado"
+                      title="Limpeza de hoje ou de data anterior. Clique para liberar informando o motivo."
+                      (click)="abrirModalLiberar(faxina)">
+                <i class="fas fa-lock"></i> Liberar
+              </button>
+              <button *ngIf="alocacaoLiberada(faxina)"
+                      class="btn-alocacao btn-liberado"
+                      [title]="'Motivo: ' + motivoLiberado(faxina) + ' — clique para cancelar a liberação'"
+                      (click)="cancelarLiberacao(faxina)">
+                <i class="fas fa-lock-open"></i> Liberado
+              </button>
+            </div>
           </td>
           <td>
             <span *ngIf="empresaNomeDoResponsavel(faxina) as empNome"
                   class="badge text-white"
                   [style.background-color]="corEmpresaDoResponsavel(faxina)">{{ empNome }}</span>
           </td>
+          <td>
+            <div class="alocacao-cell">
+              <div class="alocacao-info" *ngIf="ultimaAlocacao(faxina) as aloc; else semAlocacao">
+                <span class="alocacao-autor">
+                  <i class="fas" [class.fa-robot]="aloc.origem === 'SISTEMA'"
+                                 [class.fa-user-check]="aloc.origem !== 'SISTEMA'"></i>
+                  {{ autorDaAlocacao(aloc) }}
+                </span>
+                <span class="alocacao-data">{{ formatarDataHora(aloc.created_at) }}</span>
+              </div>
+              <ng-template #semAlocacao>
+                <span class="alocacao-vazia">Sem registro</span>
+              </ng-template>
+              <button class="btn-alocacao btn-historico"
+                      title="Ver histórico de alocações desta limpeza"
+                      (click)="abrirTimeline(faxina)">
+                <i class="fas fa-history"></i> Histórico
+              </button>
+            </div>
+          </td>
           <td>{{ contarFaxinasPorDia(faxina.faxina_userId, formatarData(faxina.end_data), faxinasHoje) }}</td>
         </tr>
         <tr *ngIf="faxinasHoje.length === 0">
-          <td colspan="9">Nenhuma faxina para hoje</td>
+          <td colspan="10">Nenhuma faxina para hoje</td>
         </tr>
       </tbody>
     </table>
@@ -236,6 +273,14 @@
             <span>Responsável: {{ getResponsavelNome(faxina.faxina_userId) || 'Não definido' }}</span>
           </div>
 
+          <div class="card-row alocacao-card-row">
+            <i class="fas fa-user-clock"></i>
+            <span *ngIf="ultimaAlocacao(faxina) as aloc; else semAlocacaoCard">
+              Alocado por {{ autorDaAlocacao(aloc) }} em {{ formatarDataHora(aloc.created_at) }}
+            </span>
+            <ng-template #semAlocacaoCard><span>Alocação sem registro</span></ng-template>
+          </div>
+
           <div class="card-row" *ngIf="empresaNomeDoResponsavel(faxina)">
             <i class="fas fa-building"></i>
             <span class="me-1">Empresa:</span>
@@ -254,15 +299,29 @@
           </div>
         </div>
         
-        <div class="card-actions">
+        <div class="card-actions alocacao-card-actions">
           <select class="service-select"
                   [(ngModel)]="faxina.faxina_userId"
+                  [disabled]="alocacaoBloqueada(faxina)"
                   (change)="updateReserva(faxina)">
             <option value="">Atribuir funcionária</option>
             <optgroup *ngFor="let grupo of gruposDoApartamento(faxina.apartamento_id)" [label]="grupo.empresa_nome">
               <option *ngFor="let u of grupo.terceirizados" [value]="u.id">{{ u.first_name }}</option>
             </optgroup>
           </select>
+          <button *ngIf="alocacaoBloqueada(faxina)"
+                  class="btn-alocacao btn-bloqueado"
+                  (click)="abrirModalLiberar(faxina)">
+            <i class="fas fa-lock"></i> Liberar
+          </button>
+          <button *ngIf="alocacaoLiberada(faxina)"
+                  class="btn-alocacao btn-liberado"
+                  (click)="cancelarLiberacao(faxina)">
+            <i class="fas fa-lock-open"></i> Liberado
+          </button>
+          <button class="btn-alocacao btn-historico" (click)="abrirTimeline(faxina)">
+            <i class="fas fa-history"></i> Histórico
+          </button>
         </div>
         
         <div class="card-footer">
@@ -394,3 +453,91 @@
       </div>
     </div>
   </div>
+
+<!-- Modal de liberação: exige o motivo antes de destravar a troca de responsável -->
+<div class="modal" *ngIf="showLiberarModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="mb-0">Liberar alteração da limpeza</h3>
+      <button class="close-btn" (click)="fecharModalLiberar()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="liberar-resumo" *ngIf="faxinaParaLiberar">
+        <strong>{{ faxinaParaLiberar.apartamento_nome }}</strong> — {{ faxinaParaLiberar.end_data }}<br>
+        Responsável atual: {{ getResponsavelNome(faxinaParaLiberar.faxina_userId) || 'Não definido' }}
+      </p>
+      <p class="text-muted" style="font-size:0.9em;">
+        Esta limpeza é de hoje ou de uma data anterior. A troca de responsável fica registrada
+        no histórico com o seu nome e o motivo informado abaixo.
+      </p>
+      <div class="form-group">
+        <label>Motivo da alteração</label>
+        <textarea class="form-control"
+                  rows="3"
+                  placeholder="Ex.: funcionária passou mal e a limpeza foi repassada"
+                  [(ngModel)]="motivoLiberacao"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel-modal" (click)="fecharModalLiberar()">Cancelar</button>
+      <button class="btn btc-save-modal"
+              [disabled]="!motivoLiberacao.trim()"
+              (click)="confirmarLiberacao()">
+        Liberar alteração
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeline de alocações: quem alocou/trocou a faxineira desta limpeza -->
+<div class="modal" *ngIf="showTimelineModal">
+  <div class="modal-content modal-timeline">
+    <div class="modal-header">
+      <h3 class="mb-0">Histórico de alocações</h3>
+      <button class="close-btn" (click)="fecharTimeline()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="liberar-resumo" *ngIf="timelineFaxina">
+        <strong>{{ timelineFaxina.apartamento_nome }}</strong> — {{ timelineFaxina.end_data }}
+      </p>
+
+      <div class="aloc-timeline-loading" *ngIf="carregandoTimeline">
+        <i class="fas fa-spinner fa-spin"></i> Carregando histórico...
+      </div>
+
+      <p class="aloc-timeline-empty" *ngIf="!carregandoTimeline && timelineAlocacoes.length === 0">
+        Nenhuma alocação registrada para esta limpeza.
+      </p>
+
+      <div class="aloc-timeline" *ngIf="!carregandoTimeline && timelineAlocacoes.length > 0">
+        <div class="aloc-timeline-item" *ngFor="let aloc of timelineAlocacoes">
+          <div class="aloc-timeline-marker" [class.sistema]="aloc.origem === 'SISTEMA'"></div>
+          <div class="aloc-timeline-content">
+            <div class="aloc-timeline-meta">
+              <span class="aloc-timeline-autor">
+                <i class="fas" [class.fa-robot]="aloc.origem === 'SISTEMA'"
+                               [class.fa-user]="aloc.origem !== 'SISTEMA'"></i>
+                {{ autorDaAlocacao(aloc) }}
+              </span>
+              <span class="aloc-timeline-data">{{ formatarDataHora(aloc.created_at) }}</span>
+            </div>
+            <p class="aloc-timeline-troca">
+              <ng-container *ngIf="aloc.faxina_user_nome_anterior; else primeiraAlocacao">
+                {{ aloc.faxina_user_nome_anterior }}
+                <i class="fas fa-arrow-right"></i>
+                {{ aloc.faxina_user_nome_novo || 'Sem responsável' }}
+              </ng-container>
+              <ng-template #primeiraAlocacao>
+                Alocada para {{ aloc.faxina_user_nome_novo || 'Sem responsável' }}
+              </ng-template>
+            </p>
+            <p class="aloc-timeline-motivo">{{ aloc.motivo }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel-modal" (click)="fecharTimeline()">Fechar</button>
+    </div>
+  </div>
+</div>

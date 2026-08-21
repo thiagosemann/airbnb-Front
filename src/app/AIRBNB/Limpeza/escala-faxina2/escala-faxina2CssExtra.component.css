@@ -202,3 +202,205 @@
     font-size: 1rem;
   }
 }
+
+/* ===== Controle de alocação: bloqueio, autoria e histórico ===== */
+.alocacao-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.service-select:disabled {
+  background-color: #f1f3f5;
+  color: #868e96;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.alocacao-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.alocacao-autor {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.alocacao-autor i {
+  margin-right: 0.3rem;
+  color: #00a699;
+}
+
+.alocacao-data {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.alocacao-vazia {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.btn-alocacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-bloqueado {
+  background: #fff4e5;
+  border-color: #ffb765;
+  color: #b35c00;
+}
+.btn-bloqueado:hover {
+  background: #ffe6c7;
+}
+
+.btn-liberado {
+  background: #e6f7f5;
+  border-color: #00a699;
+  color: #00796f;
+}
+.btn-liberado:hover {
+  background: #ccefeb;
+}
+
+.btn-historico {
+  background: #f1f3f5;
+  border-color: #dcdfe3;
+  color: #555;
+}
+.btn-historico:hover {
+  background: #e4e7ea;
+}
+
+.alocacao-card-row {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.alocacao-card-actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ===== Modal de liberação e timeline ===== */
+.liberar-resumo {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e4e4e4;
+  color: #444;
+}
+
+.modal-timeline {
+  max-width: 620px;
+}
+
+.aloc-timeline-loading,
+.aloc-timeline-empty {
+  padding: 1rem 0;
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.aloc-timeline {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.aloc-timeline:before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: #e4e4e4;
+}
+
+.aloc-timeline-item {
+  position: relative;
+  padding-bottom: 1.1rem;
+}
+
+.aloc-timeline-marker {
+  position: absolute;
+  left: -1.25rem;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00a699;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #00a699;
+}
+
+.aloc-timeline-marker.sistema {
+  background: #6c757d;
+  box-shadow: 0 0 0 1px #6c757d;
+}
+
+.aloc-timeline-content {
+  background: #fff;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+
+.aloc-timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.aloc-timeline-autor {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.aloc-timeline-autor i {
+  margin-right: 0.3rem;
+  color: #00a699;
+}
+
+.aloc-timeline-data {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.aloc-timeline-troca {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.aloc-timeline-troca i {
+  margin: 0 0.3rem;
+  color: #00a699;
+  font-size: 0.75rem;
+}
+
+.aloc-timeline-motivo {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}

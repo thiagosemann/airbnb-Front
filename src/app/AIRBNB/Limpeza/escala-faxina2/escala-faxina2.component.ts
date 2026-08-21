@@ -5,10 +5,12 @@ import * as XLSX from 'xlsx';
 import { ApartamentoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamento_service';
 import { ApartamentoEmpresaService, VinculoApartamentoEmpresa } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/apartamentoEmpresa_service';
 import { LimpezaExtraService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaextra_service';
+import { LimpezaAlocacaoService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/limpezaAlocacao_service';
 import { ReservasAirbnbService } from 'src/app/shared/service/Banco_de_Dados/AIRBNB/reservas_airbnb_service';
 import { AuthenticationService } from 'src/app/shared/service/Banco_de_Dados/authentication';
 import { UserService } from 'src/app/shared/service/Banco_de_Dados/user_service';
 import { LimpezaExtra } from 'src/app/shared/utilitarios/limpezaextra';
+import { LimpezaAlocacao, TipoLimpezaAlocacao } from 'src/app/shared/utilitarios/limpezaAlocacao';
 import { ReservaAirbnb } from 'src/app/shared/utilitarios/reservaAirbnb';
 import { User } from 'src/app/shared/utilitarios/user';
 
@@ -70,6 +72,21 @@ export class EscalaFaxina2Component {
 faxinasFiltradas: any[] = [];
 canceladasHoje: any[] = [];
 
+  // ---------------------------- Controle de alocação ----------------------------
+  // Última alocação de cada limpeza, indexada por `TIPO-id` (ver chaveAlocacao)
+  private alocacoesPorLimpeza = new Map<string, LimpezaAlocacao>();
+  // Limpezas de hoje/anteriores que o usuário liberou nesta sessão: chave -> motivo
+  private liberadas = new Map<string, string>();
+
+  showTimelineModal: boolean = false;
+  timelineFaxina: any = null;
+  timelineAlocacoes: LimpezaAlocacao[] = [];
+  carregandoTimeline: boolean = false;
+
+  showLiberarModal: boolean = false;
+  faxinaParaLiberar: any = null;
+  motivoLiberacao: string = '';
+
   // ---------------------------------- Exportação XLS ----------------------------------
   showExportModal: boolean = false;
   exportFiltro = {
@@ -86,6 +103,7 @@ canceladasHoje: any[] = [];
               private limpezaExtraService: LimpezaExtraService,
               private apartamentosService: ApartamentoService,
               private apartamentoEmpresaService: ApartamentoEmpresaService,
+              private alocacaoService: LimpezaAlocacaoService,
               private toastr: ToastrService
             ) {
               const hoje = new Date();
@@ -222,10 +240,14 @@ canceladasHoje: any[] = [];
     forkJoin({
       reservas: this.reservasService.getFaxinasPorPeriodo(this.dataInicio, this.dataFim),
       limpezas: this.limpezaExtraService.getLimpezasExtrasPorPeriodo(this.dataInicio, this.dataFim),
-      canceladas: this.reservasService.getReservasCanceladasPorPeriodo(this.dataInicio, this.dataFim)
+      canceladas: this.reservasService.getReservasCanceladasPorPeriodo(this.dataInicio, this.dataFim),
+      alocacoes: this.alocacaoService.getUltimasPorPeriodo(this.dataInicio, this.dataFim)
     }).subscribe({
-      next: ({ reservas, limpezas, canceladas }) => {
-   
+      next: ({ reservas, limpezas, canceladas, alocacoes }) => {
+
+        this.indexarAlocacoes(alocacoes);
+        // Nova pesquisa recarrega a escala do zero: as liberações da sessão caem junto
+        this.liberadas.clear();
         this.processarFaxinas(reservas, limpezas);
         this.faxinasFiltradas = [...this.faxinasHoje];
         this.canceladasHoje = this.formatDates(canceladas);
@@ -272,7 +294,10 @@ private processarFaxinas(reservas: ReservaAirbnb[], limpezas: LimpezaExtra[]): v
   // 3) Formata as datas para exibição
   todasFaxinas = this.formatDates(todasFaxinas);
 
-  // 4) Atualiza o array que vai para o template
+  // 4) Guarda o responsável salvo de cada linha, para desfazer uma troca recusada
+  todasFaxinas.forEach(f => (f as any).responsavelSalvo = (f as any).faxina_userId ?? null);
+
+  // 5) Atualiza o array que vai para o template
   this.faxinasHoje = todasFaxinas;
 }
 
@@ -304,32 +329,190 @@ getResponsavelNome(userId: number): string {
   }
 
   updateReserva(reserva: any): void {
-    // Garante que faxina_userId seja uma string vazia se for null ou undefined
-    if(reserva.description == "LIMPEZA"){
-      reserva.faxina_userId = reserva.faxina_userId || null;
-      reserva.end_data = this.formatarDataBanco(reserva.end_data);
-      this.limpezaExtraService.updateLimpezaExtra(reserva).subscribe(
-        data => {
-          // Ação após atualizar, se necessário
-        },
-        error => {
-          console.error('Erro ao atualizar reserva', error);
-        }
-      );
-    }else{
-      reserva.faxina_userId = reserva.faxina_userId || null;
-      reserva.end_data = this.formatarDataBanco(reserva.end_data);
-      reserva.start_date = this.formatarDataBanco(reserva.start_date);
-      this.reservasService.updateReserva(reserva).subscribe(
-        data => {
-          // Ação após atualizar, se necessário
-        },
-        error => {
-          console.error('Erro ao atualizar reserva', error);
-        }
-      );
-    }
+    reserva.faxina_userId = reserva.faxina_userId || null;
 
+    // O payload leva as datas no formato do banco sem alterar a linha exibida na tela.
+    // `motivo_alteracao` só vai preenchido quando a limpeza foi liberada pelo usuário.
+    const chave = this.chaveAlocacao(reserva);
+    const payload: any = {
+      ...reserva,
+      end_data: this.formatarDataBanco(reserva.end_data),
+      motivo_alteracao: this.liberadas.get(chave)
+    };
+
+    const requisicao = reserva.description == "LIMPEZA"
+      ? this.limpezaExtraService.updateLimpezaExtra(payload)
+      : this.reservasService.updateReserva({ ...payload, start_date: this.formatarDataBanco(reserva.start_date) });
+
+    requisicao.subscribe({
+      next: () => {
+        // Alteração aceita: a limpeza volta a ficar bloqueada e a escala
+        // passa a mostrar quem acabou de alocar.
+        this.liberadas.delete(chave);
+        reserva.responsavelSalvo = reserva.faxina_userId ?? null;
+        this.recarregarUltimaAlocacao(reserva);
+      },
+      error: (error: any) => {
+        console.error('Erro ao atualizar reserva', error);
+        if (error?.status === 409) {
+          // Bloqueio do backend: devolve o responsável anterior para a tela não mentir
+          reserva.faxina_userId = reserva.responsavelSalvo ?? null;
+          this.toastr.warning(error?.error?.error || 'Informe o motivo para alterar esta limpeza.');
+        } else {
+          this.toastr.error('Erro ao atualizar limpeza');
+        }
+      }
+    });
+  }
+
+  // ---------------------------- Controle de alocação ----------------------------
+
+  /** Limpezas avulsas vivem em `limpeza_extra`; o resto são reservas sincronizadas */
+  tipoDaFaxina(faxina: any): TipoLimpezaAlocacao {
+    return faxina?.description === 'LIMPEZA' ? 'LIMPEZA_EXTRA' : 'RESERVA';
+  }
+
+  private chaveAlocacao(faxina: any): string {
+    return `${this.tipoDaFaxina(faxina)}-${faxina?.id}`;
+  }
+
+  private indexarAlocacoes(alocacoes: LimpezaAlocacao[]): void {
+    this.alocacoesPorLimpeza.clear();
+    for (const a of alocacoes || []) {
+      this.alocacoesPorLimpeza.set(`${a.tipo}-${a.referencia_id}`, a);
+    }
+  }
+
+  /** Última alocação conhecida da limpeza (quem alocou e quando) */
+  ultimaAlocacao(faxina: any): LimpezaAlocacao | null {
+    return this.alocacoesPorLimpeza.get(this.chaveAlocacao(faxina)) || null;
+  }
+
+  /** Aceita dd/MM/yyyy e yyyy-MM-dd, os dois formatos que circulam na escala */
+  private parseData(dataStr: string): Date | null {
+    if (!dataStr) return null;
+    const somenteData = String(dataStr).split('T')[0];
+    let ano: number, mes: number, dia: number;
+    if (somenteData.includes('/')) {
+      [dia, mes, ano] = somenteData.split('/').map(Number);
+    } else if (somenteData.includes('-')) {
+      [ano, mes, dia] = somenteData.split('-').map(Number);
+    } else {
+      return null;
+    }
+    const d = new Date(ano, mes - 1, dia);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  private ehHojeOuAnterior(dataStr: string): boolean {
+    const data = this.parseData(dataStr);
+    if (!data) return false;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return data.getTime() <= hoje.getTime();
+  }
+
+  /**
+   * Limpeza de hoje ou de data anterior que já tem responsável fica travada até
+   * o usuário liberar informando o motivo. Sem responsável, troca livremente.
+   */
+  alocacaoBloqueada(faxina: any): boolean {
+    if (!faxina?.faxina_userId) return false;
+    if (!this.ehHojeOuAnterior(faxina.end_data)) return false;
+    return !this.liberadas.has(this.chaveAlocacao(faxina));
+  }
+
+  /** True entre o "Liberar" e o salvamento da nova alocação */
+  alocacaoLiberada(faxina: any): boolean {
+    return this.liberadas.has(this.chaveAlocacao(faxina));
+  }
+
+  motivoLiberado(faxina: any): string {
+    return this.liberadas.get(this.chaveAlocacao(faxina)) || '';
+  }
+
+  abrirModalLiberar(faxina: any): void {
+    this.faxinaParaLiberar = faxina;
+    this.motivoLiberacao = '';
+    this.showLiberarModal = true;
+  }
+
+  fecharModalLiberar(): void {
+    this.showLiberarModal = false;
+    this.faxinaParaLiberar = null;
+    this.motivoLiberacao = '';
+  }
+
+  confirmarLiberacao(): void {
+    const motivo = this.motivoLiberacao.trim();
+    if (!motivo) {
+      this.toastr.warning('Descreva o motivo da alteração.');
+      return;
+    }
+    this.liberadas.set(this.chaveAlocacao(this.faxinaParaLiberar), motivo);
+    this.toastr.info('Alteração liberada. Escolha o novo responsável.');
+    this.fecharModalLiberar();
+  }
+
+  /** Desiste da troca e volta a travar a limpeza */
+  cancelarLiberacao(faxina: any): void {
+    this.liberadas.delete(this.chaveAlocacao(faxina));
+  }
+
+  private recarregarUltimaAlocacao(faxina: any): void {
+    this.alocacaoService.getUltima(this.tipoDaFaxina(faxina), faxina.id).subscribe({
+      next: ultima => {
+        if (ultima) this.alocacoesPorLimpeza.set(this.chaveAlocacao(faxina), ultima);
+      },
+      error: err => console.error('Erro ao recarregar alocação', err)
+    });
+  }
+
+  abrirTimeline(faxina: any): void {
+    this.timelineFaxina = faxina;
+    this.timelineAlocacoes = [];
+    this.carregandoTimeline = true;
+    this.showTimelineModal = true;
+
+    this.alocacaoService.getTimeline(this.tipoDaFaxina(faxina), faxina.id).subscribe({
+      next: registros => {
+        this.timelineAlocacoes = registros || [];
+        this.carregandoTimeline = false;
+        // O backend cria o registro de migração na primeira abertura;
+        // sincroniza a coluna "Alocado por" com o que a timeline mostra.
+        if (this.timelineAlocacoes.length) {
+          this.alocacoesPorLimpeza.set(this.chaveAlocacao(faxina), this.timelineAlocacoes[0]);
+        }
+      },
+      error: err => {
+        console.error('Erro ao carregar timeline de alocações', err);
+        this.carregandoTimeline = false;
+        this.toastr.error('Erro ao carregar o histórico de alocações');
+      }
+    });
+  }
+
+  fecharTimeline(): void {
+    this.showTimelineModal = false;
+    this.timelineFaxina = null;
+    this.timelineAlocacoes = [];
+  }
+
+  formatarDataHora(valor: string): string {
+    if (!valor) return '';
+    const d = new Date(valor);
+    if (isNaN(d.getTime())) return valor;
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  /** Rótulo do autor: quem alterou, ou "Sistema" nas alocações automáticas */
+  autorDaAlocacao(alocacao: LimpezaAlocacao | null): string {
+    if (!alocacao) return '';
+    if (alocacao.origem === 'SISTEMA') return 'Sistema';
+    return alocacao.user_nome || 'Usuário removido';
   }
 
   formatarData(dataString: string): string {

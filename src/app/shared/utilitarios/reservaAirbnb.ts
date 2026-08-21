@@ -42,4 +42,6 @@ export interface ReservaAirbnb {
   origem?: string;
   precisa_limpeza?: boolean;
   apartamento_ativo?: number; // 1 = ativo, 0 = inativo
+  /** Justificativa exigida para trocar o responsável de limpeza de hoje ou anterior */
+  motivo_alteracao?: string;
 }

@@ -8,4 +8,6 @@ export interface LimpezaExtra {
   limpeza_realizada?: boolean;
   faxina_userId?: number | null;
   valor_limpeza?: number;
+  /** Justificativa exigida para trocar o responsável de limpeza de hoje ou anterior */
+  motivo_alteracao?: string;
 }
