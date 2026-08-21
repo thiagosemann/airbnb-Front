@@ -46,6 +46,7 @@ import { NpsLimpezaHospedeComponent } from './AIRBNB/nps-limpeza-hospede/nps-lim
 import { CalendarioSemPastasComponent } from './AIRBNB/Calendario-Forest/calendario-sem-pastas/calendario-sem-pastas.component';
 import { CadastroUsuarioSingleComponent } from './Cadastro/cadastro-usuario-single/cadastro-usuario-single.component';
 import { CadastroCredencialComponent } from './Cadastro/cadastro-credencial/cadastro-credencial.component';
+import { TimelineProprietarioComponent } from './shared/components/timeline-proprietario/timeline-proprietario.component';
 import { MigrarICALComponent } from './AIRBNB/migrar-ical/migrar-ical.component';
 import { CalendarioMobileComponent } from './AIRBNB/calendario-mobile/calendario-mobile.component';
 import { CheckoutsDiariosComponent } from './AIRBNB/checkouts-diarios/checkouts-diarios.component';
@@ -113,6 +114,7 @@ import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-te
     CalendarioSemPastasComponent,
     CadastroUsuarioSingleComponent,
     CadastroCredencialComponent,
+    TimelineProprietarioComponent,
     MigrarICALComponent,
     CalendarioMobileComponent,
     CheckoutsDiariosComponent,

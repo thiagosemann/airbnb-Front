@@ -1,0 +1,213 @@
+/* Timeline de observações do proprietário — mesmo visual da timeline de reservas */
+
+.tl-prop {
+  width: 100%;
+}
+
+.tl-alerta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff7e6;
+  border: 1px solid #ffe0a3;
+  color: #8a6100;
+  font-size: 0.86rem;
+}
+
+.tl-alvo {
+  margin-bottom: 10px;
+}
+
+.tl-alvo label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #7c8894;
+}
+
+.tl-textarea {
+  resize: vertical;
+  min-height: 90px;
+  border-radius: 12px;
+  border: 1px solid #dfe6ec;
+  padding: 10px 12px;
+  width: 100%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .06);
+}
+
+.tl-textarea:focus {
+  outline: none;
+  border-color: #00a699;
+  box-shadow: 0 0 0 3px rgba(0, 166, 153, .25);
+}
+
+.tl-nova-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.tl-nova-acoes .btn i {
+  margin-right: 6px;
+}
+
+.tl-lista {
+  margin-top: 18px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tl-loading,
+.tl-vazio {
+  font-size: 0.88rem;
+  color: #8a97a3;
+  margin: 8px 0;
+}
+
+.tl-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+/* Linha vertical que conecta os registros */
+.tl-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8ed;
+}
+
+.tl-marker {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #00a699;
+  box-shadow: 0 0 0 3px rgba(0, 166, 153, .15);
+  z-index: 1;
+}
+
+/* O primeiro item é a observação mais recente */
+.tl-item:first-child .tl-marker {
+  background: #ff5a5f;
+  box-shadow: 0 0 0 3px rgba(255, 90, 95, .18);
+}
+
+.tl-conteudo {
+  position: relative;
+  flex: 1;
+  background: #f7f9fb;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.tl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  color: #7c8894;
+}
+
+.tl-autor {
+  font-weight: 700;
+  color: #3f4950;
+}
+
+.tl-autor i {
+  margin-right: 4px;
+  color: #00a699;
+}
+
+.tl-editado {
+  font-style: italic;
+}
+
+.tl-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.tl-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.tl-tag.prop {
+  background: #e6f6f4;
+  color: #00857b;
+}
+
+.tl-tag.apto {
+  background: #eef2f7;
+  color: #5a6b7d;
+}
+
+.tl-texto {
+  margin: 0;
+  padding-right: 56px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #2d333f;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.tl-acoes {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.tl-icon-btn {
+  border: none;
+  background: transparent;
+  color: #9aa6b1;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.tl-icon-btn:hover {
+  background: #e9eef3;
+  color: #3f4950;
+}
+
+.tl-icon-btn.danger:hover {
+  background: #ffe9ea;
+  color: #ff5a5f;
+}
+
+.tl-edit-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tl-edit .tl-textarea {
+  min-height: 80px;
+}

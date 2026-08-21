@@ -1,0 +1,91 @@
+<div class="tl-prop">
+  <!-- Aviso: sem proprietário vinculado não há timeline a que anexar a nota -->
+  <div class="tl-alerta" *ngIf="semProprietarioVinculado">
+    <i class="fa-solid fa-circle-info"></i>
+    Este apartamento ainda não tem proprietário vinculado. Vincule um proprietário para registrar observações.
+  </div>
+
+  <!-- Nova observação -->
+  <div class="tl-nova" *ngIf="!semProprietarioVinculado">
+    <!-- Apto com mais de um proprietário: escolher a quem a nota pertence -->
+    <div class="tl-alvo" *ngIf="precisaEscolherProprietario">
+      <label for="tlAlvo">Registrar para</label>
+      <select id="tlAlvo" class="form-control" [(ngModel)]="proprietarioAlvoId" [disabled]="salvando">
+        <option [ngValue]="null">Selecione o proprietário...</option>
+        <option *ngFor="let p of proprietariosDoApartamento" [ngValue]="p.id">{{ p.nome }}</option>
+      </select>
+    </div>
+
+    <textarea class="form-control tl-textarea" rows="3" [(ngModel)]="novaObservacao" [disabled]="salvando"
+      placeholder="Escreva uma observação sobre o proprietário..."></textarea>
+
+    <div class="tl-nova-acoes">
+      <button type="button" class="btn btn-primary btn-sm" (click)="adicionar()"
+        [disabled]="salvando || !novaObservacao.trim()">
+        <i class="fa-solid fa-plus" *ngIf="!salvando"></i>
+        <i class="fa-solid fa-spinner fa-spin" *ngIf="salvando"></i>
+        Adicionar observação
+      </button>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="tl-lista">
+    <div class="tl-loading" *ngIf="carregando">
+      <i class="fa-solid fa-spinner fa-spin"></i> Carregando histórico...
+    </div>
+
+    <p class="tl-vazio" *ngIf="!carregando && observacoes.length === 0">
+      Nenhuma observação registrada para este proprietário.
+    </p>
+
+    <div class="tl-item" *ngFor="let obs of observacoes">
+      <div class="tl-marker"></div>
+      <div class="tl-conteudo">
+        <div class="tl-meta">
+          <span class="tl-autor"><i class="fa-solid fa-user"></i> {{ obs.user_nome }}</span>
+          <span class="tl-data">{{ formatarDataHora(obs.created_at) }}</span>
+          <span class="tl-editado" *ngIf="obs.updated_at !== obs.created_at">(editado)</span>
+        </div>
+
+        <!-- Na tela de apartamentos o apto pode ter mais de um dono -->
+        <div class="tl-tags">
+          <span class="tl-tag prop" *ngIf="modoApartamento && obs.proprietario_nome">
+            <i class="fa-solid fa-user-tie"></i> {{ obs.proprietario_nome }}
+          </span>
+          <span class="tl-tag apto" *ngIf="!modoApartamento && obs.apartamento_nome">
+            <i class="fa-solid fa-building"></i> {{ obs.apartamento_nome }}
+          </span>
+        </div>
+
+        <!-- Modo leitura -->
+        <p class="tl-texto" *ngIf="editandoId !== obs.id">{{ obs.texto }}</p>
+
+        <!-- Modo edição (somente autor) -->
+        <div class="tl-edit" *ngIf="editandoId === obs.id">
+          <textarea class="form-control tl-textarea" rows="3" [(ngModel)]="editandoTexto"
+            [disabled]="salvando"></textarea>
+          <div class="tl-edit-acoes">
+            <button type="button" class="btn btn-primary btn-sm" (click)="salvarEdicao()"
+              [disabled]="salvando || !editandoTexto.trim()">
+              <i class="fa-solid fa-check"></i> Salvar
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicao()"
+              [disabled]="salvando">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        <div class="tl-acoes" *ngIf="editandoId !== obs.id && podeEditar(obs)">
+          <button type="button" class="tl-icon-btn" (click)="iniciarEdicao(obs)" title="Editar">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button type="button" class="tl-icon-btn danger" (click)="remover(obs)" title="Remover">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

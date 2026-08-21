@@ -634,6 +634,12 @@
             </div>
           </div>
 
+          <!-- Observações do proprietário: mesma timeline do cadastro de proprietários -->
+          <div class="col-md-12" *ngIf="isEditing && apartamentoSelecionado?.id">
+            <h5 class="section-title">Observações do Proprietário</h5>
+            <app-timeline-proprietario [apartamentoId]="apartamentoSelecionado!.id"></app-timeline-proprietario>
+          </div>
+
           <!-- Reservas do Apartamento -->
           <div class="col-md-12" *ngIf="isEditing">
             <h5 class="section-title">

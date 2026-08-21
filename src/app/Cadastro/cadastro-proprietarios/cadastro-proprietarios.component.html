@@ -335,6 +335,12 @@
             </div>
           </div>
 
+          <!-- Timeline de observações do proprietário (a mesma exibida no cadastro de apartamentos) -->
+          <div class="form-section" *ngIf="isEditing && selectedUserId">
+            <h3><i class="bi bi-clock-history"></i> Observações</h3>
+            <app-timeline-proprietario [proprietarioId]="selectedUserId"></app-timeline-proprietario>
+          </div>
+
         </form>
       </div>
 
