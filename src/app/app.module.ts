@@ -4,11 +4,12 @@ import { NgxMaskModule } from 'ngx-mask';
 import { NgChartsModule } from 'ng2-charts';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { OrdenarPorPrecoPipe } from '../app/shared/pipes/ordenar-por-preco.pipe'; // ajuste o caminho conforme necessário
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AcessoInterceptor } from './shared/service/acessoInterceptor';
 import { LandingComponent } from './Acesso/landing/landing.component';
 import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
 
@@ -152,7 +153,9 @@ import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-te
     NgChartsModule,
     ZXingScannerModule,
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AcessoInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

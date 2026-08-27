@@ -36,8 +36,9 @@ export class AuthenticationService {
         error => {
           console.error('Erro na autenticação:', error);
           // Lógica adicional para tratar erros, exibir mensagens de erro, etc.
-          if (error.status === 401) {
-            resolve({logado: false, erro: error.error.message}); 
+          // 401 = credencial incorreta | 403 = empresa suspensa (EMPRESA_INATIVA)
+          if (error.status === 401 || error.status === 403) {
+            resolve({logado: false, erro: error.error?.message || 'Não foi possível entrar.'}); 
           } else {
             reject({logado: false, erro: 'Erro na autenticação2'}); 
           }
