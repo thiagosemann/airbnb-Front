@@ -81,10 +81,14 @@ export class LimpezaExtraService {
       { headers: this.getHeaders() }
     );
   }
-    getLimpezasExtrasPorPeriodo(startDate: string, endDate: string): Observable<LimpezaExtra[]> {
-    const params = new HttpParams()
+    /** `incluirInativos`: ver a nota em ReservasAirbnbService.getFaxinasPorPeriodo */
+    getLimpezasExtrasPorPeriodo(startDate: string, endDate: string, incluirInativos = false): Observable<LimpezaExtra[]> {
+    let params = new HttpParams()
       .set('startDate', startDate)
       .set('endDate', endDate);
+    if (incluirInativos) {
+      params = params.set('incluirInativos', 'true');
+    }
 
     return this.http.get<LimpezaExtra[]>(
       `${this.apiUrl}/por-periodo`,

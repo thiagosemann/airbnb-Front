@@ -333,3 +333,87 @@
     animation: none;
   }
 }
+
+/* Aviso de limpeza sem valor cadastrado: entra como R$ 0 e some dentro do total.
+   E um botao — abre a lista de quais limpezas sao, para poder cadastrar o valor. */
+.folha__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  background: #fff4e5;
+  border: 1px solid #ffb765;
+  color: #b35c00;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.folha__alerta:hover {
+  background: #ffe6c7;
+  border-color: #f59331;
+}
+
+.folha__alerta > i {
+  margin-top: 0.15rem;
+}
+
+.folha__alerta-texto {
+  flex: 1;
+}
+
+.folha__alerta-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Valor zerado no modal: precisa saltar aos olhos, e o motivo de a tela existir */
+.item__valor--zerado {
+  color: #b35c00;
+  font-weight: 700;
+}
+
+/* Grupo do modal "Limpezas sem valor". O apartamento e o que a pessoa vai
+   procurar para cadastrar o valor, entao ele lidera o bloco: nome grande e
+   escuro, nao o rotulo de secao em caixa alta usado no resto da ficha. */
+.zerado + .zerado {
+  margin-top: 28px;
+}
+
+.zerado__cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 22px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--traco);
+}
+
+.zerado__titulo {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--texto);
+  overflow-wrap: anywhere;
+}
+
+.zerado__contagem {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pendente);
+  white-space: nowrap;
+}

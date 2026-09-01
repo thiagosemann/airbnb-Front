@@ -83,6 +83,24 @@
           Baixar resumo do mês
         </button>
       </div>
+
+      <!-- Faxina em apartamento sem valor_limpeza entra como R$ 0 e desaparece
+           dentro do total. O aviso existe para isso nao virar pagamento a menos. -->
+      <button
+        type="button"
+        class="folha__alerta"
+        *ngIf="faxinasSemValor > 0"
+        (click)="abrirZeradas()">
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+        <span class="folha__alerta-texto">
+          {{ faxinasSemValor }}
+          {{ faxinasSemValor === 1 ? 'limpeza está' : 'limpezas estão' }}
+          contando R$ 0,00 porque o apartamento não tem valor de limpeza cadastrado.
+        </span>
+        <span class="folha__alerta-acao">
+          Ver quais <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </span>
+      </button>
     </div>
 
     <div class="folha__erro" *ngIf="erro" role="alert">
@@ -115,9 +133,9 @@
     <!-- A folha -->
     <ul class="linhas__lista" *ngIf="!carregando && pagamentos.length > 0">
       <li class="linha" *ngFor="let pagamento of pagamentos; trackBy: trackByPagamento">
-        <span class="linha__sigla" aria-hidden="true">{{ getInitials(pagamento.user?.first_name) }}</span>
+        <span class="linha__sigla" aria-hidden="true">{{ getInitials(nomeDoPagamento(pagamento)) }}</span>
 
-        <span class="linha__nome">{{ pagamento.user?.first_name || 'Terceirizada removida' }}</span>
+        <span class="linha__nome">{{ nomeDoPagamento(pagamento) }}</span>
 
         <span class="linha__guia" aria-hidden="true"></span>
 
@@ -160,7 +178,7 @@
       <div>
         <p class="olho olho--escuro">{{ mesSelecionadoLabel }}</p>
         <h2 class="ficha__nome" id="ficha-nome">
-          {{ selectedterceirizado?.user?.first_name || 'Terceirizada' }}
+          {{ nomeDoPagamento(selectedterceirizado) }}
         </h2>
       </div>
       <button type="button" class="ficha__fechar" (click)="closeModal()" aria-label="Fechar">
@@ -232,6 +250,78 @@
         <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
         Baixar planilha
       </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Quais limpezas estão valendo zero, para saber onde cadastrar o valor -->
+<div class="tela" *ngIf="showZeradasModal" (click)="fecharZeradas()">
+  <div
+    class="ficha"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="zeradas-nome"
+    (click)="$event.stopPropagation()">
+
+    <header class="ficha__cabecalho">
+      <div>
+        <p class="olho olho--escuro">{{ mesSelecionadoLabel }}</p>
+        <h2 class="ficha__nome" id="zeradas-nome">Limpezas sem valor</h2>
+      </div>
+      <button type="button" class="ficha__fechar" (click)="fecharZeradas()" aria-label="Fechar">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="ficha__corpo">
+      <p class="ficha__periodo">
+        <b>{{ faxinasSemValor }}</b>
+        {{ faxinasSemValor === 1 ? 'limpeza entrou' : 'limpezas entraram' }}
+        na folha valendo <b>R$ 0,00</b> porque o apartamento está sem
+        <b>valor de limpeza</b> cadastrado. Cadastre o valor no apartamento e
+        recarregue o mês para o total se corrigir.
+      </p>
+
+      <div class="zerado" *ngFor="let apt of apartamentosSemValor">
+        <!-- O apartamento e o item acionavel: e nele que falta cadastrar o valor,
+             entao ele encabeca o grupo em vez de virar um rotulo de secao. -->
+        <header class="zerado__cabecalho">
+          <h3 class="zerado__titulo">{{ apt.nome }}</h3>
+          <span class="zerado__contagem">
+            {{ apt.limpezas.length }} {{ apt.limpezas.length === 1 ? 'limpeza' : 'limpezas' }}
+          </span>
+        </header>
+
+        <ul class="itens">
+          <li class="item" *ngFor="let faxina of apt.limpezas; trackBy: trackByFaxina">
+            <span class="item__data">
+              <b>{{ getDay(faxina.end_data) }}</b>
+              <small>{{ getMonth(faxina.end_data) }}</small>
+            </span>
+            <span class="item__ref">
+              <span class="item__apartamento">
+                {{ nomeDoServico(faxina, faxina.faxina_userId) || 'Terceirizada não identificada' }}
+              </span>
+              <span class="item__codigo">{{ codigoServico(faxina) }}</span>
+            </span>
+
+            <!-- Em "Todas" a lista é mista, então a situação precisa ser dita -->
+            <span
+              class="situacao"
+              *ngIf="filtroStatus === 'todas'"
+              [class.situacao--pendente]="!faxina.limpeza_realizada">
+              {{ faxina.limpeza_realizada ? 'Concluída' : 'Pendente' }}
+            </span>
+
+            <span class="item__guia" aria-hidden="true"></span>
+            <span class="item__valor item__valor--zerado">R$ 0,00</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="ficha__rodape">
+      <button type="button" class="botao botao--texto" (click)="fecharZeradas()">Fechar</button>
     </footer>
   </div>
 </div>

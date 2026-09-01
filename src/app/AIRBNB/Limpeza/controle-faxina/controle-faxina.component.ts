@@ -48,6 +48,12 @@ export class ControleFaxinaComponent implements OnInit {
   selectedterceirizado: any = null;
   faxinasDetalhadas: any[] = [];
 
+  // Detalhe das limpezas que entraram valendo zero, agrupadas por apartamento.
+  // Montado ao abrir o modal (não é getter) para o *ngFor não receber um array
+  // novo a cada ciclo de detecção de mudanças.
+  showZeradasModal: boolean = false;
+  apartamentosSemValor: { apartamento_id: number; nome: string; limpezas: any[] }[] = [];
+
   constructor(
     private userService: UserService,
     private reservasService: ReservasAirbnbService,
@@ -107,8 +113,10 @@ export class ControleFaxinaComponent implements OnInit {
     this.erro = '';
     try {
       const [startDate, endDate] = this.getMonthDateRange();
-      const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate).toPromise();
-      const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate).toPromise();
+      // incluirInativos: apartamento desativado depois da faxina nao pode apagar
+      // o servico ja prestado da folha.
+      const reservas = await this.reservasService.getFaxinasPorPeriodo(startDate, endDate, true).toPromise();
+      const limpezasExtras = await this.limpezaExtraService.getLimpezasExtrasPorPeriodo(startDate, endDate, true).toPromise();
 
       // Guarda concluídas e pendentes: o filtro é aplicado depois, sem novo request.
       this.servicosDoMes = [...(reservas || []), ...(limpezasExtras || [])]
@@ -125,12 +133,78 @@ export class ControleFaxinaComponent implements OnInit {
     }
   }
 
+  /** Nome da terceirizada: primeiro o que veio na faxina, depois a lista de usuarias. */
+  nomeDoServico(servico: any, userId: number): string {
+    const daFaxina = (servico?.faxina_first_name || '').trim();
+    if (daFaxina) return daFaxina;
+    const daLista = this.users.find(u => u.id === userId);
+    return daLista?.first_name || '';
+  }
+
+  /** Rotulo da terceirizada numa linha da folha, ja com fallback. */
+  nomeDoPagamento(pagamento: any): string {
+    return pagamento?.nome || pagamento?.user?.first_name || `Terceirizada #${pagamento?.userId}`;
+  }
+
+  /**
+   * Faxina que entra na folha valendo zero porque o apartamento nao tem
+   * valor_limpeza cadastrado. Unico lugar que define isso: o aviso e a lista do
+   * modal derivam daqui, entao nao tem como o numero e o detalhe discordarem.
+   */
+  private semValor(servico: any): boolean {
+    return !servico?.valor_limpeza || Number(servico.valor_limpeza) === 0;
+  }
+
+  /** Quantas faxinas do recorte estao valendo R$ 0 por falta de valor no apartamento. */
+  get faxinasSemValor(): number {
+    return this.pagamentos.reduce((soma, p) => soma + (p.semValor || 0), 0);
+  }
+
+  abrirZeradas(): void {
+    this.montarZeradas();
+    this.showZeradasModal = true;
+  }
+
+  fecharZeradas(): void {
+    this.showZeradasModal = false;
+    this.apartamentosSemValor = [];
+  }
+
+  private montarZeradas(): void {
+    const mapa = new Map<number, { apartamento_id: number; nome: string; limpezas: any[] }>();
+
+    this.servicosFiltrados()
+      .filter(servico => this.semValor(servico))
+      .forEach(servico => {
+        const id = Number(servico.apartamento_id);
+        if (!mapa.has(id)) {
+          mapa.set(id, {
+            apartamento_id: id,
+            nome: servico.apartamento_nome || 'Apartamento não identificado',
+            limpezas: []
+          });
+        }
+        mapa.get(id)!.limpezas.push(servico);
+      });
+
+    // Apartamento com mais limpezas zeradas primeiro: e o que custa mais caro deixar sem valor.
+    this.apartamentosSemValor = Array.from(mapa.values())
+      .map(apt => {
+        apt.limpezas.sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
+        return apt;
+      })
+      .sort((a, b) => b.limpezas.length - a.limpezas.length || a.nome.localeCompare(b.nome));
+  }
+
   aplicarFiltro(valor: 'todas' | 'concluidas' | 'pendentes'): void {
     if (this.filtroStatus === valor) return;
     this.filtroStatus = valor;
     this.recalcular();
     if (this.showModal && this.selectedterceirizado) {
       this.montarDetalhes(this.selectedterceirizado);
+    }
+    if (this.showZeradasModal) {
+      this.montarZeradas();
     }
   }
 
@@ -152,14 +226,23 @@ export class ControleFaxinaComponent implements OnInit {
       const userId = servico.faxina_userId;
       if (!pagamentosMap.has(userId)) {
         pagamentosMap.set(userId, {
+          userId,
           user: this.users.find(u => u.id === userId),
+          // O nome vem junto da faxina. A lista `users` cobre so as terceirizadas
+          // da propria empresa, e a escala permite alocar gente de empresa parceira
+          // que divide o apartamento: sem isso essas linhas ficavam sem nome.
+          nome: this.nomeDoServico(servico, userId),
           totalFaxinas: 0,
-          valorTotal: 0
+          valorTotal: 0,
+          semValor: 0
         });
       }
 
       const entry = pagamentosMap.get(userId);
       entry.totalFaxinas++;
+      // Apartamento sem valor_limpeza cadastrado entra como zero e sumiria dentro
+      // do total. Conta separado para a tela poder avisar em vez de pagar a menos.
+      if (this.semValor(servico)) entry.semValor++;
       entry.valorTotal += servico.valor_limpeza ? Number(servico.valor_limpeza) : 0;
 
       if (entry.totalFaxinas > this.maxFaxinas) {
@@ -301,8 +384,10 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   downloadXls(pagamento: any): void {
+    // Filtra por userId, nao por `user.id`: a usuaria pode nao estar na lista
+    // `users` (empresa parceira) e o acesso a `.id` quebrava a exportacao.
     const servicos = this.servicosFiltrados()
-      .filter(s => s.faxina_userId === pagamento?.user?.id)
+      .filter(s => s.faxina_userId === pagamento?.userId)
       .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
 
     if (servicos.length === 0) {
@@ -313,7 +398,7 @@ export class ControleFaxinaComponent implements OnInit {
     const worksheet = XLSX.utils.json_to_sheet(servicos.map(s => this.linhaPlanilha(s)));
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Limpezas');
-    XLSX.writeFile(workbook, `limpezas_${pagamento.user.first_name}_${this.sufixoArquivo}.xlsx`);
+    XLSX.writeFile(workbook, `limpezas_${this.nomeDoPagamento(pagamento)}_${this.sufixoArquivo}.xlsx`);
   }
 
   downloadResumoGeralXls(): void {
@@ -325,7 +410,7 @@ export class ControleFaxinaComponent implements OnInit {
 
     // Resumo espelha exatamente as linhas da tela, na mesma ordem.
     const resumoSheet = XLSX.utils.json_to_sheet(this.pagamentos.map(p => ({
-      'Terceirizada': p.user?.first_name || 'Terceirizada removida',
+      'Terceirizada': this.nomeDoPagamento(p),
       'Limpezas': p.totalFaxinas,
       'Valor Total': p.valorTotal
     })));
@@ -333,20 +418,34 @@ export class ControleFaxinaComponent implements OnInit {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, resumoSheet, 'Resumo');
 
+    // Nomes de aba ja usados. O Excel recusa aba duplicada e book_append_sheet lanca,
+    // derrubando a exportacao inteira — duas terceirizadas com o mesmo first_name
+    // (duas "Maria") bastam para isso.
+    const abasUsadas = new Set<string>(['Resumo']);
+
     this.pagamentos.forEach(pagamento => {
-      const nome = pagamento.user?.first_name;
-      if (!nome) return;
+      // Antes, linha sem nome era pulada em silencio: o valor continuava no Resumo
+      // mas nao havia aba de detalhe, e a soma das abas nao fechava com o Resumo.
+      const nome = this.nomeDoPagamento(pagamento);
       const doUsuario = servicos
-        .filter(s => s.faxina_userId === pagamento.user.id)
+        .filter(s => s.faxina_userId === pagamento.userId)
         .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
       if (doUsuario.length === 0) return;
       // Nome de aba no Excel: máximo 31 caracteres e sem os caracteres reservados.
-      const aba = nome.replace(/[\\/?*\[\]:]/g, '').substring(0, 31);
+      const base = nome.replace(/[\\/?*\[\]:]/g, '').substring(0, 31) || `Terceirizada ${pagamento.userId}`;
+      let aba = base;
+      let sufixo = 2;
+      while (abasUsadas.has(aba)) {
+        const marca = ` (${sufixo++})`;
+        aba = base.substring(0, 31 - marca.length) + marca;
+      }
+      abasUsadas.add(aba);
       XLSX.utils.book_append_sheet(
         workbook,
         XLSX.utils.json_to_sheet(doUsuario.map(s => this.linhaPlanilha(s))),
         aba
       );
+
     });
 
     XLSX.writeFile(workbook, `resumo_terceirizadas_${this.sufixoArquivo}.xlsx`);
@@ -379,7 +478,7 @@ export class ControleFaxinaComponent implements OnInit {
 
   private montarDetalhes(pagamento: any): void {
     this.faxinasDetalhadas = this.servicosFiltrados()
-      .filter(servico => servico.faxina_userId === pagamento?.user?.id)
+      .filter(servico => servico.faxina_userId === pagamento?.userId)
       .sort((a, b) => this.chaveData(a.end_data) - this.chaveData(b.end_data));
   }
 
@@ -388,6 +487,7 @@ export class ControleFaxinaComponent implements OnInit {
     this.showModal = false;
     this.selectedterceirizado = null;
     this.faxinasDetalhadas = [];
+    this.fecharZeradas();
   }
 
   formatDate(dateString: string): string {
@@ -424,7 +524,7 @@ export class ControleFaxinaComponent implements OnInit {
   }
 
   trackByPagamento(_: number, pagamento: any): number {
-    return pagamento?.user?.id;
+    return pagamento?.userId;
   }
 
   trackByFaxina(index: number, faxina: any): string {

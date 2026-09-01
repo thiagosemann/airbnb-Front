@@ -20,10 +20,17 @@ export class ReservasAirbnbService {
 
 
   // Métodos existentes mantidos
-  getFaxinasPorPeriodo(inicio_end_data: string, fim_end_date: string): Observable<ReservaAirbnb[]> {
-    const params = new HttpParams()
+  /**
+   * `incluirInativos` só é usado pela folha de pagamento: faxina feita continua devida
+   * mesmo que o apartamento tenha sido desativado depois. A escala chama sem a flag.
+   */
+  getFaxinasPorPeriodo(inicio_end_data: string, fim_end_date: string, incluirInativos = false): Observable<ReservaAirbnb[]> {
+    let params = new HttpParams()
       .set('start', inicio_end_data)
       .set('end', fim_end_date);
+    if (incluirInativos) {
+      params = params.set('incluirInativos', 'true');
+    }
 
     return this.http.get<ReservaAirbnb[]>(
       `${this.apiUrl}/faxinas/por-periodo`, // ajustado para rotas do backend
