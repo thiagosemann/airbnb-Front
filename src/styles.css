@@ -1,7 +1,843 @@
-/* Google Fonts - Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Google Fonts - Inter (UI) + JetBrains Mono (data/utility) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* You can add global styles to this file, and also import other style files */
 @import "~bootstrap/dist/css/bootstrap.css";
 @import '~@fortawesome/fontawesome-free/css/all.min.css';
 @import "~swiper/swiper-bundle.min.css";
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css');
+
+/* ==========================================================================
+   FOREST UI — shared design system
+   Brand palette matches the "Forest Gestão Patrimonial" landing page
+   (src/app/landing). New/migrated screens should build on these tokens
+   and .forest-* classes instead of introducing new one-off colors.
+   See CLAUDE.md → "Forest UI" for the full guide and migration status.
+   ========================================================================== */
+:root {
+  /* Brand */
+  --forest-primary: #0F392B;
+  --forest-light: #1e4c40;
+  --forest-dark: #082119;
+  --sage: #e8f0e8;
+  --sage-light: #f6f9f6;
+  --cream: #F5F5F0;
+  --cream-dark: #EDEAE3;
+  --gold: #d4af37;
+  --gold-light: #e9d177;
+  --gold-dark: #b8902a;
+  --gold-tint: #f7ecc9;
+  --terracotta: #b5562c;
+  --terracotta-dark: #8a3e22;
+  --terracotta-tint: #fbe9e0;
+  --white: #ffffff;
+
+  /* Neutrals (warm, tinted toward forest — not pure gray) */
+  --ink-900: #16221c;
+  --ink-600: #4b5750;
+  --ink-400: #7b8279;
+  --line-200: #dfe3de;
+  --line-100: #edf1ea;
+
+  /* Type */
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Shape & elevation */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 2px rgba(8, 33, 25, 0.06);
+  --shadow-md: 0 8px 24px rgba(8, 33, 25, 0.08);
+  --shadow-lg: 0 20px 48px rgba(8, 33, 25, 0.16);
+}
+
+.forest-page {
+  padding: 16px 20px 28px;
+  background-color: var(--cream);
+  font-family: var(--font-body);
+  color: var(--ink-900);
+}
+
+/* Header ------------------------------------------------------------- */
+.forest-header {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+  border-top: 3px solid var(--forest-primary);
+}
+
+.forest-eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--forest-light);
+  margin-bottom: 4px;
+}
+
+.forest-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.forest-title-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--forest-primary);
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.forest-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--forest-dark);
+  margin: 0;
+}
+
+/* Toolbar / filters ---------------------------------------------------- */
+.forest-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forest-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.forest-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 240px;
+}
+
+.forest-search i {
+  position: absolute;
+  left: 14px;
+  color: var(--ink-400);
+  font-size: 1rem;
+}
+
+.forest-search input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius-sm);
+  background-color: var(--sage-light);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--ink-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.forest-select {
+  height: 42px;
+  min-width: 170px;
+  max-width: 220px;
+  padding: 0 12px;
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius-sm);
+  background-color: var(--sage-light);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--ink-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.forest-search input:focus,
+.forest-select:focus,
+.forest-input:focus,
+.forest-textarea:focus {
+  outline: none;
+  border-color: var(--forest-primary);
+  box-shadow: 0 0 0 3px rgba(15, 57, 43, 0.12);
+}
+
+.forest-btn {
+  height: 42px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.forest-btn:active {
+  transform: translateY(1px);
+}
+
+.forest-btn-primary {
+  background-color: var(--forest-primary);
+  color: var(--white);
+}
+
+.forest-btn-primary:hover {
+  background-color: var(--forest-light);
+}
+
+.forest-btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--line-200);
+  color: var(--ink-600);
+}
+
+.forest-btn-outline:hover {
+  border-color: var(--forest-primary);
+  color: var(--forest-primary);
+}
+
+/* Status tabs ----------------------------------------------------------- */
+.forest-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.forest-tab {
+  border: 1px solid transparent;
+  background: var(--sage-light);
+  color: var(--ink-600);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.forest-tab:hover {
+  border-color: var(--forest-primary);
+  color: var(--forest-primary);
+}
+
+.forest-tab.active {
+  background: var(--forest-primary);
+  color: var(--gold-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Bullet filter (e.g. Todos / Rua / Escritório) — a colored dot instead of
+   a dropdown, so the filter itself previews the spine color it will show. */
+.forest-bullet-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.forest-bullet {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--line-200);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink-600);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.forest-bullet:hover {
+  border-color: var(--forest-primary);
+  color: var(--forest-primary);
+}
+
+.forest-bullet.active {
+  border-color: var(--forest-primary);
+  background: var(--sage-light);
+  color: var(--forest-primary);
+}
+
+.forest-bullet-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.forest-bullet-dot-todos {
+  background: var(--forest-primary);
+}
+
+.forest-bullet-dot-rua {
+  background: var(--terracotta);
+}
+
+.forest-bullet-dot-escritorio {
+  background: var(--gold-dark);
+}
+
+/* Table (desktop) -------------------------------------------------------- */
+.forest-table-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.forest-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.forest-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--forest-dark);
+  color: var(--sage-light);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 12px 14px;
+}
+
+.forest-table tbody tr {
+  border-bottom: 1px solid var(--line-100);
+  transition: background-color 0.12s ease;
+}
+
+.forest-table tbody tr:hover {
+  background-color: var(--sage-light);
+}
+
+.forest-table td {
+  padding: 12px 14px;
+  vertical-align: top;
+  color: var(--ink-900);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+/* Route spine: left-edge color keyed to demand type (rua/escritório),
+   so the list reads at a glance as a dispatch board — field visit vs
+   in-office task. Applied to table rows and mobile cards alike. */
+.forest-spine-rua {
+  box-shadow: inset 4px 0 0 var(--terracotta);
+}
+
+.forest-spine-escritorio {
+  box-shadow: inset 4px 0 0 var(--gold-dark);
+}
+
+.forest-spine-default {
+  box-shadow: inset 4px 0 0 var(--line-200);
+}
+
+/* Badges ------------------------------------------------------------------ */
+.forest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Status = filled pill (state / lifecycle) */
+.forest-badge-pendente {
+  background: var(--gold-tint);
+  color: var(--gold-dark);
+}
+
+.forest-badge-finalizada {
+  background: var(--sage);
+  color: var(--forest-primary);
+}
+
+.forest-badge-cancelada {
+  background: var(--terracotta-tint);
+  color: var(--terracotta-dark);
+}
+
+/* Type = outline + icon pill (classification, not state) */
+.forest-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  border: 1.4px solid transparent;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.forest-tag-rua {
+  border-color: var(--terracotta);
+  color: var(--terracotta-dark);
+}
+
+.forest-tag-escritorio {
+  border-color: var(--gold-dark);
+  color: var(--gold-dark);
+}
+
+.forest-tag-default {
+  border-color: var(--line-200);
+  color: var(--ink-400);
+}
+
+/* Data / deadline emphasis ------------------------------------------------- */
+.forest-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cards (mobile) ------------------------------------------------------------ */
+.forest-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Modal ---------------------------------------------------------------------- */
+.forest-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(8, 33, 25, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 16px;
+}
+
+.forest-modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.forest-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--forest-dark);
+  color: var(--white);
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forest-modal-header h2 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.forest-modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.forest-modal-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.forest-modal-body {
+  padding: 22px;
+}
+
+.forest-form-section {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-100);
+}
+
+.forest-form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.forest-form-section h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--forest-dark);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forest-form-section h3 i {
+  color: var(--gold-dark);
+}
+
+.forest-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.forest-form-group {
+  flex: 1;
+  min-width: 220px;
+}
+
+.forest-form-group label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink-600);
+  margin-bottom: 6px;
+}
+
+.forest-input,
+.forest-textarea {
+  width: 100%;
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius-sm);
+  background: var(--sage-light);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--ink-900);
+  padding: 0 12px;
+}
+
+.forest-input {
+  height: 42px;
+}
+
+.forest-textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+/* Card header / value rows (mobile) ------------------------------------------- */
+.forest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-100);
+}
+
+.forest-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--forest-dark);
+}
+
+.forest-values {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forest-value-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.87rem;
+}
+
+.forest-value-item span {
+  color: var(--ink-400);
+}
+
+.forest-value-item strong {
+  color: var(--ink-900);
+  font-weight: 600;
+  text-align: right;
+}
+
+.forest-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-100);
+}
+
+/* Icon buttons ------------------------------------------------------------------ */
+.forest-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.forest-icon-btn-edit {
+  background: var(--sage);
+  color: var(--forest-primary);
+}
+
+.forest-icon-btn-edit:hover {
+  background: #d9e8d9;
+}
+
+.forest-icon-btn-delete {
+  background: var(--terracotta-tint);
+  color: var(--terracotta-dark);
+}
+
+.forest-icon-btn-delete:hover {
+  background: #f5d8c8;
+}
+
+/* Truncated-text tooltip button -------------------------------------------------- */
+.forest-truncate-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  position: relative;
+}
+
+.forest-clamp {
+  word-break: break-word;
+  line-height: 1.4;
+  color: var(--ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.forest-info-btn {
+  position: relative;
+  border: 1px solid var(--line-200);
+  background: var(--white);
+  color: var(--ink-600);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.forest-info-btn:hover,
+.forest-info-btn:focus {
+  border-color: var(--forest-primary);
+  color: var(--forest-primary);
+}
+
+.forest-info-btn .forest-tooltip {
+  display: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 10px);
+  min-width: 240px;
+  max-width: 480px;
+  background: var(--forest-dark);
+  color: var(--white);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  white-space: normal;
+  text-align: left;
+  z-index: 20;
+}
+
+.forest-info-btn:hover .forest-tooltip,
+.forest-info-btn:focus .forest-tooltip,
+.forest-info-btn:focus-within .forest-tooltip {
+  display: block;
+}
+
+.forest-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+/* Typeahead combo (e.g. apartment picker) --------------------------------------- */
+.forest-apto-combo {
+  position: relative;
+}
+
+.forest-combo-caret {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-400);
+  pointer-events: none;
+  font-size: 0.75rem;
+}
+
+.forest-apto-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  z-index: 25;
+  padding: 4px;
+}
+
+.forest-apto-option {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  color: var(--ink-900);
+}
+
+.forest-apto-option:hover,
+.forest-apto-option:focus {
+  background: var(--sage);
+  outline: none;
+}
+
+.forest-apto-empty {
+  padding: 10px;
+  text-align: center;
+  color: var(--ink-400);
+  font-size: 0.88rem;
+}
+
+/* Reservation lookup box (Demandas modal) ---------------------------------------- */
+.forest-reserva-box {
+  background: var(--sage-light);
+  border: 1px solid var(--line-100);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.forest-reserva-selected {
+  background: var(--sage);
+  color: var(--forest-dark);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Empty state ----------------------------------------------------------------- */
+.forest-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink-400);
+}
+
+.forest-empty i {
+  font-size: 2.4rem;
+  color: var(--line-200);
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* Accessibility & motion -------------------------------------------------------- */
+.forest-btn:focus-visible,
+.forest-tab:focus-visible,
+.forest-bullet:focus-visible,
+.forest-select:focus-visible,
+.forest-modal-close:focus-visible {
+  outline: 2px solid var(--forest-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forest-btn,
+  .forest-tab,
+  .forest-bullet,
+  .forest-table tbody tr {
+    transition: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .forest-controls-row { flex-wrap: nowrap; }
+}

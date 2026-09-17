@@ -47,7 +47,7 @@ export class ControleDemandasComponent implements OnInit {
   // Filtro rápido
   filtroTexto = '';
   filtroStatus = 'pendente';
-  filtroUsuarioId: number | null = null;
+  filtroTipo = '';
   activeStatusTab: string = 'pendente';
 
   constructor(
@@ -116,40 +116,42 @@ export class ControleDemandasComponent implements OnInit {
     this.applyFilters();
   }
 
-  filtrarStatus(status: string): void {
-    this.filtroStatus = this.normalizeStatusValue(status);
-    this.activeStatusTab = this.filtroStatus;
-    this.applyFilters();
-  }
-
   setStatusTab(status: string): void {
     this.activeStatusTab = status;
     this.filtroStatus = status;
     this.applyFilters();
   }
 
-  filtrarUsuario(userId: string): void {
-    const v = String(userId || '').trim();
-    this.filtroUsuarioId = v ? Number(v) : null;
+  filtrarTipo(tipo: string): void {
+    this.filtroTipo = this.removerAcentos(String(tipo || '')).toLowerCase();
     this.applyFilters();
   }
 
   getStatusClass(status?: string | null): string {
     const s = this.normalizeStatusValue(status);
-    if (s === 'pendente') return 'status-pendente';
-    if (s === 'finalizada') return 'status-finalizada';
-    if (s === 'cancelada') return 'status-cancelada';
+    if (s === 'pendente') return 'forest-badge-pendente';
+    if (s === 'finalizada') return 'forest-badge-finalizada';
+    if (s === 'cancelada') return 'forest-badge-cancelada';
     return '';
+  }
+
+  getPeriodoIcon(value?: string | null): string {
+    const v = String(value || '').toLowerCase();
+    if (v === 'manha') return 'bi-sunrise';
+    if (v === 'tarde') return 'bi-sun';
+    if (v === 'noite') return 'bi-moon-stars';
+    return 'bi-dash';
   }
 
   private applyFilters(): void {
     const filtered = this.demandas.filter(d => {
       const textoOk = !this.filtroTexto
         || (d.demanda || '').toLowerCase().includes(this.filtroTexto)
-        || (d.apartamento_nome || '').toLowerCase().includes(this.filtroTexto);
+        || (d.apartamento_nome || '').toLowerCase().includes(this.filtroTexto)
+        || (this.getUserName(d.user_id_responsavel) || '').toLowerCase().includes(this.filtroTexto);
       const statusOk = !this.filtroStatus || this.normalizeStatusValue(d.status) === this.filtroStatus;
-      const usuarioOk = !this.filtroUsuarioId || d.user_id_responsavel === this.filtroUsuarioId;
-      return textoOk && statusOk && usuarioOk;
+      const tipoOk = !this.filtroTipo || this.removerAcentos(String(d.type || '')).toLowerCase() === this.filtroTipo;
+      return textoOk && statusOk && tipoOk;
     });
     this.demandasFiltradas = this.ordenarDemandas(filtered);
   }
@@ -349,9 +351,23 @@ export class ControleDemandasComponent implements OnInit {
 
   getTypeClass(value?: string | null): string {
     const v = this.removerAcentos(String(value || '')).toLowerCase();
-    if (v === 'escritorio') return 'type-escritorio';
-    if (v === 'rua') return 'type-rua';
-    return 'type-default';
+    if (v === 'escritorio') return 'forest-tag-escritorio';
+    if (v === 'rua') return 'forest-tag-rua';
+    return 'forest-tag-default';
+  }
+
+  getSpineClass(value?: string | null): string {
+    const v = this.removerAcentos(String(value || '')).toLowerCase();
+    if (v === 'escritorio') return 'forest-spine-escritorio';
+    if (v === 'rua') return 'forest-spine-rua';
+    return 'forest-spine-default';
+  }
+
+  getTypeIcon(value?: string | null): string {
+    const v = this.removerAcentos(String(value || '')).toLowerCase();
+    if (v === 'escritorio') return 'bi-building';
+    if (v === 'rua') return 'bi-signpost-2';
+    return 'bi-dash';
   }
 
   private sortApartamentos(list: Apartamento[]): Apartamento[] {
