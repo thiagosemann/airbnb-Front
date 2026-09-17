@@ -42,6 +42,7 @@ export interface ReservaAirbnb {
   origem?: string;
   precisa_limpeza?: boolean;
   apartamento_ativo?: number; // 1 = ativo, 0 = inativo
+  apartamento_aceita_early_late?: number; // 1 = proprietário aceita cobrança de early check-in / late check-out
   /** Justificativa exigida para trocar o responsável de limpeza de hoje ou anterior */
   motivo_alteracao?: string;
 }

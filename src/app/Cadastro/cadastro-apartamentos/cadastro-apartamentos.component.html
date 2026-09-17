@@ -267,6 +267,16 @@
               <input class="faq-chip-input" type="checkbox" formControlName="pedir_selfie" id="pedir_selfie"><label class="faq-chip-label" for="pedir_selfie">Pedir Selfie</label>
               <input class="faq-chip-input" type="checkbox" formControlName="tem_garagem" id="tem_garagem"><label class="faq-chip-label" for="tem_garagem">Tem Garagem</label>
             </div>
+            <div class="early-late-box mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="aceita_early_late" id="aceita_early_late">
+                <label class="form-check-label fw-semibold" for="aceita_early_late">Aceita cobranças early/late</label>
+              </div>
+              <small class="text-muted d-block mt-1">
+                Marcado = o proprietário aceita que cobremos taxa de <strong>early check-in</strong> ou <strong>late check-out</strong>.
+                Desmarcado = os checkboxes de Early/Late ficam bloqueados no Diário.
+              </small>
+            </div>
             <div class="mb-3">
               <label class="form-label">Garagem</label>
               <div class="input-group">
@@ -482,15 +492,6 @@
                 </div>
               </div>
 
-            </div>
-          </div>
-
-          <!-- Código Link Proprietário -->
-          <div class="col-md-6">
-            <h5 class="section-title">Código Link Proprietário</h5>
-            <div class="mb-3">
-              <label class="form-label">Código do Link do Proprietário</label>
-              <input type="text" class="form-control" formControlName="cod_link_proprietario">
             </div>
           </div>
 

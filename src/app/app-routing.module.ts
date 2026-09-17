@@ -78,7 +78,7 @@ const routes: Routes = [
   { path: 'calendarioMobile', component: CalendarioMobileComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
 
 
-  { path: 'calendarioDetalhado/:cod', component: CalendarioPorApartamentoComponent },
+  { path: 'calendarioDetalhado/:nome', component: CalendarioPorApartamentoComponent },
   { path: 'calendarioDetalhadoMobile/:cod', component: CalendarioMobileComponent },
   { path: 'ticketReembolso', component: TicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'controleTicketReembolso', component: ControleTicketReembolsoComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },

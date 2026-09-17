@@ -525,6 +525,10 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       this.toastr.warning('Selecione uma reserva antes de gerar o pagamento.');
       return;
     }
+    if (!this.aceitaEarlyLate(this.selectedReservation)) {
+      this.toastr.warning('O proprietário deste apartamento não aceita cobrança de early check-in.');
+      return;
+    }
 
     // Pega o primeiro hóspede como referência, se houver
     const hospedeRef = this.hospedesReserva && this.hospedesReserva.length > 0 ? this.hospedesReserva[0] : null;
@@ -616,6 +620,26 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     return !!reserva
       && Array.isArray(reserva.pagamentos)
       && reserva.pagamentos.some(p => p.tipo === type);
+  }
+  /** Proprietário do apartamento aceita cobrança de taxa de early check-in / late check-out */
+  aceitaEarlyLate(reserva: ReservaAirbnb | undefined): boolean {
+    return !!reserva && Number(reserva.apartamento_aceita_early_late) === 1;
+  }
+  /** Checkbox bloqueado quando o pagamento já foi efetuado ou o proprietário não aceita a cobrança.
+   *  Reservas antigas já marcadas continuam podendo ser desmarcadas. */
+  earlyLateDisabled(type: 'early' | 'late', reserva: ReservaAirbnb): boolean {
+    if (this.hasPaymentType(type, reserva)) return true;
+    const jaMarcado = type === 'early' ? !!reserva.early_checkin : !!reserva.late_checkout;
+    return !this.aceitaEarlyLate(reserva) && !jaMarcado;
+  }
+  earlyLateTitle(reserva: ReservaAirbnb): string {
+    return this.aceitaEarlyLate(reserva) ? '' : 'Proprietário não aceita cobrança de early/late';
+  }
+  /** Mostra o indicador "não permitido" no lugar do checkbox: proprietário não aceita
+   *  e a reserva ainda não tem esse early/late marcado nem pago. */
+  earlyLateNaoPermitido(type: 'early' | 'late', reserva: ReservaAirbnb): boolean {
+    if (this.aceitaEarlyLate(reserva) || this.hasPaymentType(type, reserva)) return false;
+    return type === 'early' ? !reserva.early_checkin : !reserva.late_checkout;
   }
   setPeriodoHoje(): void {
     const hoje = new Date();
@@ -1008,6 +1032,10 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }
     // Marcando: reverte o checkbox e abre o modal
     checkbox.checked = false;
+    if (!this.aceitaEarlyLate(reserva)) {
+      this.toastr.warning('O proprietário deste apartamento não aceita cobrança de early check-in.');
+      return;
+    }
     this.pendingTimeReserva = reserva;
     this.earlyTimeInput = reserva.check_in || '15:00';
     this.showEarlyTimeModal = true;
@@ -1054,6 +1082,10 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
     }
     // Marcando: reverte o checkbox e abre o modal
     checkbox.checked = false;
+    if (!this.aceitaEarlyLate(reserva)) {
+      this.toastr.warning('O proprietário deste apartamento não aceita cobrança de late check-out.');
+      return;
+    }
     this.pendingTimeReserva = reserva;
     this.lateTimeInput = reserva.check_out || '12:00';
     this.showLateTimeModal = true;

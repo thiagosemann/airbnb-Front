@@ -138,6 +138,7 @@ export class CadastroApartamentosComponent implements OnInit {
       adesivo_aviso: [false],
       pedir_selfie: [false],
       tem_garagem: [false],
+      aceita_early_late: [false],
       qtd_cama_solteiro: [0],
       qtd_cama_casal: [0],
       qtd_sofa_cama: [0],
@@ -186,7 +187,6 @@ export class CadastroApartamentosComponent implements OnInit {
       link_anuncio_airbnb: [''],
       link_anuncio_booking: [''],
       data_ultima_modificacao: [''],
-      cod_link_proprietario: [''],
       categoria: [''],
       tipo_anuncio_repasse: [''],
       instrucoes_entrada: [''],
@@ -385,6 +385,7 @@ export class CadastroApartamentosComponent implements OnInit {
       enxoval_rostos: 0,
       pedir_selfie: false,
       tem_garagem: false,
+      aceita_early_late: false,
       instrucoes_entrada: ''
     });
   }

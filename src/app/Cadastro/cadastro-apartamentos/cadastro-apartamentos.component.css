@@ -688,3 +688,16 @@
 }
 
 .spin { display: inline-block; animation: spin 1s linear infinite; }
+
+/* Destaque para a flag de cobrança early/late (Configurações Gerais) */
+.early-late-box {
+  padding: 10px 12px;
+  border: 1.5px solid #ffe69c;
+  border-radius: 8px;
+  background: #fff8e1;
+}
+
+.early-late-box .form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
