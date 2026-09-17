@@ -162,6 +162,7 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
   }
   aplicarSearch(): void {
     const term = this.searchTerm.trim().toLowerCase();
+    const termDigitos = this.somenteDigitos(this.searchTerm);
     let resultado = [...this.reservasFiltradas];
 
     if (this.plataformaFiltro !== 'todos') {
@@ -174,10 +175,26 @@ export class CalendarioAirbnbComponent implements OnInit, OnDestroy {
       resultado = resultado.filter(r =>
         (r.apartamento_nome ?? '').toLowerCase().includes(term)
         || (r.cod_reserva ?? '').toLowerCase().includes(term)
+        // Busca por telefone: só entra em jogo se o termo tiver dígitos suficientes
+        // para não casar qualquer texto que contenha um número perdido no meio.
+        || (termDigitos.length >= 4 && this.reservaTemTelefone(r, termDigitos))
       );
     }
 
     this.reservasExibidas = resultado;
+  }
+
+  /** Remove tudo que não for dígito, para comparar telefones digitados com/sem máscara */
+  private somenteDigitos(valor: string | null | undefined): string {
+    return (valor ?? '').replace(/\D/g, '');
+  }
+
+  /** Verifica se o telefone principal da reserva ou de algum hóspede casa com os dígitos buscados */
+  private reservaTemTelefone(reserva: ReservaAirbnb, termDigitos: string): boolean {
+    if (this.somenteDigitos(reserva.telefone_principal).includes(termDigitos)) {
+      return true;
+    }
+    return (reserva.telefones_hospedes ?? []).some(tel => this.somenteDigitos(tel).includes(termDigitos));
   }
 
   setPlataformaFiltro(plataforma: string): void {

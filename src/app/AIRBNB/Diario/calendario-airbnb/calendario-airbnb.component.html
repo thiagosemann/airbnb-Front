@@ -35,8 +35,9 @@
             <button class="btn btn-primary" (click)="carregarPeriodo()">
               <i class="fas fa-filter"></i> Filtrar
             </button>
-            <div class="filtro-item" style="margin-left: 1rem;">
-              <input type="text" class="form-control" placeholder="Buscar apt ou código..." [(ngModel)]="searchTerm"
+            <div class="forest-search calendar-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Buscar apt, código ou telefone..." [(ngModel)]="searchTerm"
                 (input)="aplicarSearch()">
             </div>
           </div>
@@ -176,7 +177,8 @@
   </div>
 
   <!-- Tabela para desktop -->
-  <table class="calendar-table panel-base d-none d-lg-table" *ngIf="!carregando">
+  <div class="forest-table-wrap calendar-table-wrap d-none d-lg-block" *ngIf="!carregando">
+  <table class="calendar-table">
     <thead>
       <tr>
         <th style="width: 5%;">Site</th>
@@ -292,6 +294,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </div>
 <!-- Modal -->
 <div class="modal enhanced-modal" *ngIf="showModal" role="dialog" aria-modal="true">

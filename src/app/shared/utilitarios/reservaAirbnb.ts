@@ -32,6 +32,8 @@ export interface ReservaAirbnb {
   horarioPrevistoChegada: any[];
   contagemFaxinasDiaPorFaxineira?: number;
   telefone_principal?: string;
+  /** Telefones de todos os hóspedes cadastrados via formulário de checkin desta reserva */
+  telefones_hospedes?: string[];
   placa_carro?: string;
   marca_carro?: string;
   modelo_carro?: string;
