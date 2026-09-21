@@ -301,6 +301,19 @@
   background: var(--gold-dark);
 }
 
+/* Proprietário: pessoa física / jurídica / imobiliária (cadastro-proprietarios) */
+.forest-bullet-dot-pf {
+  background: var(--ink-600);
+}
+
+.forest-bullet-dot-pj {
+  background: var(--forest-primary);
+}
+
+.forest-bullet-dot-imobiliaria {
+  background: var(--gold-dark);
+}
+
 /* Table (desktop) -------------------------------------------------------- */
 .forest-table-wrap {
   background: var(--white);
@@ -422,6 +435,22 @@
 .forest-tag-default {
   border-color: var(--line-200);
   color: var(--ink-400);
+}
+
+/* Proprietário: pessoa física / jurídica / imobiliária (cadastro-proprietarios) */
+.forest-tag-pf {
+  border-color: var(--ink-400);
+  color: var(--ink-600);
+}
+
+.forest-tag-pj {
+  border-color: var(--forest-primary);
+  color: var(--forest-primary);
+}
+
+.forest-tag-imobiliaria {
+  border-color: var(--gold-dark);
+  color: var(--gold-dark);
 }
 
 /* Data / deadline emphasis ------------------------------------------------- */
@@ -817,6 +846,37 @@
   color: var(--line-200);
   margin-bottom: 12px;
   display: block;
+}
+
+/* Custom scrollbars (table wrap + modal) ----------------------------------------- */
+.forest-table-wrap,
+.forest-modal {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-200) transparent;
+}
+
+.forest-table-wrap::-webkit-scrollbar,
+.forest-modal::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.forest-table-wrap::-webkit-scrollbar-track,
+.forest-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.forest-table-wrap::-webkit-scrollbar-thumb,
+.forest-modal::-webkit-scrollbar-thumb {
+  background-color: var(--line-200);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.forest-table-wrap::-webkit-scrollbar-thumb:hover,
+.forest-modal::-webkit-scrollbar-thumb:hover {
+  background-color: var(--forest-light);
 }
 
 /* Accessibility & motion -------------------------------------------------------- */

@@ -23,6 +23,7 @@ export interface User {
     empresa_id?: number; // ← nova propriedade
     empresa_nome?: string; // nome da empresa do terceirizado (escala de faxina)
     qtd_apartamentos?: number;
+    tipo_proprietario?: 'pf' | 'pj' | 'imobiliaria'; // classificação do proprietário (role === 'proprietario')
     [key: string]: any; // Índice para acessar propriedades com base em uma string
 
   }

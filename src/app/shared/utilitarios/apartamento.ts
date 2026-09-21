@@ -72,4 +72,12 @@ export interface Apartamento {
   empresa_id?: number;         // empresa que cadastrou o apartamento — controla o acesso das demais
   is_active?: number;          // 1 = ativo (na carteira), 0 = inativo
   apartamento_ativo?: number;  // 1/0 — status do apartamento retornado nas telas de histórico
+  proprietarios?: ApartamentoProprietario[]; // todos os proprietários vinculados (proprietarios[0] = primeiro cadastrado)
+}
+
+export interface ApartamentoProprietario {
+  id: number;
+  first_name: string;
+  last_name: string;
+  tipo_proprietario?: 'pf' | 'pj' | 'imobiliaria';
 }

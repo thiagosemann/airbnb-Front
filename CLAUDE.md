@@ -61,7 +61,15 @@ dourado (trabalho interno). Essa mesma cor também marca a **"espinha" lateral**
 em linhas de tabela e cards (`.forest-spine-rua` / `.forest-spine-escritorio`), o
 elemento de assinatura da Forest UI: o painel de demandas lê-se como um quadro de
 despacho — dá para escanear visualmente quem precisa ir à rua vs quem fica no
-escritório sem ler nenhum texto.
+escritório sem ler nenhum texto. Esse elemento é específico do painel de demandas —
+outras telas com sua própria classificação usam só `.forest-tag`, sem espinha.
+
+Tipo de proprietário (`cadastro-proprietarios`), mesma família de `.forest-tag`:
+`.forest-tag-pf` (neutro/`--ink-600`, `bi-person`) / `.forest-tag-pj` (verde-floresta/
+`--forest-primary`, `bi-briefcase`) / `.forest-tag-imobiliaria` (dourado/`--gold-dark`,
+`bi-building` — reaproveita o dourado de "Escritório" porque imobiliária também é uma
+entidade formal/institucional). Dots correspondentes em `.forest-bullet-dot-pf/-pj/
+-imobiliaria` para o filtro da toolbar.
 
 ### Classes principais (`.forest-*`)
 
@@ -74,7 +82,9 @@ escritório sem ler nenhum texto.
   de topo: filtro de texto livre busca por demanda/apartamento/responsável na mesma
   caixa de busca, e filtros de poucas opções (ex.: tipo) usam `.forest-bullet-group`
   em vez de `<select>` — mais rápido de escanear e não esconde as opções num dropdown
-- Tabela: `.forest-table-wrap`, `.forest-table` (cabeçalho `--forest-dark`)
+- Tabela: `.forest-table-wrap`, `.forest-table` (cabeçalho `--forest-dark`). Scroll
+  interno de `.forest-table-wrap` e `.forest-modal` usa scrollbar customizada (fina,
+  `--line-200` → `--forest-light` no hover) em vez do scrollbar nativo do navegador.
 - Card mobile: `.forest-card`, `.forest-card-header`, `.forest-card-title`,
   `.forest-values` / `.forest-value-item`, `.forest-card-actions`
 - Badges/tags: `.forest-badge-*` (status), `.forest-tag-*` (tipo), `.forest-spine-*`
@@ -96,6 +106,7 @@ dourado). Testado até largura mobile (sem scroll horizontal).
 | Tela | Status |
 |---|---|
 | `AIRBNB/Demandas/controle-demandas` | ✅ Migrada (primeira tela, referência do padrão) |
+| `Cadastro/cadastro-proprietarios` | ✅ Migrada |
 | Demais telas | Visual antigo (Bootstrap verde `#198754`) — migrar quando forem alteradas |
 
 Ao migrar uma nova tela: reutilize as classes `.forest-*` já existentes em vez de criar

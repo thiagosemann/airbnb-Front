@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-cadastro-proprietarios',
   templateUrl: './cadastro-proprietarios.component.html',
-  styleUrls: ['./cadastro-proprietarios.component.css','./cadastro-proprietarios2.component.css','./cadastro-proprietarios3.component.css']
+  styleUrls: ['./cadastro-proprietarios.component.css']
 })
 export class CadastroProprietariosComponent implements OnInit {
   users: User[] = [];
@@ -30,6 +30,7 @@ export class CadastroProprietariosComponent implements OnInit {
   apartamentosFiltrados: Apartamento[] = [];
   sortKey: 'nome' | 'qtd' = 'nome';
   sortDir: 'asc' | 'desc' = 'asc';
+  filtroTipo: '' | 'pf' | 'pj' | 'imobiliaria' = '';
   apartamentosSemProprietario: Apartamento[] = [];
   selectedProprietarioPorApto: { [aptoId: number]: number | null } = {};
   showUnlinked = false;
@@ -60,7 +61,13 @@ export class CadastroProprietariosComponent implements OnInit {
       cpf: ['', [Validators.required, cpfValidator]],
       Telefone: ['', Validators.required],
       email: ['', [Validators.email]],
-      role: ['proprietario', Validators.required]
+      role: ['proprietario', Validators.required],
+      tipo_proprietario: ['', Validators.required]
+    });
+
+    // Trocar o tipo muda qual documento é válido (CPF para PF, CNPJ para PJ/imobiliária)
+    this.userForm.get('tipo_proprietario')?.valueChanges.subscribe(() => {
+      this.userForm.get('cpf')?.updateValueAndValidity();
     });
   }
 
@@ -118,8 +125,8 @@ export class CadastroProprietariosComponent implements OnInit {
       this.usersService.getProprietarios().subscribe(
         (users: User[]) => {
           this.users = this.applySort(users);
-          this.filteredUsers = [...this.users];
-          this.carregarAptosParaBusca(users);
+          this.filtrar();
+          this.carregarAptosParaBusca(users).then(() => this.filtrar());
         },
         (error) => {
           console.error('Erro ao carregar usuários:', error);
@@ -135,7 +142,7 @@ export class CadastroProprietariosComponent implements OnInit {
     this.isEditing = false;
     this.selectedUserId = null;
     this.apartamentosSelecionados = [];
-    this.userForm.reset({ role: 'proprietario' });
+    this.userForm.reset({ role: 'proprietario', tipo_proprietario: '' });
   }
 
   fecharModal() {
@@ -158,7 +165,8 @@ export class CadastroProprietariosComponent implements OnInit {
           cpf: this.formatCPF(fetchedUser.cpf),
           Telefone: fetchedUser.Telefone,
           email: fetchedUser.email,
-          role: fetchedUser.role
+          role: fetchedUser.role,
+          tipo_proprietario: fetchedUser.tipo_proprietario || ''
         });
         this.aptoProprietarioService.getApartamentosByProprietario(user.id).subscribe(
           (apartamentos: any[]) => {
@@ -249,21 +257,29 @@ export class CadastroProprietariosComponent implements OnInit {
     await Promise.all(requests);
   }
 
+  filtrarTipo(tipo: '' | 'pf' | 'pj' | 'imobiliaria'): void {
+    this.filtroTipo = tipo;
+    this.filtrar();
+  }
+
   filtrar(): void {
     const termo = this.searchTerm.toLowerCase().trim();
-    if (!termo) {
-      this.filteredUsers = this.applySort(this.users);
-      return;
-    }
-    this.filteredUsers = this.applySort(
-      this.users.filter(user =>
+    let base = this.filtroTipo
+      ? this.users.filter(user => user.tipo_proprietario === this.filtroTipo)
+      : this.users;
+
+    if (termo) {
+      base = base.filter(user =>
         (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
         user.cpf.replace(/\D/g, '').includes(termo) ||
         (user.Telefone?.replace(/\D/g, '') || '').includes(termo) ||
         (user.email?.toLowerCase() || '').includes(termo) ||
+        this.getTipoProprietarioLabel(user.tipo_proprietario).toLowerCase().includes(termo) ||
         (this.aptoNamesByUser[user.id!] || []).some(nome => nome.includes(termo))
-      )
-    );
+      );
+    }
+
+    this.filteredUsers = this.applySort(base);
   }
 
   async vincularApartamentoSemProprietario(aptoId: number) {
@@ -330,6 +346,55 @@ export class CadastroProprietariosComponent implements OnInit {
     if (!telefone) return '';
     const formatedTelefone = telefone.replace(/\D/g, '');
     return formatedTelefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  }
+
+  getTipoProprietarioLabel(tipo: string | undefined): string {
+    switch (tipo) {
+      case 'pf': return 'Pessoa Física';
+      case 'pj': return 'Pessoa Jurídica';
+      case 'imobiliaria': return 'Imobiliária';
+      default: return '—';
+    }
+  }
+
+  getTipoProprietarioIcon(tipo: string | undefined): string {
+    switch (tipo) {
+      case 'pf': return 'bi-person';
+      case 'pj': return 'bi-briefcase';
+      case 'imobiliaria': return 'bi-building';
+      default: return 'bi-question-circle';
+    }
+  }
+
+  getTipoProprietarioClass(tipo: string | undefined): string {
+    switch (tipo) {
+      case 'pf': return 'forest-tag-pf';
+      case 'pj': return 'forest-tag-pj';
+      case 'imobiliaria': return 'forest-tag-imobiliaria';
+      default: return 'forest-tag-default';
+    }
+  }
+
+  /** CPF pra pessoa física, CNPJ pra PJ/imobiliária; sem tipo selecionado ainda, aceita os dois */
+  getDocumentoLabel(): string {
+    const tipo = this.userForm.get('tipo_proprietario')?.value;
+    if (tipo === 'pf') return 'CPF';
+    if (tipo === 'pj' || tipo === 'imobiliaria') return 'CNPJ';
+    return 'CPF/CNPJ';
+  }
+
+  getCpfCnpjMask(): string {
+    const tipo = this.userForm.get('tipo_proprietario')?.value;
+    if (tipo === 'pf') return '000.000.000-00';
+    if (tipo === 'pj' || tipo === 'imobiliaria') return '00.000.000/0000-00';
+    return '000.000.000-00||00.000.000/0000-00';
+  }
+
+  getCpfCnpjPlaceholder(): string {
+    const tipo = this.userForm.get('tipo_proprietario')?.value;
+    if (tipo === 'pf') return '000.000.000-00';
+    if (tipo === 'pj' || tipo === 'imobiliaria') return '00.000.000/0000-00';
+    return '000.000.000-00 ou 00.000.000/0000-00';
   }
 
   getAptoName(aptoId: number): string {
@@ -404,7 +469,7 @@ export class CadastroProprietariosComponent implements OnInit {
       ? Math.max(0, ...dadosUsuarios.map(d => d.aptos.length))
       : 0;
 
-    const baseHeaders = ['Nome', 'CPF/CNPJ', 'Telefone', 'Email'];
+    const baseHeaders = ['Nome', 'Tipo', 'CPF/CNPJ', 'Telefone', 'Email'];
     const aptoHeaders = Array.from({ length: maxAptos }, (_, i) => `Apartamento ${i + 1}`);
     const headers = [...baseHeaders, ...aptoHeaders];
 
@@ -413,6 +478,7 @@ export class CadastroProprietariosComponent implements OnInit {
     for (const { user, aptos } of dadosUsuarios) {
       const row = [
         this.csvEscape(`${user.first_name || ''} ${user.last_name || ''}`.trim()),
+        this.csvEscape(this.getTipoProprietarioLabel(user.tipo_proprietario)),
         this.csvEscape(this.formatCPF(user.cpf)),
         this.csvEscape(this.formtarTelefone(user.Telefone)),
         this.csvEscape(user.email || '')
@@ -482,6 +548,16 @@ export class CadastroProprietariosComponent implements OnInit {
 export function cpfValidator(control: AbstractControl): ValidationErrors | null {
   const documento = (control.value || '').replace(/\D/g, '');
   if (!documento) return { cpfCnpjInvalido: true };
+
+  // O tipo do proprietário (campo irmão no mesmo FormGroup) define qual documento é esperado.
+  const tipo = control.parent?.get('tipo_proprietario')?.value;
+  if (tipo === 'pf') {
+    return documento.length === 11 && isValidCPF(documento) ? null : { cpfCnpjInvalido: true };
+  }
+  if (tipo === 'pj' || tipo === 'imobiliaria') {
+    return documento.length === 14 && isValidCNPJ(documento) ? null : { cpfCnpjInvalido: true };
+  }
+
   if (documento.length === 11) return isValidCPF(documento) ? null : { cpfCnpjInvalido: true };
   if (documento.length === 14) return isValidCNPJ(documento) ? null : { cpfCnpjInvalido: true };
   return { cpfCnpjInvalido: true };

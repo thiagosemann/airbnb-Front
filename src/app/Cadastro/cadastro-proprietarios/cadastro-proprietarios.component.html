@@ -1,70 +1,141 @@
 <!-- cadastro-proprietarios.component.html -->
-<div class="container">
-  <div class="header-card">
-    <div class="header-title">
-      <i class="bi bi-people-fill"></i>
-      <h1>Proprietários</h1>
+<div class="forest-page">
+  <div class="forest-header">
+    <div class="forest-title-row">
+      <div class="forest-title-icon"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <span class="forest-eyebrow">Cadastro</span>
+        <h1 class="forest-title">Proprietários</h1>
+      </div>
     </div>
 
-    <div class="header-actions">
-      <div class="search-container">
-        <i class="bi bi-search"></i>
-        <input
-          type="text"
-          placeholder="Pesquisar por nome, CPF, telefone, email ou apartamento..."
-          [(ngModel)]="searchTerm"
-          (input)="filtrar()"
-        >
+    <div class="forest-toolbar">
+      <div class="forest-controls-row">
+        <div class="forest-search">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            placeholder="Pesquisar por nome, CPF, telefone, email ou apartamento..."
+            [(ngModel)]="searchTerm"
+            (input)="filtrar()"
+          >
+        </div>
+
+        <div class="forest-bullet-group">
+          <button type="button" class="forest-bullet" [class.active]="filtroTipo === ''" (click)="filtrarTipo('')">
+            <span class="forest-bullet-dot forest-bullet-dot-todos"></span>Todos
+          </button>
+          <button type="button" class="forest-bullet" [class.active]="filtroTipo === 'pf'" (click)="filtrarTipo('pf')">
+            <span class="forest-bullet-dot forest-bullet-dot-pf"></span>PF
+          </button>
+          <button type="button" class="forest-bullet" [class.active]="filtroTipo === 'pj'" (click)="filtrarTipo('pj')">
+            <span class="forest-bullet-dot forest-bullet-dot-pj"></span>PJ
+          </button>
+          <button type="button" class="forest-bullet" [class.active]="filtroTipo === 'imobiliaria'" (click)="filtrarTipo('imobiliaria')">
+            <span class="forest-bullet-dot forest-bullet-dot-imobiliaria"></span>Imobiliária
+          </button>
+        </div>
+
+        <button class="forest-btn forest-btn-primary" (click)="abrirModal()">
+          <i class="bi bi-plus-lg"></i> Novo Proprietário
+        </button>
+        <button class="forest-btn forest-btn-outline" (click)="abrirModalExport()" title="Exportar CSV">
+          <i class="bi bi-download"></i> Exportar CSV
+        </button>
       </div>
-      <button class="btn-add" (click)="abrirModal()">
-        <i class="bi bi-plus-lg"></i> Novo Proprietário
-      </button>
-      <button class="btn-add" (click)="abrirModalExport()" title="Exportar CSV">
-        <i class="bi bi-download"></i> Exportar CSV
-      </button>
     </div>
   </div>
 
   <!-- Alerta de apartamentos sem proprietário -->
-  <div class="alert-unlinked" *ngIf="apartamentosSemProprietario.length">
+  <div class="unlinked-alert" *ngIf="apartamentosSemProprietario.length">
     <button class="unlinked-toggle" (click)="showUnlinked = !showUnlinked">
       <div class="pulse-dot"></div>
       <div class="unlinked-heading">
-        <span>APARTAMENTOS SEM PROPRIETÁRIOS <strong class="badge-count">({{ apartamentosSemProprietario.length }})</strong></span>
+        <span>APARTAMENTOS SEM PROPRIETÁRIOS <strong class="unlinked-count">{{ apartamentosSemProprietario.length }}</strong></span>
         <small>Resolva para evitar falhas de controle</small>
       </div>
       <i class="bi" [ngClass]="{ 'bi-chevron-up': showUnlinked, 'bi-chevron-down': !showUnlinked }"></i>
     </button>
 
     <div class="unlinked-panel" *ngIf="showUnlinked">
-      <div class="unlinked-list">
-        <div class="unlinked-item" *ngFor="let apto of apartamentosSemProprietario">
-          <div class="unlinked-info">
-            <strong>{{ apto.nome }}</strong>
-          </div>
-          <div class="unlinked-actions">
-            <select [(ngModel)]="selectedProprietarioPorApto[apto.id]" [ngModelOptions]="{standalone: true}">
-              <option [ngValue]="null">Selecione um proprietário</option>
-              <option *ngFor="let prop of users" [ngValue]="prop.id">
-                {{ prop.first_name }} {{ prop.last_name }}
-              </option>
-            </select>
-            <button class="btn-link" (click)="vincularApartamentoSemProprietario(apto.id)">
-              Vincular
-            </button>
-          </div>
+      <div class="unlinked-item" *ngFor="let apto of apartamentosSemProprietario">
+        <strong>{{ apto.nome }}</strong>
+        <div class="unlinked-actions">
+          <select class="forest-select" [(ngModel)]="selectedProprietarioPorApto[apto.id]" [ngModelOptions]="{standalone: true}">
+            <option [ngValue]="null">Selecione um proprietário</option>
+            <option *ngFor="let prop of users" [ngValue]="prop.id">
+              {{ prop.first_name }} {{ prop.last_name }}
+            </option>
+          </select>
+          <button class="forest-btn forest-btn-primary" (click)="vincularApartamentoSemProprietario(apto.id)">
+            Vincular
+          </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Cards mobile -->
+  <div class="proprietarios-grid d-block d-md-none">
+    <div *ngFor="let user of filteredUsers" class="forest-card">
+      <div class="forest-card-header">
+        <div class="forest-card-title"><i class="bi bi-person-circle"></i>{{ user.first_name }} {{ user.last_name }}</div>
+        <span class="forest-tag" [ngClass]="getTipoProprietarioClass(user.tipo_proprietario)">
+          <i class="bi" [ngClass]="getTipoProprietarioIcon(user.tipo_proprietario)"></i>{{ getTipoProprietarioLabel(user.tipo_proprietario) }}
+        </span>
+      </div>
+
+      <div class="forest-values">
+        <div class="forest-value-item"><span>Documento:</span><strong class="forest-mono">{{ formatCPF(user.cpf) }}</strong></div>
+        <div class="forest-value-item"><span>Telefone:</span><strong>{{ formtarTelefone(user.Telefone) }}</strong></div>
+        <div class="forest-value-item"><span>Email:</span><strong>{{ user.email || '—' }}</strong></div>
+        <div class="forest-value-item apto-value-item">
+          <span>Apartamentos:</span>
+          <strong
+            [class.apto-count-clickable]="(user.qtd_apartamentos ?? 0) > 0"
+            (click)="(user.qtd_apartamentos ?? 0) > 0 && toggleAptoDetails(user.id!)"
+          >
+            {{ user.qtd_apartamentos ?? 0 }}
+            <i class="bi bi-chevron-down" *ngIf="(user.qtd_apartamentos ?? 0) > 0 && expandedUserId !== user.id"></i>
+            <i class="bi bi-chevron-up" *ngIf="expandedUserId === user.id"></i>
+          </strong>
+          <div class="apto-names-list" *ngIf="expandedUserId === user.id">
+            <div *ngIf="loadingUserAptos[user.id!]" class="apto-loading">
+              <i class="bi bi-arrow-clockwise spin"></i> Carregando...
+            </div>
+            <div *ngFor="let a of userAptosCache[user.id!]" class="apto-name-item">
+              <i class="bi bi-house"></i> {{ a.nome }}
+            </div>
+            <div *ngIf="!loadingUserAptos[user.id!] && userAptosCache[user.id!]?.length === 0" class="apto-name-item text-muted-sm">
+              Nenhum apartamento
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="forest-card-actions">
+        <button class="forest-icon-btn forest-icon-btn-edit" (click)="editarUsuario(user)" title="Editar">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="forest-icon-btn forest-icon-btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="filteredUsers.length === 0" class="forest-empty">
+      <i class="bi bi-people"></i>
+      <p>Nenhum proprietário encontrado</p>
+    </div>
+  </div>
+
   <!-- Tabela desktop -->
   <div class="d-none d-md-block">
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead class="table-header">
+    <div class="forest-table-wrap">
+      <table class="forest-table">
+        <thead>
           <tr>
-            <th>
+            <th style="width: 19%;">
               <button class="th-sort" [class.active]="sortKey === 'nome'" (click)="changeSort('nome')">
                 Nome
                 <i class="bi" [ngClass]="{
@@ -74,10 +145,11 @@
                 }"></i>
               </button>
             </th>
-            <th>CPF/CNPJ</th>
-            <th>Telefone</th>
-            <th>Email</th>
-            <th>
+            <th style="width: 13%;">Tipo</th>
+            <th style="width: 14%;">CPF/CNPJ</th>
+            <th style="width: 13%;">Telefone</th>
+            <th style="width: 18%;">Email</th>
+            <th style="width: 15%;">
               <button class="th-sort" [class.active]="sortKey === 'qtd'" (click)="changeSort('qtd')">
                 Apartamentos
                 <i class="bi" [ngClass]="{
@@ -87,19 +159,24 @@
                 }"></i>
               </button>
             </th>
-            <th>Ações</th>
+            <th style="width: 8%;">Ações</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let user of filteredUsers">
-            <td class="td-nome">{{ user.first_name }} {{ user.last_name }}</td>
-            <td>{{ formatCPF(user.cpf) }}</td>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>
+              <span class="forest-tag" [ngClass]="getTipoProprietarioClass(user.tipo_proprietario)">
+                <i class="bi" [ngClass]="getTipoProprietarioIcon(user.tipo_proprietario)"></i>{{ getTipoProprietarioLabel(user.tipo_proprietario) }}
+              </span>
+            </td>
+            <td class="forest-mono">{{ formatCPF(user.cpf) }}</td>
             <td>{{ formtarTelefone(user.Telefone) }}</td>
-            <td class="td-email">{{ user.email || '—' }}</td>
+            <td>{{ user.email || '—' }}</td>
             <td>
               <div class="apto-cell">
                 <span
-                  class="badge-apto"
+                  class="apto-count"
                   [class.empty]="!((user.qtd_apartamentos ?? 0) > 0)"
                   [class.clickable]="(user.qtd_apartamentos ?? 0) > 0"
                   (click)="(user.qtd_apartamentos ?? 0) > 0 && toggleAptoDetails(user.id!)"
@@ -122,18 +199,18 @@
               </div>
             </td>
             <td>
-              <div class="actions">
-                <button class="btn-edit" (click)="editarUsuario(user)" title="Editar">
+              <div class="forest-card-actions" style="border-top: none; padding-top: 0; justify-content: flex-start;">
+                <button class="forest-icon-btn forest-icon-btn-edit" (click)="editarUsuario(user)" title="Editar">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
+                <button class="forest-icon-btn forest-icon-btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
             </td>
           </tr>
           <tr *ngIf="filteredUsers.length === 0">
-            <td colspan="6" class="no-results-table">
+            <td colspan="7" class="forest-empty">
               <i class="bi bi-people"></i>
               Nenhum proprietário encontrado
             </td>
@@ -143,67 +220,28 @@
     </div>
   </div>
 
-  <!-- Cards mobile -->
-  <div class="users-grid d-block d-md-none">
-    <div *ngFor="let user of filteredUsers" class="user-card">
-      <div class="user-header">
-        <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
-        <div class="user-cpf">{{ formatCPF(user.cpf) }}</div>
-      </div>
-
-      <div class="user-details">
-        <div class="detail-item">
-          <i class="bi bi-telephone"></i>
-          {{ formtarTelefone(user.Telefone) }}
-        </div>
-        <div class="detail-item">
-          <i class="bi bi-envelope"></i>
-          {{ user.email || 'Não informado' }}
-        </div>
-        <div class="detail-item highlight">
-          <i class="bi bi-building"></i>
-          {{ user.qtd_apartamentos ?? 0 }} apartamento{{ (user.qtd_apartamentos ?? 0) === 1 ? '' : 's' }}
-        </div>
-      </div>
-
-      <div class="user-actions">
-        <button class="btn-edit" (click)="editarUsuario(user)" title="Editar">
-          <i class="bi bi-pencil"></i>
-        </button>
-        <button class="btn-delete" (click)="excluirUsuario(user.id!)" title="Excluir">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>
-    </div>
-
-    <div *ngIf="filteredUsers.length === 0" class="no-results">
-      <i class="bi bi-people"></i>
-      <p>Nenhum proprietário encontrado</p>
-    </div>
-  </div>
-
   <!-- Modal de opções de exportação -->
-  <div class="modal-backdrop" *ngIf="showExportModal" (click)="showExportModal = false">
-    <div class="modal-content export-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
+  <div class="forest-modal-backdrop" *ngIf="showExportModal" (click)="showExportModal = false">
+    <div class="forest-modal export-modal" (click)="$event.stopPropagation()">
+      <div class="forest-modal-header">
         <h2><i class="bi bi-file-earmark-spreadsheet"></i> Exportar Proprietários</h2>
-        <button class="modal-close" (click)="showExportModal = false">
+        <button class="forest-modal-close" (click)="showExportModal = false">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="forest-modal-body">
         <p class="export-question">Deseja incluir os apartamentos vinculados no arquivo?</p>
         <p class="export-hint">
           <i class="bi bi-info-circle"></i>
           Com apartamentos, cada proprietário ficará em uma única linha com colunas <em>Apartamento 1</em>, <em>Apartamento 2</em>…
         </p>
       </div>
-      <div class="modal-footer export-footer">
-        <button class="btn-cancel" (click)="showExportModal = false">Cancelar</button>
-        <button class="btn-export-no" (click)="confirmarExport(false)">
+      <div class="forest-modal-footer">
+        <button class="forest-btn forest-btn-outline" (click)="showExportModal = false">Cancelar</button>
+        <button class="forest-btn forest-btn-outline" (click)="confirmarExport(false)">
           <i class="bi bi-person"></i> Sem apartamentos
         </button>
-        <button class="btn-save" (click)="confirmarExport(true)">
+        <button class="forest-btn forest-btn-primary" (click)="confirmarExport(true)">
           <i class="bi bi-building"></i> Com apartamentos
         </button>
       </div>
@@ -229,23 +267,23 @@
       <p class="progress-percent">
         {{ exportTotal > 0 ? (exportProgress / exportTotal * 100 | number:'1.0-0') : 0 }}%
       </p>
-      <button class="btn-cancel-export" (click)="cancelarExport()">
+      <button class="forest-btn forest-btn-outline" (click)="cancelarExport()">
         <i class="bi bi-x-circle"></i> Cancelar
       </button>
     </div>
   </div>
 
   <!-- Modal de cadastro/edição -->
-  <div class="modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
+  <div class="forest-modal-backdrop" *ngIf="showModal" (click)="fecharModal()">
+    <div class="forest-modal" (click)="$event.stopPropagation()">
+      <div class="forest-modal-header">
         <h2>{{ isEditing ? 'Editar Proprietário' : 'Novo Proprietário' }}</h2>
-        <button class="modal-close" (click)="fecharModal()">
+        <button class="forest-modal-close" (click)="fecharModal()">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
 
-      <div class="modal-body">
+      <div class="forest-modal-body">
         <div *ngIf="isLoading" class="loading-indicator">
           <div class="spinner"></div>
           <p>Carregando informações...</p>
@@ -254,38 +292,54 @@
         <form *ngIf="!isLoading" [formGroup]="userForm">
 
           <!-- Informações Pessoais -->
-          <div class="form-section">
+          <div class="forest-form-section">
             <h3><i class="bi bi-person-circle"></i> Informações Pessoais</h3>
 
-            <div class="form-row">
-              <div class="form-group">
+            <div class="forest-form-row">
+              <div class="forest-form-group">
                 <label>Nome *</label>
-                <input type="text" formControlName="first_name" placeholder="Nome"
+                <input type="text" class="forest-input" formControlName="first_name" placeholder="Nome"
                   [class.input-invalid]="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
                 <small class="field-error" *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
                   Nome é obrigatório
                 </small>
               </div>
-              <div class="form-group">
+              <div class="forest-form-group">
                 <label>Sobrenome</label>
-                <input type="text" formControlName="last_name" placeholder="Sobrenome">
+                <input type="text" class="forest-input" formControlName="last_name" placeholder="Sobrenome">
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>CPF/CNPJ *</label>
-                <input type="text" formControlName="cpf" mask="000.000.000-00||00.000.000/0000-00"
-                  placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                  [class.input-invalid]="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
-                <small class="field-error" *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
-                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['required']">CPF/CNPJ é obrigatório</ng-container>
-                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['cpfCnpjInvalido']">CPF/CNPJ inválido — verifique os dígitos</ng-container>
+            <div class="forest-form-row">
+              <div class="forest-form-group">
+                <label>Tipo *</label>
+                <select class="forest-select" style="width: 100%; max-width: none;" formControlName="tipo_proprietario"
+                  [class.input-invalid]="userForm.get('tipo_proprietario')?.invalid && userForm.get('tipo_proprietario')?.touched">
+                  <option value="" disabled>Selecione o tipo</option>
+                  <option value="pf">Pessoa Física</option>
+                  <option value="pj">Pessoa Jurídica</option>
+                  <option value="imobiliaria">Imobiliária</option>
+                </select>
+                <small class="field-error" *ngIf="userForm.get('tipo_proprietario')?.invalid && userForm.get('tipo_proprietario')?.touched">
+                  Selecione o tipo do proprietário
                 </small>
               </div>
-              <div class="form-group">
+            </div>
+
+            <div class="forest-form-row">
+              <div class="forest-form-group">
+                <label>{{ getDocumentoLabel() }} *</label>
+                <input type="text" class="forest-input" formControlName="cpf" [mask]="getCpfCnpjMask()"
+                  [placeholder]="getCpfCnpjPlaceholder()"
+                  [class.input-invalid]="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+                <small class="field-error" *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['required']">{{ getDocumentoLabel() }} é obrigatório</ng-container>
+                  <ng-container *ngIf="userForm.get('cpf')?.errors?.['cpfCnpjInvalido']">{{ getDocumentoLabel() }} inválido — verifique os dígitos</ng-container>
+                </small>
+              </div>
+              <div class="forest-form-group">
                 <label>Telefone *</label>
-                <input type="text" formControlName="Telefone" mask="(00) 00000-0000" placeholder="(00) 00000-0000"
+                <input type="text" class="forest-input" formControlName="Telefone" mask="(00) 00000-0000" placeholder="(00) 00000-0000"
                   [class.input-invalid]="userForm.get('Telefone')?.invalid && userForm.get('Telefone')?.touched">
                 <small class="field-error" *ngIf="userForm.get('Telefone')?.invalid && userForm.get('Telefone')?.touched">
                   Telefone é obrigatório
@@ -293,17 +347,17 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="forest-form-group">
               <label>Email</label>
-              <input type="email" formControlName="email" placeholder="email@exemplo.com">
+              <input type="email" class="forest-input" formControlName="email" placeholder="email@exemplo.com">
             </div>
           </div>
 
           <!-- Apartamentos Vinculados -->
-          <div class="form-section">
+          <div class="forest-form-section">
             <h3><i class="bi bi-building"></i> Apartamentos Vinculados</h3>
 
-            <div class="apto-search-container">
+            <div class="forest-search apto-search">
               <i class="bi bi-search"></i>
               <input
                 type="text"
@@ -318,17 +372,15 @@
             </div>
 
             <div class="apartamentos-container">
-              <div *ngFor="let apto of apartamentosFiltrados" class="apartamento-item">
+              <label *ngFor="let apto of apartamentosFiltrados" class="apartamento-item" [for]="'apto-' + apto.id">
                 <input
                   type="checkbox"
                   [id]="'apto-' + apto.id"
                   [checked]="apartamentosSelecionados.includes(apto.id)"
                   (change)="toggleAptoSelection(apto.id)"
                 >
-                <label [for]="'apto-' + apto.id">
-                  {{ apto.nome }} <span>(ID: {{ apto.id }})</span>
-                </label>
-              </div>
+                <span class="apartamento-item-nome">{{ apto.nome }} <span class="apartamento-item-id">(ID: {{ apto.id }})</span></span>
+              </label>
               <div *ngIf="apartamentosFiltrados.length === 0" class="no-apartamentos">
                 Nenhum apartamento encontrado
               </div>
@@ -336,7 +388,7 @@
           </div>
 
           <!-- Timeline de observações do proprietário (a mesma exibida no cadastro de apartamentos) -->
-          <div class="form-section" *ngIf="isEditing && selectedUserId">
+          <div class="forest-form-section" *ngIf="isEditing && selectedUserId">
             <h3><i class="bi bi-clock-history"></i> Observações</h3>
             <app-timeline-proprietario [proprietarioId]="selectedUserId"></app-timeline-proprietario>
           </div>
@@ -344,9 +396,9 @@
         </form>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
-        <button class="btn-save" (click)="salvarUsuario()">
+      <div class="forest-modal-footer">
+        <button class="forest-btn forest-btn-outline" (click)="fecharModal()">Cancelar</button>
+        <button class="forest-btn forest-btn-primary" (click)="salvarUsuario()">
           {{ isEditing ? 'Atualizar' : 'Salvar' }}
         </button>
       </div>

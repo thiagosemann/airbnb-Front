@@ -359,8 +359,25 @@ export class CadastroApartamentosComponent implements OnInit {
       this.apartamentosFiltrados = this.apartamentos.filter(apt =>
         apt.nome.toLowerCase().includes(termo) ||
         this.getNomePredio(apt.predio_id).toLowerCase().includes(termo) ||
-        (apt.user_proprietario_nome || '').toLowerCase().includes(termo)
+        this.getProprietariosNomes(apt).toLowerCase().includes(termo)
       );
+    }
+  }
+
+  /** Nomes de todos os proprietários vinculados, separados por vírgula (fallback: user_proprietario_nome legado) */
+  getProprietariosNomes(apt: Apartamento): string {
+    if (apt.proprietarios?.length) {
+      return apt.proprietarios.map(p => `${p.first_name} ${p.last_name || ''}`.trim()).join(', ');
+    }
+    return apt.user_proprietario_nome || '';
+  }
+
+  getTipoProprietarioLabel(tipo: string | undefined): string {
+    switch (tipo) {
+      case 'pf': return 'Pessoa Física';
+      case 'pj': return 'Pessoa Jurídica';
+      case 'imobiliaria': return 'Imobiliária';
+      default: return '—';
     }
   }
 
