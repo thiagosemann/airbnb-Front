@@ -42,6 +42,14 @@
       </button>
     </div>
 
+    <div class="sort-controls categoria-filter">
+      <span class="sort-label">Categoria:</span>
+      <button class="sort-btn" *ngFor="let op of categoriaOpcoes"
+        [class.active]="categoriaFiltro === op.value" (click)="setCategoriaFiltro(op.value)">
+        {{ op.label }}
+      </button>
+    </div>
+
     <div class="view-toggle">
       <span class="sort-label">Visualizar:</span>
       <button class="toggle-btn" [class.active]="viewGrouped" (click)="viewGrouped = true"
@@ -262,7 +270,8 @@
   <!-- Empty State -->
   <div class="empty-state" *ngIf="!loading && buildings.length === 0">
     <i class="fas fa-chart-bar"></i>
-    <p>Nenhum dado encontrado para o período selecionado.</p>
+    <p *ngIf="categoriaFiltro === 'todos'">Nenhum dado encontrado para o período selecionado.</p>
+    <p *ngIf="categoriaFiltro !== 'todos'">Nenhum apartamento na categoria Tier {{ categoriaFiltro }}.</p>
   </div>
 
 </div>

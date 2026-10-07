@@ -9,6 +9,7 @@ interface ApartmentPerformance {
   name: string;
   predioId: number;
   predioName: string;
+  categoria: string;
   color: string;
   totalDias: number;
   diasReservados: number;
@@ -53,6 +54,18 @@ export class PerformanceApartamentosComponent implements OnInit {
   totalDiasNoMes = 0;
   totalDiasPossivel = 0;
   flatApartments: ApartmentPerformance[] = [];
+
+  categoriaFiltro: 'todos' | 'A' | 'B' | 'C' = 'todos';
+  readonly categoriaOpcoes: { value: 'todos' | 'A' | 'B' | 'C'; label: string }[] = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'A', label: 'Tier A 🥇' },
+    { value: 'B', label: 'Tier B 🥈' },
+    { value: 'C', label: 'Tier C 🥉' }
+  ];
+
+  private reservasPeriodo: ReservaAirbnb[] = [];
+  private predioNames = new Map<number, string>();
+  private predioColors = new Map<number, string>();
 
   private palette = [
     '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
@@ -146,6 +159,7 @@ export class PerformanceApartamentosComponent implements OnInit {
     const orderedPredioIds = [...new Set(apts.map(a => a.predio_id as number))]
       .sort((a, b) => (predioNames.get(a) || '').localeCompare(predioNames.get(b) || ''));
 
+    // Cores por prédio são calculadas sobre todos os prédios, para não mudarem ao filtrar
     const predioColors = new Map<number, string>();
     orderedPredioIds.forEach((pId, idx) => predioColors.set(pId, this.palette[idx % this.palette.length]));
 
@@ -189,6 +203,7 @@ export class PerformanceApartamentosComponent implements OnInit {
         name: a.nome,
         predioId: a.predio_id,
         predioName: a.predio_name || '',
+        categoria: (a.categoria || '').toString().trim().toUpperCase(),
         color: predioColors.get(a.predio_id) || '#3B82F6',
         totalDias,
         diasReservados,
@@ -203,6 +218,21 @@ export class PerformanceApartamentosComponent implements OnInit {
     });
 
     this.allApartments = aptPerf;
+    this.reservasPeriodo = reservas;
+    this.predioNames = predioNames;
+    this.predioColors = predioColors;
+    this.totalDiasNoMes = totalDias;
+
+    this.applyFiltro();
+  }
+
+  private applyFiltro(): void {
+    const aptPerf = this.categoriaFiltro === 'todos'
+      ? this.allApartments
+      : this.allApartments.filter(a => a.categoria === this.categoriaFiltro);
+
+    const orderedPredioIds = [...new Set(aptPerf.map(a => a.predioId))]
+      .sort((a, b) => (this.predioNames.get(a) || '').localeCompare(this.predioNames.get(b) || ''));
 
     this.buildings = orderedPredioIds.map(predioId => {
       const predioApts = aptPerf
@@ -215,17 +245,19 @@ export class PerformanceApartamentosComponent implements OnInit {
 
       return {
         predioId,
-        predioName: predioNames.get(predioId) || '',
-        color: predioColors.get(predioId) || '#3B82F6',
+        predioName: this.predioNames.get(predioId) || '',
+        color: this.predioColors.get(predioId) || '#3B82F6',
         apartments: predioApts,
         avgOcupacao
       };
     });
 
+    const aptIds = new Set(aptPerf.map(a => a.id));
     this.totalApartamentos = aptPerf.length;
-    this.totalDiasNoMes = totalDias;
-    this.totalDiasPossivel = aptPerf.length * totalDias;
-    this.totalReservas = new Set(reservas.map(r => r.cod_reserva)).size;
+    this.totalDiasPossivel = aptPerf.length * this.totalDiasNoMes;
+    this.totalReservas = new Set(
+      this.reservasPeriodo.filter(r => aptIds.has(r.apartamento_id)).map(r => r.cod_reserva)
+    ).size;
     this.totalDiasReservadosGeral = aptPerf.reduce((sum, a) => sum + a.diasReservados, 0);
     this.avgOcupacaoGeral = aptPerf.length > 0
       ? Math.round(aptPerf.reduce((sum, a) => sum + a.taxaOcupacao, 0) / aptPerf.length)
@@ -236,6 +268,12 @@ export class PerformanceApartamentosComponent implements OnInit {
     this.piorApartamento = sorted[sorted.length - 1] || null;
 
     this.flatApartments = [...aptPerf].sort((a, b) => this.compareApts(a, b));
+  }
+
+  setCategoriaFiltro(value: 'todos' | 'A' | 'B' | 'C'): void {
+    this.categoriaFiltro = value;
+    this.applyFiltro();
+    this.cdr.markForCheck();
   }
 
   private compareApts(a: ApartmentPerformance, b: ApartmentPerformance): number {

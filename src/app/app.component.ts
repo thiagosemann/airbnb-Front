@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
     'performance',
     'scrapperAirbnb',
     'dashBoardLimpeza',
-    'perfomanceApartamentos',
+    'performanceApartamentos',
     'disponibilidade-tercerizado'
   ];
 
