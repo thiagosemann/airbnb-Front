@@ -5,6 +5,7 @@ import { AuthGuardService } from './shared/service/authGuard';
 
 import { LandingComponent } from './Acesso/landing/landing.component';
 import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './Acesso/reset-password/reset-password.component';
 import { CalendarioAirbnbComponent } from './AIRBNB/Diario/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
 import { ContentComponent } from './Acesso/content/content.component';
@@ -59,6 +60,7 @@ const routes: Routes = [
   { path: 'reserva/:id', component: CameraAppComponent },
   { path: 'informacoes', component: InformacoesReservaComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent },
+  { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'landing', component: ForestLandingComponent },
   { path: 'content/:id', component: ContentComponent, canActivate: [AuthGuardService], data: { role: 'admin' } },
   { path: 'register', component: RegisterComponent },

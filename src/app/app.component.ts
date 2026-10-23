@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
     'cameraApp',
     'reservasAirbnb',
     'forgotPassword',
+    'resetPassword',
     'landing',
     'register',
   ];

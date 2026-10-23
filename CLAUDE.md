@@ -97,6 +97,11 @@ entidade formal/institucional). Dots correspondentes em `.forest-bullet-dot-pf/-
   `.forest-combo-caret`
 - Vazio: `.forest-empty`
 - Dado tabular: `.forest-mono`
+- Telas públicas de acesso (cartão centralizado sobre fundo `--cream`, sem navbar):
+  `.forest-auth`, `.forest-auth-card`, `.forest-auth-text`, `.forest-auth-fields`
+  (coluna de `.forest-form-group`), `.forest-auth-notice` (aviso `--sage`; `-erro` em
+  terracota), `.forest-auth-footer`. Dentro do cartão o cabeçalho reaproveita
+  `.forest-eyebrow` + `.forest-title-row`. Botão desabilitado: `.forest-btn:disabled`.
 
 Todas respeitam `prefers-reduced-motion` e têm `:focus-visible` visível (contorno
 dourado). Testado até largura mobile (sem scroll horizontal).
@@ -107,6 +112,8 @@ dourado). Testado até largura mobile (sem scroll horizontal).
 |---|---|
 | `AIRBNB/Demandas/controle-demandas` | ✅ Migrada (primeira tela, referência do padrão) |
 | `Cadastro/cadastro-proprietarios` | ✅ Migrada |
+| `Acesso/forgot-password` e `Acesso/reset-password` | ✅ Migradas (`.forest-auth*`) |
+| `Acesso/login` | Visual antigo — candidata natural a usar `.forest-auth*` |
 | Demais telas | Visual antigo (Bootstrap verde `#198754`) — migrar quando forem alteradas |
 
 Ao migrar uma nova tela: reutilize as classes `.forest-*` já existentes em vez de criar

@@ -12,6 +12,7 @@ import { AppComponent } from './app.component';
 import { AcessoInterceptor } from './shared/service/acessoInterceptor';
 import { LandingComponent } from './Acesso/landing/landing.component';
 import { ForgotPasswordComponent } from './Acesso/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './Acesso/reset-password/reset-password.component';
 
 import { CalendarioAirbnbComponent } from './AIRBNB/Diario/calendario-airbnb/calendario-airbnb.component';
 import { CameraAppComponent } from './AIRBNB/camera-app/camera-app.component';
@@ -83,6 +84,7 @@ import { DisponibilidadeTercerizadoComponent } from './AIRBNB/disponibilidade-te
     LandingComponent,
     ContentComponent,
     ForgotPasswordComponent,
+    ResetPasswordComponent,
     ProfileComponent,
     RegisterComponent,
     OrdenarPorPrecoPipe,

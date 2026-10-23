@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { User } from '../../utilitarios/user';
 import { environment } from 'enviroments';
 
@@ -45,6 +46,17 @@ export class AuthenticationService {
         }
       );
     });
+  }
+
+  // Envia por e-mail o link de redefinição de senha. O backend responde sempre
+  // a mesma mensagem, exista ou não conta com esse e-mail.
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.backendUrl}/forgot-password-airbnb`, { email });
+  }
+
+  // Define a nova senha a partir do token recebido no link do e-mail
+  resetPassword(token: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.backendUrl}/reset-password-airbnb`, { token, password });
   }
 
   logout() {
