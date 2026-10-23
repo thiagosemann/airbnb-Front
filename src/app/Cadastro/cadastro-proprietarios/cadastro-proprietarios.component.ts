@@ -220,6 +220,17 @@ export class CadastroProprietariosComponent implements OnInit {
       return;
     }
 
+    // CPF é único na tabela users; o aviso no modal já mostra de quem é o cadastro
+    const existente = this.proprietarioComMesmoDocumento();
+    if (existente) {
+      const nome = `${existente.first_name} ${existente.last_name || ''}`.trim();
+      this.toastr.warning(
+        `Já existe um cadastro em nome de ${nome}. Use "Abrir cadastro existente" para editá-lo.`,
+        `${this.getDocumentoLabel()} já cadastrado`
+      );
+      return;
+    }
+
     let userData = this.userForm.value;
     userData.cpf = userData.cpf.replace(/\D/g, '');
     userData.id = this.selectedUserId;
@@ -242,10 +253,26 @@ export class CadastroProprietariosComponent implements OnInit {
 
       this.fecharModal();
       this.carregarUsuarios();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar usuário:', error);
-      this.toastr.error('Erro ao salvar proprietário');
+      const documento = this.getDocumentoLabel();
+      if (/CPF já existe/i.test(error?.error?.error || '')) {
+        // Proprietários já foram checados acima, então o CPF é de outro tipo de usuário (ex.: hóspede)
+        this.toastr.error(
+          `Esse ${documento} já está no sistema como outro tipo de usuário (por exemplo, hóspede) e não pode ser usado para um novo proprietário.`,
+          `${documento} já cadastrado`
+        );
+      } else {
+        this.toastr.error('Não foi possível salvar o proprietário. Tente novamente.');
+      }
     }
+  }
+
+  /** Proprietário da lista que já usa o CPF/CNPJ digitado (ignora o próprio registro em edição) */
+  proprietarioComMesmoDocumento(): User | undefined {
+    const digitos = (this.userForm.get('cpf')?.value || '').replace(/\D/g, '');
+    if (digitos.length < 11) return undefined;
+    return this.users.find(u => u.id !== this.selectedUserId && (u.cpf || '').replace(/\D/g, '') === digitos);
   }
 
   private async atualizarVinculosApartamentos() {
@@ -264,6 +291,8 @@ export class CadastroProprietariosComponent implements OnInit {
 
   filtrar(): void {
     const termo = this.searchTerm.toLowerCase().trim();
+    // Só compara por dígitos quando o termo é numérico (ex.: "496.290.779-49"), senão "EBF502" casaria CPFs com "502"
+    const termoDigitos = /^[\d\s().\/-]+$/.test(termo) ? termo.replace(/\D/g, '') : '';
     let base = this.filtroTipo
       ? this.users.filter(user => user.tipo_proprietario === this.filtroTipo)
       : this.users;
@@ -271,8 +300,8 @@ export class CadastroProprietariosComponent implements OnInit {
     if (termo) {
       base = base.filter(user =>
         (user.first_name + ' ' + user.last_name).toLowerCase().includes(termo) ||
-        user.cpf.replace(/\D/g, '').includes(termo) ||
-        (user.Telefone?.replace(/\D/g, '') || '').includes(termo) ||
+        (!!termoDigitos && user.cpf.replace(/\D/g, '').includes(termoDigitos)) ||
+        (!!termoDigitos && (user.Telefone?.replace(/\D/g, '') || '').includes(termoDigitos)) ||
         (user.email?.toLowerCase() || '').includes(termo) ||
         this.getTipoProprietarioLabel(user.tipo_proprietario).toLowerCase().includes(termo) ||
         (this.aptoNamesByUser[user.id!] || []).some(nome => nome.includes(termo))

@@ -331,7 +331,7 @@
                 <label>{{ getDocumentoLabel() }} *</label>
                 <input type="text" class="forest-input" formControlName="cpf" [mask]="getCpfCnpjMask()"
                   [placeholder]="getCpfCnpjPlaceholder()"
-                  [class.input-invalid]="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+                  [class.input-invalid]="(userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched) || proprietarioComMesmoDocumento()">
                 <small class="field-error" *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
                   <ng-container *ngIf="userForm.get('cpf')?.errors?.['required']">{{ getDocumentoLabel() }} é obrigatório</ng-container>
                   <ng-container *ngIf="userForm.get('cpf')?.errors?.['cpfCnpjInvalido']">{{ getDocumentoLabel() }} inválido — verifique os dígitos</ng-container>
@@ -344,6 +344,24 @@
                 <small class="field-error" *ngIf="userForm.get('Telefone')?.invalid && userForm.get('Telefone')?.touched">
                   Telefone é obrigatório
                 </small>
+              </div>
+            </div>
+
+            <div class="doc-duplicado" *ngIf="proprietarioComMesmoDocumento() as existente">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <div>
+                <strong>{{ getDocumentoLabel() }} já cadastrado</strong>
+                <p>
+                  Este {{ getDocumentoLabel() }} já está cadastrado em nome de
+                  <strong>{{ existente.first_name }} {{ existente.last_name }}</strong>
+                  ({{ existente.qtd_apartamentos ?? 0 }} apto{{ (existente.qtd_apartamentos ?? 0) === 1 ? '' : 's' }}).
+                  <ng-container *ngIf="!isEditing">
+                    Para incluir apartamentos ou atualizar os dados, edite esse cadastro em vez de criar um novo.
+                  </ng-container>
+                </p>
+                <button type="button" class="forest-btn forest-btn-outline" *ngIf="!isEditing" (click)="editarUsuario(existente)">
+                  <i class="bi bi-pencil"></i> Abrir cadastro existente
+                </button>
               </div>
             </div>
 
